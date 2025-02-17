@@ -1,0 +1,36 @@
+Database.Name	Description	Expression_path	Survival_path	Meta_path	added.when
+METABLIC	Breast cancer dataset	00_Clinical_dataset/METABLIC/microarray.tsv	00_Clinical_dataset/METABLIC/clinical.tsv	00_Clinical_dataset/METABLIC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_ACC	Adrenocortical carcinoma	00_Clinical_dataset/TCGA_ACC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_ACC/survival.tsv	00_Clinical_dataset/TCGA_ACC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_BLCA	Bladder Urothelial Carcinoma	00_Clinical_dataset/TCGA_BLCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_BLCA/survival.tsv	00_Clinical_dataset/TCGA_BLCA/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_BRCA	Breast invasive carcinoma	00_Clinical_dataset/TCGA_BRCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_BRCA/survival.tsv	00_Clinical_dataset/TCGA_BRCA/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_CESC	Cervical squamous cell carcinoma and endocervical adenocarcinoma	00_Clinical_dataset/TCGA_CESC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_CESC/survival.tsv	00_Clinical_dataset/TCGA_CESC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_CHOL	Cholangiocarcinoma	00_Clinical_dataset/TCGA_CHOL/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_CHOL/survival.tsv	00_Clinical_dataset/TCGA_CHOL/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_COAD	Colon adenocarcinoma	00_Clinical_dataset/TCGA_COAD/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_COAD/survival.tsv	00_Clinical_dataset/TCGA_COAD/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_COADREAD		00_Clinical_dataset/TCGA_COADREAD/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_COADREAD/survival.tsv	00_Clinical_dataset/TCGA_COADREAD/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_DLBC		00_Clinical_dataset/TCGA_DLBC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_DLBC/survival.tsv	00_Clinical_dataset/TCGA_DLBC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_ESCA	Esophageal carcinoma	00_Clinical_dataset/TCGA_ESCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_ESCA/survival.tsv	00_Clinical_dataset/TCGA_ESCA/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_GBM	Glioblastoma multiforme	00_Clinical_dataset/TCGA_GBM/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_GBM/survival.tsv	00_Clinical_dataset/TCGA_GBM/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_GBMLGG		00_Clinical_dataset/TCGA_GBMLGG/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_GBMLGG/survival.tsv	00_Clinical_dataset/TCGA_GBMLGG/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_HNSC	Head and Neck squamous cell carcinoma	00_Clinical_dataset/TCGA_HNSC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_HNSC/survival.tsv	00_Clinical_dataset/TCGA_HNSC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_KICH	Kidney Chromophobe	00_Clinical_dataset/TCGA_KICH/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_KICH/survival.tsv	00_Clinical_dataset/TCGA_KICH/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_KIRC	Kidney renal clear cell carcinoma	00_Clinical_dataset/TCGA_KIRC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_KIRC/survival.tsv	00_Clinical_dataset/TCGA_KIRC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_KIRP	Kidney renal papillary cell carcinoma	00_Clinical_dataset/TCGA_KIRP/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_KIRP/survival.tsv	00_Clinical_dataset/TCGA_KIRP/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LAML	Acute Myeloid Leukemia	00_Clinical_dataset/TCGA_LAML/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LAML/survival.tsv	00_Clinical_dataset/TCGA_LAML/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LGG	Brain Lower Grade Glioma	00_Clinical_dataset/TCGA_LGG/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LGG/survival.tsv	00_Clinical_dataset/TCGA_LGG/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LIHC	Liver hepatocellular carcinoma	00_Clinical_dataset/TCGA_LIHC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LIHC/survival.tsv	00_Clinical_dataset/TCGA_LIHC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LUAD	Lung adenocarcinoma	00_Clinical_dataset/TCGA_LUAD/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LUAD/survival.tsv	00_Clinical_dataset/TCGA_LUAD/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LUNG		00_Clinical_dataset/TCGA_LUNG/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LUNG/survival.tsv	00_Clinical_dataset/TCGA_LUNG/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_LUSC	Lung squamous cell carcinoma	00_Clinical_dataset/TCGA_LUSC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_LUSC/survival.tsv	00_Clinical_dataset/TCGA_LUSC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_MESO	Mesothelioma	00_Clinical_dataset/TCGA_MESO/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_MESO/survival.tsv	00_Clinical_dataset/TCGA_MESO/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_PAAD	Pancreatic adenocarcinoma	00_Clinical_dataset/TCGA_PAAD/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_PAAD/survival.tsv	00_Clinical_dataset/TCGA_PAAD/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_PCPG	Pheochromocytoma and Paraganglioma	00_Clinical_dataset/TCGA_PCPG/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_PCPG/survival.tsv	00_Clinical_dataset/TCGA_PCPG/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_PRAD	Prostate adenocarcinoma	00_Clinical_dataset/TCGA_PRAD/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_PRAD/survival.tsv	00_Clinical_dataset/TCGA_PRAD/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_READ	Rectum adenocarcinoma	00_Clinical_dataset/TCGA_READ/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_READ/survival.tsv	00_Clinical_dataset/TCGA_READ/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_SARC	Sarcoma	00_Clinical_dataset/TCGA_SARC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_SARC/survival.tsv	00_Clinical_dataset/TCGA_SARC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_SKCM	Skin Cutaneous Melanoma	00_Clinical_dataset/TCGA_SKCM/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_SKCM/survival.tsv	00_Clinical_dataset/TCGA_SKCM/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_TGCT	Testicular Germ Cell Tumors	00_Clinical_dataset/TCGA_TGCT/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_TGCT/survival.tsv	00_Clinical_dataset/TCGA_TGCT/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_THCA	Thymoma	00_Clinical_dataset/TCGA_THCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_THCA/survival.tsv	00_Clinical_dataset/TCGA_THCA/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_THYM	Thyroid carcinoma	00_Clinical_dataset/TCGA_THYM/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_THYM/survival.tsv	00_Clinical_dataset/TCGA_THYM/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_UCEC	Uterine Corpus Endometrial Carcinoma	00_Clinical_dataset/TCGA_UCEC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_UCEC/survival.tsv	00_Clinical_dataset/TCGA_UCEC/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_UCS	Uterine Carcinosarcoma	00_Clinical_dataset/TCGA_UCS/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_UCS/survival.tsv	00_Clinical_dataset/TCGA_UCS/meta.tsv	2025-01-29 16:51:18.985002
+TCGA_UVM	Uveal Melanoma	00_Clinical_dataset/TCGA_UVM/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_UVM/survival.tsv	00_Clinical_dataset/TCGA_UVM/meta.tsv	2025-01-29 16:51:18.985002
