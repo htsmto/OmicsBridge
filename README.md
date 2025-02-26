@@ -22,7 +22,7 @@ cd OmicsBridge
 
 Please download the necessary data, uncompress and deploy the folder to the correct position.
 ```bash
-wget XXXX
+wget https://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz
 mv XXX YYY
 ```
 
