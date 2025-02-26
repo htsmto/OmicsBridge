@@ -20,7 +20,15 @@ git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Please download the necessary data, uncompress and deploy the folder to the correct position.
+<details>
+<summary> do not have git installed in your PC?</summary>
+
+> Please go to 'Code' > 'Download ZIP' on teh top right of this page, and you will get 'OmicsBridge-main.zip'. Please place this file in your desired folder and uncompress.
+
+</details>
+<br>
+
+Please download the necessary data, uncompress and deploy the folder to the correct position. In the terminal,
 ```bash
 curl -O https://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz
 tar -xzvf 00_Clinical_dataset.tar.gz 
@@ -56,6 +64,14 @@ install.packages('rnev') # skippable if you already have rnev
 renv::restore(lockfile='renv.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
 ```
 
+<details>
+<summary> cannot install renv?</summary>
+
+> If you are a Mac user, downloading Xcode (or upgrating it) via app store may solve this problem.
+
+</details>
+
+<br>
 Depends on the OS, it usually takes 15-30 minutes.
 
 ### Manually install the necessary libraries
