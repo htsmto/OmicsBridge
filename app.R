@@ -5838,6 +5838,58 @@ server <- function(input, output, session) {
       output$Gene_Ensembl_convert_table <- renderDataTable({
         datatable( Gene_Ensemble_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
       })
+    
+    ### Find the genomic loci
+
+      Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T) # head(Gene_coords_GRch38)
+
+      observeEvent(input$Find_genome_loci_start,{
+        if(length(input$Find_genome_loci_direction) == 0){
+          output$Find_genome_loci_table_gene_names <- renderText({'Please choose the method.'})
+          return(NULL)
+        }
+        if(input$Find_genome_loci_direction == 'A'){
+          if(nchar(input$Find_genome_loci_input) == 0){
+            output$Find_genome_loci_table_gene_names <- renderText({'Please enter gene names'})
+            return(NULL)
+          }
+          genes <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # genes <- c('CXCL10', 'CXCL9')
+          genes <- intersect(genes, Gene_coords_GRch38$gene_name)
+          if(length(genes)==0){
+            output$Find_genome_loci_table_gene_names <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
+            return(NULL) 
+          }
+          Gene_coords_GRch38_focus <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name %in% genes,]
+          coord <- paste0(Gene_coords_GRch38_focus$chr, ':', Gene_coords_GRch38_focus$start, '-',  Gene_coords_GRch38_focus$end)
+          output$Find_genome_loci_table_gene_names <- renderText({ paste(coord, collapse='\n') })
+          output$Find_genome_loci_table <- renderDataTable({
+            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
+          })
+        }
+        if(input$Find_genome_loci_direction == 'B'){
+          coords <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # coords <- c('chr4:76021118-76023497', 'chr10:8045378-8075198')
+          Gene_coords_GRch38_focus <- data.frame('chr'=c(), 'start'=c(), 'end'=c(), 'strand'=c(), 'gene_id'=c(), 'gene_name'=c())
+          for (coord in coords){
+            # coord = 'chr4:76021118-76023497'
+            chr <- strsplit(coord, split=':')[[1]][1]
+            start_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][1])
+            end_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][2])
+            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38[Gene_coords_GRch38$chr == chr,]
+            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[as.numeric(Gene_coords_GRch38_focus_tmp$end) >= as.numeric(start_pos),]
+            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[Gene_coords_GRch38_focus_tmp$start <= end_pos,]
+            Gene_coords_GRch38_focus <- rbind(Gene_coords_GRch38_focus, Gene_coords_GRch38_focus_tmp)
+          }
+          if(dim(Gene_coords_GRch38_focus)[1]==0){
+            output$Find_genome_loci_table_gene_names <- renderText({'No genes were found in the specified location. \nPlease make sure the formats are correct and do not include unnecessary spaces. \n(Ex. chr1:76021118-76023497)'})
+            return(NULL) 
+          }
+          genes <- Gene_coords_GRch38_focus$gene_name
+          output$Find_genome_loci_table_gene_names <- renderText({ paste(genes, collapse='\n') })
+          output$Find_genome_loci_table <- renderDataTable({
+            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
+          })
+        }
+      })
 
 
   ###
