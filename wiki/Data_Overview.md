@@ -1,8 +1,8 @@
 <font size="4">
 
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
-# <span style="font-family: 'Times', serif; font-size: 36px;"> Data Overview </spna>
+# <span style="font-family: Helvetica, Arial, serif; font-size: 36px;"> Data Overview </spna>
 
 > <span style="font-size: 22px;"> 
 >
@@ -29,7 +29,7 @@
 
 <br>
 
-## <span style="font-family: 'Times', serif;font-size: 30px;"><u> Data Selection </u></span>
+## <span style="font-family: Helvetica, Arial, serif;font-size: 30px;"><u> Data Selection </u></span>
 
 > <span style="font-size: 22px;"> 
 >
@@ -39,15 +39,15 @@
 
 <br>
 
-## <span style="font-family: 'Times', serif;font-size: 30px;"><u> When the data type is "Comparison data" </u></span>
+## <span style="font-family: Helvetica, Arial, serif;font-size: 30px;"><u> When the data type is "Comparison data" </u></span>
 
 > <span style="font-size: 22px;"> 
 >
 > In the "Plot" tab, users can visualise the data and perform several downstream analyses, including GO and GSEA analysis.
 >
-> ### <span style="font-family: 'Times', serif;font-size: 28px;"><u> Plot </u></span>
+> ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> Plot </u></span>
 >
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **Getting a general overview (scatter plot)** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **Getting a general overview (scatter plot)** </u></span>
 >>> <span style="font-size: 22px;"> 
 >>>
 >>> First, users can generate a scatter plot for a general overview of the selected dataset by choosing the X and Y axes. Typically, the X-axis represents "Log Fold Change" while the Y-axis shows a statistical value such as "-log10(p.value)". If the plot fails to generate, please verify that the header name (column name) containing gene/protein/transcription names is set to "id". The plot uses a grey background by default, though white is also available via the "Use white background" checkbox.
@@ -63,7 +63,7 @@
 >>> - the size of the highlighted label size.
 >>> - the size of the XY axis label and title font size.
 >>
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **"Show outliers": Highlighting the filtered genes** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **"Show outliers": Highlighting the filtered genes** </u></span>
 >>> <span style="font-size: 22px;">
 >>>
 >>> Users can highlight significant data points by selecting "Show outliers." By default (”Show top/bottom N%”), this highlights the top and bottom 10% of hits. The data points are sorted by X-axis score and filtered by Y-axis value (default: 1.13, which corresponds to -log10(p.value) where p=0.05). The top 10% represents the highest-scoring points where X ≥ 0 and Y ≥ 1.13, while the bottom 10% represents the lowest-scoring points where X ≤ 0 and Y ≥ 1.13. Users can customise these thresholds for both X-axis (positive and negative sides) and Y-axis values. With "Custom threshold setting" selected, users can directly specify their desired X and Y threshold values. They can also decide to filter to show only positive hits, only negative hits, or both.
@@ -76,7 +76,7 @@
 >>> - View filtered points in a downloadable table in the "Outliers Information" section below. Users can also access a simple list of filtered gene names for easy copying to other analyses ("Show the filtered genes information")
 >>> - View the filtered data as a bar plot, sorted by X-axis value (e.g., LFC). The bars can be colored based on X-axis values, Y-axis values, or shown in plain grey. Any genes listed in the "Enter genes" box will be highlighted in red. ("Show in a bar plot")
 >>
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **"Show pathway genes": Showing the pathway genes** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **"Show pathway genes": Showing the pathway genes** </u></span>
 >>> <span style="font-size: 22px;">
 >>>
 >>> Users can visualise genes associated with specific pathways in the plot. HALLMARK gene sets for humans and mice from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb) are available as preset options. Users with custom gene sets can upload them in GMT format by selecting "custom." Note that only gmt files are supported. After selecting a pathway, all genes within that pathway will be highlighted in the plot.
@@ -87,7 +87,7 @@
 >>> - display information about filtered points in a table below ("Show the genes information")
 >>> - change the highlighting colour ("Change the colour")
 >>
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **"Show custom genesets": Showing the custom gene set genes** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **"Show custom genesets": Showing the custom gene set genes** </u></span>
 >>> <span style="font-size: 22px;">
 >>>
 >>> Users can visualise genes from their custom gene sets that are registered in the interface. When a gene set is selected, all genes within that set will be highlighted in the plot. For instructions on creating gene sets, refer to the "Gene set" section.
@@ -98,9 +98,9 @@
 >>> - Display detailed information about the highlighted genes in the table below ("Show the genes information")
 >>> - Customize the highlighting colour ("Change the colour")
 >>
-> ### <span style="font-family: 'Times', serif;font-size: 28px;"><u> Downstream analysis </u></span>
+> ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> Downstream analysis </u></span>
 >
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **GO/KEGG analysis** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **GO/KEGG analysis** </u></span>
 >>> <span style="font-size: 22px;">
 >>> 
 >>> Users can perform GO or KEGG analysis using gene symbols (ENSEMBL IDs are not supported so far). There are three ways to input genes:
@@ -125,7 +125,7 @@
 >>> - X and Y axis label size
 >>> - X axis title size
 >>
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **GSEA analysis** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **GSEA analysis** </u></span>
 >>> <span style="font-size: 22px;">
 >>>
 >>> Users can perform GSEA analysis using their chosen gene sets. HALLMARK gene sets for humans and mice from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb) are available as presets. Users with other gene sets can select "Upload a gmt file (other gene sets)" and upload a gmt file (note that only gmt format is supported). Next, users must select which score to use for GSEA ranking—typically the log fold change. This score determines how genes are sorted and ranked during analysis. Selecting a non-numeric category will result in an error.
@@ -138,7 +138,7 @@
 >>> - the size of the X and Y axis font size
 >>> - the size of the graph title
 >>
->> #### <span style="font-family: 'Times', serif;font-size: 24px;"><u> **Transcription Factor activity inference analysis** </u></span>
+>> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **Transcription Factor activity inference analysis** </u></span>
 >>> <span style="font-size: 22px;">
 >>>
 >>> This analysis is specifically for RNA-seq data processed by DESeq2 and requires 'stat' values from DESeq2. It uses the [decoupleR](https://saezlab.github.io/decoupleR/) package to estimate transcription factor (TF) activity based on expression changes in their target genes. Simply click "Start DecoupleR Analysis" to generate a bar plot and results table (approximately 1 minute). In the bar plot, positive scores indicate TF activation in the treatment group compared to the control group. You can customize how many TFs are displayed.
@@ -148,9 +148,9 @@
 >>> - the size (width and height) of the figure.
 >>> - the size of the X and Y axis font size.
 
-## <span style="font-family: 'Times', serif;font-size: 30px;"><u> When the data type is "Count table" </u></span>
+## <span style="font-family: Helvetica, Arial, serif;font-size: 30px;"><u> When the data type is "Count table" </u></span>
 
-> ### <span style="font-family: 'Times', serif;font-size: 28px;"><u> **Swarm plot** </u></span>
+> ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> **Swarm plot** </u></span>
 >> <span style="font-size: 22px;">
 >>
 >> The swarm plot visualises expression differences of genes of interest across samples. Samples with the same experimental conditions (replicated samples) are grouped together, making it easy to compare differences between conditions. Please make sure that the sample names are all set to SamepleName_Rep# so that the interface can tell which samples are replicates of each other.
@@ -164,7 +164,7 @@
 >> - the size of the graph title.
 >> - The point size.
 >>
-> ### <span style="font-family: 'Times', serif;font-size: 28px;"><u> **Heatmap** </u></span>
+> ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> **Heatmap** </u></span>
 >> <span style="font-size: 22px;">
 >>
 >> Users can generate a heatmap to visualize gene expression patterns across selected samples. Expression values are standardized across samples to enable clear comparisons.
@@ -181,7 +181,7 @@
 >> - the size of the X and Y axis/label font size.
 >> - the colour of the highest, lowest and zero values in the heatmap
 >>
->  ### <span style="font-family: 'Times', serif;font-size: 28px;"><u> **PCA plot** </u></span>
+>  ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> **PCA plot** </u></span>
 >> <span style="font-size: 22px;">
 >> 
 >> Users can generate a PCA plot from the count matrix to visualise sample patterns and relationships. By default, it uses all samples and colours them by detected groups (those with replicates, as in the swarm plot). Users can also specify which samples to include and assign group names themselves by clicking "Define the groups" and entering group descriptions following the example. Clicking "Generate a PCA plot" displays the visualisation coloured by either interface-detected or user-defined groups. Alternatively, you can use a single colour for all samples by unchecking "Colour by groups". 

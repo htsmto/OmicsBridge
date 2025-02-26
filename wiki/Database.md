@@ -1,8 +1,8 @@
 
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
 
-# <span style="font-family: 'Times', serif; font-size: 36px;"> Database </span>
+# <span style="font-family: Helvetica, Arial, serif; font-size: 36px;"> Database </span>
 
 > <span style="font-size: 22px;"> This section allows users to browse all datasets registered in the interface. Here, users can also upload new datasets and edit information for existing ones. </span>
 
@@ -14,7 +14,7 @@
 
 </span>
 
-## <span style="font-family: 'Times', serif; font-size: 30px;"><u> Available data types </u></span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"><u> Available data types </u></span>
 
 > <span style="font-size: 22px;"> 
 > 
@@ -37,7 +37,7 @@
 >     Bam, bed, and bigwig files generated from ATACseq, ChIPseq, etc. can be browsed in the "Genome browser" section. 
 
 
-## <span style="font-family: 'Times', serif; font-size: 30px;"><u> How to upload a new dataset </u></span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"><u> How to upload a new dataset </u></span>
 
 > <span style="font-size: 22px;">
 > 
@@ -72,7 +72,7 @@
 >> 
 >> 3. Click ‘Add to the dataset’, and the user can see the newly added dataset at the top of the table.
 
-## <span style="font-family: 'Times', serif; font-size: 30px;"><u> How to edit the database </u></span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"><u> How to edit the database </u></span>
 
 > <span style="font-size: 22px;">
 >

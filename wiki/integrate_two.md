@@ -1,6 +1,6 @@
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
-# <span style="font-family: 'Times', serif; font-size: 36px;"> Dataset Integration </span>
+# <span style="font-family: Helvetica, Arial, serif; font-size: 36px;"> Dataset Integration </span>
 
 > <span style="font-size: 22px;">
 >
@@ -13,7 +13,7 @@
 
 </span>
 
-## <span style="font-family: 'Times', serif; font-size: 30px;"> Data exchanging </span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Data exchanging </span>
 > <span style="font-size: 22px;">
 >
 > Users can plot two datasets side by side and transfer information between the left and right panels (or in the opposite direction. Select the direction in the "Direction" section). To begin, select two datasets (Data1 and Data2) and choose the X and Y axes for each. As in the "Data Overview" section, you can filter datasets by "Data from," "Experiment," and/or "Data type." By default, you select genes in Data1 to see their locations in Data2. 
@@ -22,7 +22,7 @@
 >
 > Make sure the column containing gene names is labelled "id" for proper dataset merging. Note that if selected genes aren't present in the other dataset, no highlighting will appear. You can set a threshold for Data2 (information-mapped side) to identify genes that meet the criteria in both datasets (overlapped genes). A table of these overlapping genes appears below.
 
-## <span style="font-family: 'Times', serif; font-size: 30px;"> Integration Plot </span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Integration Plot </span>
 > <span style="font-size: 22px;">
 >
 > Users can merge two datasets and plot them together. A common use case is plotting the log fold change (LFC) from Data1 on the X-axis and the LFC from Data2 on the Y-axis to assess consistency between datasets.

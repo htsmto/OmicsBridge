@@ -1,7 +1,7 @@
 
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
-# <span style="font-family: 'Times', serif; font-size: 36px;">Compare across datasets</span>
+# <span style="font-family: Helvetica, Arial, serif; font-size: 36px;">Compare across datasets</span>
 
 > <span style="font-size: 22px;"> 
 >
@@ -18,14 +18,14 @@
 
 </span>
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Datasets selection</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Datasets selection</span>
 
 > <span style="font-size: 22px;"> 
 > 
 > 1. First, select a "Data type." This will display a table of datasets with matching data frame structures (identical header names).
 > 2. Select datasets for investigation by clicking rows. Use "Select all" to include all datasets in the database (within the same data type) or “Deselect all” to clear the selection. You can filter the database table by "Data from" and "Experiment."
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Identify genes that consistently appear as hits across multiple datasets </span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Identify genes that consistently appear as hits across multiple datasets </span>
 
 > <span style="font-size: 22px;"> 
 > 
@@ -40,7 +40,7 @@
 > - the size of the graph title.
 > - the colour of the highest/lowest/zero value
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Compare the scores for specific genes</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Compare the scores for specific genes</span>
 
 > <span style="font-size: 22px;"> 
 >

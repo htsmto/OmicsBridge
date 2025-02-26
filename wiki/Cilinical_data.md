@@ -1,6 +1,6 @@
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
-# <span style="font-family: 'Times', serif; font-size: 36px;">Clinical data</span>
+# <span style="font-family: Helvetica, Arial, serif; font-size: 36px;">Clinical data</span>
 
 > <span style="font-size: 22px;">
 > 
@@ -22,7 +22,7 @@
 
 </span>
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Survival analysis</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Survival analysis</span>
 > <span style="font-size: 22px;">
 > 
 > Users can analyze how genes influence patient survival by performing survival analysis on their genes of interest. Enter any number of genes in the "Enter genes" box. For each gene, patients are split into high- and low-expression groups based on their gene expression levels. By default, the split uses the median expression value, but users can also compare the top 25% highest expressing patients with the bottom 25% lowest expressing patients.
@@ -36,7 +36,7 @@
 > - the size of the graph title.
 > - the colour for the high- and low-expression group.
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Gene correlation</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Gene correlation</span>
 > <span style="font-size: 22px;">
 > 
 > Users can identify genes that positively or negatively correlate with their one gene of interest. Enter ONE gene in the "Enter ONE gene" box. Choose either Pearson or Spearman correlation method, depending on your gene expression data normalization.
@@ -50,7 +50,7 @@
 > - the size of the graph title.
 > - the colour for the high- and low-expression group.
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Gene expression across subtypes</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Gene expression across subtypes</span>
 > <span style="font-size: 22px;">
 > 
 > When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across these groups.
@@ -64,13 +64,13 @@
 > - the size of the graph title.
 > - the colour for the high- and low-expression group.
 
-## <span style="font-family: 'Times', serif; font-size: 30px;">Cohort Data selection and add an own cohort</span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Cohort Data selection and add an own cohort</span>
 
 > <span style="font-size: 22px;">
 > 
 > Select a cohort dataset to view its details on the right. Three tables will be displayed in the "View the data" section: Gene expression, Patient survival information, and Metadata. You can also upload your own cohort from the "upload own cohort" sub-section.
 > 
-> ### <span style="font-family: 'Times', serif; font-size: 28px;"><u>Pre-installed cohort</u></span>
+> ### <span style="font-family: Helvetica, Arial, serif; font-size: 28px;"><u>Pre-installed cohort</u></span>
 >
 >> <span style="font-size: 22px;">
 >> 
@@ -122,7 +122,7 @@
 >> 
 >> </details>
 >
-> ### <span style="font-family: 'Times', serif; font-size: 28px;"><u>How to upload an own cohort</u></span>
+> ### <span style="font-family: Helvetica, Arial, serif; font-size: 28px;"><u>How to upload an own cohort</u></span>
 >
 >> <span style="font-size: 22px;">
 >> 

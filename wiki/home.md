@@ -1,10 +1,10 @@
 <div align="center">
-<span style="font-family: 'Times', serif">
+<span style="font-family: Helvetica, Arial, serif">
 
 
 <p>
 
-## <span style="font-family: 'Times', serif; font-size: 26px;"><u> **Unlock the Full Potential of Your Omics Data** </u></span>
+## <span style="font-family: Helvetica, Arial, serif; font-size: 26px;"><u> **Unlock the Full Potential of Your Omics Data** </u></span>
 
 <span style="font-size: 22px;">
 
@@ -15,7 +15,7 @@ Acquiring and analysing multiple omics datasets is now common practice, even in 
 
 <br>
 
-### <span style="font-family: 'Times', serif; font-size: 26px;"><u>  **Why Use Our Interface?**  </u></span>
+### <span style="font-family: Helvetica, Arial, serif; font-size: 26px;"><u>  **Why Use Our Interface?**  </u></span>
 🔹 **Seamless Data Integration** – Combine datasets from multiple omics layers to uncover hidden biological insights.  
 🔹 **Custom Gene Sets** – Define key genes from clinical or functional data and apply them across experiments.  
 🔹 **Comparative Analysis** – Identify trends and reproducibility by comparing numerical scores across datasets.  
@@ -27,7 +27,7 @@ Acquiring and analysing multiple omics datasets is now common practice, even in 
 
 <br>
 
-### <span style="font-family: 'Times', serif; font-size: 26px;"><u>  **Stay Organised & Maximise Your Research**  </u></span>
+### <span style="font-family: Helvetica, Arial, serif; font-size: 26px;"><u>  **Stay Organised & Maximise Your Research**  </u></span>
 
 Our platform also functions as a **centralised database**, ensuring stress-free access to your datasets at any time.  
 
