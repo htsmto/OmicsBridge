@@ -21,6 +21,12 @@
 
 </span>
 
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Exsample usage </span>
+<video width="1000" controls>
+<source src="scRNA.mp4" type="video/mp4">
+</video>
+
+
 ## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Pre-processing </span>
 > <span style="font-size: 22px;"> The interface accepts an RDS file as input for the scRNA section. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.
 

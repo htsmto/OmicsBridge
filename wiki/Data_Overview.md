@@ -47,6 +47,11 @@
 >
 > ### <span style="font-family: Helvetica, Arial, serif;font-size: 28px;"><u> Plot </u></span>
 >
+>> #### <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Exsample usage </span>
+>> <video width="1000" controls>
+>> <source src="Overview_comparison_plot.mp4" type="video/mp4"> 
+>> </video>
+>>
 >> #### <span style="font-family: Helvetica, Arial, serif;font-size: 24px;"><u> **Getting a general overview (scatter plot)** </u></span>
 >>> <span style="font-size: 22px;"> 
 >>>

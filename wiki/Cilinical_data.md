@@ -22,6 +22,13 @@
 
 </span>
 
+## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;"> Exsample usage </span>
+<video width="1000" controls>
+<source src="Clinical1.mp4" type="video/mp4">
+</video>
+
+
+
 ## <span style="font-family: Helvetica, Arial, serif; font-size: 30px;">Survival analysis</span>
 > <span style="font-size: 22px;">
 > 
