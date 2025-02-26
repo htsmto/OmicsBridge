@@ -1815,17 +1815,14 @@ server <- function(input, output, session) {
       })
       output$Data_type_filter <- renderUI({ 
         tmp <- Dataset()
-        if(input$username != 'admin'){ tmp <- tmp[tmp$Data.from==input$username,] }
         selectInput('Data_type_filter', 'Data type', c(All= 'None', unique(tmp$Data.type)))
       })
       output$Seuqenced_by_filter <- renderUI({ 
         tmp <- Dataset()
-        if(input$username != 'admin'){ tmp <- tmp[tmp$Data.from==input$username,] }
         selectInput('Seuqenced_by_filter', 'Data from', c(All= 'None', unique(tmp$Data.from)))
       })
       output$DataBaseTable <- DT::renderDataTable({ 
         data_table_tmp <- Dataset()[order(Dataset()$Added.When, decreasing =T),]
-        if(input$username != 'admin'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from==input$username,] }
         data_table_tmp <- data_table_tmp[,c( "Dataset", "Data.type", "CellLine", "Data.from", "When", 'Experiment', 'Control.group', 'Treatment.group', "Data.Class", "Description")] 
         if(!is.null(input$Data_type_filter) && input$Data_type_filter != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.type == input$Data_type_filter, ] }
         else if(!is.null(input$Seuqenced_by_filter) && input$Seuqenced_by_filter != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Seuqenced_by_filter,] }
@@ -1840,7 +1837,6 @@ server <- function(input, output, session) {
         info <- input$DataBaseTable_cell_edit
         # output$status <- renderText(paste(as.character(info$row), as.character(info$col), as.character(info$value)))
         tmp <- Dataset()
-        if(input$username != 'admin'){ tmp <- tmp[tmp$Data.from==input$username,] }
         a <- tmp[info$row, info$col]
         tmp[info$row, info$col] <- info$value
         # if(info$col == 6 | info$col == 4){
@@ -1866,7 +1862,6 @@ server <- function(input, output, session) {
       observeEvent(input$delete_row, {
         tmp <- Dataset()
         tmp2 <- Dataset()
-        if(input$username != 'admin'){ tmp2 <- tmp2[tmp2$Data.from==input$username,] }
         if(!is.null(input$Data_type_filter) && input$Data_type_filter != 'None'){ tmp2 <- tmp2[tmp2$Data.type == input$Data_type_filter, ] }
         else if(!is.null(input$Seuqenced_by_filter) && input$Seuqenced_by_filter != 'None'){ tmp2 <- tmp2[tmp2$Data.from == input$Seuqenced_by_filter,] }
         selected_row <- input$DataBaseTable_rows_selected
@@ -2035,13 +2030,11 @@ server <- function(input, output, session) {
       ##### Filtering for a Dataset selection #####
         output$Seuqenced_by <- renderUI({ 
           df_tmp <- Dataset()
-          if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           selectInput('Seuqenced_by', 'Data from', c(None= 'None', unique(df_tmp$Data.from)))
         })
         output$Experiments <- renderUI({
           df_tmp <- Dataset()
-          if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]}}
           # if(!is.null(input$Data_type) & input$Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == input$Data_type,]}
@@ -2049,7 +2042,6 @@ server <- function(input, output, session) {
         })
         output$Data_type <- renderUI({ 
           df_tmp <- Dataset()
-          if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]} }
           if(!is.null(input$Experiments)) { if(input$Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == input$Experiments,]}}
@@ -2059,7 +2051,6 @@ server <- function(input, output, session) {
       ##### Select a dataset #####
         output$Dataset_select <- renderUI({
           df_tmp <- Dataset()
-          if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           if(!is.null(input$Data_type)) { if(input$Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == input$Data_type,]}}
           if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]}}
@@ -3233,7 +3224,6 @@ server <- function(input, output, session) {
       # choose data type
       output$choose_data_type <- renderUI({
         df_tmp <- Dataset()
-        if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
         selectInput('choose_data_type', 'Data type', c('None'='None', unique(df_tmp[df_tmp$Data.Class == 'B',]$Data.type)))
       })
 
@@ -3249,14 +3239,12 @@ server <- function(input, output, session) {
       # data from who
       output$Compare_dataset_filtering_Data_from <- renderUI({
         data_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
-        if(input$username != 'admin'){ data_tmp <- data_tmp[data_tmp$Data.from==input$username,] }
         tmp <- data_tmp$Data.from
         selectInput('Compare_dataset_filtering_Data_from', 'Data from', c('None'= 'None', tmp))
       })
       # data from which experiment
       output$Compare_dataset_filtering_Experiment <- renderUI({
         data_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
-        if(input$username != 'admin'){ data_tmp <- data_tmp[data_tmp$Data.from==input$username,] }
         if(input$Compare_dataset_filtering_Data_from != 'None'){ data_tmp <- data_tmp[data_tmp$Data.from == input$Compare_dataset_filtering_Data_from,] }
         tmp <- data_tmp$Experiment
         selectInput('Compare_dataset_filtering_Experiment', 'Experiment', c('None'= 'None', tmp))
@@ -3265,7 +3253,6 @@ server <- function(input, output, session) {
       # list of the all datasets from which you select the dataset
       output$all_dataset <- DT::renderDataTable({ 
         data_table_tmp <- Dataset()[,c( "Dataset", "Data.type", "Experiment",  "Data.from", "When", "Description")] 
-        if(input$username != 'admin'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from==input$username,] }
         data_table_tmp <- data_table_tmp[data_table_tmp$Data.type == input$choose_data_type, ] 
         if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
         if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
@@ -3669,14 +3656,12 @@ server <- function(input, output, session) {
       # data from who
       Seuqenced_by_select_button_creation <- function(df_tmp,Name){
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
         selectInput(Name, 'Data from', c('None'= 'None', unique(df_tmp$Data.from)))
       }
 
       # data from which experiment
       Experiments_select_button_creation <- function(df_tmp,Name,Seuqenced_by ){
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
         if(Seuqenced_by!='None') { df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by, ]}
         selectInput(Name, 'Experiment', c('None'= 'None', unique(df_tmp$Experiment)))
       }
@@ -3684,7 +3669,6 @@ server <- function(input, output, session) {
       # data type
       Data_type_select_button_creation <- function(df_tmp,Name,Seuqenced_by, Experiments ){
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
         if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]} 
         if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
         selectInput(Name, 'Data type', c('None'= 'None', unique(df_tmp$Data.type)))
@@ -3693,7 +3677,6 @@ server <- function(input, output, session) {
       # dataset selection
       dataset_select_button_creation <- function(df_tmp, Name, Seuqenced_by, Experiments, Data_type ){ 
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(input$username != 'admin'){ df_tmp <- df_tmp[df_tmp$Data.from==input$username,] }
         if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]}
         if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
         if(Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]}
