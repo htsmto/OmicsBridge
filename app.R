@@ -24,6 +24,10 @@
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
 
+  options(shiny.maxRequestSize = 1000*1024^2)
+  options(shiny.usecairo=TRUE)
+  options(scipen = 10)
+  set.seed(123)
   options(scipen = 10)
   set.seed(123)
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
