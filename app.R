@@ -1951,7 +1951,7 @@ server <- function(input, output, session) {
   ### Gene sets Tab ################################################################################
 
     #### Show the data list ####
-      Original_geneset_lsit <- reactiveVal({data.frame(read.delim('Genesets_list.tsv', sep='\t', header=T))})
+      Original_geneset_lsit <- reactiveVal({data.frame(read.delim('data/Genesets_list.tsv', sep='\t', header=T))})
       output$Original_geneset_DataBaseTable <-  DT::renderDataTable({
         data_table_tmp <- Original_geneset_lsit()[order(Original_geneset_lsit()$Added.When, decreasing =T),]
         data_table_tmp <- data_table_tmp[,c('Geneset.name','Description','Cell.type','Data.source', 'Genes')]
@@ -4446,7 +4446,7 @@ server <- function(input, output, session) {
   ### Clinical_data ################################################################################
 
     #### Clinical data loading ####
-      Cliniacal_dataset <- reactiveVal({data.frame(read.table('Clinical_data_database.tsv', sep='\t', header=T))})
+      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T))})
       output$Clinical_data_select <- renderUI({ selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) })
       output$Clinical_Dataset_detail <- renderText({
         df_tmp <- Cliniacal_dataset()
@@ -5154,18 +5154,19 @@ server <- function(input, output, session) {
                 file.copy(input$new_cohort_upload_sur$datapath, save_path_cli)
                 file.copy(input$new_cohort_upload_meta$datapath, save_path_meta)
 
-              tmp <- Cliniacal_dataset()
-              tmp <- add_row(tmp, Database.Name=cohort_name , 
-                Description=	Description,
-                Expression_path= save_path_ge,
-                Survival_path= save_path_cli,
-                Meta_path= save_path_meta,
-                added.when= time_stamp)
-              tmp <- tmp[order(tmp$added.when, decreasing =T),]
-              Cliniacal_dataset(tmp)
-              replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
-              write.table(Cliniacal_dataset(), 'Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
-              output$new_cohort_status <- renderText('uploaded!')
+                tmp <- Cliniacal_dataset()
+                tmp <- add_row(tmp, Database.Name=cohort_name , 
+                  Description=	Description,
+                  Expression_path= save_path_ge,
+                  Survival_path= save_path_cli,
+                  Meta_path= save_path_meta,
+                  added.when= time_stamp)
+                tmp <- tmp[order(tmp$added.when, decreasing =T),]
+                Cliniacal_dataset(tmp)
+                replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
+                write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+                output$new_cohort_status <- renderText('uploaded!')
+              }
             }
           }
         }  
