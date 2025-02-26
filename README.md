@@ -13,15 +13,23 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ### Run on your local PC
 
-Plase make a clone of this repository. In the terminal,
+Plase make a clone of this repository first. In the terminal,
 
 ```bash
 git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Please make sure that all the dependencies are ready (Read below).
-Open R (or in R studio), and
+Please download the necessary data, uncompress and deploy the folder to the correct position.
+```bash
+wget XXXX
+mv XXX YYY
+```
+
+Please make sure that all the dependencies are ready (Read below). 
+<p>
+
+Once you are ready, open R in a terminal (or in a console in R studio), and
 
 ```R
 shiny::runApp('app.R')
@@ -59,7 +67,7 @@ Installing via the renv library can be OS specifc. If it does not work, please i
 
 ```R
 ## CRAN dependent packages
-install.packages(c('shiny','shinydashboard','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',))
+install.packages(c('shiny','shinydashboard','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer'))
 
 ## BiocManager dependent packages
 if (!require("BiocManager", quietly = TRUE))
