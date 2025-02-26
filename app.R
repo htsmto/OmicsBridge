@@ -1881,7 +1881,8 @@ server <- function(input, output, session) {
           date <- format(Sys.time(), "%m.%d")
           # path
           # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
-          save_path <- file.path('00_Expression_data_all', Year, date, uploaded_file$name)
+          filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
+          save_path <- file.path('00_Expression_data_all', Year, date, filname)
           dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
           # save
           file.copy(uploaded_file$datapath, save_path)
@@ -4414,12 +4415,15 @@ server <- function(input, output, session) {
           'Please select a dataset.'
         }
       })
-                          # tabPanel("Gene expression", verbatimTextOutput('Clinical_View_Geneexpression_status'), DT::dataTableOutput("Clinical_View_Geneexpression")),
-                          # tabPanel("Survival", verbatimTextOutput('Clinical_View_Survival_status'), DT::dataTableOutput("Clinical_View_Survival")),
-                          # tabPanel("Meta data", verbatimTextOutput('Clinical_View_MetaData_status'), DT::dataTableOutput("Clinical_View_MetaData"))
+
       Clinical_gene_expression <- reactive({
         if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          tmp <- read.table(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Expression_path, sep='\t', header=T, row.names=1)
+          path <- Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Expression_path
+          if(!file.exists(path)){
+            output$Clinical_View_Geneexpression_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nhttps://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz \n \n or, please upload the data again. '})  
+            return(NULL)
+          }
+          tmp <- read.table(path, sep='\t', header=T, row.names=1)
           output$Clinical_View_Geneexpression_status <- renderText({
             paste0('Number of genes: ', dim(tmp)[1], '\n', 'Number of samples: ' , dim(tmp)[2])
           })
@@ -4432,7 +4436,12 @@ server <- function(input, output, session) {
       Clinical_surival <- reactive({
         if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
           output$Clinical_View_Survival_status <- renderText({NULL})
-          data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Survival_path, header=T))
+          path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Survival_path
+          if(!file.exists(path)){
+            output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
+            return(NULL)
+          }
+          data.frame(read.delim(path, header=T))
         }else{
           output$Clinical_View_Survival_status <- renderText({'Please select a dataset.'})
           NULL
@@ -4441,7 +4450,12 @@ server <- function(input, output, session) {
       Clinical_meta <- reactive({
         if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
           output$Clinical_View_MetaData_status <- renderText({NULL})
-          data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Meta_path, header=T))
+          path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Meta_path
+          if(!file.exists(path)){
+            output$Clinical_View_MetaData_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
+            return(NULL)
+          }
+          data.frame(read.delim(path, header=T))
         }else{
           output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
           NULL
@@ -4451,6 +4465,9 @@ server <- function(input, output, session) {
     #### display the table of the data (gene expression, survival, metadata) ####
       output$Clinical_View_Geneexpression <- DT::renderDataTable({
         # radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
+        if(is.null( Clinical_gene_expression())){
+          return(NULL)
+        }
         if(input$Clinical_View_EX_show_number == 'B'){
           tmp <- Clinical_gene_expression()
         }else{
@@ -5044,15 +5061,6 @@ server <- function(input, output, session) {
         datatable( head(tmp, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
       })
 
-
-                          # fluidRow( 
-                          #   h4('Preview (Expression table)'),
-                          #   column(12, dataTableOutput("new_cohort_upload_GE_preview")),
-                          #   h4('Preview (Survival data)'),
-                          #   column(12, dataTableOutput("new_cohort_upload_sur_preview")),
-                          #   h4('Preview (Meta data)'),
-                          #   column(12, dataTableOutput("new_cohort_upload_meta_preview"))
-                          # ),
       observeEvent(input$new_cohort_upload_data,{
         if(is.null(input$new_cohort_upload_GE) | is.null(input$new_cohort_upload_sur) | is.null(input$new_cohort_upload_meta) ){
           output$new_cohort_status <- renderText({'Please upload all the files!'})
