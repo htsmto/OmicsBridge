@@ -24,27 +24,11 @@
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
 
-  # install.packages('Seurat')
-
-  options(repos = BiocManager::repositories())
-  options(shiny.maxRequestSize = 1000*1024^2)
-  options(shiny.usecairo=TRUE)
   options(scipen = 10)
   set.seed(123)
-  net <- readRDS('OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
-  human_mouse_biomart_data <- read.table('biomart_comparison_chart.tsv', sep='\t',header=T)
-  # Gene_coords_GRch38 <- read.table('Gene_coords_GRch38.tsv', sep='\t', header=T)
-####
-
-#### login option(user and PW) ####
-  # credentials <- list(username = c("admin", 'admin', 'Helena', 'Shangce', 'Mohamed', 'Zhaoqing', 'Patrick', 'Beiping', 'Xiyue'), password = "sunlab")
-  credentials <- data.frame(
-    username=c("d250", 'admin', 'Helena', 'Shangce', 'Mohamed', 'Zhaoqing', 'Patrick', 'Beiping', 'Xiyue'),
-    password=c('sunlab', 'sunlab-d250', 'EmperorPenguin', 'GoldenRetriever', 'HimalayanCat', 'AngoraRabbit', 'KangarooRat', 'SiberianHusky', 'ScottishFold')
-)
-
+  human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
 ####
 
 
@@ -1826,8 +1810,7 @@ server <- function(input, output, session) {
   
     #### Show the data list ####
       Dataset <- reactiveVal({
-        tmp <- read.delim('Database.tsv', sep='\t', header=T)
-        # if(!is.null(isolate(input$username)) && isolate(input$username) != 'admin'){tmp <- tmp[tmp$Data.from==isolate(input$username),]}
+        tmp <- read.delim('data/Database.tsv', sep='\t', header=T)
         data.frame(tmp)
       })
       output$Data_type_filter <- renderUI({ 
@@ -1918,52 +1901,50 @@ server <- function(input, output, session) {
           output$status_upload <- renderText('Please upload a file!')
         }
         req(input$upload_file)
-        gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
-        if(!'id' %in% colnames(gx_table)){
-          output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
-        }else{
-          uploaded_file <- input$upload_file
-          # detail
-          dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
-          data.type.upload <- unlist(strsplit(input$upload_data_type, split = "\n"))[1]
-          cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
-          Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
-          Data.from.upload <- gsub(' ', '_', Data.from.upload)
-          When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
-          Description <- unlist(strsplit(input$upload_description, split = "\n"))[1]
-          Experiment.upload <- unlist(strsplit(input$upload_Experiment, split = "\n"))[1]
-          Experiment.upload <- gsub(' ', '_', Experiment.upload)
-          Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
-          Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
-          Data.Class.upload <- input$upload_Data_Class
-          if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 | nchar(input$upload_data_type)==0 ){
-            output$status_upload <- renderText('* is a mandatory filed!')
-          }else if(dataset.name.upload %in% Dataset()$Dataset){
-            output$status_upload <- renderText('The Dataset name is duplicated!')
-          }else if (str_detect(Experiment.upload, "[;/,()\\[\\]!@#$%]")) {
-            output$status_upload <- renderText('The Experiment name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
-          }else if (str_detect(Data.from.upload, "[;/,()\\[\\]!@#$%]")) {
-            output$status_upload <- renderText('The Data.from cannot contain "/ , ( ) [ ] ! # @ $ %"!')
-          }else{
-            time_stamp <- as.character(Sys.time())  
-            Year <- format(Sys.time(), "%Y")
-            date <- format(Sys.time(), "%m.%d")
-            # path
-            # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
-            filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
-            save_path <- file.path('00_Expression_data_all', Year, date, filname)
-            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
-            # save
-            file.copy(uploaded_file$datapath, save_path)
-            tmp <- Dataset()
-            tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
-            tmp <- tmp[order(tmp$Added.When, decreasing =T),]
-            Dataset(tmp)
-            replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
-            write.table(Dataset(), 'Database.tsv', row.names=F, sep='\t', quote=F)
-            output$status_upload <- renderText('uploaded!')
-          }
+        uploaded_file <- input$upload_file
+        # detail
+        dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
+        data.type.upload <- unlist(strsplit(input$upload_data_type, split = "\n"))[1]
+        cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
+        Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
+        Data.from.upload <- gsub(' ', '_', Data.from.upload)
+        When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
+        Description <- unlist(strsplit(input$upload_description, split = "\n"))[1]
+        Experiment.upload <- unlist(strsplit(input$upload_Experiment, split = "\n"))[1]
+        Experiment.upload <- gsub(' ', '_', Experiment.upload)
+        Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
+        Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
+        Data.Class.upload <- input$upload_Data_Class
+        if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 | nchar(input$upload_data_type)==0 ){
+          output$status_upload <- renderText('* is a mandatory filed!')
         }
+        else if(dataset.name.upload %in% Dataset()$Dataset){
+          output$status_upload <- renderText('The Dataset name is duplicated!')
+        }else if (str_detect(Experiment.upload, "[;/,()\\[\\]!@#$%]")) {
+          output$status_upload <- renderText('The Experiment name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+        }
+        else if (str_detect(Data.from.upload, "[;/,()\\[\\]!@#$%]")) {
+          output$status_upload <- renderText('The Data.from cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+        }else{
+          time_stamp <- as.character(Sys.time())  
+          Year <- format(Sys.time(), "%Y")
+          date <- format(Sys.time(), "%m.%d")
+          # path
+          # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
+          save_path <- file.path('00_Expression_data_all', Year, date, uploaded_file$name)
+          dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
+          # save
+          file.copy(uploaded_file$datapath, save_path)
+
+          tmp <- Dataset()
+          tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
+          tmp <- tmp[order(tmp$Added.When, decreasing =T),]
+          Dataset(tmp)
+          replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
+          write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+          output$status_upload <- renderText('uploaded!')
+        }
+
       })
   ###
 
@@ -1993,7 +1974,7 @@ server <- function(input, output, session) {
 
     #### save changes when you push the button ####
       observeEvent(input$Original_geneset_save_dt,{
-        write.table(Original_geneset_lsit(), 'Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+        write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
         output$Original_geneset_status <- renderText('saved!')
       })
 
@@ -2006,7 +1987,7 @@ server <- function(input, output, session) {
           tmp <- tmp[!tmp$Geneset.name %in% tmp2[selected_row,]$Geneset.name,]
           Original_geneset_lsit(tmp)
           replaceData(dataTableProxy('Original_geneset_lsit'), Original_geneset_lsit(), resetPaging=F)
-          write.table(Original_geneset_lsit(), 'Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+          write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
           output$status <- renderText('Deleted!')
         }else{
           output$status <- renderText('No row selecetd!')
@@ -2041,7 +2022,7 @@ server <- function(input, output, session) {
           tmp <- tmp[order(tmp$Added.When, decreasing =T),]
           Original_geneset_lsit(tmp)
           replaceData(dataTableProxy('Original_geneset_lsit'), Original_geneset_lsit(), resetPaging=F)
-          write.table(Original_geneset_lsit(), 'Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+          write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
           output$Original_geneset_status_upload <- renderText('uploaded!')
         }
 
@@ -2756,11 +2737,8 @@ server <- function(input, output, session) {
         ###### GSEA analysis ######
           # select gene set
           GSEA_Gene_set <- reactive({
-            if(length(input$GSEA_pathway_dataset_select) == 0){
-              output$GSEA_analysis_status <- renderText({'Please select which pathway data to use.'})
-              gsc <- NULL 
-            }else if(input$GSEA_pathway_dataset_select == 'B'){ gsc <- gmtPathways('h.all.v2023.2.Hs.symbols.gmt') }
-            else if(input$GSEA_pathway_dataset_select == 'C'){ gsc <- gmtPathways('mh.all.v2023.2.Mm.symbols.gmt') } 
+            if(input$GSEA_pathway_dataset_select == 'B'){ gsc <- gmtPathways('data/h.all.v2023.2.Hs.symbols.gmt') }
+            else if(input$GSEA_pathway_dataset_select == 'C'){ gsc <- gmtPathways('data/mh.all.v2023.2.Mm.symbols.gmt') } 
             else if(input$GSEA_pathway_dataset_select == 'D'){ 
               tmp <- input$GSEA_upload_custom_pathway_file
               if (is.null(tmp)){ 
@@ -5176,20 +5154,18 @@ server <- function(input, output, session) {
                 file.copy(input$new_cohort_upload_sur$datapath, save_path_cli)
                 file.copy(input$new_cohort_upload_meta$datapath, save_path_meta)
 
-                tmp <- Cliniacal_dataset()
-                tmp <- add_row(tmp, Database.Name=cohort_name , 
-                  Description=	Description,
-                  Expression_path= save_path_ge,
-                  Survival_path= save_path_cli,
-                  Meta_path= save_path_meta,
-                  added.when= time_stamp)
-                tmp <- tmp[order(tmp$added.when, decreasing =T),]
-                Cliniacal_dataset(tmp)
-                replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
-                write.table(Cliniacal_dataset(), 'Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
-                output$new_cohort_status <- renderText('uploaded!')
-              }
-
+              tmp <- Cliniacal_dataset()
+              tmp <- add_row(tmp, Database.Name=cohort_name , 
+                Description=	Description,
+                Expression_path= save_path_ge,
+                Survival_path= save_path_cli,
+                Meta_path= save_path_meta,
+                added.when= time_stamp)
+              tmp <- tmp[order(tmp$added.when, decreasing =T),]
+              Cliniacal_dataset(tmp)
+              replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
+              write.table(Cliniacal_dataset(), 'Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+              output$new_cohort_status <- renderText('uploaded!')
             }
           }
         }  
@@ -5218,7 +5194,7 @@ server <- function(input, output, session) {
       })
       # save changes when you push the button ####
       observeEvent(input$Cohort_DataBase_save_dt,{
-        write.table(Cliniacal_dataset(), 'Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+        write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
         output$Cohort_DataBase_status <- renderText('saved!')
       })
       # delete the data when you push the button ####
@@ -5243,7 +5219,7 @@ server <- function(input, output, session) {
           }
           Cliniacal_dataset(tmp)
           replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
-          write.table(Cliniacal_dataset(), 'Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+          write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
           output$Cohort_DataBase_status <- renderText('Deleted!')
         }else{
           output$Cohort_DataBase_status <- renderText('No row selecetd!')
@@ -5771,7 +5747,7 @@ server <- function(input, output, session) {
   ### Tools 
     #### human to mouse, mouse to human
       # conversion table
-        # human_mouse_biomart_data <- read.table('biomart_comparison_chart.tsv', sep='\t',header=T)
+        # human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
       human_mouse_convert_data <- eventReactive(input$human_mouse_convert_start,{
         if(nchar(input$human_mouse_convert_input_gene) == 0){
           output$human_mouse_convert_result <- renderText({'Please enter genes.'})
@@ -5878,60 +5854,7 @@ server <- function(input, output, session) {
       output$Gene_Ensembl_convert_table <- renderDataTable({
         datatable( Gene_Ensemble_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
       })
-    
-    ### Find the genomic loci
 
-      Gene_coords_GRch38 <- read.table('Gene_coords_GRch38.tsv', sep='\t', header=T) # head(Gene_coords_GRch38)
-
-      observeEvent(input$Find_genome_loci_start,{
-        if(length(input$Find_genome_loci_direction) == 0){
-          output$Find_genome_loci_table_gene_names <- renderText({'Please choose the method.'})
-          return(NULL)
-        }
-        if(input$Find_genome_loci_direction == 'A'){
-          if(nchar(input$Find_genome_loci_input) == 0){
-            output$Find_genome_loci_table_gene_names <- renderText({'Please enter gene names'})
-            return(NULL)
-          }
-          genes <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # genes <- c('CXCL10', 'CXCL9')
-          genes <- intersect(genes, Gene_coords_GRch38$gene_name)
-          if(length(genes)==0){
-            output$Find_genome_loci_table_gene_names <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
-            return(NULL) 
-          }
-          Gene_coords_GRch38_focus <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name %in% genes,]
-          coord <- paste0(Gene_coords_GRch38_focus$chr, ':', Gene_coords_GRch38_focus$start, '-',  Gene_coords_GRch38_focus$end)
-          output$Find_genome_loci_table_gene_names <- renderText({ paste(coord, collapse='\n') })
-          output$Find_genome_loci_table <- renderDataTable({
-            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
-          })
-        }
-        if(input$Find_genome_loci_direction == 'B'){
-          coords <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # coords <- c('chr4:76021118-76023497', 'chr10:8045378-8075198')
-          Gene_coords_GRch38_focus <- data.frame('chr'=c(), 'start'=c(), 'end'=c(), 'strand'=c(), 'gene_id'=c(), 'gene_name'=c())
-          for (coord in coords){
-            # coord = 'chr4:76021118-76023497'
-            chr <- strsplit(coord, split=':')[[1]][1]
-            start_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][1])
-            end_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][2])
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38[Gene_coords_GRch38$chr == chr,]
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[as.numeric(Gene_coords_GRch38_focus_tmp$end) >= as.numeric(start_pos),]
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[Gene_coords_GRch38_focus_tmp$start <= end_pos,]
-            Gene_coords_GRch38_focus <- rbind(Gene_coords_GRch38_focus, Gene_coords_GRch38_focus_tmp)
-          }
-          if(dim(Gene_coords_GRch38_focus)[1]==0){
-            output$Find_genome_loci_table_gene_names <- renderText({'No genes were found in the specified location. \nPlease make sure the formats are correct and do not include unnecessary spaces. \n(Ex. chr1:76021118-76023497)'})
-            return(NULL) 
-          }
-          genes <- Gene_coords_GRch38_focus$gene_name
-          output$Find_genome_loci_table_gene_names <- renderText({ paste(genes, collapse='\n') })
-          output$Find_genome_loci_table <- renderDataTable({
-            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
-          })
-        }
-      })
-
-      
 
   ###
 
