@@ -22,8 +22,8 @@ cd OmicsBridge
 
 Please download the necessary data, uncompress and deploy the folder to the correct position.
 ```bash
-wget https://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz
-mv XXX YYY
+curl -O https://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz
+tar -xzvf 00_Clinical_dataset.tar.gz 
 ```
 
 Please make sure that all the dependencies are ready (Read below). 
@@ -53,12 +53,9 @@ The renv package is a tool for managing project-specific package dependencies in
 
 ```R
 install.packages('rnev') # skippable if you already have rnev
-renv::restore(lockfile='renv.lock')
+renv::restore(lockfile='renv.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
 ```
-Please type "Y" to proceed.
-```
-Do you want to proceed? [Y/n]: y
-```
+
 Depends on the OS, it usually takes 15-30 minutes.
 
 ### Manually install the necessary libraries
@@ -67,11 +64,9 @@ Installing via the renv library can be OS specifc. If it does not work, please i
 
 ```R
 ## CRAN dependent packages
-install.packages(c('shiny','shinydashboard','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer'))
+install.packages(c('shiny','shinydashboard','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager"))
 
 ## BiocManager dependent packages
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
 BiocManager::install(version = "3.20")
 BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments"))
 
