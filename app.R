@@ -44,20 +44,6 @@ ui <- fluidPage(
       "))
   ),
 
-  # Before log-in 
-  # conditionalPanel(
-  #     condition = "!output.user_authenticated",  # ログイン前の表示
-  #     div(
-  #         class = "centered-container",
-  #         div( class = "login-box", h3("Please Log In"), textInput("username", "Username:"), passwordInput("password", "Password:"), actionButton("login_btn", "Log in"))
-  #     )
-  # ),
-
-  # After login (main panel)
-  # conditionalPanel(
-  #   condition = "output.user_authenticated",  # ログイン後に表示
-
-  # )
   dashboardPage(
     dashboardHeader(
       title=NULL,
@@ -3680,7 +3666,7 @@ server <- function(input, output, session) {
         if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]}
         if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
         if(Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]}
-        selectInput(Name, 'Dataset select', c(unique(df_tmp$Dataset), 'None'='None')) 
+        selectInput(Name, 'Dataset select', c('None'='None', unique(df_tmp$Dataset))) 
       }
 
     #### Dataset selection 
