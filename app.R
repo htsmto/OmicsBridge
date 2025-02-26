@@ -294,7 +294,7 @@ ui <- fluidPage(
                   condition = "output.Data_class == 'A'",
                   tabsetPanel(
                     ####### table #######
-                      tabPanel("Data Table", box(width=12, status='primary', DT::dataTableOutput("Count_data_DataTable")) ),
+                      tabPanel("Data Table", box(width=12, status='primary', verbatimTextOutput('Count_data_DataTable_status'), DT::dataTableOutput("Count_data_DataTable")) ),
                     ####### swarm plot #######  
                       tabPanel("Swarm plot", 
                         box(status='primary', width=8,
@@ -1760,37 +1760,6 @@ ui <- fluidPage(
 
 ##############################################################################
 server <- function(input, output, session) {
-  #### Log in flag ####
-    # user_authenticated <- reactiveVal(FALSE)
-    # output$user_authenticated <- reactive({ user_authenticated() })
-    # outputOptions(output, "user_authenticated", suspendWhenHidden = FALSE)
-    # app_state <- reactiveValues(username=NULL)
-
-  #### Login, when the authentification fails, it says 'error'
-    # observeEvent(input$login_btn, {
-    #     if (input$username %in% credentials$username){
-    #       if(input$password == credentials[credentials$username == input$username,]$password){
-    #         user_authenticated(TRUE)  
-    #       } else { showModal(modalDialog( title = "Error", "Invalid username or password", easyClose = TRUE )) }
-    #     }else { showModal(modalDialog( title = "Error", "Invalid username or password", easyClose = TRUE )) }
-    # })
-
-    # output$user_name_display <- renderText({
-    #   paste("User: ", input$username)
-    # })
-    
-  ####
-
-  ### Home
-    # home_md <- reactiveFileReader(1000, session, "wiki/home.md", readLines)
-    # output$home_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = home_md(), fragment.only = TRUE))
-    # })
-  ###
-
-  # ## prepare the database talbe for each session (for publication use)
-  # temp_database <- tempfile(fileext='.tsv', tmpdir='.', pattern = paste0("temp_", session$token))
-  # file.copy('Database.tsv', temp_database)
 
   ### Information Tab ##############################################################################
   
@@ -2017,21 +1986,21 @@ server <- function(input, output, session) {
         output$Seuqenced_by <- renderUI({ 
           df_tmp <- Dataset()
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
-          selectInput('Seuqenced_by', 'Data from', c(None= 'None', unique(df_tmp$Data.from)))
+          selectInput('Seuqenced_by', 'Data from', c('None'= 'None', unique(df_tmp$Data.from)))
         })
         output$Experiments <- renderUI({
           df_tmp <- Dataset()
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]}}
           # if(!is.null(input$Data_type) & input$Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == input$Data_type,]}
-          selectInput('Experiments', 'Experiment', c(None= 'None', unique(df_tmp$Experiment)))
+          selectInput('Experiments', 'Experiment', c('None'= 'None', unique(df_tmp$Experiment)))
         })
         output$Data_type <- renderUI({ 
           df_tmp <- Dataset()
           df_tmp <- df_tmp[(df_tmp$Data.Class == 'A') | (df_tmp$Data.Class == 'B'),]
           if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]} }
           if(!is.null(input$Experiments)) { if(input$Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == input$Experiments,]}}
-          selectInput('Data_type', 'Data type', c(None= 'None', unique(df_tmp$Data.type)))
+          selectInput('Data_type', 'Data type', c('None'= 'None', unique(df_tmp$Data.type)))
         })
       
       ##### Select a dataset #####
@@ -2086,9 +2055,18 @@ server <- function(input, output, session) {
         }
         # load data
         df <- reactive({
-          if(!is.null(input$Dataset_select)){
+          if(length(input$Dataset_select)!=0){
             if(input$Dataset_select!= 'None'){
               path <- Dataset()[Dataset()$Dataset == input$Dataset_select, ]$Path
+              if(length(path) == 0){
+                output$Count_data_DataTable_status <- renderText({"The file is not found. Please upload the data again."})
+                return(NULL)
+              }
+              if(!file.exists(path)){
+                output$Count_data_DataTable_status <- renderText({"The file is not found. Please upload the data again."})
+                return(NULL)
+              }
+              output$Count_data_DataTable_status <- renderText({NULL})
               df_tmp <- read.table(path, sep='\t', header=T)
               if(colnames(df_tmp)[1] == 'X'){ colnames(df_tmp)[1] <- 'id'}
               if("X.log10.pvalue." %in% colnames(df_tmp)){ df_tmp$X.log10.pvalue. <- replace_inf_with_largest_values(df_tmp$X.log10.pvalue.) }
@@ -2117,23 +2095,23 @@ server <- function(input, output, session) {
             if(!is.null(df())){ X_axis_name <- names(df()) }
             else{ X_axis_name <- c() }
             # default selected x name CRISPR screening (gRNA LFC)
-            if(Dataoverview_Data_type() == 'CRISPR screening' || Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.x', 'x', c(None='None', X_axis_name), selected='logFC') }
-            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.x', 'x', c(None='None', X_axis_name), selected='log10_total_count') }
-            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.x', 'x', c(None='None', X_axis_name), selected='log2FoldChange') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.x', 'x', c(None='None', X_axis_name), selected='LFC') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.x', 'x', c(None='None', X_axis_name), selected='LFC') }
+            if(Dataoverview_Data_type() == 'CRISPR screening' || Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='logFC') }
+            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log10_total_count') }
+            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log2FoldChange') }
+            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
+            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
             else{selectInput('scat.x', 'x', c('None'='None', X_axis_name))}
           })
           output$Scat.Y <- renderUI({ 
             if(!is.null(df())){ Y_axis_name <- names(df()) }
             else{ Y_axis_name <- c() }
             # default selected x name
-            if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='log10_score') }
-            else if(Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='log10_Score') }
-            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='log2LFC') }
-            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='X.log10.padj.') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='X.log10.p.value') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.y', 'y', c(None='None', Y_axis_name), selected='X.log10.p.value') }
+            if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_score') }
+            else if(Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_Score') }
+            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log2LFC') }
+            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.padj.') }
+            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
+            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
             else{selectInput('scat.y', 'y', c('None'='None', Y_axis_name))}
           })
 
@@ -2176,16 +2154,11 @@ server <- function(input, output, session) {
 
         ###### outliers ######
           # get the table
-          # fluidRow(column(12, sliderInput('x_threshold_neg', 'The threshold for X axis (negative)', min=0, max=15, value=1, step=0.1)))
-          # column(12, radioButtons("How_to_filter", "How to filter:", choices = c("Show top/bottom N % (default: 10%)"="A", "Custom threshold setting"="B"), selected='B')),
           df_outliers <- reactive({
             df_main_plot <- df()
             req(input$show_outliers)
             if(input$show_outliers){
               if(input$How_to_filter == 'A'){
-                                      # column(6, sliderInput('Overviwe_Top_threshold', 'The threshold for Top hits (%)', min=0, max=100, value=10, step=1)),
-                                      # column(6, sliderInput('Overviwe_Bottom_threshold', 'The threshold for Bottom hits (%)', min=0, max=100, value=10, step=1)),
-                                      # column(6, sliderInput('Overviwe_Top_bottom_Y_threshold', 'The threshold for Y axis', min=0, max=20, value=1.3, step=0.1))
                 df_main_plot <- df_main_plot[df_main_plot[input$scat.y] >= input$Overviwe_Top_bottom_Y_threshold,]
                 X_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]>=0], 1-(input$Overviwe_Top_threshold/100))
                 Y_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]<=0], input$Overviwe_Bottom_threshold/100)
@@ -2234,7 +2207,7 @@ server <- function(input, output, session) {
             if(!is.null(Gene_set())){
               for ( i in 1:length(Gene_set())){ gene_sets_names <- c(gene_sets_names, Gene_set()@.Data[[i]]@setName)}
             }
-            selectInput('select_pathway', 'Select a geneset',  c(None='None', gene_sets_names))  
+            selectInput('select_pathway', 'Select a geneset',  c('None'='None', gene_sets_names))  
           })
 
           # list of the genes in the pathway
@@ -2428,8 +2401,16 @@ server <- function(input, output, session) {
           # main plot for overvirw
           output$Gene_ex <- renderPlot({
             # No data is selected
+            if(length(input$Dataset_select)==0){
+              output$Gene_ex_status <- renderText({'Please select a dataset'})
+              return(NULL)              
+            }
             if(is.null(input$Dataset_select) || input$Dataset_select=='None'){
               output$Gene_ex_status <- renderText({'Please select a dataset'})
+              return(NULL)
+            }
+            if(is.null(df())){
+              output$Gene_ex_status <- renderText({"The file is not found. Please upload the data again."})
               return(NULL)
             }
             # scatter plot
@@ -2464,16 +2445,20 @@ server <- function(input, output, session) {
                   p <- p + geom_hline(yintercept=input$y_threshold, linetype='dotted')
                 } 
               }else if(input$show_pathway){
-                if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
-                  outliers_pathway <- df_outliers_pathway()
-                  p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
-                  if(input$hide_gene_label_pathway==FALSE){ p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                if(length(input$select_pathway)!= 0){
+                  if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
+                    outliers_pathway <- df_outliers_pathway()
+                    p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
+                    if(input$hide_gene_label_pathway==FALSE){ p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                  }
                 }
               }else if(input$Plot_Gene_set){
-                if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
-                  custom_geneset <- df_genes_custom_geneset()
-                  p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
-                  if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                if(length(input$select_pathway)!= 0){
+                  if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
+                    custom_geneset <- df_genes_custom_geneset()
+                    p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
+                    if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                  }
                 }
               }
               # highlight some genes of interest
@@ -2749,11 +2734,11 @@ server <- function(input, output, session) {
           output$GSEA_select_score <- renderUI({ 
             # req(input$GSEA_pathway_dataset_select)
             if(length(Dataoverview_Data_type())!=0){
-              if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c(None='None', colnames(df())), selected='logFC')  }
-              else if(Dataoverview_Data_type() == 'CRISPR-a screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c(None='None', colnames(df())), selected='logFC')  }
-              else if(Dataoverview_Data_type() == 'ORF screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c(None='None', colnames(df())), selected='log2LFC')  }
-              else if(Dataoverview_Data_type() == 'RNAseq (DEG)' ){ selectInput('GSEA_select_score', 'Use the score of:', c(None='None', colnames(df())), selected='Log2FoldChange')  }
-              else{ selectInput('GSEA_select_score', 'Use the score of:', c(None='None', colnames(df())))  }
+              if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
+              else if(Dataoverview_Data_type() == 'CRISPR-a screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
+              else if(Dataoverview_Data_type() == 'ORF screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='log2LFC')  }
+              else if(Dataoverview_Data_type() == 'RNAseq (DEG)' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='Log2FoldChange')  }
+              else{ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())))  }
               selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df()))) 
             }
           })
@@ -3214,7 +3199,9 @@ server <- function(input, output, session) {
       })
 
       output$Compare_dataset_selection_status <- renderText({
-        if(input$choose_data_type == 'None'){
+        if(length(input$choose_data_type)==0){
+          "Please select the data type first."
+        }else if(input$choose_data_type == 'None'){
           "Please select the data type first."
         }else{
           NULL
@@ -3231,7 +3218,9 @@ server <- function(input, output, session) {
       # data from which experiment
       output$Compare_dataset_filtering_Experiment <- renderUI({
         data_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
-        if(input$Compare_dataset_filtering_Data_from != 'None'){ data_tmp <- data_tmp[data_tmp$Data.from == input$Compare_dataset_filtering_Data_from,] }
+        if(length(input$Compare_dataset_filtering_Data_from)!= 0){
+          if(input$Compare_dataset_filtering_Data_from != 'None'){ data_tmp <- data_tmp[data_tmp$Data.from == input$Compare_dataset_filtering_Data_from,] }
+        }
         tmp <- data_tmp$Experiment
         selectInput('Compare_dataset_filtering_Experiment', 'Experiment', c('None'= 'None', tmp))
       })
@@ -3240,8 +3229,12 @@ server <- function(input, output, session) {
       output$all_dataset <- DT::renderDataTable({ 
         data_table_tmp <- Dataset()[,c( "Dataset", "Data.type", "Experiment",  "Data.from", "When", "Description")] 
         data_table_tmp <- data_table_tmp[data_table_tmp$Data.type == input$choose_data_type, ] 
-        if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
-        if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
+        if(length(input$Compare_dataset_filtering_Data_from)!=0){
+          if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
+        }
+        if(length(input$Compare_dataset_filtering_Experiment)!=0){
+          if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
+        }
         datatable(data_table_tmp, 
           selection='none', extensions=c('Select', 'Buttons'), 
           options = list( select=list(style="multi", items='row'), 
@@ -3253,7 +3246,7 @@ server <- function(input, output, session) {
     #### Dataset comparison
       # chosse the score for comparison
       output$Choose_datasets_y <- renderUI({ 
-        if(!is.null(input$choose_data_type)){
+        if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
             data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
             y_names <- unique(colnames(data_ex_tmp))
@@ -3267,7 +3260,7 @@ server <- function(input, output, session) {
         }
       })
       output$Choose_datasets_colour <- renderUI({ 
-        if(!is.null(input$choose_data_type)){
+        if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
             data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
             col_names <- unique(colnames(data_ex_tmp))
@@ -3280,28 +3273,6 @@ server <- function(input, output, session) {
           selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None'))
         }
       })
-
-                    # box(width=12, collapsible=TRUE, title='Analysis options',
-                    #   fluidRow( 
-                    #     column(3, textAreaInput("target_gene_for_comparing", "Enter genes")),
-                    #     column(3,htmlOutput("Choose_datasets_y")),
-                    #     column(3,htmlOutput("Choose_datasets_colour")),
-                    #   ),
-                    #   fluidRow( column(4, actionButton("comparison_start", "Start Analysis")))
-                    # ),
-                    # box(width=12, collapsible=TRUE, title='Plot',
-                    #   fluidRow(
-                    #     column(3, 
-                    #       h4('Select a gene below:'),
-                    #       dataTableOutput("Gene_comparing_gene_list_table")
-                    #     ),
-                    #     column(9, 
-                    #       h4('Comparing plot') ,
-                    #       verbatimTextOutput('Gene_comparing_status'),
-                    #       plotOutput("Gene_comparing_plot", width="100%", height="100%"),
-                    #       fluidRow( column(5,radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot')) )
-                    #     )
-                    #   )
 
       # Start comparing the score
       df_compare_prepare <- eventReactive(input$comparison_start,{
@@ -3484,15 +3455,15 @@ server <- function(input, output, session) {
             data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
             y_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
-            if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None', y_names) , selected='logFC') }
-            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None', y_names) , selected='LFC') }
-            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None', y_names) , selected='LFC') }
-            else {selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None', y_names))}
+            if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='logFC') }
+            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
+            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
+            else {selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names))}
           }else{
-            selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None'))
+            selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
           }
         }else{
-          selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c(None= 'None'))
+          selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
         }
       })
 
@@ -3648,24 +3619,36 @@ server <- function(input, output, session) {
       # data from which experiment
       Experiments_select_button_creation <- function(df_tmp,Name,Seuqenced_by ){
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(Seuqenced_by!='None') { df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by, ]}
+        if(length(Seuqenced_by) != 0 ){
+          if(Seuqenced_by!='None') { df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by, ]}
+        }
         selectInput(Name, 'Experiment', c('None'= 'None', unique(df_tmp$Experiment)))
       }
 
       # data type
       Data_type_select_button_creation <- function(df_tmp,Name,Seuqenced_by, Experiments ){
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]} 
-        if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
+        if(length(Seuqenced_by)!=0){
+          if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]} 
+        }
+        if(length(Experiments)!=0){
+          if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
+        }
         selectInput(Name, 'Data type', c('None'= 'None', unique(df_tmp$Data.type)))
       }
 
       # dataset selection
       dataset_select_button_creation <- function(df_tmp, Name, Seuqenced_by, Experiments, Data_type ){ 
         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-        if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]}
-        if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
-        if(Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]}
+        if(length(Seuqenced_by)!= 0){
+          if(Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]}
+        }
+        if(length(Experiments)!=0){
+          if(Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]}
+        }
+        if(length(Data_type)!=0){
+          if(Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]}
+        }
         selectInput(Name, 'Dataset select', c('None'='None', unique(df_tmp$Dataset))) 
       }
 
@@ -3704,12 +3687,12 @@ server <- function(input, output, session) {
         Select_x <- function(df_tmp, object_name){
           if(!is.null(df_tmp)){ X_axis_name <- colnames(df_tmp) }
           else{ X_axis_name <- c() }
-          selectInput(object_name, 'x', c(None='None', X_axis_name))
+          selectInput(object_name, 'x', c('None'='None', X_axis_name))
         }
         Select_y <- function(df_tmp, object_name){
           if(!is.null(df_tmp)){ Y_axis_name <- colnames(df_tmp) }
           else{ Y_axis_name <- c() }
-          selectInput(object_name, 'y', c(None='None', Y_axis_name))
+          selectInput(object_name, 'y', c('None'='None', Y_axis_name))
         }
         output$Integrate_data1_Scat.X <- renderUI({ Select_x(df_data1(), 'Integrate_data1_Scat.X') })
         output$Integrate_data2_Scat.X <- renderUI({ Select_x(df_data2(), 'Integrate_data2_Scat.X') })
@@ -3771,6 +3754,9 @@ server <- function(input, output, session) {
 
         # plot1
         output$Integrate_data1_plot <- renderPlot({
+          if(length(input$Integrate_data1_Scat.X) ==0 | length(input$Integrate_data1_Scat.Y)==0 ){
+            return(NULL)
+          }
           if(input$Integrate_data1_Scat.X == 'None' | input$Integrate_data1_Scat.Y == 'None'){
             output$Integrate_data1_plot_status <- renderText({"Please select the X and Y."})
             return(NULL)
@@ -3791,6 +3777,9 @@ server <- function(input, output, session) {
 
         # plot2
         output$Integrate_data2_plot <- renderPlot({
+          if(length(input$Integrate_data2_Scat.X) == 0 |  length(input$Integrate_data2_Scat.Y)== 0){
+            return(NULL)
+          }
           if(input$Integrate_data2_Scat.X == 'None' |  input$Integrate_data2_Scat.Y== 'None'){
             output$Integrate_data2_plot_status <- renderText({"Please select the X and Y."})
           }else{
@@ -3888,21 +3877,21 @@ server <- function(input, output, session) {
         output$Integrate_data1_plus_2_Scat.X <- renderUI({
           if(!is.null(data1_plus_data2())){ X_axis_name <- colnames(data1_plus_data2()) }
           else{ X_axis_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.X', 'X', c(None='None', X_axis_name), selected = "")
+          selectInput('Integrate_data1_plus_2_Scat.X', 'X', c('None'='None', X_axis_name), selected = "")
         })
 
         # Y axis
         output$Integrate_data1_plus_2_Scat.Y <- renderUI({
           if(!is.null(data1_plus_data2())){ Y_axis_name <- colnames(data1_plus_data2()) }
           else{ Y_axis_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.Y', 'Y', c(None='None', Y_axis_name))
+          selectInput('Integrate_data1_plus_2_Scat.Y', 'Y', c('None'='None', Y_axis_name))
         })
 
         # colour
         output$Integrate_data1_plus_2_Scat.colour <- renderUI({
           if(!is.null(data1_plus_data2())){ col_name <- colnames(data1_plus_data2()) }
           else{ col_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.colour', 'Colour', c(None='None', col_name))
+          selectInput('Integrate_data1_plus_2_Scat.colour', 'Colour', c('None'='None', col_name))
         })
 
         # plot
@@ -4033,9 +4022,9 @@ server <- function(input, output, session) {
       output$scRNA_UMAP1_groupBy <- renderUI({
         if(!is.null(Seurat_obj())){
           meta <- Seurat_obj()@meta.data
-          selectInput('scRNA_UMAP1_groupBy', 'Colour by:', c(None='None', colnames(meta)[!(colnames(meta) %in% c('percent.mt', 'nCount_RNA', 'nFeature_RNA', 'orig.ident'))]), selected = 'seurat_clusters' )
+          selectInput('scRNA_UMAP1_groupBy', 'Colour by:', c('None'='None', colnames(meta)[!(colnames(meta) %in% c('percent.mt', 'nCount_RNA', 'nFeature_RNA', 'orig.ident'))]), selected = 'seurat_clusters' )
         }else{
-          selectInput('scRNA_UMAP1_groupBy', 'Colour by:', c(None='None') )
+          selectInput('scRNA_UMAP1_groupBy', 'Colour by:', c('None'='None') )
         }
       })
 
@@ -4593,7 +4582,7 @@ server <- function(input, output, session) {
 
       ##### plot a Kaplan meier #####
         # output$Clinical_Survial_plot_Geneselect <- renderUI({ 
-        #   selectInput('Clinical_Survial_plot_Geneselect', 'Gene', c(None='None', unlist(strsplit(input$Clinical_Survival_genes, split = "\n")))) 
+        #   selectInput('Clinical_Survial_plot_Geneselect', 'Gene', c('None'='None', unlist(strsplit(input$Clinical_Survival_genes, split = "\n")))) 
         # })
         output$Clinical_Survial_plot <- renderPlot({
           df_geneEx <- Clinical_gene_expression()
