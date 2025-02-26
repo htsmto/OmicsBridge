@@ -2232,8 +2232,8 @@ server <- function(input, output, session) {
           # load a gmt file and select the pathway
           Gene_set <- reactive({
             req(input$show_pathway)
-            if(input$pathway_dataset_select == 'HALLMARK (human)'){ gsc <- getGmt('h.all.v2023.2.Hs.symbols.gmt') }
-            else if(input$pathway_dataset_select == 'HALLMARK (mouse)'){ gsc <- getGmt('mh.all.v2023.2.Mm.symbols.gmt') } 
+            if(input$pathway_dataset_select == 'HALLMARK (human)'){ gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt') }
+            else if(input$pathway_dataset_select == 'HALLMARK (mouse)'){ gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt') } 
             else if(input$pathway_dataset_select == 'Custom'){ 
               tmp <- input$upload_custom_pathway_file
               if (is.null(tmp)){ gsc <- NULL }
@@ -2945,12 +2945,12 @@ server <- function(input, output, session) {
               gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
               selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
             }else if (input$Data_Overview_heatmap_target_gene_type == 'C') {
-              gsc <- getGmt('h.all.v2023.2.Hs.symbols.gmt')
+              gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
               gene_sets_names <- c()
               for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
               selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
             }else if (input$Data_Overview_heatmap_target_gene_type == 'D') {
-              gsc <- getGmt('mh.all.v2023.2.Mm.symbols.gmt')
+              gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
               gene_sets_names <- c()
               for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
               selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names)) 
@@ -2983,14 +2983,14 @@ server <- function(input, output, session) {
               }
             }else if(input$Data_Overview_heatmap_target_gene_type == 'C'){
               if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                gsc <- getGmt('h.all.v2023.2.Hs.symbols.gmt')
+                gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
                 gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
               }else{
                 return(NULL)
               }            
             }else if(input$Data_Overview_heatmap_target_gene_type == 'D'){
               if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                gsc <- getGmt('mh.all.v2023.2.Mm.symbols.gmt')
+                gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
                 gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
               }else{
                 return(NULL)
