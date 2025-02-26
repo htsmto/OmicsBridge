@@ -61,7 +61,16 @@ The renv package is a tool for managing project-specific package dependencies in
 
 ```R
 install.packages('rnev') # skippable if you already have rnev
+renv::init()
+
+# you have to restart R
+
+# For Linux (Ubuntsu)
 renv::restore(lockfile='renv.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
+
+# For Mac
+renv::restore(lockfile='renv_Mac.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
+
 ```
 
 <details>
