@@ -61,22 +61,22 @@ The renv package is a tool for managing project-specific package dependencies in
 
 ```R
 install.packages('rnev') # skippable if you already have rnev
-renv::init()
 
-# you have to restart R
+## For Linux (Ubuntsu)
+renv::restore(lockfile='renv.lock')
+## For Mac
+renv::restore(lockfile='renv_Mac.lock')
 
-# For Linux (Ubuntsu)
-renv::restore(lockfile='renv.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
+# Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
+# Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
 
-# For Mac
-renv::restore(lockfile='renv_Mac.lock') # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
 
 ```
 
 <details>
 <summary> cannot install renv?</summary>
 
-> If you are a Mac user, downloading Xcode (or upgrating it) via app store may solve this problem.
+> If you are a Mac user, downloading Xcode (or upgrating it) via app store and XQuartz from [here](https://www.xquartz.org/) may solve this problem.
 
 </details>
 
@@ -100,5 +100,14 @@ devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 devtools::install_github('dviraran/xCell')
 
 ```
+
+<details>
+<summary> cannot install some libraries?</summary>
+
+> Please install the library one by one, not all in once. If you are a Mac user, installing [XQuartz](https://www.xquartz.org/) can solve the problem.
+
+</details>
+
+
 
 If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
