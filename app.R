@@ -2083,6 +2083,7 @@ server <- function(input, output, session) {
               if("X.log10.padj." %in% colnames(df_tmp)){ df_tmp$X.log10.padj. <- replace_inf_with_largest_values(df_tmp$X.log10.padj.) }
               numeric_cols <- names(df_tmp)[!(names(df_tmp) %in% 'id')]
               df_tmp[numeric_cols] <- lapply(df_tmp[numeric_cols], as.numeric)
+              df_tmp[is.na(df_tmp)]<-0
               df_tmp
             }else{
               return(NULL)
