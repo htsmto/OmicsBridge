@@ -1777,7 +1777,7 @@ ui <- fluidPage(
                     ),
                     column(8,
                       box(width=12, title='Plot',
-                        radioButtons('Cross_tabulation_plot_method', 'Choose the method', choices=c(
+                        radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
                           'Calculate the percentile (stack bar plot)'='A', 
                           'Use the original count (stack bar plot)'='C',
                           'Use the original count (dodge bar plot)'='D'
