@@ -1880,24 +1880,29 @@ server <- function(input, output, session) {
         else if (str_detect(Data.from.upload, "[;/,()\\[\\]!@#$%]")) {
           output$status_upload <- renderText('The Data.from cannot contain "/ , ( ) [ ] ! # @ $ %"!')
         }else{
-          time_stamp <- as.character(Sys.time())  
-          Year <- format(Sys.time(), "%Y")
-          date <- format(Sys.time(), "%m.%d")
-          # path
-          # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
-          filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
-          save_path <- file.path('00_Expression_data_all', Year, date, filname)
-          dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
-          # save
-          file.copy(uploaded_file$datapath, save_path)
+          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
+          if(!'id' %in% colnames(gx_table)){
+            output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
+          }else{
+            time_stamp <- as.character(Sys.time())  
+            Year <- format(Sys.time(), "%Y")
+            date <- format(Sys.time(), "%m.%d")
+            # path
+            # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
+            filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
+            save_path <- file.path('00_Expression_data_all', Year, date, filname)
+            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
+            # save
+            file.copy(uploaded_file$datapath, save_path)
 
-          tmp <- Dataset()
-          tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
-          tmp <- tmp[order(tmp$Added.When, decreasing =T),]
-          Dataset(tmp)
-          replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
-          write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
-          output$status_upload <- renderText('uploaded!')
+            tmp <- Dataset()
+            tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
+            tmp <- tmp[order(tmp$Added.When, decreasing =T),]
+            Dataset(tmp)
+            replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
+            write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+            output$status_upload <- renderText('uploaded!')
+          }
         }
 
       })
