@@ -1770,7 +1770,6 @@ ui <- fluidPage(
                           fluidRow(
                             column(12,h4("Statistic test")),
                             column(6, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
-                            column(6, actionButton("cross_table_Statistic_start", "Calculate")),
                             column(12, verbatimTextOutput("cross_table_Statistic")),
                           )                          
                         )
