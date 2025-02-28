@@ -55,34 +55,6 @@ To use OmicsBridge, R is requrired and version should be >=4.4.0. We confirmed t
 
 The necessary R libraries can be installed in the either way in the follwings:
 
-### Using renv
-
-The renv package is a tool for managing project-specific package dependencies in R.
-
-```R
-install.packages('rnev') # skippable if you already have rnev
-
-## For Linux (Ubuntsu)
-renv::restore(lockfile='renv.lock')
-## For Mac
-renv::restore(lockfile='renv_Mac.lock')
-
-# Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
-# Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
-
-
-```
-
-<details>
-<summary> cannot install renv?</summary>
-
-> If you are a Mac user, downloading Xcode (or upgrating it) via app store and XQuartz from [here](https://www.xquartz.org/) may solve this problem.
-
-</details>
-
-<br>
-Depends on the OS, it usually takes 15-30 minutes.
-
 ### Manually install the necessary libraries
 
 Installing via the renv library can be OS specifc. If it does not work, please install the following packages manually to your R environment.
@@ -111,3 +83,33 @@ devtools::install_github('dviraran/xCell')
 
 
 If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
+
+
+### Using renv
+
+The renv package is a tool for managing project-specific package dependencies in R.
+
+```R
+install.packages('rnev') # skippable if you already have rnev
+
+## For Linux (Ubuntsu)
+renv::restore(lockfile='renv.lock')
+## For Mac
+renv::restore(lockfile='renv_Mac.lock')
+
+# Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
+# Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
+
+
+```
+
+<details>
+<summary> cannot install renv?</summary>
+
+> If you are a Mac user, downloading Xcode (or upgrating it) via app store and XQuartz from [here](https://www.xquartz.org/) may solve this problem.
+
+</details>
+
+<br>
+Depends on the OS, it usually takes 15-30 minutes.
+
