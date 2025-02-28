@@ -1809,6 +1809,64 @@ ui <- fluidPage(
                     ),
                   )
                 )
+              ),
+              tabPanel('Venn Diagram',
+                box(width=12, title='Venn Diagram',
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Information of each group',
+                        fluidRow(
+                          column(9, radioButtons('Venn_Diagram_method', 'Choose a method', choices=c('2D Venn diagram'='A', '3D Venn diagram'='B'), selected='A')),
+                          column(9, textInput("Venn_Diagram_Group1_name", "Group 1 title")),
+                          column(9, textAreaInput("Venn_Diagram_Group1_element", "Group 1 element")),
+                          column(9, textInput("Venn_Diagram_Group2_name", "Group 2 title")),
+                          column(9, textAreaInput("Venn_Diagram_Group2_element", "Group 2 element")),
+                          conditionalPanel(
+                            condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',  
+                            column(9, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
+                            column(9, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element")),
+                          )
+                        ),
+                        h3(),
+                        fluidRow(
+                          column(12, h4('Show the overlapping elements')),
+                          conditionalPanel(
+                            condition = 'input.Venn_Diagram_method == "A"',  
+                            column(12, selectInput('Venn_Diagram_show_overlap_2D', 'Choose a category',  c('None'='None', 'in Group1 & Group2', 'only in Group1', 'only in Group2'), selected = 'None')),
+                            column(12, verbatimTextOutput("Venn_Diagram_show_overlap_2D_list")),
+                          ),
+                          conditionalPanel(
+                            condition = 'input.Venn_Diagram_method == "B"',  
+                            column(12, selectInput('Venn_Diagram_show_overlap_3D', 'Choose a category',  c('None'='None', 'in Group1 & Group2 & Group3', 'in Group1 & Group2', 
+                              'in Group2 & Group3', 'in Group3 and Group1', 'in Group1 & Group2 but not in Group3', 'in Group2 & Group3 but not in Group1',
+                              'in Group3 and Group1 but not in Group2', 'Only in Group1','Only in Group2','Only in Group3'), selected = 'None')),
+                            column(12, verbatimTextOutput("Venn_Diagram_show_overlap_3D_list")),
+                          ),
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot',
+                        verbatimTextOutput("Venn_Diagram_status"),
+                        plotOutput("Venn_Diagram_plot", width="100%", height="100%"),
+                        box(width=12, title='Plot options', collapsible=TRUE, collapsed=TRUE,
+                          fluidRow(
+                            column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                            column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                            column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.1, max=7, value=1.5, step=0.1)),
+                            column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.1, max=7, value=2, step=0.1)),
+                            column(6, colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
+                            column(6, colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
+                            conditionalPanel(
+                              condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
+                              column(6, colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
+                            )
+                          )
+                        )
+                      )
+                    ),
+                  )
+                )
               )
             )
           ),
@@ -6055,7 +6113,97 @@ server <- function(input, output, session) {
         }
       })
 
-    ####
+    ### Venn Diagram
+      venn_data <- reactive({
+        if(length(input$Venn_Diagram_method) == 0){
+          output$Venn_Diagram_status <- renderText({'Please choose the method.'})
+          return(NULL)
+        }
+        if(input$Venn_Diagram_Group1_name == '' | input$Venn_Diagram_Group2_name == ''){
+          output$Venn_Diagram_status <- renderText({'Please fill in the Group 1 & 2 name.'})
+          return(NULL)
+        }
+        if(nchar(input$Venn_Diagram_Group1_element)==0 | nchar(input$Venn_Diagram_Group2_element)==0){
+          output$Venn_Diagram_status <- renderText({'Please fill in the element Group 1 & 2 name.'})
+          return(NULL)
+        }
+        output$Venn_Diagram_status <- renderText({NULL})
+        # 2D
+        if(input$Venn_Diagram_method == 'A'){
+          group1_elements <- unique(unlist(strsplit(input$Venn_Diagram_Group1_element, split = "\n")))
+          group2_elements <- unique(unlist(strsplit(input$Venn_Diagram_Group2_element, split = "\n")))
+          tmp <- list(group1_name = group1_elements, group2_name=group2_elements)
+          return(tmp)
+        }else if(input$Venn_Diagram_method == 'B'){ # 3D
+          if(input$Venn_Diagram_Group1_name == '' | input$Venn_Diagram_Group2_name == '' | input$Venn_Diagram_Group3_name == ''){
+            output$Venn_Diagram_status <- renderText({'Please fill in the Group 1 & 2 & 3 name.'})
+            return(NULL)
+          }
+          if(nchar(input$Venn_Diagram_Group1_element)==0 | nchar(input$Venn_Diagram_Group2_element)==0 | nchar(input$Venn_Diagram_Group3_element)==0){
+            output$Venn_Diagram_status <- renderText({'Please fill in the element Group 1 & 2 & 3 name.'})
+            return(NULL)
+          }
+          output$Venn_Diagram_status <- renderText({NULL})
+          group1_elements <- unique(unlist(strsplit(input$Venn_Diagram_Group1_element, split = "\n")))
+          group2_elements <- unique(unlist(strsplit(input$Venn_Diagram_Group2_element, split = "\n")))
+          group3_elements <- unique(unlist(strsplit(input$Venn_Diagram_Group3_element, split = "\n")))
+          tmp <- list(group1_name = group1_elements, group2_name=group2_elements, group3_name=group3_elements)
+          return(tmp)
+        }else{
+          return(NULL)
+        }
+
+      })
+
+      output$Venn_Diagram_plot <- renderPlot({
+        if(is.null(venn_data())){
+          return(NULL)
+        }
+        euler_data <- euler(venn_data())
+        if(input$Venn_Diagram_method == 'A'){
+          plot(euler_data,
+            fills = list(fill=c(input$Venn_Diagram_plot_col1_colour, input$Venn_Diagram_plot_col2_colour), alpha=0.7),
+            quantities = list(cex = input$Venn_Diagram_plot_label.font.size),
+            legend = list(labels = c(input$Venn_Diagram_Group1_name, input$Venn_Diagram_Group2_name), cex = input$Venn_Diagram_plot_legend_size)
+          )
+        }else if(input$Venn_Diagram_method == 'B'){
+          plot(euler_data,
+            fills = list(fill=c(input$Venn_Diagram_plot_col1_colour, input$Venn_Diagram_plot_col2_colour, input$Venn_Diagram_plot_col3_colour), alpha=0.7),
+            quantities = list(cex = input$Venn_Diagram_plot_label.font.size),
+            legend = list(labels = c(input$Venn_Diagram_Group1_name, input$Venn_Diagram_Group2_name, input$Venn_Diagram_Group3_name), cex = input$Venn_Diagram_plot_legend_size)
+          )
+        }
+
+        # p <- ggVennDiagram(venn_data(), label_alpha=0.6, category.names= c())
+        # p <- p + theme(legend.position="none")  + coord_flip()
+        # p
+      }, width=reactive(input$Venn_Diagram_plot.width), height=reactive(input$Venn_Diagram_plot.height))
+
+      output$Venn_Diagram_show_overlap_2D_list <- renderText({
+        venn_data <- venn_data()
+        if(input$Venn_Diagram_show_overlap_2D == 'None'){ NULL }
+        else if(input$Venn_Diagram_show_overlap_2D == 'in Group1 & Group2'){ paste(intersect(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_2D == 'only in Group1'){ paste(setdiff(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_2D == 'only in Group2'){ paste(setdiff(venn_data$group2_name,venn_data$group1_name), collapse='\n') }
+      })
+
+      output$Venn_Diagram_show_overlap_3D_list <- renderText({
+        venn_data <- venn_data()
+        if(input$Venn_Diagram_show_overlap_3D == 'None'){ NULL }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 & Group3'){ paste( intersect(intersect(venn_data$group1_name,venn_data$group2_name),venn_data$group3_name ), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2'){ paste( intersect(venn_data$group1_name,venn_data$group2_name) , collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3'){ paste( intersect(venn_data$group2_name,venn_data$group3_name) , collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 and Group1'){ paste( intersect(venn_data$group3_name,venn_data$group1_name) , collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 but not in Group3'){ paste( setdiff( intersect(venn_data$group1_name,venn_data$group2_name) ,venn_data$group3_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3 but not in Group1'){ paste( setdiff( intersect(venn_data$group2_name,venn_data$group3_name) ,venn_data$group1_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 & Group1 but not in Group2'){ paste( setdiff( intersect(venn_data$group3_name,venn_data$group1_name) ,venn_data$group2_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group1'){ paste( setdiff( setdiff(venn_data$group1_name,venn_data$group2_name), venn_data$group3_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group2'){ paste( setdiff( setdiff(venn_data$group2_name,venn_data$group3_name), venn_data$group1_name), collapse='\n') }
+        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group3'){ paste( setdiff( setdiff(venn_data$group3_name,venn_data$group1_name), venn_data$group2_name), collapse='\n') }
+      })
+
+    ###
+
 
   ###
 
