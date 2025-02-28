@@ -3709,6 +3709,9 @@ server <- function(input, output, session) {
           if(is.null(df_main_plot)){
             return(NULL)
           }
+          if(selected_x=='None' | selected_y=='None'){
+            return(NULL)
+          }
           if(method=='A'){
             switch(Direction,
               "both positive/negative genes" = df_main_plot[((df_main_plot[selected_x] > x_threshold | df_main_plot[selected_x] < -x_threshold) & df_main_plot[selected_y] > y_threshold), ],
