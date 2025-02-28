@@ -1783,7 +1783,7 @@ ui <- fluidPage(
                           'Use the original count (dodge bar plot)'='D'
                           ), selected='A'),
                         verbatimTextOutput("Cross_tabulation_plot_status"),
-                        plotOutput("Cross_tabulation_plot", brush = "scRNA_UMAP2_brush", width="100%", height="100%"),
+                        plotOutput("Cross_tabulation_plot",  width="100%", height="100%"),
                         box(width=12, title='Plot options', collapsible=TRUE, collapsed=TRUE,
                           fluidRow(
                             column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
