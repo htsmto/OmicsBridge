@@ -1861,11 +1861,9 @@ server <- function(input, output, session) {
         data.type.upload <- unlist(strsplit(input$upload_data_type, split = "\n"))[1]
         cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
         Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
-        Data.from.upload <- gsub(' ', '_', Data.from.upload)
         When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
         Description <- unlist(strsplit(input$upload_description, split = "\n"))[1]
         Experiment.upload <- unlist(strsplit(input$upload_Experiment, split = "\n"))[1]
-        Experiment.upload <- gsub(' ', '_', Experiment.upload)
         Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
         Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
         Data.Class.upload <- input$upload_Data_Class
@@ -3520,7 +3518,7 @@ server <- function(input, output, session) {
               }
             }
             # merge into one dataframe
-            colnames(df_tmp_tmp_sorted) <- c('id', paste(sorted_score, dataset, sep='.'))
+            colnames(df_tmp_tmp_sorted) <- c('id', dataset)
             if(i==0){
               df_tmp <- df_tmp_tmp_sorted
             }else{
