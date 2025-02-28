@@ -6028,7 +6028,7 @@ server <- function(input, output, session) {
         colours <- setNames(c(input$Cross_tabulation_plot_col1_colour,input$Cross_tabulation_plot_col2_colour), col_group)
         p <- p + scale_fill_manual(values = colours)
         if(input$Cross_tabulation_plot_col2_colour_while_background){
-          p <- p + theme_minimal()
+          p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
         }
         if(input$Cross_tabulation_plot_rotate_x){
           p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 0.5, hjust=1))
