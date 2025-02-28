@@ -1735,6 +1735,81 @@ ui <- fluidPage(
                     column(5, h4('List of genes/coordinates'), verbatimTextOutput('Find_genome_loci_table_gene_names'))
                   )
                 )
+              ),
+              tabPanel('Cross-tabulation analysis',
+                box(width=12,
+                  h3('Cross-tabulation analysis'),
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Contingency table',
+                        box(width=12,
+                          fluidRow(
+                            column(12, h4('Table contents')),
+                            column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
+                            column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
+                            column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
+                            column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
+                            column(6, numericInput("Cross_tabulation_val1", "Value for (Row-Group1 & Column-Group1)", 0, min=0)),
+                            column(6, numericInput("Cross_tabulation_val2", "Value for (Row-Group1 & Column-Group2)", 0, min=0)),
+                            column(6, numericInput("Cross_tabulation_val3", "Value for (Row-Group1 & Column-Group3)", 0, min=0)),
+                            column(6, numericInput("Cross_tabulation_val4", "Value for (Row-Group1 & Column-Group4)", 0, min=0)),
+                            column(12,h3("")),
+                            hr(),
+                          )
+                        ),
+                        box(width=12,
+                          fluidRow(
+                            column(12,h4("Table")),
+                            column(12,
+                              verbatimTextOutput("cross_table_status"),
+                              dataTableOutput("Cross_tabulation_table")
+                            )
+                          )                          
+                        ),
+                        box(width=12,
+                          fluidRow(
+                            column(12,h4("Statistic test")),
+                            column(6, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
+                            column(6, actionButton("cross_table_Statistic_start", "Calculate")),
+                            column(12, verbatimTextOutput("cross_table_Statistic")),
+                          )                          
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot',
+                        radioButtons('Cross_tabulation_plot_method', 'Choose the method', choices=c(
+                          'Calculate the percentile (stack bar plot)'='A', 
+                          'Use the original count (stack bar plot)'='C',
+                          'Use the original count (dodge bar plot)'='D'
+                          ), selected='A'),
+                        verbatimTextOutput("Cross_tabulation_plot_status"),
+                        plotOutput("Cross_tabulation_plot", brush = "scRNA_UMAP2_brush", width="100%", height="100%"),
+                        box(width=12, title='Plot options', collapsible=TRUE, collapsed=TRUE,
+                          fluidRow(
+                            column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                            column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                            column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=20, step=1)),
+                            column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=5, max=40, value=20, step=1)),
+                            column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=5, max=40, value=20, step=1)),
+                            column(6, colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
+                            column(6, colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
+                            column(6, checkboxInput('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE) )
+                          ),
+                          fluidRow(
+                            column(6, checkboxInput('Cross_tabulation_plot_rotate_x', 'Use white background', value=FALSE) ),
+                            column(6, 
+                              conditionalPanel(
+                                condition='input.Cross_tabulation_plot_rotate_x == true',
+                                numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 90, min=0)
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                  )
+                )
               )
             )
           ),
@@ -5884,7 +5959,104 @@ server <- function(input, output, session) {
           })
         }
       })
+    
+    ### Cross_tabulation analysis
+      # input the parameter for the contingency table
+      cross_table <- reactive({
+        tmp <- data.frame(A=c(input$Cross_tabulation_val1,input$Cross_tabulation_val3), B=c(input$Cross_tabulation_val2,input$Cross_tabulation_val4))
+        if(input$Cross_tabulation_Row1 == '' | input$Cross_tabulation_Row2 == ''){
+          rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
+        }else{
+          if(input$Cross_tabulation_Row1 == input$Cross_tabulation_Row2){
+            output$cross_table_status <- renderText({"Row names are duplicated."})
+            rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
+          }else{
+            rownames(tmp) <- c(input$Cross_tabulation_Row1, input$Cross_tabulation_Row2)
+          }
+        }
+        if(input$Cross_tabulation_col1 == '' | input$Cross_tabulation_col2 == ''){
+          colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
+        }else{
+          if(input$Cross_tabulation_col1 == input$Cross_tabulation_col2){
+            output$cross_table_status <- renderText({"Column names are duplicated."})
+            colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
+          }else{
+            colnames(tmp) <- c(input$Cross_tabulation_col1, input$Cross_tabulation_col2)
+          }
+        }
+        tmp        
+      })
+      
+      # show table
+      output$Cross_tabulation_table <- renderDataTable({
+        datatable( cross_table()) 
+      })
 
+      # plot
+      output$Cross_tabulation_plot <- renderPlot({
+        df_cross <- cross_table()
+        if(length(df_cross[is.na(df_cross)])>0){
+          output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
+          return(NULL)          
+        }else if(length(df_cross[df_cross==0])==4){
+          output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
+          return(NULL)          
+        }
+        col_group <- colnames(df_cross)
+        df_cross$Row_group <- rownames(df_cross)
+        df_cross_melt <- pivot_longer(df_cross, cols=-Row_group, names_to = 'Column_group')
+        if(length(input$Cross_tabulation_plot_method) == 0){
+          output$Cross_tabulation_plot_status <- renderText({'Please choose the plot method'}) 
+          return(NULL)
+        }
+        output$Cross_tabulation_plot_status <- renderText({NULL}) 
+        p <- ggplot(df_cross_melt, aes(x=Row_group, y=value, fill=Column_group))
+        if(input$Cross_tabulation_plot_method == 'A'){
+          p <- p + geom_bar(stat='identity', position='fill')
+          p <- p + ylab('Percentage')
+        }else if(input$Cross_tabulation_plot_method == 'C'){
+          p <- p + geom_bar(stat='identity')
+          p <- p + ylab('Count')
+        }else if(input$Cross_tabulation_plot_method == 'D'){
+          p <- p + geom_bar(stat='identity', position='dodge')
+          p <- p + ylab('Count')
+        }
+        p <- p + theme(axis.text = element_text(size = input$Cross_tabulation_plot_XY_label.font.size))
+        p <- p + theme(axis.title = element_text(size = input$Cross_tabulation_plot_XY_title.font.size))
+        p <- p + theme(axis.title.x= element_blank())
+        p <- p + theme(legend.text = element_text(size = input$Cross_tabulation_plot_legend_size))
+        p <- p + theme(legend.title = element_blank())
+        colours <- setNames(c(input$Cross_tabulation_plot_col1_colour,input$Cross_tabulation_plot_col2_colour), col_group)
+        p <- p + scale_fill_manual(values = colours)
+        if(input$Cross_tabulation_plot_col2_colour_while_background){
+          p <- p + theme_minimal()
+        }
+        if(input$Cross_tabulation_plot_rotate_x){
+          p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 0.5, hjust=1))
+        }
+        p
+
+      }, width=reactive(input$Cross_tabulation_plot.width), height=reactive(input$Cross_tabulation_plot.height))
+
+      # test
+      output$cross_table_Statistic <- renderText({
+        df_cross <- cross_table()
+        if(length(df_cross[is.na(df_cross)])>0){
+          'Please fill in the table first.'
+        }else if(length(df_cross[df_cross==0])==4){
+          'Please fill in the table first.'
+        }else{
+          if(input$cross_table_Statistic_method == 'A'){
+            chi2_res <- chisq.test(cross_table())
+            paste0('P-value: ', chi2_res$p.value)
+          }else{
+            fisher_res <- fisher.test(cross_table())
+            paste0('P-value: ',fisher_res$p.value)
+          }
+        }
+      })
+
+    ####
 
   ###
 
