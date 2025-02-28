@@ -23,6 +23,8 @@
   suppressMessages(library(colourpicker))
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
+  suppressMessages(library(eulerr))
+  
 
   options(shiny.maxRequestSize = 1000*1024^2)
   options(shiny.usecairo=TRUE)
