@@ -32,6 +32,7 @@
   set.seed(123)
   options(scipen = 10)
   set.seed(123)
+  net <- readRDS('data/OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
@@ -214,7 +215,7 @@ ui <- fluidPage(
             box(title='List of the datasets', width=12, status='primary',
               fluidRow(column(3, htmlOutput("Data_type_filter")), column(3, htmlOutput("Seuqenced_by_filter"))),
               DT::dataTableOutput("DataBaseTable"),
-              fluidRow( column(1, actionButton('save_dt', 'Save changes')), column(2, actionButton('delete_row', 'Delete selected data')), column(7, verbatimTextOutput('status')) )
+              fluidRow( column(2, actionButton('save_dt', 'Save changes')), column(2, actionButton('delete_row', 'Delete selected data')), column(7, verbatimTextOutput('status')) )
             ),
             ## Data Upload ##
             box(width=12,  collapsible=TRUE, title='Data upload',status='primary',
@@ -259,17 +260,29 @@ ui <- fluidPage(
               ),
               h4(""),
               h4(""),
-              fluidRow( column(4, fileInput("upload_file", "Upload a file"))),
-              fluidRow( column(2, textAreaInput("upload_dataset_name", "Dataset name *")), column(2, textAreaInput("upload_Experiment", "Experiment name *")), column(2, textAreaInput("upload_data_from", "Data from *")), column(2, textAreaInput("upload_data_type", "Data type *")), column(2, textAreaInput("upload_cell_line", "Cell line")), column(2, textAreaInput("upload_when", "Wann")) ),
-              fluidRow( column(3, selectInput('upload_Data_Class', 'Data Class *', c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C' ), selected='B')), 
+              fluidRow( 
+                column(5, fileInput("upload_file", "Upload a file"))
+              ),
+              fluidRow( 
+                column(4, textInput("upload_dataset_name", "Dataset name *")), 
+                column(4, textInput("upload_Experiment", "Experiment name *")), 
+                column(4, textInput("upload_data_from", "Data from *")), 
+                column(4, textInput("upload_data_type", "Data type *")), 
+                column(4, textInput("upload_cell_line", "Cell line")), 
+                column(4, textInput("upload_when", "Wann")) 
+              ),
+              fluidRow( column(6, selectInput('upload_Data_Class', 'Data Class *', c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C' ), selected='B')), 
                 conditionalPanel(
                   condition = 'input.upload_Data_Class=="B"',
-                  column(2, textAreaInput("upload_Control_group", "Control group name")), 
-                  column(2, textAreaInput("upload_Treatment_group", "Treatment group name"))
+                  column(3, textInput("upload_Control_group", "Control group name")), 
+                  column(3, textInput("upload_Treatment_group", "Treatment group name"))
                 )
               ),
-              fluidRow( column(4, textAreaInput("upload_description", "Description")) ),
-              fluidRow( column(2, actionButton('upload_data', 'Add to the dataset')), column(6, verbatimTextOutput('status_upload'))),
+              fluidRow( column(5, textAreaInput("upload_description", "Description")) ),
+              fluidRow( 
+                column(3, actionButton('upload_data', 'Add to the dataset')), 
+                column(9, verbatimTextOutput('status_upload'))
+              ),
               fluidRow(
                 column(12, h4('Preview:')),
                 column(12, dataTableOutput("upload_data_preview"))
@@ -478,20 +491,24 @@ ui <- fluidPage(
                           box( title='Display Options',  collapsible=TRUE, status='primary',width=6,
                             # select x and y
                             fluidRow( 
-                              column(3, htmlOutput("Scat.X")), 
-                              column(3, htmlOutput("Scat.Y")),
-                              column(4, checkboxInput('while_background', 'Use white background', value=FALSE))
+                              column(6, htmlOutput("Scat.X")), 
+                              column(6, htmlOutput("Scat.Y")),
+                              column(12, checkboxInput('while_background', 'Use white background', value=FALSE))
                             ),
                             # when highlighting specific genes
                             fluidRow(
-                              column(4, textAreaInput("target_gene", "Enter gene(s) of interest (line by line)")),
-                              column(4, checkboxInput("show_label", "show gene names", value=FALSE)),
-                              column(4, checkboxInput("show_entered_gene_info", "show information as a table", value=FALSE)),
-                              column(4, checkboxInput("interesting_gene_colour", "change the highlight colour", value=FALSE)),
-                              conditionalPanel(
-                                condition = "input.interesting_gene_colour == true",
-                                  column(4, colourInput('interesting_gene_colour_id', 'select colour:', value='red'))
-                              )
+                              column(6, textAreaInput("target_gene", "Enter gene(s) of interest (line by line)")),
+                              column(6,
+                                fluidRow(
+                                  column(12, checkboxInput("show_label", "show gene names", value=FALSE)),
+                                  column(12, checkboxInput("show_entered_gene_info", "show information as a table", value=FALSE)),
+                                  column(12, checkboxInput("interesting_gene_colour", "change the highlight colour", value=FALSE)),
+                                  conditionalPanel(
+                                    condition = "input.interesting_gene_colour == true",
+                                      column(12, colourInput('interesting_gene_colour_id', 'select colour:', value='red'))
+                                  )
+                                ),
+                              ),
                             ),
                             verbatimTextOutput('Scatter_interesting_gene_status'),
                             checkboxInput('show_outliers', 'Show outliers', value=FALSE),
@@ -507,41 +524,43 @@ ui <- fluidPage(
                                 conditionalPanel(
                                   condition = "input.How_to_filter == 'A'",
                                   fluidRow(
-                                    column(6, sliderInput('Overviwe_Top_threshold', 'The threshold for Top hits (%)', min=0, max=100, value=10, step=1)),
-                                    column(6, sliderInput('Overviwe_Bottom_threshold', 'The threshold for Bottom hits (%)', min=0, max=100, value=10, step=1)),
-                                    column(6, sliderInput('Overviwe_Top_bottom_Y_threshold', 'The threshold for Y axis', min=0, max=20, value=0, step=0.1))
+                                    column(6, numericInput('Overviwe_Top_threshold', 'The threshold for Top hits (%)', min=0, max=100, value=10, step=1)),
+                                    column(6, numericInput('Overviwe_Bottom_threshold', 'The threshold for Bottom hits (%)', min=0, max=100, value=10, step=1)),
+                                    column(6, numericInput('Overviwe_Top_bottom_Y_threshold', 'The threshold for Y axis', min=0, value=0, step=0.1))
                                   )
                                 ),
                                 conditionalPanel(
                                   condition = "input.How_to_filter == 'B'",
                                   fluidRow(
-                                    column(4, radioButtons("Direction", "Use", choices = c("both positive & negative side"='A', "only positive side"='B', "only negative side"='C'), selected='B')),
-                                    column(4, 
-                                      fluidRow(column(12, sliderInput('x_threshold', 'The threshold for X axis (positive)', min=0, max=10, value=1, step=0.1))),
-                                      fluidRow(column(12, sliderInput('x_threshold_neg', 'The threshold for X axis (negative)', min=0, max=10, value=1, step=0.1)))
-                                    ),
-                                    column(4, sliderInput('y_threshold', 'The threshold for Y axis', min=0, max=20, value=1.3, step=0.1))                                    
+                                    column(6, radioButtons("Direction", "Use", choices = c("both positive & negative side"='A', "only positive side"='B', "only negative side"='C'), selected='B')),
+                                    column(6, 
+                                      fluidRow(column(12, numericInput('x_threshold', 'The threshold for X axis (positive)', min=0, value=1, step=0.1))),
+                                      fluidRow(column(12, numericInput('x_threshold_neg', 'The threshold for X axis (negative)', min=0, value=1, step=0.1))),
+                                      fluidRow(column(12, numericInput('y_threshold', 'The threshold for Y axis', min=0, value=1.3, step=0.1)))
+                                    )                        
                                   )
                                 ),
                                 fluidRow(
-                                  column(3, checkboxInput('hide_gene_label', 'Hide labels', value=FALSE)),
-                                  column(3, checkboxInput("outlier_gene_colour", "change the colour", value=FALSE)),
+                                  column(6, checkboxInput('hide_gene_label', 'Hide labels', value=FALSE)),
+                                  column(6, checkboxInput("outlier_gene_colour", "change the colour", value=FALSE)),
                                   conditionalPanel(
                                     condition = "input.outlier_gene_colour == true",
-                                      column(3, colourInput('outlier_gene_colour_id', 'Positive side:', value='#0000CD')),
-                                      column(3, colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
+                                      column(6, colourInput('outlier_gene_colour_id', 'Positive side:', value='#0000CD')),
+                                      column(6, colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
                                   )
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput('show_threhold_lines', 'Show the threshold lines', value=FALSE)),
-                                  column(8, checkboxInput('show_information', 'Show the filtered genes information', value=FALSE))
+                                  column(6, checkboxInput('show_threhold_lines', 'Show the threshold lines', value=FALSE)),
+                                  column(6, checkboxInput('show_information', 'Show the filtered genes information', value=FALSE))
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE)),
-                                  conditionalPanel(
-                                    condition = " input.show_outliers_bar_plot == true ",
-                                    column(4, radioButtons('show_outliers_bar_colour', 'Colour by:', choices = c("X", "Y", "None")), selecetd='None'),
-                                    column(4, checkboxInput('show_outliers_rotate_x', 'Rotate x axis lable in the bar plot'))
+                                  column(6, checkboxInput('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE)),
+                                  column(6,
+                                    conditionalPanel(
+                                      condition = " input.show_outliers_bar_plot == true ",
+                                      fluidRow(column(12, radioButtons('show_outliers_bar_colour', 'Colour by:', choices = c("X", "Y", "None")), selecetd='None')),
+                                      fluidRow(column(12, checkboxInput('show_outliers_rotate_x', 'Rotate x axis lable in the bar plot')))
+                                    )
                                   )
                                 )
                               )
@@ -554,20 +573,25 @@ ui <- fluidPage(
                                   column(4, radioButtons("pathway_dataset_select", "pathways from:", choices = c("HALLMARK (human)", "HALLMARK (mouse)", "Custom"))),
                                   column(8,
                                     fluidRow(
-                                      column(12, conditionalPanel( condition = "input.pathway_dataset_select == 'Custom'", column(4, fileInput("upload_custom_pathway_file", "Upload a gmt file")) )),
+                                      column(12, 
+                                        conditionalPanel( 
+                                          condition = "input.pathway_dataset_select == 'Custom'", 
+                                          fileInput("upload_custom_pathway_file", "Upload a gmt file")
+                                        )
+                                      ),
                                       column(12, htmlOutput("select_pathway"))
                                     )
                                   )
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput('hide_gene_label_pathway', 'Hide labels', value=FALSE)),
-                                  column(4, checkboxInput('show_information_pathway', 'Show the genes information', value=FALSE))
+                                  column(6, checkboxInput('hide_gene_label_pathway', 'Hide labels', value=FALSE)),
+                                  column(6, checkboxInput('show_information_pathway', 'Show the genes information', value=FALSE))
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput("pathway_gene_colour", "change the colour", value=FALSE)),
+                                  column(6, checkboxInput("pathway_gene_colour", "change the colour", value=FALSE)),
                                   conditionalPanel(
                                     condition = "input.pathway_gene_colour == true",
-                                      column(4, colourInput('pathway_gene_colour_id', 'select colour:', value='#FF00FF'))
+                                      column(6, colourInput('pathway_gene_colour_id', 'select colour:', value='#FF00FF'))
                                   )
                                 )
                               )
@@ -577,17 +601,17 @@ ui <- fluidPage(
                               condition = "input.Plot_Gene_set == true",
                               box(width=12, 
                                 fluidRow(
-                                  column(8, htmlOutput("Plot_Gene_set_select_geneset")),
+                                  column(12, htmlOutput("Plot_Gene_set_select_geneset")),
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE)),
-                                  column(4, checkboxInput('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE))
+                                  column(6, checkboxInput('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE)),
+                                  column(6, checkboxInput('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE))
                                 ),
                                 fluidRow(
-                                  column(4, checkboxInput("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE)),
+                                  column(6, checkboxInput("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE)),
                                   conditionalPanel(
                                     condition = "input.Plot_Gene_set_pathway_gene_colour == true",
-                                      column(4, colourInput('Plot_Gene_set_pathway_gene_colour_id', 'select colour:', value='#fcc203'))
+                                      column(6, colourInput('Plot_Gene_set_pathway_gene_colour_id', 'select colour:', value='#fcc203'))
                                   )
                                 )
                               )
@@ -662,16 +686,18 @@ ui <- fluidPage(
                           tabPanel('GO analysis',
                             box(title='Settings', collapsible=TRUE, width=4,
                               fluidRow(
-                                column(4, radioButtons("GO_input_type", "Input genes for GO analysis", choices = c("Text input", "Use filtered genes", "Use selected genes"), selected="Text input")),
+                                column(12, radioButtons("GO_input_type", "Input genes for GO analysis", choices = c("Text input", "Use filtered genes", "Use selected genes"), selected="Text input")),
                                 conditionalPanel( condition = "input.GO_input_type == 'Text input'", column(8, textAreaInput("GO_input_geneList", "Enter gene list (one gene per line, Gene symbol)")) )
                               ),
                               fluidRow(
-                                column(4, radioButtons("GO_species", "Select Species", choices = c("Human", "Mouse")),selecetd="Human"),
-                                column(4, radioButtons("GO_database", "Select Database", choices = c("GO", "KEGG")), selecetd='GO'),
-                                conditionalPanel( condition = "input.GO_database == 'GO'", column(4, radioButtons("GO_ontology", "Select Ontology", choices = c("BP", "MF", "CC")), selected="BP") )
+                                column(6, radioButtons("GO_species", "Select Species", choices = c("Human", "Mouse")),selecetd="Human"),
+                                column(6, radioButtons("GO_database", "Select Database", choices = c("GO", "KEGG")), selecetd='GO'),
+                                conditionalPanel( condition = "input.GO_database == 'GO'", column(6, radioButtons("GO_ontology", "Select Ontology", choices = c("BP", "MF", "CC")), selected="BP") )
                               ),
                               fluidRow( column(4, actionButton("GO_start", "Start GO Analysis")) ),
-                              fluidRow( h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: orange;")) ),
+                              fluidRow( 
+                                column(12, h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: orange;"))) 
+                              ),
                               box(title='Plot options',collapsible=TRUE, width=12, collapsed = T,
                                 fluidRow(
                                   column(12, sliderInput('GO_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
@@ -813,16 +839,19 @@ ui <- fluidPage(
               ),
               h3(''),
               fluidRow( 
-                column(2, textAreaInput("Original_geneset_upload_Geneset_name", "Geneset name *")), 
-                column(2, textAreaInput("Original_geneset_upload_cell_line", "Cell line/Cell type")), 
-                column(2, textAreaInput("Original_geneset_upload_data_generated_from", "Data source")),
-                column(2, textAreaInput("Original_geneset_upload_when", "Wann")) 
+                column(4, textInput("Original_geneset_upload_Geneset_name", "Geneset name *")), 
+                column(4, textInput("Original_geneset_upload_cell_line", "Cell line/Cell type")), 
+                column(4, textInput("Original_geneset_upload_data_generated_from", "Data source")),
+                # column(4, textInput("Original_geneset_upload_when", "Wann")) 
               ),
               fluidRow( 
                 column(4, textAreaInput("Original_geneset_upload_genes", "Genes (line by line) (Gene symbol) *")), 
-                column(4, textAreaInput("Original_geneset_upload_description", "Description"))
+                column(8, textAreaInput("Original_geneset_upload_description", "Description"))
               ),
-              fluidRow( column(2, actionButton('Original_geneset_upload_data', 'Add the geneset to the list')), column(5, verbatimTextOutput('Original_geneset_status_upload')))
+              fluidRow( 
+                column(3, actionButton('Original_geneset_upload_data', 'Add the geneset to the list')), 
+                column(9, verbatimTextOutput('Original_geneset_status_upload'))
+              )
             )
           ),
         #### Compare_across_datasets ####
@@ -851,7 +880,7 @@ ui <- fluidPage(
                       column(3, 
                         fluidRow(
                           column(12, sliderInput('Compare_dataset_get_overview_threshold', 'Threshold X(%)=', min=0, max=100, value=5, step=1)),
-                          column(12, numericInput('Compare_dataset_get_overview_threshold_for_display', 'Show genes whose Overlap_time is more than:', value=0, min=0, max=1000, step=1))
+                          column(12, numericInput('Compare_dataset_get_overview_threshold_for_display', 'Show genes with Overlap_time more than:', value=0, min=0, max=1000, step=1))
                         )
                       ),
                       column(3, actionButton('Compare_dataset_get_overview_start', 'Investigate the overlap'))
@@ -859,7 +888,7 @@ ui <- fluidPage(
                   ),
                   box(width=12, title='Overlapped hits', collapsible = TRUE,
                     fluidRow( 
-                      verbatimTextOutput('Compare_dataset_get_overview_status'),
+                      column(12, verbatimTextOutput('Compare_dataset_get_overview_status')),
                       column(12, dataTableOutput("Compare_dataset_get_overview_overlap")),
                       fluidRow(
                         column(2, downloadButton('Compare_dataset_get_overview_download',"Download this table")),
@@ -1043,13 +1072,13 @@ ui <- fluidPage(
               ),
               box(width=6, title='Data', collapsible=TRUE,
                 fluidRow(
-                  column(4, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
+                  column(8, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
                 ),
                 h4('Selected area'),
-                dataTableOutput("Integrate_data1_plus_2_selected"),
+                fluidRow( column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
                 fluidRow(
-                  column(2, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
-                  column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
+                  column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
+                  column(8, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
                 )
               ),
               box(title='Figure option', collapsible=TRUE, width=12,  collapsed=TRUE,
@@ -1089,11 +1118,20 @@ ui <- fluidPage(
                     tabPanel("View the data",
                       tabsetPanel(
                         tabPanel("Gene expression", 
-                          verbatimTextOutput('Clinical_View_Geneexpression_status'), 
-                          radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
-                          DT::dataTableOutput("Clinical_View_Geneexpression")),
-                        tabPanel("Survival", verbatimTextOutput('Clinical_View_Survival_status'), DT::dataTableOutput("Clinical_View_Survival")),
-                        tabPanel("Meta data", verbatimTextOutput('Clinical_View_MetaData_status'), DT::dataTableOutput("Clinical_View_MetaData"))
+                          fluidRow(column(12, verbatimTextOutput('Clinical_View_Geneexpression_status') )), 
+                          fluidRow(
+                            column(12, radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'))
+                          ),
+                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Geneexpression")) )
+                        ),
+                        tabPanel("Survival", 
+                          fluidRow(column(12, verbatimTextOutput('Clinical_View_Survival_status') )), 
+                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Survival") ))
+                        ),
+                        tabPanel("Meta data", 
+                          fluidRow(column(12, verbatimTextOutput('Clinical_View_MetaData_status') )), 
+                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_MetaData") ))
+                        )
                       )
                     ),
                   ###### Survival analysis ######
@@ -1136,8 +1174,8 @@ ui <- fluidPage(
                                     column(4,sliderInput('Clinical_Survial_legend_size', 'legend size', min=10, max=40, value=20, step=1)),
                                   ),
                                   fluidRow(
-                                    column(3, colourInput('Clinical_Survial_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
-                                    column(3, colourInput('Clinical_Survial_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
+                                    column(5, colourInput('Clinical_Survial_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
+                                    column(5, colourInput('Clinical_Survial_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
                                   )
                                 )
                               ),
@@ -1171,32 +1209,36 @@ ui <- fluidPage(
                     tabPanel("Gene correlation",
                       box(width=12, 
                         fluidPage(
-                          column(4, 
-                            radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', choices=c("Explore one gene's correlation with all the genes"='A', "Explore one gene's correlation with specific genes"='B'),selected='B'),
+                          column(8, 
                             fluidRow(
-                              column(6, 
+                              column(12, radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', choices=c("Explore one gene's correlation with all the genes"='A', "Explore one gene's correlation with specific genes"='B'),selected='B')),
+                              column(12, 
                                 conditionalPanel(
                                   condition="input.Gene_correlation_genes_comparison_type == 'A'",
                                   h5(span('This calculates the correlation with all the genes. It takes 2~4 minutes. Please be patient.', style="color: orange;"))
-                                ),
-                                textAreaInput('Gene_correlation_genes', 'Enter *ONE* gene (Y-axis)')
+                                ) 
+                              )
+                            ),
+                            fluidRow(
+                              column(5, 
+                                textInput('Gene_correlation_genes', 'Enter *ONE* gene (Y-axis)')
                               ),
-                              conditionalPanel(
-                                condition="input.Gene_correlation_genes_comparison_type == 'B'",
-                                column(6, 
-                                  textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis)'),
-                                  checkboxInput('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE),
+                              column(7, 
+                                conditionalPanel(
+                                  condition="input.Gene_correlation_genes_comparison_type == 'B'",
+                                  fluidRow(column(9, textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis)'))),
+                                  fluidRow(column(12, checkboxInput('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE))),
                                   conditionalPanel(
                                     condition = "input.Gene_correlation_genes_y_from_custom_geneset == true",
-                                    htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select')
+                                    fluidRow(column(12, htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select')))
                                   )
                                 )
-                              ),
+                              )
                             )
                           ), 
-                          column(2, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson')),
-                          column(2, 
-                            actionButton("Gene_correlation_start", "Calculate the correlation")
+                          column(4, 
+                            fluidRow(column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson'))),
+                            fluidRow(column(12, actionButton("Gene_correlation_start", "Calculate the correlation")))
                           )
                         )
                       ),
@@ -1235,13 +1277,17 @@ ui <- fluidPage(
                       box(width=12,
                         fluidRow(
                           column(3, textAreaInput('Expression_subtype_genes', 'Enter genes')),
-                          column(3, 
-                            htmlOutput('Expression_subtype_groupBy'), 
-                            verbatimTextOutput('Expression_subtype_subtype_number'),
-                            h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: orange;"))
+                          column(5, 
+                            fluidRow(column(12, htmlOutput('Expression_subtype_groupBy') )), 
+                            fluidRow(column(12, verbatimTextOutput('Expression_subtype_subtype_number') )),
+                            fluidRow(column(12, h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: orange;"))))
                           ), 
-                          column(2, actionButton('Expression_subtype_start', 'Start comparing')),
-                          column(2, radioButtons('Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A'))
+                          column(4,
+                            h3(''),
+                            fluidRow(column(12, actionButton('Expression_subtype_start', 'Start comparing') )),
+                            h3(''),
+                            fluidRow(column(12, radioButtons('Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A') )),
+                          )
                         )
                       ),
                       box(width=12,
@@ -1268,21 +1314,21 @@ ui <- fluidPage(
                                 column(4, sliderInput('Expression_subtype_title.font.size', 'Graph title font size', min=10, max=40, value=20))
                               ),
                               fluidRow(
-                                column(3, checkboxInput('Expression_subtype_white_background', 'Use white background', value=FALSE)),
-                                column(3, checkboxInput('Expression_subtype_rotate_x', 'Rotate X axis label', value=FALSE))
+                                column(6, checkboxInput('Expression_subtype_white_background', 'Use white background', value=FALSE)),
+                                column(6, checkboxInput('Expression_subtype_rotate_x', 'Rotate X axis label', value=FALSE))
                               ),
                               fluidRow(
-                                column(3, checkboxInput('Expression_subtype_change_colour_pallete', 'Change the colour pallete', value=FALSE)),
+                                column(6, checkboxInput('Expression_subtype_change_colour_pallete', 'Change the colour pallete', value=FALSE)),
                                 conditionalPanel(
                                   condition = "input.Expression_subtype_change_colour_pallete == true",
-                                  column(3, selectInput('Expression_subtype_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
+                                  column(6, selectInput('Expression_subtype_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
                                 )
                               ),
                               fluidRow(
-                                column(3, checkboxInput('Expression_subtype_use_single_colour', 'Use a single colour', value=FALSE)),
+                                column(6, checkboxInput('Expression_subtype_use_single_colour', 'Use a single colour', value=FALSE)),
                                 conditionalPanel(
                                   condition = "input.Expression_subtype_use_single_colour == true",
-                                  column(3, colourInput('Expression_subtype_choose_single_colour', 'Choose a colour', value='#000000'))
+                                  column(6, colourInput('Expression_subtype_choose_single_colour', 'Choose a colour', value='#000000'))
                                 )
                               ) 
                             )
@@ -1295,10 +1341,10 @@ ui <- fluidPage(
                     tabPanel("Signature analysis",
                       box(width=12, title='Signature selction', collapsible = TRUE, 
                         fluidRow(
-                          column(3, 
+                          column(4, 
                             radioButtons('Signature_input_selection', 'Input', choices = c('Choose from the custom gene sets'='A', 'Text input'='B'), selected='A')
                           ),
-                          column(3,
+                          column(5,
                             conditionalPanel(
                               condition = "input.Signature_input_selection == 'A'",
                               htmlOutput('Signature_input_selection_custom_geneset_select')
@@ -1312,8 +1358,10 @@ ui <- fluidPage(
                               verbatimTextOutput('Signature_input_selection_status'),
                             )
                           ),
-                          column(2,  radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA')),
-                          column(2, actionButton('Signature_start', 'Start calculating the signature score') )
+                          column(3, 
+                            fluidRow(column(12, radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA') )),
+                            fluidRow(column(12, actionButton('Signature_start', 'Calculate the signature score') ))
+                          )
                         )
                       ),
                       box(width=12, title='Results',
@@ -1351,13 +1399,17 @@ ui <- fluidPage(
                               ),
                               tabPanel('Score comparison',
                                 fluidRow(
-                                  column(5, 
-                                    htmlOutput('Signature_subtype_groupBy'), 
-                                    verbatimTextOutput('Signature_subtype_subtype_number'),
-                                    h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: orange;"))
+                                  column(6, 
+                                    fluidRow(column(12, htmlOutput('Signature_subtype_groupBy') )),
+                                    fluidRow(column(12, verbatimTextOutput('Signature_subtype_subtype_number') )),
+                                    fluidRow(column(12, h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: orange;")) ))
                                   ), 
-                                  column(2, h3(""), actionButton('Signature_subtype_start', 'Show plot')),
-                                  column(2, radioButtons('Signature_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A'))
+                                  column(6, 
+                                    h3(''),
+                                    fluidRow(column(12, actionButton('Signature_subtype_start', 'Show plot') )),
+                                    h3(''),
+                                    fluidRow(column(12, radioButtons('Signature_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A') ))
+                                  )
                                 ),
                                 fluidRow(
                                   column(12, plotOutput("Signature_subtype_plot", width="100%", height="100%")),
@@ -1440,8 +1492,8 @@ ui <- fluidPage(
                         tabsetPanel(
                           tabPanel("Correlation with genes",
                             fluidRow(
-                              column(3, 
-                                h3(''),
+                              column(5, 
+                                h4(''),
                                 textAreaInput('Deconvodution_Gene_correlation_genes', 'Enter genes'),
                                 checkboxInput('Deconvodution_Gene_correlation_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE),
                                 conditionalPanel(
@@ -1449,17 +1501,15 @@ ui <- fluidPage(
                                   htmlOutput('Deconvodution_Gene_correlation_from_custom_geneset_select')
                                 )
                               ),
-                              column(3,
-                                h3(''),
+                              column(4,
+                                h4(''),
                                 htmlOutput('Deconvodution_Gene_correlation_select_celltype')
                               ),
-                              column(2,
-                                h3(''),
-                                radioButtons('Deconvodution_Gene_correlation_method', 'Method for correlation', choices=c('pearson', 'spearman'), selected='pearson')
-                              ),
-                              column(2,
-                                h3(''),
-                                actionButton('Deconvodution_Gene_correlation_start', 'Calculate the correlation')
+                              column(3,
+                                h4(''),
+                                fluidRow(column(12, radioButtons('Deconvodution_Gene_correlation_method', 'Method for correlation', choices=c('pearson', 'spearman'), selected='pearson') )),
+                                h4(''),
+                                fluidRow(column(12, actionButton('Deconvodution_Gene_correlation_start', 'Calculate the correlation') ))
                               )
                             ),
                             fluidRow(
@@ -1473,17 +1523,17 @@ ui <- fluidPage(
                                 plotOutput("Deconvodution_Gene_correlation_plot", width="100%", height="100%"),
                                 box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
                                   fluidRow(
-                                    column(4,sliderInput('Deconvodution_Gene_correlation_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
-                                    column(4,sliderInput('Deconvodution_Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                    column(6,sliderInput('Deconvodution_Gene_correlation_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
+                                    column(6,sliderInput('Deconvodution_Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
                                   ),
                                   fluidRow(
-                                    column(4,sliderInput('Deconvodution_Gene_correlation_label_size', 'X/Y label size', min=10, max=40, value=20, step=1)),
-                                    column(4,sliderInput('Deconvodution_Gene_correlation_title_size', 'X/Y title size', min=10, max=40, value=20, step=1)),
+                                    column(6,sliderInput('Deconvodution_Gene_correlation_label_size', 'X/Y label size', min=10, max=40, value=20, step=1)),
+                                    column(6,sliderInput('Deconvodution_Gene_correlation_title_size', 'X/Y title size', min=10, max=40, value=20, step=1)),
                                   ),
                                   fluidRow(
-                                    column(3, colourInput('Deconvodution_Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
-                                    column(2, checkboxInput('Deconvodution_Gene_correlation_show_correlation_line', 'Show the correlation line')),
-                                    column(2, checkboxInput('Deconvodution_Gene_correlation_white_background', 'Use white background', value=FALSE))
+                                    column(4, colourInput('Deconvodution_Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
+                                    column(4, checkboxInput('Deconvodution_Gene_correlation_show_correlation_line', 'Show the correlation line')),
+                                    column(4, checkboxInput('Deconvodution_Gene_correlation_white_background', 'Use white background', value=FALSE))
                                   )
                                 )
                               )
@@ -1515,17 +1565,17 @@ ui <- fluidPage(
                         fluidRow( column(4, fileInput("new_cohort_upload_sur", "Upload a survival data file"))),
                         fluidRow( column(4, fileInput("new_cohort_upload_meta", "Upload a metadaata file"))),
                         fluidRow( 
-                          column(4, textAreaInput("new_cohort_upload_dataset_name", "Cohort Name*")),
+                          column(4, textInput("new_cohort_upload_dataset_name", "Cohort Name*")),
                           column(4, textAreaInput("new_cohort_upload_description", "Description")) 
                         ),
                         fluidRow( column(2, actionButton('new_cohort_upload_data', 'Add a new cohort')), column(6, verbatimTextOutput('new_cohort_status'))),
                         h3(''),
                         fluidRow( 
-                          h4('Preview (Expression table)'),
+                          column(12, h4('Preview (Expression table):') ),
                           column(12, dataTableOutput("new_cohort_upload_GE_preview")),
-                          h4('Preview (Survival data)'),
+                          column(12, h4('Preview (Survival data):') ),
                           column(12, dataTableOutput("new_cohort_upload_sur_preview")),
-                          h4('Preview (Meta data)'),
+                          column(12, h4('Preview (Meta data):')),
                           column(12, dataTableOutput("new_cohort_upload_meta_preview"))
                         ),
                       )
@@ -1742,42 +1792,48 @@ ui <- fluidPage(
                 box(width=12,
                   h3('Cross-tabulation analysis'),
                   fluidRow(
-                    column(4,
-                      box(width=12, title='Contingency table',
-                        box(width=12,
-                          fluidRow(
-                            column(12, h4('Table contents')),
-                            column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
-                            column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
-                            column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
-                            column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
-                            column(6, numericInput("Cross_tabulation_val1", "Value for (Row-Group1 & Column-Group1)", 0, min=0)),
-                            column(6, numericInput("Cross_tabulation_val2", "Value for (Row-Group1 & Column-Group2)", 0, min=0)),
-                            column(6, numericInput("Cross_tabulation_val3", "Value for (Row-Group1 & Column-Group3)", 0, min=0)),
-                            column(6, numericInput("Cross_tabulation_val4", "Value for (Row-Group1 & Column-Group4)", 0, min=0)),
-                            column(12,h3("")),
-                            hr(),
+                    column(5,
+                      fluidRow(
+                        column(12, 
+                          box(width=12,
+                            fluidRow(
+                              column(12, h4('Table contents')),
+                              column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
+                              column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
+                              column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
+                              column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
+                              column(6, numericInput("Cross_tabulation_val1", "Value for (Row-Group1 & Column-Group1)", 0, min=0)),
+                              column(6, numericInput("Cross_tabulation_val2", "Value for (Row-Group1 & Column-Group2)", 0, min=0)),
+                              column(6, numericInput("Cross_tabulation_val3", "Value for (Row-Group1 & Column-Group3)", 0, min=0)),
+                              column(6, numericInput("Cross_tabulation_val4", "Value for (Row-Group1 & Column-Group4)", 0, min=0)),
+                              column(12,h3("")),
+                              hr(),
+                            )
                           )
                         ),
-                        box(width=12,
-                          fluidRow(
-                            column(12,h4("Table")),
-                            column(12,
-                              verbatimTextOutput("cross_table_status"),
-                              dataTableOutput("Cross_tabulation_table")
-                            )
-                          )                          
+                        column(12,
+                          box(width=12,
+                            fluidRow(
+                              column(12,h4("Table")),
+                              column(12,
+                                verbatimTextOutput("cross_table_status"),
+                                dataTableOutput("Cross_tabulation_table")
+                              )
+                            )                          
+                          )
                         ),
-                        box(width=12,
-                          fluidRow(
-                            column(12,h4("Statistic test")),
-                            column(6, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
-                            column(12, verbatimTextOutput("cross_table_Statistic")),
-                          )                          
+                        column(12,
+                          box(width=12,
+                            fluidRow(
+                              column(12,h4("Statistic test")),
+                              column(6, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
+                              column(12, verbatimTextOutput("cross_table_Statistic")),
+                            )                          
+                          )
                         )
                       )
                     ),
-                    column(8,
+                    column(7,
                       box(width=12, title='Plot',
                         radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
                           'Calculate the percentile (stack bar plot)'='A', 
@@ -1793,16 +1849,20 @@ ui <- fluidPage(
                             column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=20, step=1)),
                             column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=5, max=40, value=20, step=1)),
                             column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=5, max=40, value=20, step=1)),
+                          ),
+                          fluidRow(
                             column(6, colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
                             column(6, colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
+                          ),
+                          fluidRow(
                             column(6, checkboxInput('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE) )
                           ),
                           fluidRow(
-                            column(6, checkboxInput('Cross_tabulation_plot_rotate_x', 'Use white background', value=FALSE) ),
+                            column(6, checkboxInput('Cross_tabulation_plot_rotate_x', 'Rotate X labels', value=FALSE) ),
                             column(6, 
                               conditionalPanel(
                                 condition='input.Cross_tabulation_plot_rotate_x == true',
-                                numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 90, min=0)
+                                numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 45, min=0)
                               )
                             )
                           )
@@ -1932,13 +1992,6 @@ server <- function(input, output, session) {
         tmp <- Dataset()
         a <- tmp[info$row, info$col]
         tmp[info$row, info$col] <- info$value
-        # if(info$col == 6 | info$col == 4){
-        #   save_path <- file.path('00_Expression_data_all', tmp[info$row, 'Data.from'], tmp[info$row, 'Experiment'], strsplit(tmp[info$row, 'Path'], '/')[[1]][length(strsplit(tmp[info$row, 'Path'], '/')[[1]])])
-        #   dir.create(file.path('00_Expression_data_all', tmp[info$row, 'Data.from'], tmp[info$row, 'Experiment']), recursive=T, showWarnings = T)
-        #   file.copy(tmp[info$row, 'Path'], save_path)
-        #   file.remove(tmp[info$row, 'Path'])
-        #   tmp[info$row,'Path'] <- save_path
-        # }
         output$status <- renderText(paste0("'",a, "'", ' -> ', "'", info$value ,"'" ))
         tmp <- tmp[order(tmp$Added.When,decreasing =T),]
         Dataset(tmp)
@@ -2092,7 +2145,7 @@ server <- function(input, output, session) {
         geneset.name.upload <- unlist(strsplit(input$Original_geneset_upload_Geneset_name, split = "\n"))[1]
         Cell.type.upload <- unlist(strsplit(input$Original_geneset_upload_cell_line, split = "\n"))[1]
         data.source.upload <- unlist(strsplit(input$Original_geneset_upload_data_generated_from, split = "\n"))[1]
-        When.upload <- unlist(strsplit(input$Original_geneset_upload_when, split = "\n"))[1]
+        # When.upload <- Sys.time()
         Description <- unlist(strsplit(input$Original_geneset_upload_description, split = "\n"))[1]
         genes <- ''
         for (key in unlist(strsplit(input$Original_geneset_upload_genes, split = "\n"))){
@@ -2596,7 +2649,7 @@ server <- function(input, output, session) {
                   }
                 }
               }else if(input$Plot_Gene_set){
-                if(length(input$select_pathway)!= 0){
+                if(length(input$Plot_Gene_set_select_geneset)!= 0){
                   if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
                     custom_geneset <- df_genes_custom_geneset()
                     p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
@@ -3692,6 +3745,9 @@ server <- function(input, output, session) {
 
       # list up the gene names
       output$Compare_dataset_get_overview_list <- renderText({
+        if(is.null(df_compare_overlapped_hit())){
+          return(NULL)
+        }
         paste(na.omit(df_compare_overlapped_hit()$id), collapse = "\n")
       })
 
@@ -4094,10 +4150,6 @@ server <- function(input, output, session) {
           p
         }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height))
 
-                    # column(4,sliderInput('Integrate_data1_plus_2_dot_label_size', 'Point size', min=0.1, max=10, value=1, step=0.1)),
-                    # column(4,sliderInput('Integrate_data1_plus_2_id_size', 'Label size', min=1, max=20, value=5, step=1)),
-                    # column(4,sliderInput('Integrate_data1_plus_2_highlight_dot_size', 'Highlighted points size', min=0.1, max=10, value=3, step=0.1)),
-
         # display the selected area
         output$Integrate_data1_plus_2_selected <- renderDataTable({
           res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush) 
@@ -4112,7 +4164,11 @@ server <- function(input, output, session) {
 
         # list up the gene names
         output$Integrate_data1_plus_2_selected_gene_list <- renderText({
-          paste(na.omit(data1_plus_data2()$id), collapse = "\n")
+          if(is.null(data1_plus_data2())){
+            return(NULL)
+          }
+          res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush) 
+          paste(na.omit(res$id), collapse = "\n")
         })
 
 
@@ -4552,6 +4608,7 @@ server <- function(input, output, session) {
     #### Clinical data loading ####
       Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T))})
       output$Clinical_data_select <- renderUI({ selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) })
+      outputOptions(output, "Clinical_data_select", suspendWhenHidden=FALSE)
       output$Clinical_Dataset_detail <- renderText({
         df_tmp <- Cliniacal_dataset()
         if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
@@ -4949,6 +5006,7 @@ server <- function(input, output, session) {
     #### Expression across subtypes ####
       # select "Groupby"
       output$Expression_subtype_groupBy <- renderUI({ selectInput('Expression_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
+      outputOptions(output, "Expression_subtype_groupBy", suspendWhenHidden=FALSE)
 
       # check how many subtypes there are
       output$Expression_subtype_subtype_number <- renderText({
@@ -6091,7 +6149,12 @@ server <- function(input, output, session) {
           p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
         }
         if(input$Cross_tabulation_plot_rotate_x){
-          p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 0.5, hjust=1))
+          if( ( as.integer(input$Cross_tabulation_plot_rotate_x_angle) %% 90) == 0 ){
+            p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 0.5))
+          }else{
+            p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 1))
+          }
+          
         }
         p
 
