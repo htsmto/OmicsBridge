@@ -1875,8 +1875,8 @@ ui <- fluidPage(
                               column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
                               column(6, numericInput("Cross_tabulation_val1", "Value for (Row-Group1 & Column-Group1)", 0, min=0)),
                               column(6, numericInput("Cross_tabulation_val2", "Value for (Row-Group1 & Column-Group2)", 0, min=0)),
-                              column(6, numericInput("Cross_tabulation_val3", "Value for (Row-Group1 & Column-Group3)", 0, min=0)),
-                              column(6, numericInput("Cross_tabulation_val4", "Value for (Row-Group1 & Column-Group4)", 0, min=0)),
+                              column(6, numericInput("Cross_tabulation_val3", "Value for (Row-Group2 & Column-Group1)", 0, min=0)),
+                              column(6, numericInput("Cross_tabulation_val4", "Value for (Row-Group2 & Column-Group2)", 0, min=0)),
                               column(12,h3("")),
                               hr(),
                             )
