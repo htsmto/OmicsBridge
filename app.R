@@ -4845,7 +4845,7 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
-        selected_cohort <- NULL
+        selected_cohort <- 0
         df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
           selected_cohort <- input$Clinical_data_select # remember the cohort name in case switching the cohort data
           if(input$Clinical_data_select=='None'){
