@@ -1387,8 +1387,8 @@ ui <- fluidPage(
                                 fluidRow(
                                   h4(""),
                                   column(12, radioButtons('Signature_Survival_cutoff_method', 'Split the samples by:', choices = c('Median'='A', 'Top25% vs Bottom 25%'='B'), selected='A')),
-                                  column(12, plotOutput("Signature_Survival_plot", width="100%", height="100%")),
                                   column(12, verbatimTextOutput('Signature_Survival_detail')),
+                                  column(12, plotOutput("Signature_Survival_plot", width="100%", height="100%")),
                                   box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
                                     fluidRow(
                                       column(6,sliderInput('Signature_Survival_plot_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
@@ -1421,8 +1421,8 @@ ui <- fluidPage(
                                   )
                                 ),
                                 fluidRow(
+                                  column(12, verbatimTextOutput('Signature_subtype_note')),
                                   column(12, plotOutput("Signature_subtype_plot", width="100%", height="100%")),
-                                  column(12, verbatimTextOutput('Signature_subtype_note'))
                                 ),
                                 box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
                                   fluidRow(
@@ -5908,12 +5908,12 @@ server <- function(input, output, session) {
       # histogram
       output$Signature_score_distribution_plot <- renderPlot({
         if(length(input$Clinical_data_select)==0){
-          output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
+          output$Signature_score_distribution_status <- renderText({'Please select a dataset and start the analysis.'})
           return(NULL)
         }
         
         if(selected_cohort_sig() != input$Clinical_data_select){
-          output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
+          output$Signature_score_distribution_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
           return(NULL)
         }
         if(is.null(singature_table())){
@@ -5924,7 +5924,7 @@ server <- function(input, output, session) {
         df_OS <- Clinical_surival()
         df_OS$sample <- gsub('\\.', '-', df_OS$sample)
         if(is.null(singature_table)){
-          output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
+          output$Signature_score_distribution_status <- renderText({"Please start calulating the score first."})
           return(NULL)
         }
         output$Signature_score_distribution_status <- renderText({NULL})
