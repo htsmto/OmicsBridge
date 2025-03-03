@@ -4965,6 +4965,7 @@ server <- function(input, output, session) {
             return(NULL)
           }
           if(selected_cohort != input$Clinical_data_select){
+            output$Clinical_Survial_plot_error_catch <- renderText({selected_cohort})
             return(NULL)
           }
           df_geneEx <- Clinical_gene_expression()
