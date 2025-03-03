@@ -4854,7 +4854,6 @@ server <- function(input, output, session) {
         outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
         selected_cohort <- reactive({ 0 })
-        selected_cohort <- reactive({ input$Clinical_data_select })
         df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
           # selected_cohort <- input$Clinical_data_select # remember the cohort name in case switching the cohort data
           if(input$Clinical_data_select=='None'){
@@ -4945,6 +4944,8 @@ server <- function(input, output, session) {
             return(df_out)
           }
         })
+        selected_cohort <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
+        
         output$Clinical_Survial_table <- DT::renderDataTable({
           tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
           rownames(tmp) <- NULL
