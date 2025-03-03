@@ -24,6 +24,7 @@
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
   suppressMessages(library(eulerr))
+  suppressMessages(library(visNetwork))
   
 
   options(shiny.maxRequestSize = 1000*1024^2)
@@ -2000,6 +2001,33 @@ ui <- fluidPage(
                     ),
                   )
                 )
+              ),
+              tabPanel('Network plot',
+                box(width=12,
+                    h3('Network plot'),
+                    fluidRow(
+                    column(4,
+                      box(width=12, title='Input',
+                        fluidRow(
+                          column(12, fileInput("Network_input_file", "upload a tsv file", accept = c(".tsv")) ),
+                          column(12, checkboxInput('Network_input_example', 'Use an example data', value=FALSE) )
+                        ),
+                        fluidRow(
+                          column(12, h5('Show the input data table')),
+                          column(12, dataTableOutput("Network_input_table"))
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot',
+                        fluidRow(
+                          column(12, verbatimTextOutput("Network_input_table_visNet_status") ),
+                          column(12, visNetworkOutput("Network_input_table_visNet" , width = "100%", height = "1000px") )
+                        )
+                      )
+                    )
+                    )
+                )
               )
             )
           ),
@@ -2020,7 +2048,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 25th. Feb, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 2nd. März, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -6386,6 +6414,64 @@ server <- function(input, output, session) {
         else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group1'){ paste( setdiff( setdiff(venn_data$group1_name,venn_data$group2_name), venn_data$group3_name), collapse='\n') }
         else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group2'){ paste( setdiff( setdiff(venn_data$group2_name,venn_data$group3_name), venn_data$group1_name), collapse='\n') }
         else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group3'){ paste( setdiff( setdiff(venn_data$group3_name,venn_data$group1_name), venn_data$group2_name), collapse='\n') }
+      })
+
+    ### Netwrok plot
+
+      Network_input_data <- reactive({
+        if(input$Network_input_example){
+          edges <- data.frame(
+            from = c("STAT1", "STAT1", "STAT1", "STAT1", "STAT2", "STAT2", "STAT2", "STAT3", "STAT3", "STAT3", "STAT3", "STAT5", "STAT5", "STAT5", "STAT3", "STAT5", "STAT1", "STAT2", "STAT2", "STAT3", "STAT1", "STAT2", "STAT3", "STAT5"),
+            to = c("IRF1", "GBP1", "ISG15", "MX1", "ISG15",  "IRF9", "OAS1", "SAA1", "CRP", "VEGF", "MYC", "CSN2", "WAP", "BCL2L1",  "BCL2L1", "CISH", "IL6", "MX1", "IL6", "IL6", "SOCS1", "SOCS1", "SOCS1", "SOCS1"),
+            weight = c(1.0, 0.8, 0.9, 0.7, 0.9,  0.5, 1.0, 0.8, 0.9, 0.7, 1.0, 0.8, 0.9, 0.7, 1.0, 0.8, 1.0, 0.9, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0)
+          )
+          return(edges)
+        }else{
+          req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
+          edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t')
+          return(edges)
+        }
+      })
+
+      # show the data as a table
+      output$Network_input_table <- DT::renderDataTable({ 
+          if(!is.null(Network_input_data())){
+            datatable(Network_input_data(), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10)) 
+          }
+        })
+
+      # show plot
+      library(igraph)
+      output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+      output$Network_input_table_visNet <- renderVisNetwork({
+        if(is.null(Network_input_data())){
+          output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+          return(NULL)
+        }
+        if(length(Network_input_data())== 0 ){
+          output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+          return(NULL)
+        }
+        output$Network_input_table_visNet_status <- renderText({NULL})
+        graph <- graph_from_data_frame(Network_input_data(), directed = TRUE)
+        V(graph)$size <- igraph::degree(graph)
+        V(graph)$size <- 5 + (V(graph)$size - min(V(graph)$size)) / (max(V(graph)$size) - min(V(graph)$size)) * 25
+        nodes <- data.frame(id = V(graph)$name, 
+                            label = V(graph)$name, 
+                            size = V(graph)$size)
+        nodes$shape <- ifelse(nodes$label %in% unique(Network_input_data()$from), "ellipse", 'box')
+        nodes$color <- ifelse(nodes$label %in% unique(Network_input_data()$from), "lightblue", 'lightgreen')
+        edges <- data.frame(from = Network_input_data()$from, 
+                            to = Network_input_data()$to,
+                            width = Network_input_data()$weight)
+        edges$arrows <- 'to'
+        
+        network <- visNetwork(nodes, edges, height = "1000px", width = "100%")
+        # network <- visEdges(arrows = 'to')
+        network <- visOptions(network, highlightNearest = TRUE, nodesIdSelection=TRUE)
+        network
+            # visNetwork::visIgraphOptions(width='500px', height='500px')
+
       })
 
     ###
