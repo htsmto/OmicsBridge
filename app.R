@@ -2401,7 +2401,7 @@ server <- function(input, output, session) {
             else{ X_axis_name <- c() }
             # default selected x name CRISPR screening (gRNA LFC)
             if(length(Dataoverview_Data_type()) == 0){
-              selectInput('scat.x', 'x', c('None'='None', X_axis_name)
+              selectInput('scat.x', 'x', c('None'='None', X_axis_name))
             }else{
               if(Dataoverview_Data_type() == 'CRISPR screening' || Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='logFC') }
               else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log10_total_count') }
