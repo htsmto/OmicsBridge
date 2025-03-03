@@ -5680,7 +5680,7 @@ server <- function(input, output, session) {
       output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
       output$Signature_Survival_plot <- renderPlot({
         if(length(input$Clinical_data_select)==0){
-          output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
+          output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis!'})
           return(NULL)
         }
         if(selected_cohort_sig() != input$Clinical_data_select){
