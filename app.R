@@ -4855,7 +4855,6 @@ server <- function(input, output, session) {
 
         selected_cohort_suv <- reactive({ 0 })
         df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
-          # selected_cohort <- input$Clinical_data_select # remember the cohort name in case switching the cohort data
           if(input$Clinical_data_select=='None'){
             output$Clinical_Survial_table_status <- renderText({"Please select the clinical dataset"})
             return(NULL)
@@ -5657,7 +5656,7 @@ server <- function(input, output, session) {
         return(signature_gsva_table)
       })
       selected_cohort_sig <- reactive({ 0 })
-      selected_cohort_sig <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
+      selected_cohort_sig <- eventReactive(input$Signature_start, { input$Clinical_data_select })
 
 
       # show table
