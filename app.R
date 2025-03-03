@@ -4853,7 +4853,7 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
-        selected_cohort <- reactive({ 0 })
+        selected_cohort_suv <- reactive({ 0 })
         df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
           # selected_cohort <- input$Clinical_data_select # remember the cohort name in case switching the cohort data
           if(input$Clinical_data_select=='None'){
@@ -4944,8 +4944,8 @@ server <- function(input, output, session) {
             return(df_out)
           }
         })
-        selected_cohort <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
-        
+        selected_cohort_suv <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
+
         output$Clinical_Survial_table <- DT::renderDataTable({
           tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
           rownames(tmp) <- NULL
@@ -4967,8 +4967,8 @@ server <- function(input, output, session) {
             output$Clinical_Survial_plot_error_catch <- renderText({'Please select a dataset and start the analysis.'})
             return(NULL)
           }
-          if(selected_cohort() != input$Clinical_data_select){
-            output$Clinical_Survial_plot_error_catch <- renderText({selected_cohort()})
+          if(selected_cohort_suv() != input$Clinical_data_select){
+            output$Clinical_Survial_plot_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
             return(NULL)
           }
           df_geneEx <- Clinical_gene_expression()
@@ -5025,6 +5025,14 @@ server <- function(input, output, session) {
 
       ##### distribution #####
         output$Clinical_Survial_distribution_plot <- renderPlot({
+          if(length(input$Clinical_data_select)==0){
+            output$Clinical_Survial_plot_distribution_status <- renderText({'Please select a dataset and start the analysis.'})
+            return(NULL)
+          }
+          if(selected_cohort_suv() != input$Clinical_data_select){
+            output$Clinical_Survial_plot_distribution_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(NULL)
+          }
           if(is.null(df_Suv_p_and_HR())==TRUE){
             output$Clinical_Survial_plot_distribution_status <- renderText({NULL})
             return(NULL)
@@ -5127,11 +5135,22 @@ server <- function(input, output, session) {
           df_cor_out$target <- gene
           df_cor_out
         })
+        selected_cohort_cor <- reactive({ 0 })
+        selected_cohort_cor <- eventReactive(input$Gene_correlation_start, { input$Clinical_data_select })
+
       ##### Plot the correlation by a scatter plot #####
         output$Gene_correlation_table <- DT::renderDataTable({
           datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
         })
         output$Gene_correlation_scatter_plot <- renderPlot({
+          if(length(input$Clinical_data_select)==0){
+            output$Gene_correlation_error_catch <- renderText({'Please select a dataset and start the analysis.'})
+            return(NULL)
+          }
+          if(selected_cohort_cor() != input$Clinical_data_select){
+            output$Gene_correlation_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(NULL)
+          }
           if(is.null(df_gene_correlation())){
             # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
             return(NULL)
@@ -5230,6 +5249,8 @@ server <- function(input, output, session) {
         return(df_out)
 
       })
+      selected_cohort_ex_sub <- reactive({ 0 })
+      selected_cohort_ex_sub <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
       
       # test results
       Expression_subtype_test <- reactive({
@@ -5303,6 +5324,14 @@ server <- function(input, output, session) {
 
       # boxplot or swarm plt or vlnplot
       output$Expression_subtype_plot <- renderPlot({
+        if(length(input$Clinical_data_select)==0){
+          output$Expression_subtype_error_catch <- renderText({'Please select a dataset and start the analysis.'})
+          return(NULL)
+        }
+        if(selected_cohort_ex_sub() != input$Clinical_data_select){
+          output$Expression_subtype_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
+          return(NULL)
+        }
         if(is.null(Expression_subtype_test())){
           return(NULL)
         }
@@ -5627,6 +5656,9 @@ server <- function(input, output, session) {
 
         return(signature_gsva_table)
       })
+      selected_cohort_sig <- reactive({ 0 })
+      selected_cohort_sig <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
+
 
       # show table
       output$Signature_result_table <- DT::renderDataTable({
@@ -5647,6 +5679,14 @@ server <- function(input, output, session) {
       # survival analysis
       output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
       output$Signature_Survival_plot <- renderPlot({
+        if(length(input$Clinical_data_select)==0){
+          output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
+          return(NULL)
+        }
+        if(selected_cohort_sig() != input$Clinical_data_select){
+          output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
+          return(NULL)
+        }
         if(is.null(singature_table())){
           return(NULL)
         }else{
@@ -5789,6 +5829,14 @@ server <- function(input, output, session) {
         
       # plot
       output$Signature_subtype_plot <- renderPlot({
+          if(length(input$Clinical_data_select)==0){
+            output$Signature_subtype_note <- renderText({'Please select a dataset and start the analysis.'})
+            return(NULL)
+          }
+          if(selected_cohort_sig() != input$Clinical_data_select){
+            output$Signature_subtype_note <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(NULL)
+          }
           if(is.null(Signature_subtype_test())){
             return(NULL)
           }
@@ -5854,6 +5902,14 @@ server <- function(input, output, session) {
 
       # histogram
         output$Signature_score_distribution_plot <- renderPlot({
+          if(length(input$Clinical_data_select)==0){
+            output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
+            return(NULL)
+          }
+          if(selected_cohort_sig() != input$Clinical_data_select){
+            output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(NULL)
+          }
           if(is.null(singature_table())){
             return(NULL)
           }else{
