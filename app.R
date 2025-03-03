@@ -4845,7 +4845,9 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
+        selected_cohort <- NULL
         df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
+          selected_cohort <- input$Clinical_data_select # remember the cohort name in case switching the cohort data
           if(input$Clinical_data_select=='None'){
             output$Clinical_Survial_table_status <- renderText({"Please select the clinical dataset"})
             return(NULL)
@@ -4933,7 +4935,6 @@ server <- function(input, output, session) {
             df_out$method <- input$Clinical_Survival_Split_way
             return(df_out)
           }
-
         })
         output$Clinical_Survial_table <- DT::renderDataTable({
           tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
@@ -4943,8 +4944,8 @@ server <- function(input, output, session) {
         
         # download the table
         output$Clinical_Survial_table_download <- downloadHandler(
-        filename = function(){"Survival_analysis.tsv"}, 
-        content = function(fname){ write.table(df_Suv_p_and_HR(), fname, sep='\t', row.names=F, quote=F) }
+          filename = function(){"Survival_analysis.tsv"}, 
+          content = function(fname){ write.table(df_Suv_p_and_HR(), fname, sep='\t', row.names=F, quote=F) }
         )
 
       ##### plot a Kaplan meier #####
@@ -4952,6 +4953,9 @@ server <- function(input, output, session) {
         #   selectInput('Clinical_Survial_plot_Geneselect', 'Gene', c('None'='None', unlist(strsplit(input$Clinical_Survival_genes, split = "\n")))) 
         # })
         output$Clinical_Survial_plot <- renderPlot({
+          if(selected_cohort != input$input$Clinical_data_select){
+            return(NULL)
+          }
           df_geneEx <- Clinical_gene_expression()
           df_OS <- Clinical_surival()
           df_OS$sample <- gsub('\\.', '-', df_OS$sample)
@@ -5001,10 +5005,9 @@ server <- function(input, output, session) {
           p <- km_plot
           p <- p + theme(axis.text.y = element_text(size = input$Clinical_Survial_label_size), axis.text.x = element_text(size = input$Clinical_Survial_label_size))
           p <- p + theme(axis.title.y = element_text(size = input$Clinical_Survial_title_size), axis.title.x = element_text(size = input$Clinical_Survial_title_size))
-
           p
-
         }, width=reactive(input$Clinical_Survial_fig.width), height=reactive(input$Clinical_Survial_fig.height))
+
       ##### distribution #####
         output$Clinical_Survial_distribution_plot <- renderPlot({
           if(is.null(df_Suv_p_and_HR())==TRUE){
