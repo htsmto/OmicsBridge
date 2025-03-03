@@ -2400,12 +2400,16 @@ server <- function(input, output, session) {
             if(!is.null(df())){ X_axis_name <- names(df()) }
             else{ X_axis_name <- c() }
             # default selected x name CRISPR screening (gRNA LFC)
-            if(Dataoverview_Data_type() == 'CRISPR screening' || Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='logFC') }
-            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log10_total_count') }
-            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log2FoldChange') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
-            else{selectInput('scat.x', 'x', c('None'='None', X_axis_name))}
+            if(length(Dataoverview_Data_type()) == 0){
+              selectInput('scat.x', 'x', c('None'='None', X_axis_name)
+            }else{
+              if(Dataoverview_Data_type() == 'CRISPR screening' || Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='logFC') }
+              else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log10_total_count') }
+              else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='log2FoldChange') }
+              else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
+              else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.x', 'x', c('None'='None', X_axis_name), selected='LFC') }
+              else{selectInput('scat.x', 'x', c('None'='None', X_axis_name))}
+            }
           })
           outputOptions(output, "Scat.X", suspendWhenHidden=FALSE)
           
@@ -2413,13 +2417,17 @@ server <- function(input, output, session) {
             if(!is.null(df())){ Y_axis_name <- names(df()) }
             else{ Y_axis_name <- c() }
             # default selected x name
-            if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_score') }
-            else if(Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_Score') }
-            else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log2LFC') }
-            else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.padj.') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
-            else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
-            else{selectInput('scat.y', 'y', c('None'='None', Y_axis_name))}
+            if(length(Dataoverview_Data_type()) == 0){
+              selectInput('scat.y', 'y', c('None'='None', Y_axis_name))
+            }else{
+              if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_score') }
+              else if(Dataoverview_Data_type() == 'CRISPR-a screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log10_Score') }
+              else if(Dataoverview_Data_type() == 'ORF screening'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='log2LFC') }
+              else if(Dataoverview_Data_type() == 'RNAseq (DEG)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.padj.') }
+              else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
+              else if(Dataoverview_Data_type() == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('scat.y', 'y', c('None'='None', Y_axis_name), selected='X.log10.p.value') }
+              else{ selectInput('scat.y', 'y', c('None'='None', Y_axis_name)) }
+            }
           })
           outputOptions(output, "Scat.Y", suspendWhenHidden=FALSE)
 
@@ -4953,7 +4961,10 @@ server <- function(input, output, session) {
         #   selectInput('Clinical_Survial_plot_Geneselect', 'Gene', c('None'='None', unlist(strsplit(input$Clinical_Survival_genes, split = "\n")))) 
         # })
         output$Clinical_Survial_plot <- renderPlot({
-          if(selected_cohort != input$input$Clinical_data_select){
+          if(length(input$Clinical_data_select)==0){
+            return(NULL)
+          }
+          if(selected_cohort != input$Clinical_data_select){
             return(NULL)
           }
           df_geneEx <- Clinical_gene_expression()
