@@ -2133,11 +2133,14 @@ server <- function(input, output, session) {
     #### data upload ####
       output$upload_data_preview <- renderDataTable({ 
         req(input$upload_file)
-        gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
-        if(!'id' %in% colnames(gx_table)){
-          output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+        extension <- strsplit(input$upload_file$datapath, '\\.')[[1]][ strsplit(input$upload_file$datapath, '\\.')[[1]] ]
+        if(extension == 'tsv' | extension == 'txt'){
+          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
+          if(!'id' %in% colnames(gx_table)){
+            output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+          }
+          datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
         }
-        datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
       })
 
       observeEvent(input$upload_data,{
@@ -2159,39 +2162,44 @@ server <- function(input, output, session) {
         Data.Class.upload <- input$upload_Data_Class
         if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 | nchar(input$upload_data_type)==0 ){
           output$status_upload <- renderText('* is a mandatory filed!')
-        }
-        else if(dataset.name.upload %in% Dataset()$Dataset){
+        }else if(dataset.name.upload %in% Dataset()$Dataset){
           output$status_upload <- renderText('The Dataset name is duplicated!')
-        }else if (str_detect(Experiment.upload, "[;/,()\\[\\]!@#$%]")) {
-          output$status_upload <- renderText('The Experiment name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
-        }
-        else if (str_detect(Data.from.upload, "[;/,()\\[\\]!@#$%]")) {
-          output$status_upload <- renderText('The Data.from cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+        }else if (str_detect(dataset.name.upload, "[;/,!@#$%]")) {
+          output$status_upload <- renderText('The Dataset name cannot contain "/ , ! # @ $ % " !')
+        }else if (str_detect(Experiment.upload, "[;/,!@#$%]")) {
+          output$status_upload <- renderText('The Experiment name cannot contain "/ , ! # @ $ % " !')
+        }else if (str_detect(Data.from.upload, "[;/,!@#$%]")) {
+          output$status_upload <- renderText('The Data.from cannot contain "/ , ! # @ $ % " !')
+        }else if (str_detect(data.type.upload, "[;/,!@#$%]")) {
+          output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
         }else{
           gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
-          if(!'id' %in% colnames(gx_table)){
-            output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
-          }else{
-            time_stamp <- as.character(Sys.time())  
-            Year <- format(Sys.time(), "%Y")
-            date <- format(Sys.time(), "%m.%d")
-            # path
-            # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
-            filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
-            save_path <- file.path('00_Expression_data_all', Year, date, filname)
-            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
-            # save
-            file.copy(uploaded_file$datapath, save_path)
-
-            tmp <- Dataset()
-            tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
-            tmp <- tmp[order(tmp$Added.When, decreasing =T),]
-            Dataset(tmp)
-            replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
-            write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
-            output$status_upload <- renderText('uploaded!')
+          if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
+            if(!'id' %in% colnames(gx_table)){
+              output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
+              return(NULL)
+            }
           }
-        }
+          time_stamp <- as.character(Sys.time())  
+          Year <- format(Sys.time(), "%Y")
+          date <- format(Sys.time(), "%m.%d")
+          # path
+          # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
+          filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
+          save_path <- file.path('00_Expression_data_all', Year, date, filname)
+          dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
+          # save
+          file.copy(uploaded_file$datapath, save_path)
+
+          tmp <- Dataset()
+          tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
+          tmp <- tmp[order(tmp$Added.When, decreasing =T),]
+          Dataset(tmp)
+          replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
+          write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+          output$status_upload <- renderText('uploaded!')
+          }
+      
 
       })
   ###
@@ -2477,8 +2485,8 @@ server <- function(input, output, session) {
             if(input$show_outliers){
               if(input$How_to_filter == 'A'){
                 df_main_plot <- df_main_plot[df_main_plot[input$scat.y] >= input$Overviwe_Top_bottom_Y_threshold,]
-                X_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]>=0], 1-(input$Overviwe_Top_threshold/100))
-                Y_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]<=0], input$Overviwe_Bottom_threshold/100)
+                X_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]>=0], 1-(input$Overviwe_Top_threshold/100), na.rm = T)
+                Y_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]<=0], input$Overviwe_Bottom_threshold/100, na.rm = T)
                 df_main_plot[((df_main_plot[input$scat.x] > X_thr | df_main_plot[input$scat.x] < Y_thr)), ]
               }else if(input$How_to_filter == 'B'){
                 switch(input$Direction,
@@ -3827,14 +3835,14 @@ server <- function(input, output, session) {
               if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0])==0){
                 df_tmp_tmp_sorted[,sorted_score] <- NA  
               }else{
-                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0], 1-(input$Compare_dataset_get_overview_threshold/100))
+                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0], 1-(input$Compare_dataset_get_overview_threshold/100), na.rm = T)
                 df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] < thr] <- NA
               }
             }else{
               if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0])==0){
                 df_tmp_tmp_sorted[,sorted_score] <- NA  
               }else{
-                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0], input$Compare_dataset_get_overview_threshold/100 )
+                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0], input$Compare_dataset_get_overview_threshold/100 , na.rm = T)
                 df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] > thr] <- NA
               }
             }
@@ -4896,8 +4904,8 @@ server <- function(input, output, session) {
                   df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] >= med]))
                   df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] < med]))
                 }else{
-                  top25 <- quantile(unlist(df_geneEx[gene,]), 0.75)
-                  bottom25 <- quantile(unlist(df_geneEx[gene,]), 0.25)
+                  top25 <- quantile(unlist(df_geneEx[gene,]), 0.75, na.rm = T)
+                  bottom25 <- quantile(unlist(df_geneEx[gene,]), 0.25, na.rm = T)
                   df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] >= top25]))
                   df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] <= bottom25]))
                 }
@@ -4989,8 +4997,8 @@ server <- function(input, output, session) {
             df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= med]))
             df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] < med]))
           }else{
-            top25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.75)
-            bottom25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.25)
+            top25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.75, na.rm = T)
+            bottom25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.25, na.rm = T)
             df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= top25]))
             df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] <= bottom25]))
           }
@@ -5704,8 +5712,8 @@ server <- function(input, output, session) {
           df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= med, ]$Sample)
           df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] < med, ]$Sample)
         }else{
-          top25 <- quantile(Sig_scores, 0.75)
-          bottom25 <- quantile(Sig_scores, 0.25)
+          top25 <- quantile(Sig_scores, 0.75, na.rm = T)
+          bottom25 <- quantile(Sig_scores, 0.25, na.rm = T)
           df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= top25,]$Sample)
           df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] <= bottom25,]$Sample)
         }
