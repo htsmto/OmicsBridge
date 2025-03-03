@@ -5826,7 +5826,7 @@ server <- function(input, output, session) {
         return(df_out)
 
       })
-      selected_cohort_sig <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
+      # selected_cohort_sig <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
         
       # plot
       output$Signature_subtype_plot <- renderPlot({
