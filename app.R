@@ -5826,6 +5826,7 @@ server <- function(input, output, session) {
         return(df_out)
 
       })
+      selected_cohort_sig <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
         
       # plot
       output$Signature_subtype_plot <- renderPlot({
@@ -5901,38 +5902,37 @@ server <- function(input, output, session) {
       }, width=reactive(input$Signature_subtype_fig.width), height=reactive(input$Signature_subtype_fig.height))
 
       # histogram
-        output$Signature_score_distribution_plot <- renderPlot({
-          if(length(input$Clinical_data_select)==0){
-            output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
-            return(NULL)
-          }
-          
-          if(selected_cohort_sig() != input$Clinical_data_select){
-            output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
-          }
-          if(is.null(singature_table())){
-            return(NULL)
-          }else{
-            singature_table <- singature_table()
-          }
-          df_OS <- Clinical_surival()
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-          if(is.null(singature_table)){
-            output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
-            return(NULL)
-          }
-          output$Signature_score_distribution_status <- renderText({NULL})
-          p <- ggplot(singature_table, aes_string(x=colnames(singature_table)[2]))
-          p <- p + geom_histogram(fill=input$Signature_score_distribution_colour, alpha=0.6, bins=input$Signature_score_distribution_bin_num)
-          p <- p + theme(axis.text = element_text(size = input$Signature_score_distribution_label_size))
-          p <- p + theme(axis.title = element_text(size = input$Signature_score_distribution_title_size))
-          p <- p + theme(plot.title = element_text(size = input$Signature_score_distribution_graphtitle_size))
-          if(input$Signature_score_distribution_white_background){
-            p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-          }
-          p
-        }, width=reactive(input$Signature_score_distributionfig.width), height=reactive(input$Signature_score_distribution_fig.height))
+      output$Signature_score_distribution_plot <- renderPlot({
+        if(length(input$Clinical_data_select)==0){
+          output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
+          return(NULL)
+        }
+        if(selected_cohort_sig() != input$Clinical_data_select){
+          output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
+          return(NULL)
+        }
+        if(is.null(singature_table())){
+          return(NULL)
+        }else{
+          singature_table <- singature_table()
+        }
+        df_OS <- Clinical_surival()
+        df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+        if(is.null(singature_table)){
+          output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
+          return(NULL)
+        }
+        output$Signature_score_distribution_status <- renderText({NULL})
+        p <- ggplot(singature_table, aes_string(x=colnames(singature_table)[2]))
+        p <- p + geom_histogram(fill=input$Signature_score_distribution_colour, alpha=0.6, bins=input$Signature_score_distribution_bin_num)
+        p <- p + theme(axis.text = element_text(size = input$Signature_score_distribution_label_size))
+        p <- p + theme(axis.title = element_text(size = input$Signature_score_distribution_title_size))
+        p <- p + theme(plot.title = element_text(size = input$Signature_score_distribution_graphtitle_size))
+        if(input$Signature_score_distribution_white_background){
+          p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+        }
+        p
+      }, width=reactive(input$Signature_score_distributionfig.width), height=reactive(input$Signature_score_distribution_fig.height))
       ###
 
     #### Deconvolution
