@@ -5906,6 +5906,7 @@ server <- function(input, output, session) {
             output$Signature_Survival_detail <- renderText({'Please select a dataset and start the analysis.'})
             return(NULL)
           }
+          
           if(selected_cohort_sig() != input$Clinical_data_select){
             output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
             return(NULL)
