@@ -4962,6 +4962,7 @@ server <- function(input, output, session) {
         # })
         output$Clinical_Survial_plot <- renderPlot({
           if(length(input$Clinical_data_select)==0){
+            output$Clinical_Survial_plot_error_catch <- renderText({'Please select a dataset and start the analysis.'})
             return(NULL)
           }
           if(selected_cohort != input$Clinical_data_select){
