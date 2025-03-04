@@ -4424,7 +4424,7 @@ server <- function(input, output, session) {
               p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted')
             }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
               p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted')
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, lnetype='dotted')
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted')
             }
             
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
