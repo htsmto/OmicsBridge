@@ -1104,14 +1104,14 @@ ui <- fluidPage(
                 fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_filtered"))),
                 fluidRow(
                   column(4, downloadButton('Integrate_data1_plus_2_filtered_download',"Download this table")),
-                  column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
+                  column(8, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
                 )
               ),
               box(width=6, title='Selected area', collapsible=TRUE,
                 fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
                 fluidRow(
                   column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
-                  column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
+                  column(8, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
                 )
               ),
               box(title='Figure option', collapsible=TRUE, width=12,  collapsed=TRUE,
@@ -4444,6 +4444,40 @@ server <- function(input, output, session) {
           p
         }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height))
 
+        # display the filtered genes
+        output$Integrate_data1_plus_2_filtered <- renderDataTable({
+          datatable( data.frame(Integrate_data1_plus_2_plot_filtered()), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10))
+        })
+
+        # download the table
+        output$Integrate_data1_plus_2_filtered_download <- downloadHandler(
+          filename = function(){"Integrate_data1_data2_filtered.tsv"}, 
+          content = function(fname){ write.table(Integrate_data1_plus_2_plot_filtered(), fname, sep='\t', row.names=F, quote=F) }
+        )
+
+        # list up the gene names
+        output$Integrate_data1_plus_2_filtered_gene_list <- renderText({
+          if(is.null(Integrate_data1_plus_2_plot_filtered())){
+            return(NULL)
+          }
+          paste(na.omit(Integrate_data1_plus_2_plot_filtered()$id), collapse = "\n")
+        })
+
+              # box(width=6, title='Filtered area', collapsible=TRUE, collapsed=TRUE,
+              #   fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_filtered"))),
+              #   fluidRow(
+              #     column(4, downloadButton('Integrate_data1_plus_2_filtered_download',"Download this table")),
+              #     column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
+              #   )
+              # ),
+              # box(width=6, title='Selected area', collapsible=TRUE,
+              #   fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
+              #   fluidRow(
+              #     column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
+              #     column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
+              #   )
+              # ),
+
         # display the selected area
         output$Integrate_data1_plus_2_selected <- renderDataTable({
           res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush) 
@@ -4453,7 +4487,7 @@ server <- function(input, output, session) {
         # download the table
         output$Integrate_data1_plus_2_selected_download <- downloadHandler(
           filename = function(){"Integrate_data1_data2.tsv"}, 
-          content = function(fname){ write.table(data1_plus_data2(), fname, sep='\t', row.names=F, quote=F) }
+          content = function(fname){ write.table(brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush), fname, sep='\t', row.names=F, quote=F) }
         )
 
         # list up the gene names
