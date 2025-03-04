@@ -684,7 +684,7 @@ ui <- fluidPage(
                       # Downstream analysis
                       box( title='Downstream analysis', collapsible=TRUE, status='primary',  width=12, collapsed=TRUE,
                         tabsetPanel(
-                          tabPanel('GO analysis',
+                          tabPanel('GO/KEGG analysis',
                             box(title='Settings', collapsible=TRUE, width=4,
                               fluidRow(
                                 column(12, radioButtons("GO_input_type", "Input genes for GO analysis", choices = c("Text input", "Use filtered genes", "Use selected genes"), selected="Text input")),
@@ -695,7 +695,7 @@ ui <- fluidPage(
                                 column(6, radioButtons("GO_database", "Select Database", choices = c("GO", "KEGG")), selecetd='GO'),
                                 conditionalPanel( condition = "input.GO_database == 'GO'", column(6, radioButtons("GO_ontology", "Select Ontology", choices = c("BP", "MF", "CC")), selected="BP") )
                               ),
-                              fluidRow( column(4, actionButton("GO_start", "Start GO Analysis")) ),
+                              fluidRow( column(4, actionButton("GO_start", "Start GO/KEGG Analysis")) ),
                               fluidRow( 
                                 column(12, h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: orange;"))) 
                               ),
@@ -861,10 +861,10 @@ ui <- fluidPage(
             #####
             box(width=12, collapsible=TRUE, title='Dataset selection',
               fluidRow( column(8, htmlOutput("choose_data_type")) ),
-              h4('Dataset setect'),
-              verbatimTextOutput('Compare_dataset_selection_status'),
+              fluidRow( column(12, h4('Dataset setect') )),
+              fluidRow( column(12, verbatimTextOutput('Compare_dataset_selection_status')) ),
               fluidRow( column(12, dataTableOutput("all_dataset"))),
-              h5('Filtering'),
+              fluidRow( column(12, h5('Filtering') )),
               fluidRow(
                 column(4,htmlOutput("Compare_dataset_filtering_Data_from")),
                 column(4,htmlOutput("Compare_dataset_filtering_Experiment")),
@@ -898,7 +898,7 @@ ui <- fluidPage(
                     )
                   ),
                   box(width=12, title='barplot', collapsible = TRUE,
-                    verbatimTextOutput('Compare_dataset_get_overview_barplot_status'),
+                    fluidRow(column(12, verbatimTextOutput('Compare_dataset_get_overview_barplot_status'))),
                     fluidRow( column(12,  plotOutput("Compare_dataset_get_overview_barplot", width="100%", height="100%")))
                   ),
                   box(width=12, collapsible=TRUE, title='Plot options', collapsed=TRUE,
@@ -931,28 +931,30 @@ ui <- fluidPage(
                     fluidRow( column(4, actionButton("comparison_start", "Start Analysis")))
                   ),
                   box(width=12, collapsible=TRUE, title='Plot',
-                    verbatimTextOutput('Gene_comparing_status'),
+                    fluidRow(column(12, verbatimTextOutput('Gene_comparing_status'))),
                     fluidRow(
                       column(2, 
-                        h4('Select a gene below:'),
-                        dataTableOutput("Gene_comparing_gene_list_table"),
+                        fluidRow(column(12, h4('Select a gene below:'))  ),
+                        fluidRow(column(12, dataTableOutput("Gene_comparing_gene_list_table")) )
                       ),
                       column(10, 
-                        h4('Comparing plot') ,
-                          verbatimTextOutput('Gene_comparing_plot_status'),
-                        plotOutput("Gene_comparing_plot", width="100%", height="100%"),
-                        fluidRow( column(5,radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot')) )
+                        fluidRow(column(12, h4('Comparing plot') )) ,
+                        fluidRow(column(12, verbatimTextOutput('Gene_comparing_plot_status') )),
+                        fluidRow(column(12, plotOutput("Gene_comparing_plot", width="100%", height="100%") )),
+                        fluidRow(column(5, radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot')) )
                       )
                     )
                   ),
                   box(width=4, collapsible=TRUE, title='Data information',  
-                    dataTableOutput("dataframe_comparing_dataset"),
-                    downloadButton('comparing_dataset_download',"Download this table")
+                    fluidRow(
+                      column(12, dataTableOutput("dataframe_comparing_dataset")),
+                      column(12, downloadButton('comparing_dataset_download',"Download this table"))
+                    )
                   ),
                   box(width=8, collapsible=TRUE, title='Plot options', collapsed=TRUE,
                     fluidRow(
-                      column(4,sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                      column(4,sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                      column(4, sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                      column(4, sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
                       column(4, sliderInput('Compare_pt.size', 'Point size', min=0.1, max=10, value=3, step=0.1))
                     ),
                     fluidRow(
@@ -1634,38 +1636,85 @@ ui <- fluidPage(
                     )
                   )
                 ),
-                box(width=12, title='Gene Feature plot', collapsible = TRUE, status = 'primary',
-                  fluidRow(
-                    column(3, textAreaInput("scRNA_UMAP2_gene", "Enter genes names (line by line)")),
-                    column(9,
-                      box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
-                        fluidRow(
-                          column(6, sliderInput('scRNA_umap2_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                          column(6, sliderInput('scRNA_umap2_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                          column(6, sliderInput('scRNA_umap2_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=15, step=1) ),
-                          column(6, sliderInput('scRNA_umap2_XY_title.font.size', 'X/Y title font size', min=5, max=40, value=15, step=1) ),
-                          column(6, sliderInput('scRNA_umap2_graph.title.font.size', 'Graph title font size', min=5, max=40, value=15, step=1) ),
-                          column(6, sliderInput('scRNA_umap2_legend_size', 'Legend font size', min=5, max=40, value=15, step=1))
-                        ),
-                        fluidRow(
-                          column(4, colourInput('scRNA_umap2_highest_colour', 'Colour for the highest expression', value='red') ),
-                          column(4, colourInput('scRNA_umap2_lowest_colour', 'Colour for the lowest expression', value='white') ),
-                          column(4, colourInput('scRNA_umap2_zero_colour', 'Colour for zero (background)', value='#676767'))
-                        ),
-                        fluidRow(
-                          column(12, checkboxInput('scRNA_umap2_while_background', 'Use white background', value=FALSE))
+                box(width=12, title='Feature plot', collapsible = TRUE, status = 'primary',
+                  tabsetPanel(
+                    tabPanel('Genes',
+                      fluidRow(column(12, h3(''))),
+                      fluidRow(
+                        column(3, textAreaInput("scRNA_UMAP2_gene", "Enter genes names (line by line)")),
+                        column(9,
+                          box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
+                            fluidRow(
+                              column(6, sliderInput('scRNA_umap2_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10) ),
+                              column(6, sliderInput('scRNA_umap2_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
+                              column(6, sliderInput('scRNA_umap2_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=15, step=1) ),
+                              column(6, sliderInput('scRNA_umap2_XY_title.font.size', 'X/Y title font size', min=5, max=40, value=15, step=1) ),
+                              column(6, sliderInput('scRNA_umap2_graph.title.font.size', 'Graph title font size', min=5, max=40, value=15, step=1) ),
+                              column(6, sliderInput('scRNA_umap2_legend_size', 'Legend font size', min=5, max=40, value=15, step=1))
+                            ),
+                            fluidRow(
+                              column(4, colourInput('scRNA_umap2_highest_colour', 'Colour for the highest expression', value='red') ),
+                              column(4, colourInput('scRNA_umap2_lowest_colour', 'Colour for the lowest expression', value='white') ),
+                              column(4, colourInput('scRNA_umap2_zero_colour', 'Colour for zero (background)', value='#676767'))
+                            ),
+                            fluidRow(
+                              column(12, checkboxInput('scRNA_umap2_while_background', 'Use white background', value=FALSE))
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        # plot2
+                        column(12,
+                          fluidRow(
+                            column(3, h4('Select a gene below:'), DT::dataTableOutput("scRNA_UMAP2_gene_table"), verbatimTextOutput('scRNA_UMAP2_gene_input_status')),
+                            column(9, h4('Feature plot'), verbatimTextOutput('Feature_Plot_status_catch'), plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%")),
+                          )
                         )
                       )
-                    )
-                  ),
-                  fluidRow(
-                    # plot2
-                    column(12,
+                    ),
+                    tabPanel('Gene sets',
+                      fluidRow(column(12, h3(""))),
                       fluidRow(
-                        column(3, h4('Select a gene below:'), DT::dataTableOutput("scRNA_UMAP2_gene_table"), verbatimTextOutput('scRNA_UMAP2_gene_input_status')),
-                        column(9, h4('Feature plot'), verbatimTextOutput('Feature_Plot_status_catch'), plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%")),
+                        column(3, 
+                          fluidRow(column(12, textAreaInput("scRNA_UMAP2_gene_signature", "Enter genes names (line by line)") ) ),
+                        ),
+                        column(3,
+                          fluidRow(column(12, h5(span('This takes 2~4 minutes depending on the size of the input. Please be patient.', style="color: orange;"))) ),
+                          fluidRow(column(12, actionButton("scRNA_UMAP2_gene_signature_start", "Gene set expression analysis") ) ),
+                        ),
+                        column(6,
+                          fluidRow(
+                            column(12, 
+                              box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
+                                fluidRow(
+                                  column(6, sliderInput('scRNA_umap2_gene_signature_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10) ),
+                                  column(6, sliderInput('scRNA_umap2_gene_signature_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
+                                  column(6, sliderInput('scRNA_umap2_gene_signature_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=15, step=1) ),
+                                  column(6, sliderInput('scRNA_umap2_gene_signature_XY_title.font.size', 'X/Y title font size', min=5, max=40, value=15, step=1) ),
+                                  column(6, sliderInput('scRNA_umap2_gene_signature_legend_size', 'Legend font size', min=5, max=40, value=15, step=1))
+                                ),
+                                fluidRow(
+                                  column(4, colourInput('scRNA_umap2_gene_signature_highest_colour', 'Colour for the highest expression', value='#5A05F7') ),
+                                  column(4, colourInput('scRNA_umap2_gene_signature_lowest_colour', 'Colour for the lowest expression', value='white') ),
+                                  column(4, colourInput('scRNA_umap2_gene_signature_zero_colour', 'Colour for zero (background)', value='#676767'))
+                                ),
+                                fluidRow(
+                                  column(12, checkboxInput('scRNA_umap2_gene_signature_while_background', 'Use white background', value=FALSE))
+                                )
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(12,
+                          fluidRow(column(12, h4('Plot'))),
+                          fluidRow(column(12, verbatimTextOutput('scRNA_UMAP2_gene_signature_status') )),
+                          fluidRow(column(12, plotOutput("scRNA_UMAP2_gene_signature_plot", width="100%", height="100%") )), 
+                        )
                       )
-                    )
+                    ),
                   )
                 )
               ),
@@ -3916,8 +3965,8 @@ server <- function(input, output, session) {
                 p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Compare_dataset_get_overview_select_score)
                 p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Compare_dataset_get_overview_select_score)
               }else{
-                p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Compare_dataset_get_overview_select_score)
-                p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Compare_dataset_get_overview_select_score)
+                p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=input$Compare_dataset_get_overview_select_score)
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=input$Compare_dataset_get_overview_select_score)
               }
             }else{
               p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Compare_dataset_get_overview_select_score)
@@ -3936,15 +3985,6 @@ server <- function(input, output, session) {
         }
       }, width=reactive(input$Compare_dataset_get_overview_fig.width), height=reactive(input$Compare_dataset_get_overview_fig.height))
 
-        # p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
-        # p
-
-
-                      # fluidRow(
-                      #   column(4, sliderInput('Compare_dataset_get_overview_label.font.size', 'X/Y label font size', min=1, max=40, value=15)),
-                      #   column(4, sliderInput('Compare_dataset_get_overview_title.font.size', 'X/Y title font size', min=1, max=40, value=15)),
-                      #   column(4, sliderInput('Compare_dataset_get_overview_graph.title.font.size', 'Graph title font size', min=1, max=40, value=15))
-                      # )
     ###
   ###
 
@@ -4336,6 +4376,7 @@ server <- function(input, output, session) {
     suppressMessages(library(Seurat))
     suppressMessages(library(reshape2))
     suppressMessages(library(cowplot))
+    suppressMessages(library(AUCell))
 
     #### data selection
       output$scRNA_data_select <- renderUI({ selectInput('scRNA_data_select', 'Select a scRNA data', c('None'='None', Dataset()[Dataset()$Data.Class == 'C',]$Dataset)) })
@@ -4491,6 +4532,52 @@ server <- function(input, output, session) {
         }
         # p
       }, width=reactive(input$scRNA_umap2_fig.width), height=reactive(input$scRNA_umap2_fig.height))
+
+    #### Feature Plot (gene set)
+      output$scRNA_UMAP2_gene_signature_status <- renderText({'Enter the input and start the analysis.'})
+      observeEvent(input$scRNA_UMAP2_gene_signature_start, {
+        if(!is.null(Seurat_obj())) {
+          if(nchar(input$scRNA_UMAP2_gene_signature) == 0){
+            output$scRNA_UMAP2_gene_signature_status <- renderText({'Please enter genes'})
+            return(NULL)
+          }
+          genesets <- unlist(strsplit(input$scRNA_UMAP2_gene_signature, split = "\n"))
+          if(length( intersect(rownames(Seurat_obj), genesets) == 0 )){
+            output$scRNA_UMAP2_gene_signature_status <- renderText({'None of the inputted genes are included in the dataset.'})
+            return(NULL)
+          }
+          output$scRNA_UMAP2_gene_signature_status <- renderText({'Calculating...'})
+          Seurat_obj <- Seurat_obj()
+          GS <- list('Custom'=genesets)
+          # expr_matrix <- GetAssayData(object = Seurat_obj(), assay = "RNA", slot = "data")
+          expr_matrix <- Seurat_expression()
+          expr_matrix <- as(expr_matrix, "dgCMatrix")
+          # cells_rankings <- AUCell_buildRankings(expr_matrix, nCores = 1) 
+          cells_AUC <- AUCell_run(expr_matrix, GS)
+          cells_AUC_df <- data.frame(t(getAUC(cells_AUC)))
+          cells_AUC_df$barcode <- rownames(cells_AUC_df)
+          Seurat_umap <- Seurat_umap()
+          Seurat_umap$barcode <- rownames(Seurat_umap)
+          umap_AUC <- merge(Seurat_umap, cells_AUC_df, by='barcode')
+          # plot
+          colnames(umap_AUC) <- c("barcode","UMAP_1", "UMAP_2","AUC.score" )
+          output$scRNA_UMAP2_gene_signature_status <- renderText({NULL})
+          output$scRNA_UMAP2_gene_signature_plot <- renderPlot({
+            p1 <- ggplot(umap_AUC,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=umap_AUC[umap_AUC$AUC.score == 0,] , size = 1, color= input$scRNA_umap2_gene_signature_zero_colour)
+            p1 <- p1 + geom_point(data=umap_AUC[umap_AUC$AUC.score > 0,] , size = 1, aes(color= AUC.score))
+            p1 <- p1 + scale_color_gradient(low  = input$scRNA_umap2_gene_signature_lowest_colour, high = input$scRNA_umap2_gene_signature_highest_colour)
+            p1 <- p1 + theme(axis.text = element_text(size=input$scRNA_umap2_gene_signature_XY_label.font.size), axis.title = element_text(size=input$scRNA_umap2_gene_signature_XY_title.font.size))
+            p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_umap2_gene_signature_legend_size), legend.title = element_text(size=input$scRNA_umap2_gene_signature_legend_size))
+            p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap2_gene_signature_graph.title.font.size)) 
+            # p1 <- p1 + ggtitle(gene)
+            if(input$scRNA_umap2_while_background){
+              p1 <- p1 + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+            }
+            p1
+          },width=reactive(input$scRNA_umap2_gene_signature_fig.width), height=reactive(input$scRNA_umap2_gene_signature_fig.height))
+
+        }
+      })
 
     #### Vlnplot
       # select grou.by
