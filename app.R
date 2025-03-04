@@ -1096,7 +1096,8 @@ ui <- fluidPage(
                     fluidRow(
                       column(12, radioButtons('Integrate_data1_plus_2_plot_yselect', 'Select how to filter Y', choices=c("None"= "E", "Y > Y1" = "A", "Y < Y2"="B", "Y2 < Y < Y1"="C", "Y < Y2 or Y > Y1"="D"), selected="E"))
                     )
-                  )
+                  ),
+                  column(12, checkboxInput('Integrate_data1_plus_2_plot_filter_label', 'Hide labels', value=FALSE) )
                 )
               ),
               box(width=6, title='Filtered area', collapsible=TRUE, collapsed=TRUE,
@@ -4427,7 +4428,9 @@ server <- function(input, output, session) {
             }
             
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-            p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=25) 
+            if(!input$Integrate_data1_plus_2_plot_filter_label){
+              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50)   
+            }
           }          
           if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
