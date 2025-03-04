@@ -65,7 +65,7 @@ install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','pa
 
 ## BiocManager dependent packages
 BiocManager::install(version = "3.20")
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments"))
+BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell"))
 
 ## Other packages
 devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
