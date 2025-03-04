@@ -1046,7 +1046,7 @@ ui <- fluidPage(
                   )
                 )
               ),
-              box(width=12, title='Overlap genes',
+              box(width=12, title='Overlap genes', collapsible=TRUE,
                 fluidRow(
                   column(4, sliderInput('Integrate_data_mapped_x_threshold', 'The threshold for X axis (mapped side)', min=0, max=15, value=1, step=0.1)),
                   column(4, sliderInput('Integrate_data_mapped_y_threshold', 'The threshold for Y axis (mapped side)', min=0, max=15, value=1, step=0.1)),
@@ -1075,13 +1075,42 @@ ui <- fluidPage(
               ),
               box(width=6, title='Data', collapsible=TRUE,
                 fluidRow(
-                  column(8, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
+                  column(9, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
                 ),
-                h4('Selected area'),
-                fluidRow( column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
+                fluidRow(
+                  column(12, h4('Filtering')),
+                  column(6, 
+                    fluidRow(
+                      column(12, numericInput('Integrate_data1_plus_2_plot_xthr1', 'X threshold 1 (X1)', value=1, step=0.1 ) ),
+                      column(12, numericInput('Integrate_data1_plus_2_plot_xthr2', 'X threshold 2 (X2)', value=-1, step=0.1 ) )
+                    ),
+                    fluidRow(
+                      column(12, radioButtons('Integrate_data1_plus_2_plot_xselect', 'Select how to filter X', choices=c("None"= "E", "X > X1" = "A", "X < X2"= "B", "X2 < X < X1"="C", "X < X2 or X > X1"="D"), selected="E"))
+                    )
+                  ),
+                  column(6, 
+                    fluidRow(
+                      column(12, numericInput('Integrate_data1_plus_2_plot_ythr1', 'Y threshold 1 (Y1)', value=1, step=0.1 ) ),
+                      column(12, numericInput('Integrate_data1_plus_2_plot_ythr2', 'Y threshold 2 (Y2)', value=-1, step=0.1 ) )
+                    ),
+                    fluidRow(
+                      column(12, radioButtons('Integrate_data1_plus_2_plot_yselect', 'Select how to filter Y', choices=c("None"= "E", "Y > Y1" = "A", "Y < Y2"="B", "Y2 < Y < Y1"="C", "Y < Y2 or Y > Y1"="D"), selected="E"))
+                    )
+                  )
+                )
+              ),
+              box(width=6, title='Filtered area', collapsible=TRUE, collapsed=TRUE,
+                fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_filtered"))),
+                fluidRow(
+                  column(4, downloadButton('Integrate_data1_plus_2_filtered_download',"Download this table")),
+                  column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
+                )
+              ),
+              box(width=6, title='Selected area', collapsible=TRUE,
+                fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
                 fluidRow(
                   column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
-                  column(8, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
+                  column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
                 )
               ),
               box(title='Figure option', collapsible=TRUE, width=12,  collapsed=TRUE,
@@ -4294,6 +4323,47 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Integrate_data1_plus_2_Scat.colour", suspendWhenHidden=FALSE)
 
+        # get the filtered genes
+        Integrate_data1_plus_2_plot_filtered <- reactive({
+          df_main_plot <- data1_plus_data2()
+          if(is.null(df_main_plot)){ 
+            return(NULL)
+          }
+          if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
+            return(NULL)  
+          }
+          if(input$Integrate_data1_plus_2_plot_xselect =='E' & input$Integrate_data1_plus_2_plot_yselect =='E'){
+            return(NULL)  
+          }
+          x_select <- input$Integrate_data1_plus_2_plot_xselect
+          y_select <- input$Integrate_data1_plus_2_plot_yselect
+          if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr1) & (x_select == 'A' | x_select == 'C' | x_select == 'D')){
+            return(NULL)
+          }
+          if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr2) & (x_select == 'B' | x_select == 'C' | x_select == 'D')){
+            return(NULL)
+          }
+          if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr1) & (y_select == 'A' | y_select == 'C' | y_select == 'D')){
+            return(NULL)
+          }
+          if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr2) & (y_select == 'B' | y_select == 'C' | y_select == 'D')){
+            return(NULL)
+          }
+          switch(x_select,
+            "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1, ] },
+            "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2, ] },
+            "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr2), ] },
+            "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2), ] }
+          )
+          switch(y_select,
+            "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1, ] },
+            "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2, ] },
+            "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr2), ] },
+            "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2), ] }
+          )
+          return(df_main_plot)
+        })
+
         # plot
         output$Integrate_data1_plus_2_plot <- renderPlot({
           df_main_plot <- data1_plus_data2()
@@ -4336,7 +4406,30 @@ server <- function(input, output, session) {
             },
             error = function(e){NULL}
           )
-          if(!is.null(input$Integrate_data1_plus_2_target_gene) && input$Integrate_data1_plus_2_target_gene!=""){
+          if(!is.null(Integrate_data1_plus_2_plot_filtered())){
+            Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
+            if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted') 
+            }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted')  
+            }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted')  
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted')  
+            }
+
+            if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted')
+            }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted')
+            }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted')
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, lnetype='dotted')
+            }
+            
+            p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
+            p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=25) 
+          }          
+          if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
             p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20) 
           }
