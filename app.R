@@ -716,11 +716,12 @@ ui <- fluidPage(
                                 ),
                                 fluidRow(
                                   column(12, sliderInput('GO_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
-                                  column(12, sliderInput('GO_xtitle.font.size', 'X title font size', min=10, max=60, value=20, step=1))
+                                  column(12, sliderInput('GO_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1))
                                 ),
                                 fluidRow(
-                                  column(12, sliderInput('GO_ylab.font.size', 'Y labels size', min=10, max=40, value=15, step=1)),
-                                  column(12, sliderInput('GO_xlab.font.size', 'X label font size', min=10, max=40, value=15, step=1))
+                                  column(12, sliderInput('GO_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
+                                  column(12, sliderInput('GO_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1)),
+                                  column(12, sliderInput('GO_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1))
                                 )
                               )
                             ),
@@ -2173,7 +2174,7 @@ server <- function(input, output, session) {
         else if(!is.null(input$Seuqenced_by_filter) && input$Seuqenced_by_filter != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Seuqenced_by_filter,] }
         datatable(data_table_tmp, 
           selection='none', extensions=c('Select'), 
-          options = list(select=list(style="multi", items='row'), scrollX = TRUE, pageLength = 25 , dom='Blfrtip', rowId=0), 
+          options = list(select=list(style="multi", items='row'), scrollX = TRUE, pageLength = 15 , dom='Blfrtip', rowId=0), 
           editable='cell') 
       },server = FALSE)
 
@@ -3084,13 +3085,26 @@ server <- function(input, output, session) {
           # Goplot 
           output$GO_goPlot <- renderPlot({
             if(is.null(goResult())){ggplot()}
-            else{barplot(goResult(), showCategory=input$GO_fig.category_show_number)  + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size))}
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height))
+            else{
+              p <- barplot(goResult(), showCategory=input$GO_fig.category_show_number)  
+              p <- p + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size))
+              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
+              p <- p + theme(panel.border = element_rect(size=0.25))
+              p <- p + theme(axis.ticks = element_line(size=0.1))
+              p
+            }
+          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=300)
           # GoBubblePlot
           output$GO_goBubblePlot <- renderPlot({
             if(is.null(goResult())){ ggplot() }
-            else{ dotplot(goResult(), showCategory=input$GO_fig.category_show_number) + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size)) }
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height))
+            else{ 
+              p <- dotplot(goResult(), showCategory=input$GO_fig.category_show_number) + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size)) 
+              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
+              p <- p + theme(panel.border = element_rect(size=0.25))
+              p <- p + theme(axis.ticks = element_line(size=0.1))
+              p
+            }
+          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=200)
           # Show the table
           output$GO_goTable <- DT::renderDataTable({
             if(is.null(goResult())){ datatable(NULL) }
@@ -3104,8 +3118,12 @@ server <- function(input, output, session) {
           # network plot
           output$GO_netPlot <- renderPlot({
             if(is.null(goResult())){ ggplot() }
-            else{ cnetplot(goResult()) }
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height))
+            else{ 
+              p <- cnetplot(goResult()) 
+              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
+              p
+            }
+          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=150)
 
           outputOptions(output, "GO_goPlot", suspendWhenHidden=FALSE)
           outputOptions(output, "GO_goBubblePlot", suspendWhenHidden=FALSE) 
@@ -6232,16 +6250,6 @@ server <- function(input, output, session) {
         output$Deconvodution_results <-  renderDataTable({NULL})
       }, ignoreInit=TRUE)
     
-
-      # show table
-      # output$Deconvodution_results <- renderDataTable({
-      #   if(is.null(deconv_table())){
-      #     df_test <- data.frame()  
-      #   }else{
-      #     df_test <- deconv_table()
-      #   }
-      #   datatable(df_test, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-      # })
 
       # download the table
       output$Deconvodution_result_download <- downloadHandler(
