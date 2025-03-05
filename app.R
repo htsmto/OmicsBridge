@@ -414,8 +414,18 @@ ui <- fluidPage(
                           )
                         ),
                         box(title='Expression scores', collapsible=TRUE, status='primary', width=12, 
-                          dataTableOutput("Data_Overview_heatmap_expression"),
-                          downloadButton('Data_Overview_heatmap_expression_download',"Download this table")
+                          fluidRow(
+                            column(12, dataTableOutput("Data_Overview_heatmap_expression"))
+                          ),
+                          fluidRow(
+                            column(3, downloadButton('Data_Overview_heatmap_expression_download',"Download this table")),
+                            column(4, 
+                              box(width=12, title='List of the genes in each cluster.', collapsible=TRUE, collapsed=TRUE,
+                                fluidRow(column(12, htmlOutput('Data_Overview_heatmap_expression_cluster_select'))),
+                                fluidRow(column(12, verbatimTextOutput('Data_Overview_heatmap_expression_cluster_genename')))
+                              )
+                            )
+                          )
                         )
                       ),
                     ####### PCA ####### 
@@ -3419,7 +3429,6 @@ server <- function(input, output, session) {
               df_ex <- df()
               # extract the target genes
               if(length(df_ex$id[df_ex$id %in% genes_for_heatmap()]) == 0){
-                # output$Data_Overview_heatmap_status <- renderText(paste(genes_for_heatmap(), 'None of the inputted genes are in the data.', sep='\n'))
                 output$Data_Overview_heatmap_status <- renderText('None of the inputted genes are in the data.')
                 return(NULL)
               }else{
@@ -3496,6 +3505,28 @@ server <- function(input, output, session) {
             filename = function(){"Heatmap_expression_tablle.tsv"}, 
             content = function(fname){ write.table(ex_datafreme_for_heatmap(), fname, sep='\t', quote=F) }
           )
+
+          # select the cluster to show the gene names
+          output$Data_Overview_heatmap_expression_cluster_select <- renderUI({
+            if(is.null(ex_datafreme_for_heatmap())){
+              return(NULL)
+            }
+            clusters <- unique(ex_datafreme_for_heatmap()$Cluster)
+            selectInput('Data_Overview_heatmap_expression_cluster_select', 'Select the cluster number',  c('None'='None', clusters))  
+          })
+          outputOptions(output, "Data_Overview_heatmap_expression_cluster_select", suspendWhenHidden=FALSE)
+
+          # show the list of gene names
+          output$Data_Overview_heatmap_expression_cluster_genename <- renderText({
+            if(is.null(ex_datafreme_for_heatmap())){
+              return(NULL)
+            }
+            if(input$Data_Overview_heatmap_expression_cluster_select == 'None'){
+              return(NULL)
+            }
+            ex_datafreme_for_heatmap_cluster <- ex_datafreme_for_heatmap()[ex_datafreme_for_heatmap()$Cluster == input$Data_Overview_heatmap_expression_cluster_select, ]
+            paste(rownames(ex_datafreme_for_heatmap_cluster), collapse = "\n")
+          })
 
         ###### PCA plot ######
           output$Data_Overview_PCA_status <- renderText({"Please go to the Settings on the right and start analysis."})
