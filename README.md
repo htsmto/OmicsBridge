@@ -2,7 +2,9 @@
 
 ## Overview
 
-OmicsBrige is....
+OmicsBrige is an intuitive platform that integrates and visualises diverse omics datasets. Our tool assists researchers in identifying key genes with functional and clinical relevance, supporting hypothesis generation. It also functions as a centralised database for efficient data storage and access, minimising scattered datasets and enhancing overall data accessibility.
+
+
 You can use OmicsBridge in a stand alone web interface at XXX.
 There, the uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
@@ -113,3 +115,6 @@ renv::restore(lockfile='renv_Mac.lock')
 <br>
 Depends on the OS, it usually takes 15-30 minutes.
 
+## How to use?
+
+Please refer to the Wiki in the interface. We provide concise instructions and short demo videos for each visualisation and analysis there.
