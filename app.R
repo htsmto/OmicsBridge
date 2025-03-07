@@ -2571,6 +2571,7 @@ server <- function(input, output, session) {
           )
 
         ###### outliers ######
+        
           # get the table
           df_outliers <- reactive({
             if(input$scat.y == 'None' | input$scat.x == 'None'){
