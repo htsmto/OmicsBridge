@@ -343,10 +343,10 @@ ui <- fluidPage(
                           fluidRow(
                             column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=500, step=10)),
                             column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=1, max=10, value=5, step=0.5)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=20, value=10, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=20, value=10, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Graph title font size', min=1, max=40, value=10, step=1))
+                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=15, value=4, step=1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=15, value=4, step=1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1))
                           ),
                           fluidRow(
                             column(4, checkboxInput('Data_Overview_Swarm_white_background', 'Use white background', value=FALSE))
@@ -405,8 +405,9 @@ ui <- fluidPage(
                           fluidRow(
                             column(6, sliderInput(inputId = 'Data_Overview_heatmap_fig.width', label='fig width', min=300, max=3000, value=1000, step=10)),
                             column(6, sliderInput(inputId = 'Data_Overview_heatmap_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput(inputId = 'Data_Overview_heatmap_xlab.font.size', label='X label size', min=1, max=20, value=6, step=1)),
-                            column(6, sliderInput(inputId = 'Data_Overview_heatmap_ylab.font.size', label='Y label size', min=1, max=20, value=10, step=1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_heatmap_xlab.font.size', label='X label size', min=0, max=10, value=1, step=0.1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_heatmap_ylab.font.size', label='Y label size', min=0, max=10, value=3, step=0.1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_heatmap_legend.size', label='Legend size', min=1, max=10, value=3, step=1)),
                             column(4, colourInput(inputId = 'Data_Overview_heatmap_col_high', 'Colour for the highest value', value='red')),
                             column(4, colourInput(inputId = 'Data_Overview_heatmap_col_low', 'Colour for the lowest value', value='blue')),
                             column(4, colourInput(inputId = 'Data_Overview_heatmap_col_mid', 'Colour for value = 0', value='white')),
@@ -458,21 +459,21 @@ ui <- fluidPage(
                         ),
                         box(width=8, title='Plot options', collapsible = TRUE, collapsed = TRUE,
                           fluidRow(
-                            column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.width', label='fig width', min=300, max=3000, value=850, step=10)),
-                            column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.height', label='fig height', min=300, max=3000, value=750, step=10))
+                            column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.width', label='fig width', min=300, max=3000, value=900, step=10)),
+                            column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.height', label='fig height', min=300, max=3000, value=600, step=10))
                           ),
                           fluidRow(
-                            column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.font.size', label='X/Y label size', min=10, max=40, value=15, step=1)),
-                            column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='Y/Y title size', min=10, max=40, value=20, step=1))
+                            column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.font.size', label='X/Y label size', min=1, max=15, value=4, step=1)),
+                            column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='Y/Y title size', min=1, max=15, value=4, step=1))
                           ),
                           fluidRow(
-                            column(4, sliderInput(inputId = 'Data_Overview_PCA_point_size', 'Points size', min=1, max=20, value=5, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_PCA_label_size', 'Sample label side', min=1, max=20, value=3, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_PCA_legend_size', 'Legend size', min=10, max=40, value=15, step=1))
+                            column(4, sliderInput(inputId = 'Data_Overview_PCA_point_size', 'Points size', min=0.1, max=7, value=1, step=1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_PCA_label_size', 'Sample label side', min=0.1, max=5, value=1, step=0.1)),
+                            column(4, sliderInput(inputId = 'Data_Overview_PCA_legend_size', 'Legend size', min=0.1, max=10, value=4, step=0.1))
                           ),
                           fluidRow(
                             column(4, checkboxInput('Data_Overview_PCA_change_colour_by_group', 'Colour by groups', value=TRUE)),
-                            column(4, checkboxInput('Data_Overview_PCA_label_hide', 'Hide labels', value=FALSE)),
+                            column(4, checkboxInput('Data_Overview_PCA_label_hide', 'Hide labels', value=TRUE)),
                             column(4, checkboxInput('Data_Overview_PCA_white_background', 'Use white background', value=FALSE))
                           )
                         )
@@ -632,11 +633,11 @@ ui <- fluidPage(
                               fluidRow(
                                 column(6,sliderInput('fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
                                 column(6,sliderInput('fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput('pt.size', 'Point size', min=0.1, max=10, value=1, step=0.1)),
-                                column(6, sliderInput('high.pt.size', 'Highlighted points size', min=0.1, max=10, value=3, step=0.1)),
-                                column(6, sliderInput('high.label.size', 'Highlighted labels size', min=1, max=20, value=5, step=1)),
-                                column(6, sliderInput('label.font.size', 'X/Y label font size', min=1, max=40, value=10, step=1)),
-                                column(6, sliderInput('title.font.size', 'X/Y title font size', min=1, max=40, value=10, step=1)),
+                                column(6, sliderInput('pt.size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
+                                column(6, sliderInput('high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.8, step=0.01)),
+                                column(6, sliderInput('high.label.size', 'Highlighted labels size', min=0.1, max=5, value=1.5, step=0.1)),
+                                column(6, sliderInput('label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=1)),
+                                column(6, sliderInput('title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=1))
                                 # column(4, sliderInput('graph.title.font.size', 'Graph title font size', min=1, max=40, value=10, step=1))
                               )
                             ),
@@ -763,9 +764,9 @@ ui <- fluidPage(
                                       column(4, sliderInput('GSEA_fig.height','Fig height', min=300, max=3000, value=500, step=10))
                                     ),
                                     fluidRow(
-                                      column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=30, value=15, step=1)),
-                                      column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=40, value=20, step=1)),
-                                      column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=40, value=15, step=1))
+                                        column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=15, value=5, step=1)),
+                                        column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=15, value=5, step=1)),
+                                        column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=15, value=5, step=1))
                                     )
                                   )
                                 )
@@ -797,8 +798,9 @@ ui <- fluidPage(
                                   column(12, sliderInput('DecoupeR_fig.height','Fig height', min=300, max=3000, value=500, step=10))
                                 ),
                                 fluidRow(
-                                  column(12, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=30, value=15, step=1)),
-                                  column(12, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=40, value=20, step=1)),
+                                  column(12, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=15, value=3, step=1)),
+                                  column(12, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=15, value=3, step=1)),
+                                  column(12, sliderInput('DecoupeR_legend.size', 'Legend size', min=1, max=15, value=3, step=1)),
                                 ),
                                 fluidRow(
                                   column(12, colourInput('DecoupeR_colour_high', 'High activity colour:', value='indianred')),
@@ -915,12 +917,13 @@ ui <- fluidPage(
                   box(width=12, collapsible=TRUE, title='Plot options', collapsed=TRUE,
                     fluidRow(
                       column(4,sliderInput('Compare_dataset_get_overview_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                      column(4,sliderInput('Compare_dataset_get_overview_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                      column(4,sliderInput('Compare_dataset_get_overview_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
                     ),
                     fluidRow(
-                      column(4, sliderInput('Compare_dataset_get_overview_label.font.size', 'X/Y label font size', min=1, max=40, value=15, step=1)),
-                      column(4, sliderInput('Compare_dataset_get_overview_title.font.size', 'X/Y title font size', min=1, max=40, value=15, step=1)),
-                      column(4, sliderInput('Compare_dataset_get_overview_graph.title.font.size', 'Graph title font size', min=1, max=40, value=15, step=1))
+                      column(4, sliderInput('Compare_dataset_get_overview_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=1)),
+                      column(4, sliderInput('Compare_dataset_get_overview_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=1)),
+                      column(4, sliderInput('Compare_dataset_get_overview_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1)),
+                      column(4, sliderInput('Compare_dataset_get_overview_legend_size', 'Legend font size', min=1, max=15, value=4, step=1))
                     ),
                     fluidRow(
                       column(4, colourInput('Compare_dataset_get_overview_highest_colour', 'Colour for the highest value', value='red')),
@@ -928,7 +931,6 @@ ui <- fluidPage(
                       column(4, colourInput('Compare_dataset_get_overview_zero_colour', 'Colour for zero', value='white')),
                       column(4, checkboxInput('Compare_dataset_get_overview_white_background', 'Use white background', value=FALSE))
                     )
-
                   )
                 ),
                 ## Compare the one gene
@@ -964,14 +966,15 @@ ui <- fluidPage(
                   ),
                   box(width=8, collapsible=TRUE, title='Plot options', collapsed=TRUE,
                     fluidRow(
-                      column(4, sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                      column(4, sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                      column(4,sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                      column(4,sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
                       column(4, sliderInput('Compare_pt.size', 'Point size', min=0.1, max=10, value=3, step=0.1))
                     ),
                     fluidRow(
-                      column(4, sliderInput('Compare_label.font.size', 'X/Y label font size', min=1, max=40, value=15, step=1)),
-                      column(4, sliderInput('Compare_title.font.size', 'X/Y title font size', min=1, max=40, value=15, step=1)),
-                      column(4, sliderInput('Compare_graph.title.font.size', 'Graph title font size', min=1, max=40, value=15, step=1))
+                      column(4, sliderInput('Compare_label.font.size', 'X/Y label font size', min=1, max=10, value=4, step=1)),
+                      column(4, sliderInput('Compare_title.font.size', 'X/Y title font size', min=1, max=10, value=4, step=1)),
+                      column(4, sliderInput('Compare_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1)),
+                      column(4, sliderInput('Compare_label_legend_size', 'Legend font size', min=1, max=15, value=4, step=1)),
                     ),
                     fluidRow(
                       column(4, colourInput('Compare_highest_colour', 'Colour for the highest value', value='red')),
@@ -2570,8 +2573,10 @@ server <- function(input, output, session) {
         ###### outliers ######
           # get the table
           df_outliers <- reactive({
+            if(input$scat.y == 'None' | input$scat.x == 'None'){
+              return(NULL)
+            }
             df_main_plot <- df()
-            req(input$show_outliers)
             if(input$show_outliers){
               if(input$How_to_filter == 'A'){
                 df_main_plot <- df_main_plot[df_main_plot[input$scat.y] >= input$Overviwe_Top_bottom_Y_threshold,]
@@ -2586,6 +2591,8 @@ server <- function(input, output, session) {
               }
             }else if (input$show_pathway) {
                 df_main_plot[df_main_plot$id %in% genes_in_the_pathway(),]
+            }else{
+              return(NULL)
             }
           })
           # diplay the filtered genes' information
@@ -2805,8 +2812,10 @@ server <- function(input, output, session) {
             if(input$Data_Overview_Swarm_white_background){
               p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
             }
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p
-          }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height))
+          }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height), res=300)
 
           # download the table
           output$outFile_expression_download <- downloadHandler(
@@ -2913,8 +2922,10 @@ server <- function(input, output, session) {
             if(input$while_background){
               p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
             }
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p
-          }, width=reactive(input$fig.width), height=reactive(input$fig.height))
+          }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
 
           # the selected genes' information
           Overview_selected_table <- reactive({
@@ -2986,8 +2997,15 @@ server <- function(input, output, session) {
               p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
             }
             p <- p + geom_bar(stat='identity')
+            p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
+            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+            p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
+            p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p 
-          }, width=reactive(input$fig.width), height=reactive(input$fig.height))
+            p 
+          }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
 
 
         ###### GO analysis ######
@@ -3273,6 +3291,8 @@ server <- function(input, output, session) {
                   'NES: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$NES), '\n', 
                   'size: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$size))
               })
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
               p
             }
           }, width=reactive(input$GSEA_fig.width), height=reactive(input$GSEA_fig.height))
@@ -3325,15 +3345,19 @@ server <- function(input, output, session) {
                                   # column(12, colourInput('DecoupeR_colour_low', 'Low activity colour:', value='red')),
                                   # column(12, colourInput('DecoupeR_colour_mid', 'Mid activity colour:', value='red'))
 
-          # plot low = 
+          # plot DecoupeR results
           output$DecoupeR_plot <- renderPlot({
             p <- ggplot(DecoupeR_TF_table(), aes(x = reorder(source, score), y = score)) + geom_bar(aes(fill = score), stat = "identity")
-            p <- p + scale_fill_gradient2(low = input$DecoupeR_colour_low, high = input$DecoupeR_colour_high, mid = input$DecoupeR_colour_mid, midpoint = 0) + theme_minimal()
-            p <- p + theme(axis.title = element_text(face = "bold", size = 12), axis.text.x = element_text(angle = 45, hjust = 1, size =10, face= "bold"),
-                axis.text.y = element_text(size =10, face= "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + xlab("TFs")
+            p <- p + scale_fill_gradient2(low = input$DecoupeR_colour_low, high = input$DecoupeR_colour_high, mid = input$DecoupeR_colour_mid, midpoint = 0)
+            p <- p + theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust = 1)) + xlab("TFs")
             p <- p + theme(axis.text=element_text(size=input$DecoupeR_lab.font.size), axis.title=element_text(size=input$DecoupeR_title.font.size))
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(legend.text = element_text(size = input$DecoupeR_legend.size), legend.title = element_text(size = input$DecoupeR_legend.size) )
+            p <- p + theme(legend.key.size = unit(3, "mm"))
+            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
             p
-          }, width=reactive(input$DecoupeR_fig.width), height=reactive(input$DecoupeR_fig.height))
+          }, width=reactive(input$DecoupeR_fig.width), height=reactive(input$DecoupeR_fig.height),res=300)
           outputOptions(output, "DecoupeR_plot", suspendWhenHidden=FALSE)
           
 
@@ -3506,11 +3530,16 @@ server <- function(input, output, session) {
               if(input$Data_Overview_heatmap_white_background){
                   p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
               }
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(legend.text = element_text(size = input$Data_Overview_heatmap_legend.size), legend.title = element_text(size = input$Data_Overview_heatmap_legend.size) )
+              p <- p + theme(legend.key.size = unit(3, "mm"))
+              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
               p
             }else{
               return(NULL)
             }
-          }, width=reactive(input$Data_Overview_heatmap_fig.width), height=reactive(input$Data_Overview_heatmap_fig.height))
+          }, width=reactive(input$Data_Overview_heatmap_fig.width), height=reactive(input$Data_Overview_heatmap_fig.height), res=300)
 
           # display the standardised table
           output$Data_Overview_heatmap_expression <- DT::renderDataTable({
@@ -3631,8 +3660,11 @@ server <- function(input, output, session) {
             if(input$Data_Overview_PCA_white_background){
                 p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
             }
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(legend.key.size = unit(2, "mm"))
             p
-          }, width=reactive(input$Data_Overview_PCA_fig.width), height = reactive(input$Data_Overview_PCA_fig.height))
+          }, width=reactive(input$Data_Overview_PCA_fig.width), height = reactive(input$Data_Overview_PCA_fig.height), res=300)
         
           output$Data_Overview_PCA_Sample_list <- renderText({
             df_ex <- df()
@@ -3889,6 +3921,7 @@ server <- function(input, output, session) {
               tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
               p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Choose_datasets_colour)
               p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Choose_datasets_colour)
+              p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
             }else{
               p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(df_compare$Colour), 0)  , limits = c(c(min(df_compare$Colour), 0)) ), name=input$Choose_datasets_colour)
               p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(df_compare$Colour), 0)  , limits = c(c(min(df_compare$Colour), 0)) ), name=input$Choose_datasets_colour)
@@ -3898,7 +3931,6 @@ server <- function(input, output, session) {
             p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=input$Choose_datasets_colour)
           }
         }
-        p <- p + geom_hline(yintercept=0, linetype='dotted')
         p <- p + ggtitle(colnames(df_compare)[1])
         p <- p + labs(x= 'Datasets',  y = input$Choose_datasets_y)
         p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
@@ -3909,8 +3941,12 @@ server <- function(input, output, session) {
         if(input$Compare_white_background){
             p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
         }
+        p <- p + theme(legend.text = element_text(size=input$Compare_label_legend_size), legend.title= element_text(size=input$Compare_label_legend_size))
+        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+        p <- p + theme(legend.key.size = unit(2, "mm"))
         p
-      }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height))
+      }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
 
     #### investigate the overlap
       # chosse the score for comparison
@@ -4034,10 +4070,7 @@ server <- function(input, output, session) {
             df_plot <- df_plot[order(df_plot$Score, decreasing = T),]
             df_plot$sample <- factor(df_plot$sample, levels=df_plot$sample)
             p <- ggplot(df_plot, aes_string(x= "sample", y="Score", fill="Score")) + geom_bar(stat='identity')
-            values_for_colours <- df_plot[,'Score']     
-                        # column(4, colourInput('Compare_dataset_get_overview_highest_colour', 'Colour for the highest value', value='red')),
-                        # column(4, colourInput('Compare_dataset_get_overview_lowest_colour', 'Colour for the lowest value', value='blue')),
-                        # column(4, colourInput('Compare_dataset_get_overview_zero_colour', 'Colour for zero', value='white'))           
+            values_for_colours <- df_plot[,'Score']           
             if( min(values_for_colours)<0 ){
               if( max(values_for_colours)>=0 ){
                 tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
@@ -4056,13 +4089,18 @@ server <- function(input, output, session) {
             if(input$Compare_dataset_get_overview_white_background){
                 p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
             }
+            p <- p + ggtitle(gene)
+            p <- p + theme(legend.text = element_text(size=input$Compare_dataset_get_overview_legend_size), legend.title= element_text(size=input$Compare_dataset_get_overview_legend_size))
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(legend.key.size = unit(2, "mm"))
             p
           }else{
             output$Compare_dataset_get_overview_barplot_status <- renderText({'Please select a row from the table'})
             return(NULL)
           }
         }
-      }, width=reactive(input$Compare_dataset_get_overview_fig.width), height=reactive(input$Compare_dataset_get_overview_fig.height))
+      }, width=reactive(input$Compare_dataset_get_overview_fig.width), height=reactive(input$Compare_dataset_get_overview_fig.height), res=300)
 
     ###
   ###
