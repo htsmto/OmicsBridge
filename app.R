@@ -6627,6 +6627,7 @@ server <- function(input, output, session) {
             output$cross_table_status <- renderText({"Row names are duplicated."})
             rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
           }else{
+            output$cross_table_status <- renderText({NULL})
             rownames(tmp) <- c(input$Cross_tabulation_Row1, input$Cross_tabulation_Row2)
           }
         }
@@ -6637,9 +6638,11 @@ server <- function(input, output, session) {
             output$cross_table_status <- renderText({"Column names are duplicated."})
             colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
           }else{
+            output$cross_table_status <- renderText({NULL})
             colnames(tmp) <- c(input$Cross_tabulation_col1, input$Cross_tabulation_col2)
           }
         }
+        output$cross_table_status <- renderText({NULL})
         tmp        
       })
       
