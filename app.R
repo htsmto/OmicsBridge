@@ -2108,7 +2108,14 @@ ui <- fluidPage(
                         fluidRow(
                           column(12, h5('Show the input data table')),
                           column(12, dataTableOutput("Network_input_table"))
-                        )
+                        ),
+                        fluidRow(
+                          column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
+                          column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
+                          column(6, colourInput("Network_input_color_from", "The color of node (From)", value='#F7AFAF' )),
+                          column(6, colourInput("Network_input_color_to", "The color of node (To)", value='#B2E9FF' )),
+                          column(12, checkboxInput("Network_input_arrow", "Show direction", value=FALSE )),
+                        ),
                       )
                     ),
                     column(8,
@@ -6842,13 +6849,19 @@ server <- function(input, output, session) {
         nodes <- data.frame(id = V(graph)$name, 
                             label = V(graph)$name, 
                             size = V(graph)$size)
-        nodes$shape <- ifelse(nodes$label %in% unique(Network_input_data()$from), "ellipse", 'box')
-        nodes$color <- ifelse(nodes$label %in% unique(Network_input_data()$from), "lightblue", 'lightgreen')
+                          # column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
+                          # column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
+                          # column(6, colourInput("Network_input_color_from", "The color of node (From)", value='#AEECF5' )),
+                          # column(6, colourInput("Network_input_color_to", "The color of node (To)", value='#AEECF5' )),
+        nodes$shape <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_shape_from, input$Network_input_shape_to)
+        nodes$color <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_color_from, input$Network_input_color_to)
         edges <- data.frame(from = Network_input_data()$from, 
                             to = Network_input_data()$to,
                             width = Network_input_data()$weight)
-        edges$arrows <- 'to'
-        
+        if(input$Network_input_arrow){
+          edges$arrows <- 'to'
+        }
+              
         network <- visNetwork(nodes, edges, height = "1000px", width = "100%")
         # network <- visEdges(arrows = 'to')
         network <- visOptions(network, highlightNearest = TRUE, nodesIdSelection=TRUE)
