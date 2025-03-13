@@ -2148,7 +2148,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 2nd. März, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 13th. März, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -6481,6 +6481,7 @@ server <- function(input, output, session) {
           )
           colnames(converted_df) <- input_column
           converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+          converted <- distinct(converted) 
         }else if(input$human_mouse_convert_direction == 'B'){
           input_column <- switch(input$human_mouse_convert_input_type,
             "A" = 'Human.Gene.name',
@@ -6494,6 +6495,7 @@ server <- function(input, output, session) {
           )
           colnames(converted_df) <- input_column
           converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+          converted <- distinct(converted) 
         }
         # show a gene names list
         output$human_mouse_convert_result <- renderText({
@@ -6519,7 +6521,7 @@ server <- function(input, output, session) {
           output$Gene_Ensembl_convert_result <- renderText({'Please enter genes.'})
           return(NULL)
         }
-        input_genes <- unlist(strsplit(input$Gene_Ensembl_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge')
+        input_genes <- unlist(strsplit(input$Gene_Ensembl_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge', 'MYC')
         converted_df <- data.frame(input=input_genes)
         if(input$Gene_Ensembl_spieces == 'A'){
           input_column <- switch(input$Gene_Ensembl_input_type,
@@ -6534,6 +6536,7 @@ server <- function(input, output, session) {
           )
           colnames(converted_df) <- input_column
           converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+          converted <- distinct(converted) # library(dplyr)
         }else{
           input_column <- switch(input$Gene_Ensembl_input_type,
             "A" = 'Mouse.gene.name',
@@ -6547,6 +6550,7 @@ server <- function(input, output, session) {
           )
           colnames(converted_df) <- input_column
           converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+          converted <- distinct(converted) # library(dplyr)
         }
         # show a gene names list
         output$Gene_Ensembl_convert_result <- renderText({
