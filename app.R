@@ -2011,9 +2011,9 @@ ui <- fluidPage(
                           fluidRow(
                             column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
                             column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=20, step=1)),
-                            column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=5, max=40, value=20, step=1)),
-                            column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=5, max=40, value=20, step=1)),
+                            column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=1, max=15, value=5, step=1)),
+                            column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=1, max=15, value=5, step=1)),
+                            column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=1, max=15, value=5, step=1)),
                           ),
                           fluidRow(
                             column(6, colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
@@ -2080,8 +2080,8 @@ ui <- fluidPage(
                           fluidRow(
                             column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
                             column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.1, max=7, value=1.5, step=0.1)),
-                            column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.1, max=7, value=2, step=0.1)),
+                            column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
+                            column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
                             column(6, colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
                             column(6, colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
                             conditionalPanel(
@@ -6695,16 +6695,26 @@ server <- function(input, output, session) {
           p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
         }
         if(input$Cross_tabulation_plot_rotate_x){
-          if( ( as.integer(input$Cross_tabulation_plot_rotate_x_angle) %% 90) == 0 ){
-            p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 0.5))
-          }else{
-            p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 1))
+          if(!is.na(input$Cross_tabulation_plot_rotate_x_angle)){
+            if(input$Cross_tabulation_plot_rotate_x_angle != ''){
+              if(is.integer(input$Cross_tabulation_plot_rotate_x_angle)){
+                if( ( as.integer(input$Cross_tabulation_plot_rotate_x_angle) %% 90) == 0 ){
+                  p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 0.5))
+                }else{
+                  p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 1))
+                }
+              }
+            }
+
           }
-          
         }
+        p <- p + theme(legend.key.size = unit(2, "mm"))
+        p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
         p
 
-      }, width=reactive(input$Cross_tabulation_plot.width), height=reactive(input$Cross_tabulation_plot.height))
+      }, width=reactive(input$Cross_tabulation_plot.width), height=reactive(input$Cross_tabulation_plot.height), res=300)
 
       # test
       output$cross_table_Statistic <- renderText({
@@ -6788,7 +6798,7 @@ server <- function(input, output, session) {
         # p <- ggVennDiagram(venn_data(), label_alpha=0.6, category.names= c())
         # p <- p + theme(legend.position="none")  + coord_flip()
         # p
-      }, width=reactive(input$Venn_Diagram_plot.width), height=reactive(input$Venn_Diagram_plot.height))
+      }, width=reactive(input$Venn_Diagram_plot.width), height=reactive(input$Venn_Diagram_plot.height), res=300)
 
       output$Venn_Diagram_show_overlap_2D_list <- renderText({
         venn_data <- venn_data()
