@@ -3303,7 +3303,7 @@ server <- function(input, output, session) {
               p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
               p
             }
-          }, width=reactive(input$GSEA_fig.width), height=reactive(input$GSEA_fig.height))
+          }, width=reactive(input$GSEA_fig.width), height=reactive(input$GSEA_fig.height),res=300)
           outputOptions(output, "GSEA_plot", suspendWhenHidden=FALSE)
 
 
