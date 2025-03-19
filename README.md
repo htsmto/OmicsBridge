@@ -5,15 +5,13 @@
 OmicsBrige is an intuitive platform that integrates and visualises diverse omics datasets. Our tool assists researchers in identifying key genes with functional and clinical relevance, supporting hypothesis generation. It also functions as a centralised database for efficient data storage and access, minimising scattered datasets and enhancing overall data accessibility.
 
 
-You can use OmicsBridge in a stand alone web interface at XXX.
+You can use OmicsBridge in a stand alone web interface at https://omicsbridge.dkfz.de/OmicsBridge/.
 There, the uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
 ![Interface overview](www/interface_overview.png)
 
-## Installation and usage
-
-### Run on your local PC
+## Installation
 
 Plase make a clone of this repository first. In the terminal,
 
@@ -25,16 +23,18 @@ cd OmicsBridge
 <details>
 <summary> do not have git installed in your PC?</summary>
 
-> Please go to 'Code' > 'Download ZIP' on teh top right of this page, and you will get 'OmicsBridge-main.zip'. Please place this file in your desired folder and uncompress.
+> Please go to 'Code' > 'Download ZIP' on teh top right of this page, and you will get 'OmicsBridge-main.zip'. Please place this file in your desired folder and uncompress it.
 
 </details>
 <br>
 
 Please download the necessary data, uncompress and deploy the folder to the correct position. In the terminal,
 ```bash
-curl -O https://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz
+curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
 tar -xzvf 00_Clinical_dataset.tar.gz 
 ```
+
+Or, copy the links above and paste in a browser to download the files, umcompress and diploy them inside the OmicsBridge folder.
 
 Please make sure that all the dependencies are ready (Read below). 
 <p>
@@ -48,14 +48,13 @@ shiny::runApp('app.R')
 The interface will open in your brower.
 If not, check the console and find `Listening on http://127.0.0.1:XXXX`. Please go to your browser and enter `http://127.0.0.1:XXXX` in the URL bar.
 
-### Run on a Shiny server
 
 
 ## Dependency
 
 To use OmicsBridge, R is requrired and version should be >=4.4.0. We confirmed that R 4.2 or R 4.3 can be also okay for most of the functions, but some functions (ex. GSVA packages) will cause some errors, so we recommend to install the latest version of R.
 
-The necessary R libraries can be installed in the either way in the follwings:
+The necessary R libraries can be installed as the follwings:
 
 ### Manually install the necessary libraries
 
@@ -75,16 +74,15 @@ devtools::install_github('dviraran/xCell')
 
 ```
 
+
+If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
+
 <details>
 <summary> cannot install some libraries?</summary>
 
 > Please install the library one by one, not all in once. If you are a Mac user, installing [XQuartz](https://www.xquartz.org/) can solve the problem.
 
 </details>
-
-
-
-If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
 
 
 ### Using renv
