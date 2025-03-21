@@ -1190,6 +1190,11 @@ ui <- fluidPage(
                         tabPanel("Meta data", 
                           fluidRow(column(12, verbatimTextOutput('Clinical_View_MetaData_status') )), 
                           fluidRow(column(12, DT::dataTableOutput("Clinical_View_MetaData") ))
+                        ),
+                        tabPanel("Mutation data", 
+                          fluidRow(column(12, h5(''))),
+                          fluidRow(column(12, verbatimTextOutput('Clinical_View_mutation_status') )),
+                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Mutation") ))
                         )
                       )
                     ),
@@ -5291,7 +5296,26 @@ server <- function(input, output, session) {
           NULL
         }
       })  
-
+      Clinical_mutation <- reactive({
+        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
+          output$Clinical_View_mutation_status <- renderText({NULL})
+          if(is.na(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
+            output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
+            NULL
+          }else{
+            if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
+              data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T))
+            }else{
+              output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
+              NULL
+            }
+          }
+        }else{
+          output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
+          NULL
+        } 
+      })
+    
     #### display the table of the data (gene expression, survival, metadata) ####
       output$Clinical_View_Geneexpression <- DT::renderDataTable({
         # radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
@@ -5305,12 +5329,20 @@ server <- function(input, output, session) {
         }
         datatable(tmp, options = list(scrollX = TRUE, pageLength = 10, server=TRUE))
       })
+      outputOptions(output, "Clinical_View_Geneexpression", suspendWhenHidden=FALSE)
       output$Clinical_View_Survival <- DT::renderDataTable({
         datatable(Clinical_surival(), options = list(scrollX = TRUE, pageLength = 10))
       })
+      outputOptions(output, "Clinical_View_Survival", suspendWhenHidden=FALSE)
       output$Clinical_View_MetaData <- DT::renderDataTable({
         datatable(Clinical_meta(), options = list(scrollX = TRUE, pageLength = 10))
       })
+      outputOptions(output, "Clinical_View_MetaData", suspendWhenHidden=FALSE)
+      output$Clinical_View_Mutation <- DT::renderDataTable({
+        datatable(Clinical_mutation(), options = list(scrollX = TRUE, pageLength = 10))
+      })
+      outputOptions(output, "Clinical_View_Mutation", suspendWhenHidden=FALSE)
+
 
     #### Survival analysis ####
       suppressMessages(library(survival))
