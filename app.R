@@ -978,7 +978,7 @@ ui <- fluidPage(
                   ),
                   box(width=8, collapsible=TRUE, title='Plot options', collapsed=TRUE,
                     fluidRow(
-                      column(4,sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                      column(4,sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=850, step=10)),
                       column(4,sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
                       column(4, sliderInput('Compare_pt.size', 'Point size', min=0.1, max=10, value=3, step=0.1))
                     ),
@@ -1391,8 +1391,8 @@ ui <- fluidPage(
                                 ),
                                 fluidRow(h3('')),
                                 fluidRow(
-                                  column(3, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
-                                  column(9, 
+                                  column(4, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
+                                  column(8, 
                                     fluidRow(column(12, h4('Plot'))),
                                     fluidRow(column(12, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') )),
                                     fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_no_entry') )),
@@ -2935,10 +2935,12 @@ server <- function(input, output, session) {
                 return(NULL)
               }
             }
-            if(input$Data_Overview_Swarm_white_background){
-              p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-            }
             p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            if(input$Data_Overview_Swarm_white_background){
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
             p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p
           }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height), res=300)
@@ -4099,12 +4101,14 @@ server <- function(input, output, session) {
         tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
         gene <- tmp[input$Gene_comparing_gene_list_table_rows_selected,]
         p <- p + ggtitle(gene)
-        if(input$Compare_white_background){
-            p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-        }
         p <- p + theme(legend.text = element_text(size=input$Compare_label_legend_size), legend.title= element_text(size=input$Compare_label_legend_size))
         p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
         p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+        if(input$Compare_white_background){
+          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+          p <- p + theme(panel.background = element_rect(fill="white", size=0))
+          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        }
         p <- p + theme(legend.key.size = unit(2, "mm"))
         p
       }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
