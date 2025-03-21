@@ -1,6 +1,5 @@
 Database.Name	Description	Expression_path	Survival_path	Meta_path	added.when	Mutation_path
-EwingSarcoma	test	00_Clinical_dataset/EwingSarcoma/EwingSarcoma_ex.tsv	00_Clinical_dataset/EwingSarcoma/EwingSarcoma_survival.tsv	00_Clinical_dataset/EwingSarcoma/EwingSarcoma_meta.tsv	2025-02-20 12:25:14.833935	NA
-METABLIC	Breast cancer dataset	00_Clinical_dataset/METABLIC/microarray.tsv	00_Clinical_dataset/METABLIC/clinical.tsv	00_Clinical_dataset/METABLIC/meta.tsv	2025-01-29 16:51:18.985002	00_Clinical_dataset/METABLIC/mutations.tsv
+METABLIC	Breast cancer dataset	00_Clinical_dataset/METABLIC/microarray.tsv.gz	00_Clinical_dataset/METABLIC/clinical.tsv	00_Clinical_dataset/METABLIC/meta.tsv	2025-01-29 16:51:18.985002	00_Clinical_dataset/METABLIC/mutations.tsv
 TCGA_ACC	Adrenocortical carcinoma	00_Clinical_dataset/TCGA_ACC/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_ACC/survival.tsv	00_Clinical_dataset/TCGA_ACC/meta.tsv	2025-01-29 16:51:18.985002	00_Clinical_dataset/TCGA_ACC/mutations.tsv
 TCGA_BLCA	Bladder Urothelial Carcinoma	00_Clinical_dataset/TCGA_BLCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_BLCA/survival.tsv	00_Clinical_dataset/TCGA_BLCA/meta.tsv	2025-01-29 16:51:18.985002	00_Clinical_dataset/TCGA_BLCA/mutations.tsv
 TCGA_BRCA	Breast invasive carcinoma	00_Clinical_dataset/TCGA_BRCA/Gene_expression_RSEM.tsv.gz	00_Clinical_dataset/TCGA_BRCA/survival.tsv	00_Clinical_dataset/TCGA_BRCA/meta.tsv	2025-01-29 16:51:18.985002	00_Clinical_dataset/TCGA_BRCA/mutations.tsv
