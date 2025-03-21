@@ -1339,6 +1339,89 @@ ui <- fluidPage(
                         )
                       )
                     ),
+                  ###### Mutation analysis ###### 
+                    tabPanel("Mutation analysis",
+                      box(width=12,
+                        tabsetPanel(
+                          tabPanel('Freqency',
+                            fluidRow(
+                              column(7,
+                                h5(''),
+                                fluidRow(column(12, h4('Mutation frequency'))),
+                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))),
+                                fluidRow(
+                                  column(4,
+                                    h5(''),
+                                    fluidRow(column(12, radioButtons('Clinical_Mutation_gene_input', 'Genes input from:', choices=c("Text input" = 'A', "Use all genes"='B', "Select from custom genesets"='C'), selected='A') )),
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_gene_input == "A"',
+                                      fluidRow(column(12, textAreaInput('Clinical_Mutation_gene', 'Enter genes') )) 
+                                    ),
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_gene_input == "C"',
+                                      fluidRow(column(12, htmlOutput('Clinical_Mutation_gene_from_custom') )) 
+                                    )
+                                  ),
+                                  column(8, 
+                                    h5(''),
+                                    fluidRow(
+                                      column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                      column(12, 
+                                        conditionalPanel(
+                                          condition = 'input.Clinical_Mutation_frequency_filter == "B"',
+                                          fluidRow(
+                                            column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
+                                            column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
+                                            column(10, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
+                                          ),  
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  column(12, 
+                                    h5(''),
+                                    fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Show plot"))),
+                                    h5(''),
+                                  )
+                                ),
+                                fluidRow(h3('')),
+                                fluidRow(
+                                  column(3, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
+                                  column(9, 
+                                    fluidRow(column(12, h4('Plot'))),
+                                    fluidRow(column(12, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') )),
+                                    fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_no_entry') )),
+                                    fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
+                                  )
+                                )
+                              ),
+                              column(5,
+                                h5(''),
+                                box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
+                                  fluidRow(
+                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                  ),
+                                  fluidRow(
+                                    column(6,sliderInput('Clinical_Mutation_frequency_label_size', 'X label size', min=1, max=15, value=2.5, step=0.1)),
+                                    column(6,sliderInput('Clinical_Mutation_frequency_title_size', 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
+                                    column(6,sliderInput('Clinical_Mutation_frequency_legend_size', 'Legend font size', min=1, max=15, value=4, step=0.1)),
+                                    column(6,sliderInput('Clinical_Mutation_frequency_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
+                                  ),
+                                  fluidRow(
+                                    column(6, colourInput('Clinical_Mutation_frequency_colour_high', 'Colour of the highest value:', value='#e14b22')),
+                                    column(6, colourInput('Clinical_Mutation_frequency_colour_zero', 'Colour of 0:', value='#ffffff')),
+                                    column(6, checkboxInput('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE)),
+                                    column(6, checkboxInput('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE))
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          tabPanel('Survival analysis'),
+                        )
+                      )
+                    ),
                   ###### Gene expression compare ######
                     tabPanel("Gene expression acrosss subtype",
                       box(width=12,
@@ -6503,22 +6586,249 @@ server <- function(input, output, session) {
         p
       }, width=reactive(input$Deconvodution_Gene_correlation_fig.width), height=reactive(input$Deconvodution_Gene_correlation_fig.height))
 
-                                  # box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
-                                  #   fluidRow(
-                                  #     column(4,sliderInput('Deconvodution_Gene_correlation_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
-                                  #     column(4,sliderInput('Deconvodution_Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                                  #   ),
-                                  #   fluidRow(
-                                  #     column(4,sliderInput('Deconvodution_Gene_correlation_label_size', 'X/Y label size', min=10, max=40, value=20, step=1)),
-                                  #     column(4,sliderInput('Deconvodution_Gene_correlation_title_size', 'X/Y title size', min=10, max=40, value=20, step=1)),
-                                  #   ),
-                                  #   fluidRow(
-                                  #     column(3, colourInput('Deconvodution_Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
-                                  #     column(2, checkboxInput('Deconvodution_Gene_correlation_show_correlation_line', 'Show the correlation line')),
-                                  #     column(2, checkboxInput('Deconvodution_Gene_correlation_white_background', 'Use white background', value=FALSE))
-                                  #   )
-                                  # )
+    #### Mutation
+      ## frequency
+        # filtering the cohort (optional)
+        output$Clinical_Mutation_frequency_filter_selection <- renderUI({
+          if(is.null(Clinical_meta())){
+            selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None'))
+          }else{
+            selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+          }
+          
+        })
+        output$Clinical_Mutation_frequency_filter_selection_category <- renderUI({
+          if(length(input$Clinical_Mutation_frequency_filter_selection)==0 || input$Clinical_Mutation_frequency_filter_selection == 'None'){
+            selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None'))
+          }else{
+            selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Mutation_frequency_filter_selection])))
+          }
+        })
+        
+        # when selecting genes from custom genesets
+        output$Clinical_Mutation_gene_from_custom <- renderUI({
+          gene_sets_names <- c()
+          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+        })
+        outputOptions(output, "Clinical_Mutation_gene_from_custom", suspendWhenHidden=FALSE)
+        
+        # Error before starting
+        output$Clinical_Mutation_frequency_plot_status <- renderText({
+          if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
+            "Please select the dataset first"
+          }else{
+            "Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"
+          }
+        })
 
+        # Show the number of patients after filtering the sample if a category was set
+        output$Clinical_Mutation_frequency_filter_selection_number <- renderText({
+          df_Mut <- Clinical_mutation()
+          df_meta <- Clinical_meta()
+          if(is.null(df_Mut)){
+            "This dataset does not have a mutation data"
+          }else{
+            N_sample <- length(df_meta$sample)
+            if(input$Clinical_Mutation_frequency_filter == 'B'){
+              if(length(input$Clinical_Mutation_frequency_filter_selection_category)!= 0){
+                if(input$Clinical_Mutation_frequency_filter_selection_category != 'None'){
+                  filtered_sample <- df_meta[df_meta[,input$Clinical_Mutation_frequency_filter_selection] == input$Clinical_Mutation_frequency_filter_selection_category, ]$sample
+                  df_Mut <- df_Mut[df_Mut$sample %in% filtered_sample, ]
+                  if(dim(df_Mut)[1] == 0){
+                    "None of the selected samples are in the mutation dataset. \nPlease check if the sample names in the meta data and in the mutation data are unique."
+                  }else{
+                    paste0("Number of samples(patients): ", length(filtered_sample))
+                  }
+                }else{
+                  paste0("Number of samples(patients): (Please select the category)")
+                }
+              }
+            }else if(input$Clinical_Mutation_frequency_filter == 'A'){
+              N_sample <- length(df_meta$sample)
+              paste0("Number of samples(patients): ", N_sample)
+            }
+          }
+        })
+        outputOptions(output, "Clinical_Mutation_frequency_filter_selection_number", suspendWhenHidden=FALSE)
+
+
+        # Create the table when clicking the start button
+        df_mut_num <- reactiveVal(NULL)
+        observeEvent(input$Clinical_Mutation_plot_start, {
+          output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
+          if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select the dataset first"})
+            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
+            df_mut_num(NULL)
+            return()
+          }
+          if(is.null(Clinical_mutation())){
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"No mutation data in this cohort."})
+            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
+            df_mut_num(NULL)
+            return()
+          }
+
+          df_Mut <- Clinical_mutation()
+          df_meta <- Clinical_meta()
+          N_sample <- length(df_meta$sample)
+          output$Clinical_Mutation_frequency_plot_status <- renderText({"Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"})
+
+          # filtering the sample if a category was set
+          if(input$Clinical_Mutation_frequency_filter == 'B'){
+            if(length(input$Clinical_Mutation_frequency_filter_selection_category)!= 0){
+              if(input$Clinical_Mutation_frequency_filter_selection_category != 'None'){
+                filtered_sample <- df_meta[df_meta[,input$Clinical_Mutation_frequency_filter_selection] == input$Clinical_Mutation_frequency_filter_selection_category, ]$sample
+                df_Mut <- df_Mut[df_Mut$sample %in% filtered_sample, ]
+                if(dim(df_Mut)[1] == 0){
+                  # output$Clinical_Mutation_frequency_filter_selection_number <- renderText({
+                  #   "None of the selected samples are in the mutation dataset. \nPlease check if the sample names in the meta data and in the mutation data are unique."
+                  # }) 
+                  output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
+                  output$Clinical_Mutation_frequency_plot <- renderPlot({NULL}, width=100, height=100)
+                  df_mut_num(NULL)
+                  return()
+                }
+                # output$Clinical_Mutation_frequency_filter_selection_number <- renderText({ paste0("Number of samples(patients): ", length(filtered_sample)) })
+              }
+              # else{
+              #   # output$Clinical_Mutation_frequency_filter_selection_number <- renderText({ paste0("Number of samples(patients): ", N_sample) })  
+              # }
+            }            
+          }
+          # if(input$Clinical_Mutation_frequency_filter == 'A'){
+          #   output$Clinical_Mutation_frequency_filter_selection_number <- renderText({ paste0("Number of samples(patients): ", N_sample) })
+          # }
+          
+          # gene input
+          if(length(input$Clinical_Mutation_gene_input) == 0){
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select one from 'Genes Input from'"})
+            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
+            # output$Clinical_Mutation_frequency_plot <- renderPlot({NULL}, width=100, height=100)
+            df_mut_num(NULL)
+            return()
+          }
+          if(input$Clinical_Mutation_gene_input=='A'){ # text input
+            if(nchar(input$Clinical_Mutation_gene) == 0){ # No input
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please enter gene names."})
+              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
+              df_mut_num(NULL)
+              return()
+            }else{
+              input_genes <- unlist(strsplit(input$Clinical_Mutation_gene, split = "\n"))
+              input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
+              if(length(input_genes) == 0){
+                output$Clinical_Mutation_frequency_plot_status <- renderText({"None of the inputted genes are included in the cohort. \nPlease make sure the gene names are correct and they do not have unnecessary spaces."})
+                output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
+                df_mut_num(NULL)
+                return()
+              }
+            }
+          }else if(input$Clinical_Mutation_gene_input=='B'){  # use all genes
+            input_genes <- rownames(Clinical_gene_expression())
+          }else if(input$Clinical_Mutation_gene_input=='C'){
+            if(input$Clinical_Mutation_gene_from_custom == 'None'){
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a custom gene set."})
+              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
+              df_mut_num(df_mut_num)
+              return()
+            }
+            input_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_gene_from_custom, ]$Genes, split=', ')[[1]]
+            input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
+            if(length(input_genes) == 0){
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"None of the inputted genes are included in the cohort. \nPlease make sure the gene names are correct and they do not have unnecessary spaces."})
+              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
+              df_mut_num(df_mut_num)
+              return()
+              # df_mut_num(NULL)
+            }
+          }
+
+          # table for the barplot
+          output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
+          df_mut_num <- data.frame(genes=input_genes, 'Number_of_patients'=0)
+          for ( gene in input_genes){
+              df_mut_num[df_mut_num$genes == gene, ]$Number_of_patients <- length(unique(df_Mut[df_Mut$id == gene, ]$sample))
+          }
+          df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
+          df_mut_num <- df_mut_num[order(df_mut_num$Number_of_patients, decreasing = T),]
+          df_mut_num$genes <- factor(df_mut_num$genes, levels=df_mut_num$genes)
+          output$Clinical_Mutation_frequency_table <- DT::renderDataTable({
+            datatable(df_mut_num, options = list(scrollX = TRUE, pageLength = 10))
+          })
+          df_mut_num(df_mut_num)
+          # return(df_mut_num)
+          return()
+
+        })
+
+        # Plot
+        output$Clinical_Mutation_frequency_plot <- renderPlot({
+          df_mut_num <- df_mut_num()
+          if(is.null(df_mut_num)){
+            return(NULL)
+          }
+          if(length(df_mut_num)==0){
+            return(NULL)
+          }
+          # barplot
+          if(length(input$Clinical_Mutation_frequency_plot_type) == 0){
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a sample filering method."})
+            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(df_mut_num, options = list(scrollX = TRUE, pageLength = 10)) })
+            return(NULL)
+          }
+          more_than_15 <- 0
+          if(dim(df_mut_num)[1]>15){
+            df_mut_num <- head(df_mut_num,15)
+            more_than_15 <- 1
+          }
+
+          if(input$Clinical_Mutation_frequency_plot_type == 'A'){ # show the patient number
+            
+            p <- ggplot(df_mut_num, aes(x=genes, y=Number_of_patients, fill=Number_of_patients))
+            p <- p + geom_bar(stat = 'identity')
+            if(!input$Clinical_Mutation_frequency_hide_score){
+              p <- p + geom_text(aes(label=Number_of_patients), vjust=-0.5, color='black', size=input$Clinical_Mutation_frequency_score_size)
+            }
+            if(max(df_mut_num$Number_of_patients) > 0){
+              p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Number_of_patients))) , limits = c(0, max(df_mut_num$Number_of_patients)), name=NULL)
+            }else{
+              p <- p + scale_fill_gradientn(name=NULL)
+            }
+            p <- p + labs(y='Number of the Patients with mutations', x=NULL)
+          }else if(input$Clinical_Mutation_frequency_plot_type == 'B'){ # show the percentage
+            p <- ggplot(df_mut_num, aes(x=genes, y=Frequence, fill=Frequence))
+            p <- p + geom_bar(stat = 'identity')
+            if(!input$Clinical_Mutation_frequency_hide_score){
+              p <- p + geom_text(aes(label=Frequence), vjust=-0.5, color='black',size=input$Clinical_Mutation_frequency_score_size)
+            }
+            if(max(df_mut_num$Frequence) > 0){
+              p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Frequence))) , limits = c(0, max(df_mut_num$Frequence)), name=NULL)
+            }else{
+              p <- p + scale_fill_gradientn(name=NULL)
+            }
+            p <- p + labs(y='Percentage of the Patients with mutations', x=NULL)
+          }
+          if(more_than_15 >0){
+            p <- p + labs(x="Top 15 frequently mutated genes")
+          }
+          p <- p + theme(axis.text.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.text.x = element_text(size = input$Clinical_Mutation_frequency_label_size))
+          p <- p + theme(axis.title.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.title.x = element_text(size = input$Clinical_Mutation_frequency_title_size))
+          p <- p + theme(legend.key.size = unit(2, "mm"))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
+          p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_frequency_legend_size))
+          if(input$Clinical_Mutation_frequency_white_background){
+            p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+          }
+          p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+          p
+        }, width=reactive(input$Clinical_Mutation_frequency_fig.width), height=reactive(input$Clinical_Mutation_frequency_fig.height), res=300)
+        outputOptions(output, "Clinical_Mutation_frequency_plot", suspendWhenHidden=FALSE)
+
+
+    ####    
 
   ####
 
