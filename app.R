@@ -544,13 +544,25 @@ ui <- fluidPage(
                                 conditionalPanel(
                                   condition = "input.How_to_filter == 'B'",
                                   fluidRow(
-                                    column(6, radioButtons("Direction", "Use", choices = c("both positive & negative side"='A', "only positive side"='B', "only negative side"='C'), selected='B')),
-                                    column(6, 
-                                      fluidRow(column(12, numericInput('x_threshold', 'The threshold for X axis (positive)', min=0, value=1, step=0.1))),
-                                      fluidRow(column(12, numericInput('x_threshold_neg', 'The threshold for X axis (negative)', min=0, value=1, step=0.1))),
-                                      fluidRow(column(12, numericInput('y_threshold', 'The threshold for Y axis', min=0, value=1.3, step=0.1)))
-                                    )                        
-                                  )
+                                    column(3,
+                                      fluidRow(
+                                        column(12, numericInput('Main_scatter_thr_X1', 'X threshold 1',  value=1, step=0.1) ),
+                                        column(12, numericInput('Main_scatter_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
+                                      )
+                                    ),
+                                    column(3,
+                                      fluidRow(
+                                        column(12, numericInput('Main_scatter_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ),
+                                        column(12, numericInput('Main_scatter_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
+                                      )
+                                    ),
+                                    column(3,
+                                      radioButtons("Main_scatter_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B')
+                                    ),
+                                    column(3,
+                                      radioButtons("Main_scatter_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B')
+                                    )
+                                  )                                  
                                 ),
                                 fluidRow(
                                   column(6, checkboxInput('hide_gene_label', 'Hide labels', value=FALSE)),
@@ -1011,8 +1023,8 @@ ui <- fluidPage(
                         column(4, radioButtons("Integrate_data1_Direction", "Use", choices = c("both positive/negative genes", "only positive genes", "only negative genes"), selected='only positive genes')),
                         column(4, 
                           fluidRow(
-                            column(12, sliderInput('Integrate_data1_x_threshold', 'The threshold for X axis', min=0, max=15, value=1, step=0.1)),
-                            column(12, sliderInput('Integrate_data1_y_threshold', 'The threshold for Y axis', min=0, max=20, value=1.3, step=0.1))
+                            column(12, numericInput('Integrate_data1_x_threshold', 'The threshold for X axis', min=0,value=1, step=0.1)),
+                            column(12, numericInput('Integrate_data1_y_threshold', 'The threshold for Y axis', min=0, value=1.3, step=0.1))
                           )
                         )
                       ),
@@ -1044,8 +1056,8 @@ ui <- fluidPage(
                         column(4, radioButtons("Integrate_data2_Direction", "Use", choices = c("both positive/negative genes", "only positive genes", "only negative genes"), selected='only positive genes')),
                         column(4, 
                           fluidRow(
-                            column(12, sliderInput('Integrate_data2_x_threshold', 'The threshold for X axis', min=0, max=15, value=1, step=0.1)),
-                            column(12, sliderInput('Integrate_data2_y_threshold', 'The threshold for Y axis', min=0, max=20, value=1.3, step=0.1))
+                            column(12, numericInput('Integrate_data2_x_threshold', 'The threshold for X axis', min=0, value=1, step=0.1)),
+                            column(12, numericInput('Integrate_data2_y_threshold', 'The threshold for Y axis', min=0, value=1.3, step=0.1))
                           )
                         )
                       ),
@@ -1062,8 +1074,8 @@ ui <- fluidPage(
               ),
               box(width=12, title='Overlap genes', collapsible=TRUE,
                 fluidRow(
-                  column(4, sliderInput('Integrate_data_mapped_x_threshold', 'The threshold for X axis (mapped side)', min=0, max=15, value=1, step=0.1)),
-                  column(4, sliderInput('Integrate_data_mapped_y_threshold', 'The threshold for Y axis (mapped side)', min=0, max=15, value=1, step=0.1)),
+                  column(4, numericInput('Integrate_data_mapped_x_threshold', 'The threshold for X axis (mapped side)', min=0, value=1, step=0.1)),
+                  column(4, numericInput('Integrate_data_mapped_y_threshold', 'The threshold for Y axis (mapped side)', min=0, value=1.3, step=0.1)),
                   column(3, checkboxInput('Integrate_data_mapped_show_threshold', 'Show the threshold in the plot', value=TRUE)),
                 ),
                 dataTableOutput("Integrate_Overlapped_gene_table"),
@@ -2238,6 +2250,8 @@ server <- function(input, output, session) {
           gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
           if(!'id' %in% colnames(gx_table)){
             output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+          }else{
+          output$status_upload <- renderText({NULL})
           }
           datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
         }
@@ -2260,6 +2274,10 @@ server <- function(input, output, session) {
         Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
         Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
         Data.Class.upload <- input$upload_Data_Class
+        if(Data.Class.upload != 'B'){
+          Control.group.upload <- ''
+          Treatment.group.upload <- ''
+        }
         if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 | nchar(input$upload_data_type)==0 ){
           output$status_upload <- renderText('* is a mandatory filed!')
         }else if(dataset.name.upload %in% Dataset()$Dataset){
@@ -2592,10 +2610,22 @@ server <- function(input, output, session) {
                 Y_thr <- quantile(df_main_plot[input$scat.x][df_main_plot[input$scat.x]<=0], input$Overviwe_Bottom_threshold/100, na.rm = T)
                 df_main_plot[((df_main_plot[input$scat.x] > X_thr | df_main_plot[input$scat.x] < Y_thr)), ]
               }else if(input$How_to_filter == 'B'){
-                switch(input$Direction,
-                  "A" = df_main_plot[((df_main_plot[input$scat.x] >= input$x_threshold | df_main_plot[input$scat.x] <= -input$x_threshold_neg) & df_main_plot[input$scat.y] >= input$y_threshold), ],
-                  "B" = df_main_plot[(df_main_plot[input$scat.x] >= input$x_threshold & df_main_plot[input$scat.y] >= input$y_threshold), ],
-                  "C" = df_main_plot[(df_main_plot[input$scat.x] <= -input$x_threshold_neg & df_main_plot[input$scat.y] >= input$y_threshold), ])
+
+                df_main_plot_filter <- switch(input$Main_scatter_thr_X_method,
+                  "A" = df_main_plot,
+                  "B" = df_main_plot[df_main_plot[input$scat.x] > input$Main_scatter_thr_X1, ],
+                  "C" = df_main_plot[df_main_plot[input$scat.x] < input$Main_scatter_thr_X2, ],
+                  "D" = df_main_plot[(df_main_plot[input$scat.x] > input$Main_scatter_thr_X2) & (df_main_plot[input$scat.x] < input$Main_scatter_thr_X1), ],
+                  "E" = df_main_plot[(df_main_plot[input$scat.x] < input$Main_scatter_thr_X2) | (df_main_plot[input$scat.x] > input$Main_scatter_thr_X1), ],
+                )
+                df_main_plot_filter <- switch(input$Main_scatter_thr_Y_method,
+                  "A" = df_main_plot_filter,
+                  "B" = df_main_plot_filter[df_main_plot_filter[input$scat.y] > input$Main_scatter_thr_Y1, ],
+                  "C" = df_main_plot_filter[df_main_plot_filter[input$scat.y] < input$Main_scatter_thr_Y2, ],
+                  "D" = df_main_plot_filter[(df_main_plot_filter[input$scat.y] > input$Main_scatter_thr_Y2) & (df_main_plot_filter[input$scat.y] < input$Main_scatter_thr_Y1), ],
+                  "E" = df_main_plot_filter[(df_main_plot_filter[input$scat.y] < input$Main_scatter_thr_Y2) | (df_main_plot_filter[input$scat.y] > input$Main_scatter_thr_Y1), ],
+                )
+                df_main_plot_filter
               }
             }else if (input$show_pathway) {
                 df_main_plot[df_main_plot$id %in% genes_in_the_pathway(),]
@@ -2870,20 +2900,29 @@ server <- function(input, output, session) {
                 p <- p + geom_point(data = outliers[outliers[input$scat.x]>=0,], color=input$outlier_gene_colour_id , size = input$high.pt.size)
                 p <- p + geom_point(data = outliers[outliers[input$scat.x]<=0,], color=input$outlier_gene_colour_id_negative , size = input$high.pt.size)
                 if(input$hide_gene_label == FALSE){
-                  p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 20)
-                  p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 20)
+                  p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 25, segment.size=0.2)
+                  p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 25, segment.size=0.2)
                 }
                 if(input$show_threhold_lines){
-                  if(input$Direction == 'A' || input$Direction == 'B'){p <- p + geom_vline(xintercept=input$x_threshold, linetype='dotted')}
-                  if(input$Direction == 'A' || input$Direction == 'C'){p <- p + geom_vline(xintercept=-input$x_threshold_neg, linetype='dotted')}
-                  p <- p + geom_hline(yintercept=input$y_threshold, linetype='dotted')
+                  switch(input$Main_scatter_thr_X_method,
+                    'B' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
+                  ) 
+                  switch(input$Main_scatter_thr_Y_method,
+                    'B' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
+                  ) 
                 } 
               }else if(input$show_pathway){
                 if(length(input$select_pathway)!= 0){
                   if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
                     outliers_pathway <- df_outliers_pathway()
                     p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$hide_gene_label_pathway==FALSE){ p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                    if(input$hide_gene_label_pathway==FALSE){ p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 25, segment.size=0.2) }
                   }
                 }
               }else if(input$Plot_Gene_set){
@@ -2891,7 +2930,7 @@ server <- function(input, output, session) {
                   if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
                     custom_geneset <- df_genes_custom_geneset()
                     p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 20) }
+                    if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 25, segment.size=0.2) }
                   }
                 }
               }
@@ -2913,7 +2952,7 @@ server <- function(input, output, session) {
                 }else{
                   output$Scatter_interesting_gene_status <- renderText({NULL})
                 }
-                if(input$show_label){ p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=20) }
+                if(input$show_label){ p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=40, segment.size=0.2) }
               }else{
                 output$Scatter_interesting_gene_status <- renderText({NULL})
               }
@@ -2921,16 +2960,18 @@ server <- function(input, output, session) {
             tryCatch(
               expr = {
                 res <- brushedPoints(df(), input$plot_brush)
-                p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size,)
+                p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=35, segment.size=0.2)
               },
               error = function(e){NULL}
             )
             p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
             p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
-            if(input$while_background){
-              p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-            }
             p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            if(input$while_background){
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
             p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p
           }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
@@ -3661,7 +3702,7 @@ server <- function(input, output, session) {
               p <- ggplot(pca_df, aes(x=PC1, y=PC2, label=sample)) + geom_point(size=input$Data_Overview_PCA_point_size) 
             }
             if(!input$Data_Overview_PCA_label_hide){
-              p <- p + geom_text_repel(data = pca_df,  color = 'black', aes(label = sample), size = input$Data_Overview_PCA_label_size, max.overlaps = Inf)
+              p <- p + geom_text_repel(data = pca_df,  color = 'black', aes(label = sample), size = input$Data_Overview_PCA_label_size, max.overlaps = Inf, segment.size=0.2)
             }
             p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
             p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
@@ -3816,6 +3857,7 @@ server <- function(input, output, session) {
             rm(df_tmp_tmp)
           }
           df_Y_tmp$type <- 'Y'
+          df_Y_tmp$Y_axis_name <- Y_axis
           return(df_Y_tmp)
         }else{
           df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
@@ -3836,6 +3878,8 @@ server <- function(input, output, session) {
           df_col_tmp$type <- 'col'
           # df_Y_col_tmp <- merge(df_Y_tmp, df_col_tmp, by='id')
           df_Y_col_tmp <- rbind(df_Y_tmp, df_col_tmp)
+          df_Y_col_tmp$Y_axis_name <- Y_axis
+          df_Y_col_tmp$col_name <- col
           return(df_Y_col_tmp)
         }        
       })
@@ -3850,7 +3894,7 @@ server <- function(input, output, session) {
         }
       })
 
-      # table for the plop
+      # table for the plot
       df_compare <- reactive({
         if(is.null(df_compare_prepare())){
           return(NULL)
@@ -3865,7 +3909,8 @@ server <- function(input, output, session) {
         df_compare_tmp <- df_compare_prepare()[df_compare_prepare()$id==gene,2:dim(df_compare_prepare())[2]] # 
         # df_compare_tmp <- df_Y_tmp[df_Y_tmp$id == 'CXCL10', 2:dim(df_Y_tmp)[2]]
         df_compare_tmp_Y <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'Y',]))
-        colnames(df_compare_tmp_Y) <- c(input$Choose_datasets_y)  # colnames(df_compare_tmp_Y) <- c(Y_axis)
+        Y_axis <- df_compare_tmp$Y_axis_name[1]
+        colnames(df_compare_tmp_Y) <- c(Y_axis)  # colnames(df_compare_tmp_Y) <- c(Y_axis)
         df_compare_tmp_Y$dataset <- rownames(df_compare_tmp_Y)
         if('col' %in% df_compare_tmp$type){
           df_compare_tmp_col <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'col',]))
@@ -3873,30 +3918,46 @@ server <- function(input, output, session) {
           df_compare_tmp_col$dataset <- rownames(df_compare_tmp_col)
           df_compare <- merge(df_compare_tmp_Y, df_compare_tmp_col, by='dataset')
           df_compare[,'Colour'] <- as.numeric(df_compare[,'Colour'])
+          df_compare$col_name <- df_compare_tmp$col_name[1]
         }else{
           df_compare <- df_compare_tmp_Y
+          df_compare <- df_compare[,c('dataset', Y_axis)]
+          rownames(df_compare) <- NULL
         }
+        df_compare$Y_axis_name <- Y_axis
+        df_compare <- df_compare[df_compare$dataset != 'Y_axis_name',]
+        df_compare <- df_compare[df_compare$dataset != 'col_name',]
         df_compare <- df_compare[df_compare$dataset != 'type',]
-        df_compare[,input$Choose_datasets_y] <- as.numeric(df_compare[,input$Choose_datasets_y])
-        df_compare <- df_compare[order(df_compare[,input$Choose_datasets_y], decreasing = T), ]
+        df_compare[,Y_axis] <- as.numeric(df_compare[,Y_axis])
+        df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T), ]
         # df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
         return(df_compare)
+      })
 
+      dataframe_comparing_dataset_display_table <- reactive({
+        if(is.null(df_compare())){
+          return(NULL)
+        }
+        if(dim(df_compare())[1] == 0){
+          return(NULL)
+        }
+        if(length(colnames(df_compare())) > 3){
+          return(df_compare()[, c(1,2,3)])
+        }
+        if(length(colnames(df_compare())) == 3){
+          return(df_compare()[, c(1,2)])
+        }
       })
 
       # display the result table
       output$dataframe_comparing_dataset <- renderDataTable({
-        if(is.null(df_compare()) || dim(df_compare())[1] != 0){
-          datatable( data.frame(df_compare()), options = list(scrollX = TRUE, pageLength = 5 ))
-        }else{
-          datatable( data.frame(), options = list(scrollX = TRUE, pageLength = 5 ))
-        }
+        datatable( dataframe_comparing_dataset_display_table(), options = list(scrollX = TRUE, pageLength = 5 ))
       })
 
       # download the table
       output$comparing_dataset_download <- downloadHandler(
         filename = function(){"comparing_score_across_dataset.tsv"}, 
-        content = function(fname){ write.table(df_compare(), fname, sep='\t', quote=F) }
+        content = function(fname){ write.table(dataframe_comparing_dataset_display_table(), fname, sep='\t', quote=F) }
       )
 
       # main plot for comparison
@@ -3911,36 +3972,40 @@ server <- function(input, output, session) {
           return(NULL)
         }
         output$Gene_comparing_plot_status <- renderText({NULL})
-        df_compare <- df_compare[order(df_compare[,input$Choose_datasets_y], decreasing = T),]
+        Y_axis <- df_compare$Y_axis_name[1]
+        if(dim(df_compare)[2] == 5){
+          col_name <- df_compare$col_name[1]
+        }
+        df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T),]
         df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
         if(is.null(df_compare()) || dim(df_compare)[1] == 0) { return(ggplot()) }
         # # if the colour option is set, change the colour of the plot
         # if(is.null(input$Choose_datasets_y) || input$Choose_datasets_y == 'None') { return(ggplot()) }
-        else if(!is.na(colnames(df_compare)[3])){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = input$Choose_datasets_y, fill='Colour', color = 'Colour')) }
-        else if(!is.na(colnames(df_compare)[2])){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = input$Choose_datasets_y)) }
+        else if(dim(df_compare)[2] == 5){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis, fill='Colour', color = 'Colour')) }
+        else if(dim(df_compare)[2] == 3){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis)) }
         # either a scatter plot or a bar plot
         if(input$bar_or_scatter == "Scatter plot"){ p <- p + geom_point(size = input$Compare_pt.size) }
         else if (input$bar_or_scatter == "Bar plot") { p <- p + geom_bar(stat = "identity") }
         # change the color scale ( only when colour option is selected )
-        if(!is.na(colnames(df_compare)[3])){
+        if(dim(df_compare)[2] == 5){
           values_for_colours <- df_compare$Colour[!is.na(df_compare$Colour)]
           if( min(values_for_colours)<0 ){
             if( max(values_for_colours)>=0 ){
               tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Choose_datasets_colour)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Choose_datasets_colour)
+              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
               p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
             }else{
-              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(df_compare$Colour), 0)  , limits = c(c(min(df_compare$Colour), 0)) ), name=input$Choose_datasets_colour)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(df_compare$Colour), 0)  , limits = c(c(min(df_compare$Colour), 0)) ), name=input$Choose_datasets_colour)
+              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=col_name)
+              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=col_name)
             }
           }else{
-            p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=input$Choose_datasets_colour)
-            p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=input$Choose_datasets_colour)
+            p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+            p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
           }
         }
         p <- p + ggtitle(colnames(df_compare)[1])
-        p <- p + labs(x= 'Datasets',  y = input$Choose_datasets_y)
+        p <- p + labs(x= 'Datasets',  y = Y_axis)
         p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
         p <- p + theme(axis.text.y = element_text(size = input$Compare_label.font.size), axis.text.x = element_text(size = input$Compare_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_title.font.size), axis.title.x = element_text(size = input$Compare_title.font.size))
         tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
@@ -4255,21 +4320,25 @@ server <- function(input, output, session) {
         plot_scatter_plot <- function(df_main_plot, Selected_x, Selected_y, outliers, mapped_thr_X, mapped_thr_Y,  direction, thr_show ){
           if((Selected_x == 'None') ||(Selected_y == 'None')){ return(NULL) }
           else{ 
-            p <- ggplot(df_main_plot, aes_string(x = Selected_x, y = Selected_y)) + geom_point(size = 1) 
+            p <- ggplot(df_main_plot, aes_string(x = Selected_x, y = Selected_y)) + geom_point(size = 0.1) 
             if(!is.null(outliers)){
               if(!'id' %in% rownames(outliers)){
-                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% outliers$id,], color='#ee00fa' , size = input$high.pt.size)
-                p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = "#ee00fa", aes(label = id), size = input$high.label.size)
+                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% outliers$id,], color='#ee00fa' , size = 0.8)
+                p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = "#ee00fa", aes(label = id), size = 1.5, segment.size=0.2)
               }
             }
             if(thr_show == 1){
               if(input$Integrate_data_mapped_show_threshold){
-                if(direction == 'both positive/negative genes' || direction == 'only positive genes'){p <- p + geom_vline(xintercept=mapped_thr_X, linetype='dotted')}
-                if(direction == 'both positive/negative genes' || direction == 'only negative genes'){p <- p + geom_vline(xintercept=-mapped_thr_X, linetype='dotted')}
-                p <- p + geom_hline(yintercept=mapped_thr_Y, linetype='dotted')
+                if(direction == 'both positive/negative genes' || direction == 'only positive genes'){p <- p + geom_vline(xintercept=mapped_thr_X, linetype='dotted', size=0.2)}
+                if(direction == 'both positive/negative genes' || direction == 'only negative genes'){p <- p + geom_vline(xintercept=-mapped_thr_X, linetype='dotted', size=0.2)}
+                p <- p + geom_hline(yintercept=mapped_thr_Y, linetype='dotted', size=0.2)
               }            
             }
           }
+          p <- p + theme(axis.text.y = element_text(size = 4), axis.text.x = element_text(size = 4))
+          p <- p + theme(axis.title.y = element_text(size = 4), axis.title.x = element_text(size = 4))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
           p
         }    
 
@@ -4294,7 +4363,7 @@ server <- function(input, output, session) {
               
             }
           }
-        }, width=reactive(input$Integrate_data1_fig.width), height=reactive(input$Integrate_data1_fig.height))
+        }, width=reactive(input$Integrate_data1_fig.width), height=reactive(input$Integrate_data1_fig.height), res=300)
 
         # plot2
         output$Integrate_data2_plot <- renderPlot({
@@ -4314,7 +4383,7 @@ server <- function(input, output, session) {
             }   
             else { plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_Direction, 0) }
           }
-        }, width=reactive(input$Integrate_data2_fig.width), height=reactive(input$Integrate_data2_fig.height))
+        }, width=reactive(input$Integrate_data2_fig.width), height=reactive(input$Integrate_data2_fig.height), res=300)
 
         # plot1 + plot2 table
         data1_plus_data2 <- reactive({
@@ -4382,7 +4451,7 @@ server <- function(input, output, session) {
           
         })
 
-        # Download the standardised table
+        # Download the integrated table
         output$Integrate_Overlapped_gene_table_download <- downloadHandler(
           filename = function(){"Overlap_filtered_gene_data1_and_data2.tsv"}, 
           content = function(fname){ write.table(Integrate_Overlapped_gene_table_tmp(), fname, sep='\t', quote=F) }
@@ -4498,38 +4567,38 @@ server <- function(input, output, session) {
           tryCatch(
             expr = {
               res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush)
-              p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size)
+              p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
             },
             error = function(e){NULL}
           )
           if(!is.null(Integrate_data1_plus_2_plot_filtered())){
             Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
             if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted') 
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2) 
             }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted')  
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
             }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted')  
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted')  
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2)  
+              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
             }
 
             if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted')
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
             }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted')
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
             }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted')
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted')
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
+              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
             }
             
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
             if(!input$Integrate_data1_plus_2_plot_filter_label){
-              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50)   
+              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
             }
           }          
           if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
             p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-            p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20) 
+            p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
           }
           if(input$Integrate_data1_plus_2_white_background){
               p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
