@@ -1379,25 +1379,12 @@ ui <- fluidPage(
                               column(8, 
                                 h5(''),
                                 fluidRow(
-<<<<<<< HEAD
                                   column(4, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
                                   column(8, 
                                     fluidRow(column(12, h4('Plot'))),
                                     fluidRow(column(12, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') )),
                                     fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_no_entry') )),
                                     fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
-=======
-                                  column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
-                                  column(12, 
-                                    conditionalPanel(
-                                      condition = 'input.Clinical_Mutation_frequency_filter == "B"',
-                                      fluidRow(
-                                        column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
-                                        column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
-                                        column(10, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
-                                      ),  
-                                    )
->>>>>>> a3f3b9f (updated some layouts)
                                   )
                                 )
                               ),
