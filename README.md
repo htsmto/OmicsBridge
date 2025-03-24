@@ -5,7 +5,7 @@
 OmicsBrige is an intuitive platform that integrates and visualises diverse omics datasets. Our tool assists researchers in identifying key genes with functional and clinical relevance, supporting hypothesis generation. It also functions as a centralised database for efficient data storage and access, minimising scattered datasets and enhancing overall data accessibility.
 
 
-You can use OmicsBridge in a stand alone web interface at https://omicsbridge.dkfz.de/OmicsBridge/.
+You can use OmicsBridge in a stand alone web interface at https://omicsbridge.dkfz.de.
 There, the uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
@@ -31,7 +31,9 @@ cd OmicsBridge
 Please download the necessary data, uncompress and deploy the folder to the correct position. In the terminal,
 ```bash
 curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
-tar -xzvf 00_Clinical_dataset.tar.gz 
+curl -O https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz
+tar -xzvf 00_Clinical_dataset.tar.gz
+tar -xzvf 00_Expression_data_all.tar.gz 
 ```
 
 Or, copy the links above and paste in a browser to download the files, umcompress and diploy them inside the OmicsBridge folder.
@@ -74,7 +76,6 @@ devtools::install_github('dviraran/xCell')
 
 ```
 
-
 If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
 
 <details>
@@ -84,10 +85,12 @@ If you cannot install BiocManager >= 3.20 due to the version of R, you may insta
 
 </details>
 
+Depends on the system, it usually takes 30-45 minutes to install all the dependencies.
+
 
 ### Using renv
 
-The renv package is a tool for managing project-specific package dependencies in R.
+The renv package is a tool for managing project-specific package dependencies in R. We provide a lockfile for Ubuntsu and MacOS in case you restore the R environemnt via renv.
 
 ```R
 install.packages('rnev') # skippable if you already have rnev
@@ -100,15 +103,7 @@ renv::restore(lockfile='renv_Mac.lock')
 # Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
 # Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
 
-
 ```
-
-<details>
-<summary> cannot install renv?</summary>
-
-> If you are a Mac user, downloading Xcode (or upgrating it) via app store and XQuartz from [here](https://www.xquartz.org/) may solve this problem.
-
-</details>
 
 <br>
 Depends on the OS, it usually takes 15-30 minutes.
