@@ -1177,24 +1177,35 @@ ui <- fluidPage(
                     tabPanel("View the data",
                       tabsetPanel(
                         tabPanel("Gene expression", 
-                          fluidRow(column(12, verbatimTextOutput('Clinical_View_Geneexpression_status') )), 
-                          fluidRow(
-                            column(12, radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'))
-                          ),
-                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Geneexpression")) )
+                          box(width=12,
+                            fluidRow(column(12, h5(''))),
+                            fluidRow(column(12, verbatimTextOutput('Clinical_View_Geneexpression_status') )), 
+                            fluidRow(
+                              column(12, radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'))
+                            ),
+                            fluidRow(column(12, DT::dataTableOutput("Clinical_View_Geneexpression")) )
+                          )
                         ),
                         tabPanel("Survival", 
-                          fluidRow(column(12, verbatimTextOutput('Clinical_View_Survival_status') )), 
-                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Survival") ))
+                          box(width=12,
+                            fluidRow(column(12, h5(''))),
+                            fluidRow(column(12, verbatimTextOutput('Clinical_View_Survival_status') )), 
+                            fluidRow(column(12, DT::dataTableOutput("Clinical_View_Survival") ))
+                          )
                         ),
                         tabPanel("Meta data", 
-                          fluidRow(column(12, verbatimTextOutput('Clinical_View_MetaData_status') )), 
-                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_MetaData") ))
+                          box(width=12,
+                            fluidRow(column(12, h5(''))),
+                            fluidRow(column(12, verbatimTextOutput('Clinical_View_MetaData_status') )), 
+                            fluidRow(column(12, DT::dataTableOutput("Clinical_View_MetaData") ))
+                          )
                         ),
                         tabPanel("Mutation data", 
-                          fluidRow(column(12, h5(''))),
-                          fluidRow(column(12, verbatimTextOutput('Clinical_View_mutation_status') )),
-                          fluidRow(column(12, DT::dataTableOutput("Clinical_View_Mutation") ))
+                          box(width=12,
+                            fluidRow(column(12, h5(''))),
+                            fluidRow(column(12, verbatimTextOutput('Clinical_View_mutation_status') )),
+                            fluidRow(column(12, DT::dataTableOutput("Clinical_View_Mutation") ))
+                          )
                         )
                       )
                     ),
@@ -1347,83 +1358,87 @@ ui <- fluidPage(
                   ###### Mutation analysis ###### 
                     tabPanel("Mutation analysis",
                       box(width=12,
-                        tabsetPanel(
-                          tabPanel('Freqency',
+                        fluidRow(
+                          column(7,
+                            h5(''),
+                            fluidRow(column(12, h4('Mutation frequency'))),
+                            fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))),
                             fluidRow(
-                              column(7,
+                              column(4,
                                 h5(''),
-                                fluidRow(column(12, h4('Mutation frequency'))),
-                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))),
-                                fluidRow(
-                                  column(4,
-                                    h5(''),
-                                    fluidRow(column(12, radioButtons('Clinical_Mutation_gene_input', 'Genes input from:', choices=c("Text input" = 'A', "Use all genes"='B', "Select from custom genesets"='C'), selected='A') )),
-                                    conditionalPanel(
-                                      condition = 'input.Clinical_Mutation_gene_input == "A"',
-                                      fluidRow(column(12, textAreaInput('Clinical_Mutation_gene', 'Enter genes') )) 
-                                    ),
-                                    conditionalPanel(
-                                      condition = 'input.Clinical_Mutation_gene_input == "C"',
-                                      fluidRow(column(12, htmlOutput('Clinical_Mutation_gene_from_custom') )) 
-                                    )
-                                  ),
-                                  column(8, 
-                                    h5(''),
-                                    fluidRow(
-                                      column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
-                                      column(12, 
-                                        conditionalPanel(
-                                          condition = 'input.Clinical_Mutation_frequency_filter == "B"',
-                                          fluidRow(
-                                            column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
-                                            column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
-                                            column(10, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
-                                          ),  
-                                        )
-                                      )
-                                    )
-                                  ),
-                                  column(12, 
-                                    h5(''),
-                                    fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Show plot"))),
-                                    h5(''),
-                                  )
+                                fluidRow(column(12, radioButtons('Clinical_Mutation_gene_input', 'Genes input from:', choices=c("Text input" = 'A', "Use all genes"='B', "Select from custom genesets"='C'), selected='A') )),
+                                conditionalPanel(
+                                  condition = 'input.Clinical_Mutation_gene_input == "A"',
+                                  fluidRow(column(12, textAreaInput('Clinical_Mutation_gene', 'Enter genes') )) 
                                 ),
-                                fluidRow(h3('')),
+                                conditionalPanel(
+                                  condition = 'input.Clinical_Mutation_gene_input == "C"',
+                                  fluidRow(column(12, htmlOutput('Clinical_Mutation_gene_from_custom') )) 
+                                )
+                              ),
+                              column(8, 
+                                h5(''),
                                 fluidRow(
+<<<<<<< HEAD
                                   column(4, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
                                   column(8, 
                                     fluidRow(column(12, h4('Plot'))),
                                     fluidRow(column(12, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') )),
                                     fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_no_entry') )),
                                     fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
+=======
+                                  column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_frequency_filter == "B"',
+                                      fluidRow(
+                                        column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
+                                        column(10, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
+                                        column(10, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
+                                      ),  
+                                    )
+>>>>>>> a3f3b9f (updated some layouts)
                                   )
                                 )
                               ),
-                              column(5,
+                              column(12, 
                                 h5(''),
-                                box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                                  ),
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Mutation_frequency_label_size', 'X label size', min=1, max=15, value=2.5, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_title_size', 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_legend_size', 'Legend font size', min=1, max=15, value=4, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
-                                  ),
-                                  fluidRow(
-                                    column(6, colourInput('Clinical_Mutation_frequency_colour_high', 'Colour of the highest value:', value='#e14b22')),
-                                    column(6, colourInput('Clinical_Mutation_frequency_colour_zero', 'Colour of 0:', value='#ffffff')),
-                                    column(6, checkboxInput('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE)),
-                                    column(6, checkboxInput('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE))
-                                  )
-                                )
+                                fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Show plot"))),
+                                h5(''),
+                              )
+                            ),
+                            fluidRow(h3('')),
+                            fluidRow(
+                              column(4, h4('Mutation Frequency'), dataTableOutput("Clinical_Mutation_frequency_table")),
+                              column(8, 
+                                fluidRow(column(12, h4('Plot'))),
+                                fluidRow(column(12, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') )),
+                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_no_entry') )),
+                                fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
                               )
                             )
                           ),
-                          tabPanel('Survival analysis'),
+                          column(5,
+                            h5(''),
+                            box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,
+                              fluidRow(
+                                column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                              ),
+                              fluidRow(
+                                column(6,sliderInput('Clinical_Mutation_frequency_label_size', 'X label size', min=1, max=15, value=2.5, step=0.1)),
+                                column(6,sliderInput('Clinical_Mutation_frequency_title_size', 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
+                                column(6,sliderInput('Clinical_Mutation_frequency_legend_size', 'Legend font size', min=1, max=15, value=4, step=0.1)),
+                                column(6,sliderInput('Clinical_Mutation_frequency_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
+                              ),
+                              fluidRow(
+                                column(6, colourInput('Clinical_Mutation_frequency_colour_high', 'Colour of the highest value:', value='#e14b22')),
+                                column(6, colourInput('Clinical_Mutation_frequency_colour_zero', 'Colour of 0:', value='#ffffff')),
+                                column(6, checkboxInput('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE)),
+                                column(6, checkboxInput('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE))
+                              )
+                            )
+                          )
                         )
                       )
                     ),
