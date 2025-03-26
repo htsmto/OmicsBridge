@@ -1584,37 +1584,51 @@ ui <- fluidPage(
                             fluidRow(column(12, dataTableOutput("Clinical_Mutation_frequency_table") ))
                           ),
                           column(9, 
-                            fluidRow(column(12, h4('Plot'))),
-                            fluidRow(
-                              column(6, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') ),
-                              column(6, numericInput('Clinical_Mutation_frequency_plot_top_X', 'Show top X frequntly mutated genes:', min=1, value=15, step=1) )
-                            ), 
-                            fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_plot') )),
-                            fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
-                            fluidRow(h3('')),
-                            fluidRow(
-                              column(12,
-                                h5(''),
-                                box(width=12, title='Graph options', collapsible = TRUE, collapsed = TRUE, status='success',
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                                  ),
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Mutation_frequency_label_size', 'X label size', min=1, max=15, value=2.5, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_title_size', 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_legend_size', 'Legend font size', min=1, max=15, value=4, step=0.1)),
-                                    column(6,sliderInput('Clinical_Mutation_frequency_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
-                                  ),
-                                  fluidRow(
-                                    column(6, colourInput('Clinical_Mutation_frequency_colour_high', 'Colour of the highest value:', value='#e14b22')),
-                                    column(6, colourInput('Clinical_Mutation_frequency_colour_zero', 'Colour of 0:', value='#ffffff')),
-                                    column(6, checkboxInput('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE)),
-                                    column(6, checkboxInput('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE))
+                            tabsetPanel(
+                              tabPanel('Frequency',
+                                fluidRow(column(12, h4('Plot'))),
+                                fluidRow(
+                                  column(6, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') ),
+                                  column(6, numericInput('Clinical_Mutation_frequency_plot_top_X', 'Show top X frequntly mutated genes:', min=1, value=15, step=1) )
+                                ), 
+                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_plot') )),
+                                fluidRow(column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") )),
+                                fluidRow(h3('')),
+                                fluidRow(
+                                  column(12,
+                                    h5(''),
+                                    box(width=12, title='Graph options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                      fluidRow(
+                                        column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                        column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                      ),
+                                      fluidRow(
+                                        column(6,sliderInput('Clinical_Mutation_frequency_label_size', 'X label size', min=1, max=15, value=2.5, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_frequency_title_size', 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_frequency_legend_size', 'Legend font size', min=1, max=15, value=4, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_frequency_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
+                                      ),
+                                      fluidRow(
+                                        column(6, colourInput('Clinical_Mutation_frequency_colour_high', 'Colour of the highest value:', value='#e14b22')),
+                                        column(6, colourInput('Clinical_Mutation_frequency_colour_zero', 'Colour of 0:', value='#ffffff')),
+                                        column(6, checkboxInput('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE)),
+                                        column(6, checkboxInput('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE))
+                                      )
+                                    )
                                   )
-                                )
+                                ),
+                              ),
+                              tabPanel('Survival analysis',
+                                fluidRow(column(12, h4('Kaplan-Meier Plot'))),
+                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_Kaplan_plot_status') )),
+                                fluidRow(column(12, plotOutput('Clinical_Mutation_Kaplan_plot', width="100%", height="100%") )),
                               )
-                            ),
+                            )
+                            
+
+
+                            
+
                           )
                         )
                       )
@@ -7202,6 +7216,7 @@ server <- function(input, output, session) {
 
         # Create the table when clicking the start button
         df_mut_num <- reactiveVal(NULL)
+        # output$Clinical_Mutation_frequency_table <- reactiveVal(NULL)
         observeEvent(input$Clinical_Mutation_plot_start, {
           output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
           if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
@@ -7248,9 +7263,6 @@ server <- function(input, output, session) {
               # }
             }            
           }
-          # if(input$Clinical_Mutation_frequency_filter == 'A'){
-          #   output$Clinical_Mutation_frequency_filter_selection_number <- renderText({ paste0("Number of samples(patients): ", N_sample) })
-          # }
           
           # gene input
           if(length(input$Clinical_Mutation_gene_input) == 0){
@@ -7318,7 +7330,7 @@ server <- function(input, output, session) {
           df_mut_num <- df_mut_num[order(df_mut_num$Number_of_patients, decreasing = T),]
           df_mut_num$genes <- factor(df_mut_num$genes, levels=df_mut_num$genes)
           output$Clinical_Mutation_frequency_table <- DT::renderDataTable({
-            datatable(df_mut_num, options = list(scrollX = TRUE, pageLength = 10))
+            datatable(df_mut_num,  selection = list(mode='single'),  options = list(scrollX = TRUE, pageLength = 10))
           })
           df_mut_num(df_mut_num)
           # return(df_mut_num)
@@ -7390,6 +7402,85 @@ server <- function(input, output, session) {
         }, width=reactive(input$Clinical_Mutation_frequency_fig.width), height=reactive(input$Clinical_Mutation_frequency_fig.height), res=300)
         outputOptions(output, "Clinical_Mutation_frequency_plot", suspendWhenHidden=FALSE)
 
+      ## Kaplan-meier
+        output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+        output$Clinical_Mutation_Kaplan_plot <- renderPlot({
+          if(is.null(df_mut_num())){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+            return(NULL)
+          }
+          if(length(df_mut_num()) == 0){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+            return(NULL)
+          }
+          if(dim(df_mut_num())[1] == 0){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+            return(NULL)
+          }
+          df_geneEx <- Clinical_gene_expression()
+          df_OS <- Clinical_surival()
+          df_mut <- Clinical_mutation()
+          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          if(length(input$Clinical_Mutation_frequency_table_rows_selected)==0){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
+            return(NULL)
+          }
+          #   output$Clinical_Survial_plot_error_catch <- renderText({NULL})
+          gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
+          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          df_mut$sample <- gsub('\\.', '-', df_mut$sample)
+          df_mut_sample <- intersect(df_OS$sample, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
+          df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample) 
+          if(length(df_mut_sample) == 0){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no mutated patient for this gene.'})
+            return(NULL)
+          }
+          if(length(df_wt_sample) == 0){
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no wild type patient for this gene.'})
+            return(NULL)
+          }
+
+          df_OS$group = NA
+          df_OS[df_OS$sample %in% df_mut_sample,]$group <- 'Mutation'
+          df_OS[df_OS$sample %in% df_wt_sample,]$group <- 'Wild.Type'
+          df_OS$group <- factor(df_OS$group, levels=c('Mutation', 'Wild.Type'))
+
+          # survival object
+          surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
+          km_fit <- survfit(surv_obj ~ group, data = df_OS)
+          km_data <- broom::tidy(km_fit)
+          cox_model <- coxph(surv_obj ~ group, data = df_OS)
+          # Hazard ratio and p
+          HR <- exp(cox_model$coefficients)
+          p_value <- summary(cox_model)$coefficients[, 5]
+          output$Clinical_Mutation_Kaplan_plot_status <- renderText({
+            paste0('P-value: ', p_value, '\n', 'HR: ', HR )
+          })
+          # graph
+          km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
+            geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
+            labs( title = gene_kaplan, x = "Time", y = "Survival Probability", color = "") +
+            scale_color_manual(
+              values=c('group=Mutation'=input$Clinical_Survial_High_colour, 'group=Wild.Type'=input$Clinical_Survial_Low_colour),
+              labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
+            ) + 
+            scale_fill_manual(
+              values=c('group=Mutation'=input$Clinical_Survial_High_colour, 'group=Wild.Type'=input$Clinical_Survial_Low_colour),
+              labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
+            ) +
+            guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Clinical_Survial_legend_size)) 
+          p <- km_plot
+          p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+          p <- p + theme(axis.text.y = element_text(size = input$Clinical_Survial_label_size), axis.text.x = element_text(size = input$Clinical_Survial_label_size))
+          p <- p + theme(axis.title.y = element_text(size = input$Clinical_Survial_title_size), axis.title.x = element_text(size = input$Clinical_Survial_title_size))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p <- p + theme(legend.key.size = unit(2, "mm"))
+          p <- p + labs(title=NULL)
+          p
+        }, width=reactive(input$Clinical_Survial_fig.width), height=reactive(input$Clinical_Survial_fig.height), res=300)
+
+      ##
 
     ####    
 
