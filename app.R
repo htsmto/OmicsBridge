@@ -1,5 +1,6 @@
 #### Load packages and setting ####
   suppressMessages(library(shiny))
+  suppressMessages(library(shinyjs))
   suppressMessages(library(shinydashboard))
   suppressMessages(library(ggplot2))
   suppressMessages(library(ggbeeswarm))
@@ -994,7 +995,7 @@ ui <- fluidPage(
               tabsetPanel(
                 ## Overlap the hits
                 tabPanel("Get the overlap",
-                  box(width=12, title='Filtering criteria', collapsible = TRUE, status='primary',
+                  box(width=12, title='Filter setting', collapsible = TRUE, status='primary',
                     fluidRow( column(12, verbatimTextOutput('Compare_dataset_get_overview_setting_status')) ),
                     fluidRow( column(12, h4('')) ),
                     fluidRow(
@@ -1499,14 +1500,17 @@ ui <- fluidPage(
                           ), 
                           column(4, 
                             fluidRow(column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson'))),
+                            fluidRow(column(12, h4(''))),
                             fluidRow(column(12, actionButton("Gene_correlation_start", "Calculate the correlation")))
                           )
-                        )
+                        ),
+                        fluidRow(column(12, verbatimTextOutput('Gene_correlation_all_status')))
                       ),
                       box(width=12, status='primary', title='Results and Plots',
                         fluidPage(
                           column(4, 
                             fluidRow(column(12, h4('Correlation') )), 
+                            fluidRow(column(12, verbatimTextOutput('Gene_correlation_table_status'))),
                             fluidRow(column(12, DT::dataTableOutput("Gene_correlation_table") )),
                             fluidRow(column(12, downloadButton('Gene_correlation_table_download',"Download this table") ))
                           ),
@@ -2007,7 +2011,7 @@ ui <- fluidPage(
                     ),
                   ###### Add new cohort ######
                     tabPanel("Cohort database",
-                      box(width=12, title='Registed cohort', collapsible = TRUE, status='primary',
+                      box(width=12, title='Registered cohort', collapsible = TRUE, status='primary',
                         DT::dataTableOutput("Cohort_DataBaseTable"),
                         fluidRow( column(1, actionButton('Cohort_DataBase_save_dt', 'Save changes')), column(2, actionButton('Cohort_DataBase_delete_row', 'Delete selected data')), column(7, verbatimTextOutput('Cohort_DataBase_status')) )
                       ),
@@ -2016,7 +2020,7 @@ ui <- fluidPage(
                           tags$summary("Quick upload guide ▼"),  # クリックすると開閉されるタイトル
                           div(
                             tags$ul(
-                              tags$li("Make sure that the column name sample names (or patients IDs) is set 'sample'."),
+                              tags$li("Make sure that the column name for samples (or patients IDs) is set 'sample' and for genes is set 'id'."),
                               tags$li("The fist column of the gene expression file must be the samples"),
                               tags$li("The Cohort name is mandatory and must be unique."),
                               tags$li("Avoid special characters; use only alphabets, numbers, underscores and dots."),
@@ -2024,22 +2028,56 @@ ui <- fluidPage(
                           )
                         ),
                         h3(""),
-                        fluidRow( column(4, fileInput("new_cohort_upload_GE", "Upload a Gene expression file"))),
-                        fluidRow( column(4, fileInput("new_cohort_upload_sur", "Upload a survival data file"))),
-                        fluidRow( column(4, fileInput("new_cohort_upload_meta", "Upload a metadaata file"))),
                         fluidRow( 
+                          column(5, uiOutput("new_cohort_upload_GE")),
+                          column(5, uiOutput("new_cohort_upload_sur")),
+                          # column(5, fileInput("new_cohort_upload_sur", "Upload a survival data file*"))
+                        ),
+                        fluidRow( 
+                          column(5, uiOutput("new_cohort_upload_meta")),
+                          column(5, uiOutput("new_cohort_upload_mut")),
+                          # column(5, fileInput("new_cohort_upload_meta", "Upload a metadata file*")),
+                          # column(5, fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)"))
+                        ),
+                        fluidRow( column(2, actionButton('new_cohort_upload_reset', "Reset uploaded files"))),
+                        fluidRow( column(12, h4('') ) ),
+                        fluidRow( 
+                          column(12, h3('') ),
                           column(4, textInput("new_cohort_upload_dataset_name", "Cohort Name*")),
                           column(7, textAreaInput("new_cohort_upload_description", "Description")) 
                         ),
                         fluidRow( column(2, actionButton('new_cohort_upload_data', 'Add a new cohort')), column(6, verbatimTextOutput('new_cohort_status'))),
-                        h3(''),
+                        fluidRow( column(12, h3('') )),
                         fluidRow( 
-                          column(12, h4('Preview (Expression table):') ),
-                          column(12, dataTableOutput("new_cohort_upload_GE_preview")),
-                          column(12, h4('Preview (Survival data):') ),
-                          column(12, dataTableOutput("new_cohort_upload_sur_preview")),
-                          column(12, h4('Preview (Meta data):')),
-                          column(12, dataTableOutput("new_cohort_upload_meta_preview"))
+                          column(12, h4('Previews') ),
+                          column(12,
+                            tabsetPanel(
+                              tabPanel('Expression table',  
+                                box(width=12,
+                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_GE_preview_status") )),
+                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_GE_preview") )) 
+                                )
+                              ),
+                              tabPanel('Survival data',  
+                                box(width=12, 
+                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_sur_preview_status") )),
+                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_sur_preview") )) 
+                                )
+                              ),
+                              tabPanel('Meta data',  
+                                box(width=12,
+                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_meta_preview_status") )),
+                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_meta_preview") )) 
+                                )
+                              ),
+                              tabPanel('Mutation data',  
+                                box(width=12,
+                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_mut_preview_status") )),
+                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_mut_preview") )) 
+                                )
+                              )
+                            )
+                          )
                         ),
                       )
                     ),
@@ -2051,147 +2089,271 @@ ui <- fluidPage(
           tabItem( tabName='scRNA',
             h2('scRNA'),
             #### dataset selection ####
-              box( width=12, title='Dataset selection',
+              box( width=12, title='Dataset selection', status='primary',
                 fluidRow( 
                   column(6, htmlOutput("scRNA_data_select")) ,
                   column(6, h5('Dataset detail:'), verbatimTextOutput('scRNA_data_Dataset_detail'))
                 )
               ),
             #### UMAP & Feature plot ####
-              box(width=12, title='Data Overview',
+              box(width=12, title='Data Overview',status='primary',
                 box(width=12, title='Umap plot', collapsible = TRUE, status = 'primary',
                   fluidRow(
-                    column(8, verbatimTextOutput('scRNA_UMAP1_status')),
-                  ),
-                  fluidRow(
-                    column(4, htmlOutput("scRNA_UMAP1_groupBy")),
                     column(8,
-                      box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
-                        fluidRow(
-                          column(6, sliderInput('scRNA_umap1_fig.width', 'Fig width', min=300, max=3000, value=700, step=10) ),
-                          column(6, sliderInput('scRNA_umap1_fig.height', 'Fig height', min=300, max=3000, value=500, step=10) ),
-                          column(6, sliderInput('scRNA_umap1_XY_label', 'XY label size', min=10, max=40, value=15, step=1) ),
-                          column(6, sliderInput('scRNA_umap1_XY_title', 'XY title size', min=10, max=40, value=20, step=1) ),
-                          column(6, sliderInput('scRNA_umap1_legend_size', 'Legend size', min=10, max=40, value=15, step=1) ),
-                          column(6, sliderInput('scRNA_umap1_graph_title', 'Graph title size', min=10, max=40, value=20, step=1) )
-                        )
-                      )
-                    )
-                  ),
-                  fluidRow(
-                    column(12, h4('Plot')),
-                    # Plot1
-                    column(12,
+                      fluidRow( column(8, htmlOutput("scRNA_UMAP1_groupBy")) ),
+                      fluidRow( column(12, h4('Plot')) ),
+                      fluidRow( column(12, verbatimTextOutput('scRNA_UMAP1_status')) ),
                       fluidRow(
                         column(12, plotOutput("scRNA_UMAP1", brush = "scRNA_UMAP1_brush", width="100%", height="100%")),
+                      ),
+                      fluidRow(
+                        column(8, checkboxInput("scRNA_UMAP1_highlight_group", 'Highlight a specific group')),
+                      ),
+                      conditionalPanel(
+                        condition = 'input.scRNA_UMAP1_highlight_group == true',
+                        fluidRow(
+                          column(1, h4('')),
+                          column(7, htmlOutput("scRNA_UMAP1_highlight_group_select"))
+                        ),
+                        fluidRow(
+                          column(1, h4('')),
+                          column(4, colourInput('scRNA_UMAP1_highlight_group_background', 'Colour (background)', value='gray') ),
+                          column(4, colourInput('scRNA_UMAP1_highlight_group_highlight', 'Colour (highlighted group)', value='red') )
+                        ),
                       )
+                    ),
+                    column(4,
+                      fluidRow(column(12, h4(""))),
+                      fluidRow(column(12, 
+                        box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                          fluidRow(
+                            column(12, sliderInput('scRNA_umap1_fig.width', 'Fig width', min=300, max=3000, value=900, step=10) ),
+                            column(12, sliderInput('scRNA_umap1_fig.height', 'Fig height', min=300, max=3000, value=700, step=10) ),
+                            column(12, sliderInput('scRNA_umap1_XY_label', 'XY label size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(12, sliderInput('scRNA_umap1_XY_title', 'XY title size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(12, sliderInput('scRNA_umap1_legend_size', 'Legend size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(12, sliderInput('scRNA_umap1_graph_title', 'Title size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(12, checkboxInput('scRNA_umap1_white_background', 'Use white background', value=FALSE) )
+                          )
+                        )
+                      )),
                     )
                   )
                 ),
                 box(width=12, title='Feature plot', collapsible = TRUE, status = 'primary',
                   tabsetPanel(
                     tabPanel('Genes',
-                      fluidRow(column(12, h3(''))),
-                      fluidRow(
-                        column(3, textAreaInput("scRNA_UMAP2_gene", "Enter genes names (line by line)")),
-                        column(9,
-                          box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
-                            fluidRow(
-                              column(6, sliderInput('scRNA_umap2_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                              column(6, sliderInput('scRNA_umap2_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                              column(6, sliderInput('scRNA_umap2_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=15, step=1) ),
-                              column(6, sliderInput('scRNA_umap2_XY_title.font.size', 'X/Y title font size', min=5, max=40, value=15, step=1) ),
-                              column(6, sliderInput('scRNA_umap2_graph.title.font.size', 'Graph title font size', min=5, max=40, value=15, step=1) ),
-                              column(6, sliderInput('scRNA_umap2_legend_size', 'Legend font size', min=5, max=40, value=15, step=1))
-                            ),
-                            fluidRow(
-                              column(4, colourInput('scRNA_umap2_highest_colour', 'Colour for the highest expression', value='red') ),
-                              column(4, colourInput('scRNA_umap2_lowest_colour', 'Colour for the lowest expression', value='white') ),
-                              column(4, colourInput('scRNA_umap2_zero_colour', 'Colour for zero (background)', value='#676767'))
-                            ),
-                            fluidRow(
-                              column(12, checkboxInput('scRNA_umap2_while_background', 'Use white background', value=FALSE))
-                            )
+                      box(width=12, status='primary', title='Gene feature plot',
+                        fluidRow(column(12, h3(''))),
+                        fluidRow(
+                          column(4, textAreaInput("scRNA_UMAP2_gene", "Enter genes names (line by line)"))
+                        ),
+                        fluidRow(
+                          column(6, checkboxInput('scRNA_UMAP2_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
+                        ),
+                        fluidRow(
+                          conditionalPanel(
+                            condition = "input.scRNA_UMAP2_gene_from_custom_geneset == true",
+                            column(6, htmlOutput('scRNA_UMAP2_gene_from_custom_geneset_select'))
                           )
-                        )
-                      ),
-                      fluidRow(
-                        # plot2
-                        column(12,
-                          fluidRow(
-                            column(3, h4('Select a gene below:'), DT::dataTableOutput("scRNA_UMAP2_gene_table"), verbatimTextOutput('scRNA_UMAP2_gene_input_status')),
-                            column(9, h4('Feature plot'), verbatimTextOutput('Feature_Plot_status_catch'), plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%")),
+                        ),
+                        fluidRow(
+                          # plot2
+                          column(12,
+                            fluidRow(
+                              column(3, 
+                                fluidRow(column(12, h4('Select a gene below:') )), 
+                                fluidRow(column(12, verbatimTextOutput('scRNA_UMAP2_gene_input_status') )),
+                                fluidRow(column(12, DT::dataTableOutput("scRNA_UMAP2_gene_table") ))
+                              ),
+                              column(9, 
+                                fluidRow(column(12, h4('Feature plot') )), 
+                                fluidRow(column(12, verbatimTextOutput('Feature_Plot_status_catch') )), 
+                                fluidRow(column(12, plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%") )),
+                                fluidRow(column(12, 
+                                  box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                    fluidRow(
+                                      column(6, sliderInput('scRNA_umap2_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=900, step=10) ),
+                                      column(6, sliderInput('scRNA_umap2_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=700, step=10) ),
+                                      column(6, sliderInput('scRNA_umap2_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1) ),
+                                      column(6, sliderInput('scRNA_umap2_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1) ),
+                                      column(6, sliderInput('scRNA_umap2_graph.title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1) ),
+                                      column(6, sliderInput('scRNA_umap2_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                                    ),
+                                    fluidRow(
+                                      column(4, colourInput('scRNA_umap2_highest_colour', 'Colour for the highest expression', value='red') ),
+                                      column(4, colourInput('scRNA_umap2_lowest_colour', 'Colour for the lowest expression', value='white') ),
+                                      column(4, colourInput('scRNA_umap2_zero_colour', 'Colour for zero (background)', value='#676767'))
+                                    ),
+                                    fluidRow(
+                                      column(12, checkboxInput('scRNA_umap2_while_background', 'Use white background', value=FALSE))
+                                    )
+                                  )
+                                ))
+                              ),
+                            )
                           )
                         )
                       )
                     ),
                     tabPanel('Gene sets',
-                      fluidRow(column(12, h3(""))),
+                      box(width=12, status='primary', title='Gene signature (AUC score) feature plot',
+                        fluidRow(
+                          column(4, 
+                            fluidRow(column(12, textAreaInput("scRNA_UMAP2_gene_signature", "Enter genes names (line by line)") ) ),
+                            fluidRow(column(12, checkboxInput('scRNA_UMAP2_gene_signature_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ) ),
+                            conditionalPanel(
+                              condition = "input.scRNA_UMAP2_gene_signature_from_custom_geneset == true",
+                              fluidRow(column(12, htmlOutput('scRNA_UMAP2_gene_signature_from_custom_geneset_select')))
+                            ),
+                            fluidRow(column(12, h4('') ) ),
+                            fluidRow(column(12, actionButton("scRNA_UMAP2_gene_signature_start", "Calculate the signature score") ) ),
+                            fluidRow(column(12, h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: orange;"))) ),
+                          ),
+                          column(8,
+                            tabsetPanel(
+                              tabPanel('Feature Plot',
+                                box(width=12, title='Feature Plot', status='primary',
+                                  fluidRow(column(12, verbatimTextOutput('scRNA_UMAP2_gene_signature_status') )),
+                                  fluidRow(column(12, plotOutput("scRNA_UMAP2_gene_signature_plot", width="100%", height="100%") )), 
+                                  fluidRow(column(12, h4('') ) ),
+                                  fluidRow(
+                                    column(12, 
+                                      box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                        fluidRow(
+                                          column(6, sliderInput('scRNA_umap2_gene_signature_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=700, step=10) ),
+                                          column(6, sliderInput('scRNA_umap2_gene_signature_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
+                                          column(6, sliderInput('scRNA_umap2_gene_signature_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1) ),
+                                          column(6, sliderInput('scRNA_umap2_gene_signature_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1) ),
+                                          column(6, sliderInput('scRNA_umap2_gene_signature_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                                        ),
+                                        fluidRow(
+                                          column(4, colourInput('scRNA_umap2_gene_signature_highest_colour', 'Colour for the highest expression', value='#5A05F7') ),
+                                          column(4, colourInput('scRNA_umap2_gene_signature_lowest_colour', 'Colour for the lowest expression', value='white') ),
+                                          column(4, colourInput('scRNA_umap2_gene_signature_zero_colour', 'Colour for zero (background)', value='#676767'))
+                                        ),
+                                        fluidRow(
+                                          column(12, checkboxInput('scRNA_umap2_gene_signature_while_background', 'Use white background', value=FALSE))
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                              tabPanel('Violin Plot',
+                                box(width=12, title='Violin Plot', status='primary',
+                                  fluidRow(column(12, verbatimTextOutput('scRNA_violin_gene_signature_status') )),
+                                  fluidRow(column(12, htmlOutput('scRNA_violin_gene_signature_groupby') )),
+                                  fluidRow(column(12, plotOutput("scRNA_violin_gene_signature_plot", width="100%", height="100%") )), 
+                                  fluidRow(column(12, h4('') ) ),
+                                  fluidRow(
+                                    column(12, 
+                                      box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                        fluidRow(
+                                          column(6, sliderInput('scRNA_violin_gene_signature_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=900, step=10) ),
+                                          column(6, sliderInput('scRNA_violin_gene_signature_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=600, step=10) ),
+                                          column(6, sliderInput('scRNA_violin_gene_signature_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1) ),
+                                          column(6, sliderInput('scRNA_violin_gene_signature_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1) ),
+                                          column(6, sliderInput('scRNA_violin_gene_signature_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                                        ),
+                                        fluidRow(
+                                          column(4, checkboxInput('scRNA_violin_gene_signature_while_background', 'Use white background', value=FALSE)),
+                                          column(4, checkboxInput('scRNA_violin_gene_signature_rotate_x', 'Rotate X labels', value=TRUE))
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                            )
+
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+            #### Other plot ####
+              box(width=12, title='Other plots', collapsible = TRUE, collapsed = TRUE, status='primary',
+                tabsetPanel(
+                  tabPanel("Dot/Ridge/Vlnplot",
+                    box(width=12, title='Gene expression across groups', collapsible = TRUE, status = 'primary',
                       fluidRow(
-                        column(3, 
-                          fluidRow(column(12, textAreaInput("scRNA_UMAP2_gene_signature", "Enter genes names (line by line)") ) ),
+                        column(4, 
+                          fluidRow(column(12, textAreaInput("scRNA_VlnPlot_gene", "Enter genes name (line by line)") )),
+                          fluidRow(column(12, checkboxInput('scRNA_VlnPlot_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ) ),
+                          conditionalPanel(
+                            condition = "input.scRNA_VlnPlot_gene_from_custom_geneset == true",
+                            fluidRow(column(12, htmlOutput('scRNA_VlnPlot_gene_from_custom_geneset_select')))
+                          )
                         ),
-                        column(3,
-                          fluidRow(column(12, h5(span('This takes 2~4 minutes depending on the size of the input. Please be patient.', style="color: orange;"))) ),
-                          fluidRow(column(12, actionButton("scRNA_UMAP2_gene_signature_start", "Gene set expression analysis") ) ),
-                        ),
-                        column(6,
-                          fluidRow(
-                            column(12, 
-                              box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
+                        column(2, radioButtons("scRNA_Vln_figType", "Visualisation type", choices = c('Vln Plot'='A', 'Ridge Plot'='B', 'Dot Plot'='C'), selected='C')),
+                        column(3, htmlOutput("scRNA_VlnPlot_groupBy")),
+                      ),
+                      fluidRow(
+                        column(12, verbatimTextOutput('scRNA_VlnPlot_all_status'))
+                      ),
+                      fluidRow(
+                        column(12,
+                          tabsetPanel(
+                            tabPanel("Dot Plot",
+                              box(width=12, title='Dot Plot', status='primary',
+                                fluidRow(column(12, verbatimTextOutput('scRNA_VlnPlot_dot_status'))),
+                                fluidRow(column(12,  plotOutput("scRNA_VlnPlot_dot", width="100%", height="100%"))),
                                 fluidRow(
-                                  column(6, sliderInput('scRNA_umap2_gene_signature_fig.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                                  column(6, sliderInput('scRNA_umap2_gene_signature_fig.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10) ),
-                                  column(6, sliderInput('scRNA_umap2_gene_signature_XY_label.font.size', 'X/Y label font size', min=5, max=40, value=15, step=1) ),
-                                  column(6, sliderInput('scRNA_umap2_gene_signature_XY_title.font.size', 'X/Y title font size', min=5, max=40, value=15, step=1) ),
-                                  column(6, sliderInput('scRNA_umap2_gene_signature_legend_size', 'Legend font size', min=5, max=40, value=15, step=1))
-                                ),
+                                  column(8,
+                                    box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                      fluidRow(
+                                        column(6,sliderInput('scRNA_vln_fig.width', 'Fig width', min=300, max=3000, value=1200, step=10)),
+                                        column(6,sliderInput('scRNA_vln_fig.height', 'Fig height', min=300, max=3000, value=500, step=1)),
+                                        column(6,sliderInput('scRNA_vln_X_label_size', 'X label size', min=0.1, max=10, value=2, step=0.1)),
+                                        column(6,sliderInput('scRNA_vln_Y_label_size', 'Y label size', min=0.1, max=10, value=2.5, step=0.1)),
+                                        column(6,sliderInput('scRNA_vln_Y_title_size', 'Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('scRNA_vln_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1))
+                                      ),
+                                      fluidRow(
+                                        column(6,colourInput('scRNA_vln_high_col', 'Colour (High expression)', value='blue')),
+                                        column(6,colourInput('scRNA_vln_low_col', 'Colour (low expression)', value='lightgrey')),
+                                      )
+                                    ) 
+                                  )
+                                )
+                              )
+                            ),
+                            tabPanel("Violin Plot",
+                              box(width=12, title='Violin Plot', status='primary',
                                 fluidRow(
-                                  column(4, colourInput('scRNA_umap2_gene_signature_highest_colour', 'Colour for the highest expression', value='#5A05F7') ),
-                                  column(4, colourInput('scRNA_umap2_gene_signature_lowest_colour', 'Colour for the lowest expression', value='white') ),
-                                  column(4, colourInput('scRNA_umap2_gene_signature_zero_colour', 'Colour for zero (background)', value='#676767'))
-                                ),
-                                fluidRow(
-                                  column(12, checkboxInput('scRNA_umap2_gene_signature_while_background', 'Use white background', value=FALSE))
+                                  column(3,
+                                    fluidRow(column(12, h4('Select a gene below:') )), 
+                                    fluidRow(column(12, DT::dataTableOutput("scRNA_vln_vln_gene_table") ))
+                                  ),
+                                  column(9,
+                                    fluidRow(column(12, h4('Plot') )), 
+                                    fluidRow(column(12, verbatimTextOutput('scRNA_VlnPlot_vln_status'))),
+                                    fluidRow(column(12, plotOutput("scRNA_VlnPlot_vln", width="100%", height="100%"))),
+                                    fluidRow(column(12, 
+                                      box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE, status='success',
+                                        fluidRow(
+                                          column(6,sliderInput('scRNA_vln_vln_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                                          column(6,sliderInput('scRNA_vln_vln_fig.height', 'Fig height', min=300, max=3000, value=500, step=1)),
+                                          column(6,sliderInput('scRNA_vln_vln_X_label_size', 'X label size', min=0.1, max=10, value=3, step=0.1)),
+                                          column(6,sliderInput('scRNA_vln_vln_Y_label_size', 'Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                          column(6,sliderInput('scRNA_vln_vln_Y_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                          column(6,sliderInput('scRNA_vln_vln_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1))
+                                        ),
+                                        fluidRow(
+                                          column(4, checkboxInput('scRNA_vln_vln_white_back', 'Use white background', value=FALSE)),
+                                          column(4, checkboxInput('scRNA_vln_vln_rotate_x', 'Rotate X labels', value=TRUE))
+                                        )
+                                      )
+                                    ))
+                                  )
                                 )
                               )
                             )
                           )
                         )
-                      ),
-                      fluidRow(
-                        column(12,
-                          fluidRow(column(12, h4('Plot'))),
-                          fluidRow(column(12, verbatimTextOutput('scRNA_UMAP2_gene_signature_status') )),
-                          fluidRow(column(12, plotOutput("scRNA_UMAP2_gene_signature_plot", width="100%", height="100%") )), 
-                        )
-                      )
-                    ),
-                  )
-                )
-              ),
-            #### Other plot ####
-              box(width=12, title='Other plots', collapsible = TRUE, collapsed = TRUE,
-                tabsetPanel(
-                  tabPanel("Dot/Ridge/Vlnplot",
-                    box(width=12, title='Gene expression across groups', collapsible = TRUE, status = 'primary',
-                      fluidRow(
-                        column(3, textAreaInput("scRNA_VlnPlot_gene", "Enter genes name (line by line)")),
-                        column(2, radioButtons("scRNA_Vln_figType", "Visualisation type", choices = c('Vln Plot'='A', 'Ridge Plot'='B', 'Dot Plot'='C'), selected='C')),
-                        column(3, htmlOutput("scRNA_VlnPlot_groupBy")),
-                        column(4,
-                          box(width=12, title='Plot options', collapsible = TRUE, collapsed = TRUE,
-                            column(12,sliderInput('scRNA_vln_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
-                            column(12,sliderInput('scRNA_vln_fig.height', 'Fig height', min=300, max=3000, value=500, step=1)),
-                            column(12,sliderInput('scRNA_vln_label_size', 'X/Y label size', min=3, max=30, value=10, step=1)),
-                            column(12,sliderInput('scRNA_vln_legend_size', 'legend size', min=3, max=30, value=10, step=1))
-                          ) 
-                        ),
-                      ),
-                      fluidRow(
-                        column(12, h4('Plot')),
-                        column(12, verbatimTextOutput('scRNA_VlnPlot_status')),
-                        column(12,  plotOutput("scRNA_VlnPlot", width="100%", height="100%"))
                       ),
                     ),
                   ),
@@ -4427,7 +4589,7 @@ server <- function(input, output, session) {
       })
 
       output$Gene_comparing_status <- renderText({
-        "Please select the datasets and set the filtering criteria above, and click 'Start Analysis'."
+        "Please select the datasets and set the filtering setting above, and click 'Start Analysis'."
       })
       # table for the plot
       df_compare <- reactive({
@@ -4583,7 +4745,7 @@ server <- function(input, output, session) {
         "Please select the score for ranking the score, choose the direction, set the threshold and click 'Investigate the overlap'.\nA Table showing how many times each gene ranks in the top or bottom X% of each selected dataset will be displayed in the below."
       })
       output$Compare_dataset_get_overview_status <- renderText({
-        "Please select the datasets and set the filtering criteria above, and start 'Investigate the overlap'."
+        "Please select the datasets and set the filter setting above, and start 'Investigate the overlap'."
       })
       # check the overlap
       df_compare_overlapped_hit <- eventReactive(input$Compare_dataset_get_overview_start, {
@@ -5070,7 +5232,7 @@ server <- function(input, output, session) {
         })
 
         output$Integrate_Overlapped_gene_table_status1 <- renderText({
-          'Here, a list of genes that meet the filtering criteria set in both data is displayed.\nPlease set the threshoolds for the data to which the selected genes are mapped.'
+          'Here, a list of genes that meet the filter setting set in both data is displayed.\nPlease set the threshoolds for the data to which the selected genes are mapped.'
         })
         # show the overlapped gene table
         Integrate_Overlapped_gene_table_tmp <- reactive({
@@ -5387,7 +5549,7 @@ server <- function(input, output, session) {
           return(NULL)
         }
         if(input$scRNA_data_select == 'None'){
-          output$scRNA_UMAP1_status <- renderText({"Please select a dataset."})
+          output$scRNA_UMAP1_status <- renderText({"A Umap plot of the selected dataset will be shown here."})
           return(NULL)
         }
         tryCatch({
@@ -5419,44 +5581,91 @@ server <- function(input, output, session) {
       })
       outputOptions(output, "scRNA_UMAP1_groupBy", suspendWhenHidden=FALSE)
 
+      # when highlighting a specific group
+      output$scRNA_UMAP1_highlight_group_select <- renderUI({
+        if(!is.null(Seurat_obj())){
+          if(!is.null(input$scRNA_UMAP1_highlight_group)){
+            if(input$scRNA_UMAP1_groupBy != 'None'){
+              meta <- Seurat_obj()@meta.data
+              groups <- unique(meta[,input$scRNA_UMAP1_groupBy])
+              groups <- groups[order(groups)]
+              selectInput('scRNA_UMAP1_highlight_group_select', 'Colour by:', c('None'='None', groups) )
+            }else{
+              selectInput('scRNA_UMAP1_highlight_group_select', 'Colour by:', c('None'='None') )
+            }
+          }else{
+            return(NULL)
+          }
+        }else{
+          return(NULL)
+        }
+      })
+      outputOptions(output, "scRNA_UMAP1_highlight_group_select", suspendWhenHidden=FALSE)
+
+
       # draw a umap
       output$scRNA_UMAP1 <- renderPlot({
         if(is.null(input$scRNA_UMAP1_groupBy) || input$scRNA_UMAP1_groupBy == 'None'){
-          output$scRNA_UMAP1_status <- renderText({"Please select a dataset."})
+          output$scRNA_UMAP1_status <- renderText({"Please choose one from the 'Colour by' options."})
           return(NULL)
         }else{
           output$scRNA_UMAP1_status <- renderText({NULL})
-          p1 <- DimPlot(Seurat_obj(),reduction = "umap",group.by = c(input$scRNA_UMAP1_groupBy))
+          p_tmp <- DimPlot(Seurat_obj(),reduction = "umap",group.by = c(input$scRNA_UMAP1_groupBy))
+          if(input$scRNA_UMAP1_highlight_group){
+            p_tmp_data <- p_tmp$data
+            p_tmp_data$col <- ifelse(p_tmp_data[,colnames(p_tmp_data)[3]] == input$scRNA_UMAP1_highlight_group_select, input$scRNA_UMAP1_highlight_group_highlight, input$scRNA_UMAP1_highlight_group_background)
+            p1 <- ggplot(p_tmp_data, aes_string(x=colnames(p_tmp_data)[1], y=colnames(p_tmp_data)[2]))
+            p1 <- p1 + geom_point(size=0.01, aes(color=col), data=p_tmp_data[p_tmp_data$col == input$scRNA_UMAP1_highlight_group_background,])
+            p1 <- p1 + geom_point(size=0.01, aes(color=col), data=p_tmp_data[p_tmp_data$col == input$scRNA_UMAP1_highlight_group_highlight,]) + scale_color_identity()
+            p1 <- p1 + ggtitle(paste0(input$scRNA_UMAP1_groupBy, ' – ', input$scRNA_UMAP1_highlight_group_select))
+          }else{
+            p1 <- ggplot(p_tmp$data, aes_string(x=colnames(p_tmp$data)[1], y=colnames(p_tmp$data)[2], color=colnames(p_tmp$data)[3])) + geom_point(size=0.01)
+          }
           p1 <- p1 + theme(axis.text = element_text(size=input$scRNA_umap1_XY_label), axis.title = element_text(size=input$scRNA_umap1_XY_title))
           p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_umap1_legend_size), legend.title = element_text(size=input$scRNA_umap1_legend_size))
           p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap1_graph_title)) 
+          p1 <- p1 + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p1 <- p1 + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p1 <- p1 + theme(legend.key.size=unit(0.01, 'mm'))
+          if(input$scRNA_umap1_white_background){
+            p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p1 <- p1 + theme(panel.background = element_rect(fill="white", size=0))
+            p1 <- p1 + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
           p1
         }
-      }, width=reactive(input$scRNA_umap1_fig.width), height=reactive(input$scRNA_umap1_fig.height))
+      }, width=reactive(input$scRNA_umap1_fig.width), height=reactive(input$scRNA_umap1_fig.height), res=300)
+
+
 
     #### Feature plot
       # function for showing one gene's expression
-      gene_expression_map_noGene <- function(ex, umap){
-          gene_ex_data <- data.frame(umap)
-          colnames(gene_ex_data) <- c("UMAP_1","UMAP_2")
-          p1 <- ggplot(gene_ex_data,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=gene_ex_data, size = 1, color= input$scRNA_umap2_zero_colour)
-          p1 <- p1 + theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text = element_text(size=20), legend.title = element_text(size=20), plot.title = element_text(size=20)) 
-          p1
-      }
+      # gene_expression_map_noGene <- function(ex, umap){
+      #     gene_ex_data <- data.frame(umap)
+      #     colnames(gene_ex_data) <- c("UMAP_1","UMAP_2")
+      #     p1 <- ggplot(gene_ex_data,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=gene_ex_data, size = 1, color= input$scRNA_umap2_zero_colour)
+      #     p1 <- p1 + theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text = element_text(size=20), legend.title = element_text(size=20), plot.title = element_text(size=20)) 
+      #     p1
+      # }
       gene_expression_map <- function(ex, umap, gene){
         if(gene %in% rownames(ex)){
           ex_gene <- ex[gene,]
           gene_ex_data <- data.frame(umap, ex_gene)
           colnames(gene_ex_data) <- c("UMAP_1","UMAP_2","Gene" )
-          p1 <- ggplot(gene_ex_data,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=gene_ex_data[gene_ex_data$Gene == 0,] , size = 1, color= input$scRNA_umap2_zero_colour)
-          p1 <- p1 + geom_point(data=gene_ex_data[gene_ex_data$Gene > 0,] , size = 1, aes(color= Gene))
+          p1 <- ggplot(gene_ex_data,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=gene_ex_data[gene_ex_data$Gene == 0,] , size = 0.01, color= input$scRNA_umap2_zero_colour)
+          p1 <- p1 + geom_point(data=gene_ex_data[gene_ex_data$Gene > 0,] , size = 0.01, aes(color= Gene))
           p1 <- p1 + scale_color_gradient(low  = input$scRNA_umap2_lowest_colour, high = input$scRNA_umap2_highest_colour)
           p1 <- p1 + theme(axis.text = element_text(size=input$scRNA_umap2_XY_label.font.size), axis.title = element_text(size=input$scRNA_umap2_XY_title.font.size))
           p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_umap2_legend_size), legend.title = element_text(size=input$scRNA_umap2_legend_size))
           p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap2_graph.title.font.size)) 
           p1 <- p1 + ggtitle(gene)
+          p1 <- p1 + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p1 <- p1 + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p1 <- p1 + theme(legend.key.size = unit(2, "mm"))
           if(input$scRNA_umap2_while_background){
-            p1 <- p1 + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+            p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p1 <- p1 + theme(panel.background = element_rect(fill="white", size=0))
+            p1 <- p1 + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
           }
         }else{
           p1 <- gene_expression_map_noGene(ex, umap)
@@ -5465,30 +5674,47 @@ server <- function(input, output, session) {
       }
 
       # input gene talbe
+      # when selecting from custom genesets
+      output$scRNA_UMAP2_gene_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('scRNA_UMAP2_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+          })
+      outputOptions(output, "scRNA_UMAP2_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
       target_gene_for_scRNA_featurePlot <- reactive({
         if(!is.null(Seurat_obj())){
-          if(nchar(input$scRNA_UMAP2_gene) >0){
-            genes <- unique(unlist(strsplit(input$scRNA_UMAP2_gene, split = "\n")))
-            genes2 <- intersect(genes,rownames(Seurat_obj()) ) 
-            diff_gene <- setdiff(genes,rownames(Seurat_obj()))
-            if(length(diff_gene) > 0){
-              output$scRNA_UMAP2_gene_input_status <- renderText({
-                tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
-                genes_tmp <- ''
-                for (a in diff_gene){
-                  genes_tmp <- paste0(genes_tmp, a, ',')
-                }
-                genes_tmp <- substr(genes_tmp, 1, nchar(genes_tmp)-1)
-                paste0(tmp, genes_tmp)
-              })
+          if(input$scRNA_UMAP2_gene_from_custom_geneset){
+            if(input$scRNA_UMAP2_gene_from_custom_geneset_select == 'None'){
+              output$scRNA_UMAP2_gene_input_status <- renderText({"Please select a custom gene set."})
+              return(NULL)
             }else{
-              output$scRNA_UMAP2_gene_input_status <- renderText({NULL})
+              genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_UMAP2_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
             }
-            data.frame(Input=genes2)
+          }else{
+            if(nchar(input$scRNA_UMAP2_gene) >0){
+              genes <- unique(unlist(strsplit(input$scRNA_UMAP2_gene, split = "\n")))
+            }else{
+              output$scRNA_UMAP2_gene_input_status <- renderText({'Please enter the gene names.'})
+              return(NULL)
+            }
+          }
+          genes2 <- intersect(genes,rownames(Seurat_obj()) ) 
+          diff_gene <- setdiff(genes,rownames(Seurat_obj()))
+          if(length(diff_gene) > 0){
+            output$scRNA_UMAP2_gene_input_status <- renderText({
+              tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
+              genes_tmp <- ''
+              for (a in diff_gene){
+                genes_tmp <- paste0(genes_tmp, a, ',')
+              }
+              genes_tmp <- substr(genes_tmp, 1, nchar(genes_tmp)-1)
+              paste0(tmp, genes_tmp)
+            })
           }else{
             output$scRNA_UMAP2_gene_input_status <- renderText({NULL})
-            data.frame()
           }
+          data.frame(Input=genes2)
         }else{
           return(NULL)
         }
@@ -5497,13 +5723,14 @@ server <- function(input, output, session) {
       output$scRNA_UMAP2_gene_table <- renderDataTable({
         datatable( target_gene_for_scRNA_featurePlot(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
       })
+      outputOptions(output, "scRNA_UMAP2_gene_table",  suspendWhenHidden=FALSE)
 
       # draw UMAP2 (gene expression feature map)
       output$scRNA_UMAP2 <- renderPlot({
         if(!is.null(Seurat_obj())){
           if(input$scRNA_UMAP2_gene == '' || is.null(input$scRNA_UMAP2_gene) ){
-            output$Feature_Plot_status_catch <- renderText({'Please enter genes (line by line)'})
-            # p <- gene_expression_map_noGene(Seurat_expression(), Seurat_umap())
+            output$Feature_Plot_status_catch <- renderText({'A feature plot will be displayed here'})
+            return(NULL)
           }else{
             if(length(input$scRNA_UMAP2_gene_table_rows_selected)>0){
               output$Feature_Plot_status_catch <- renderText({NULL})
@@ -5512,58 +5739,128 @@ server <- function(input, output, session) {
               p
             }else{
               output$Feature_Plot_status_catch <- renderText({'Please select a gene'})
+              return(NULL)
             }
           }
         }else{
-          output$Feature_Plot_status_catch <- renderText({'Please select a dataset'})
-          # p <- ggplot()
+          output$scRNA_UMAP2_gene_input_status <- renderText({'Please select a database and set the input'})
+          output$Feature_Plot_status_catch <- renderText({'A feature plot will be displayed here'})
+          return(NULL)
         }
-        # p
-      }, width=reactive(input$scRNA_umap2_fig.width), height=reactive(input$scRNA_umap2_fig.height))
+      }, width=reactive(input$scRNA_umap2_fig.width), height=reactive(input$scRNA_umap2_fig.height), res=300)
 
     #### Feature Plot (gene set)
-      output$scRNA_UMAP2_gene_signature_status <- renderText({'Enter the input and start the analysis.'})
+      output$scRNA_UMAP2_gene_signature_status <- renderText({'Please set the input and click "Calculate the signature score".\nThe AUC scores of the inputted genes will be calculated, \nand a feature plot will be shown here.'})
+      output$scRNA_violin_gene_signature_status <- renderText({'Please set the input and click "Calculate the signature score".\nThe AUC scores of the inputted genes will be calculated, \nand a violin plot will be shown here.'})
+      output$scRNA_UMAP2_gene_signature_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('scRNA_UMAP2_gene_signature_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+          })
+      outputOptions(output, "scRNA_UMAP2_gene_signature_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
+      # group by for violin
+      output$scRNA_violin_gene_signature_groupby <- renderUI({
+        if(!is.null(Seurat_obj())){
+          meta <- Seurat_obj()@meta.data
+          selectInput('scRNA_violin_gene_signature_groupby', 'Group by:', c('None'='None', colnames(meta)[!(colnames(meta) %in% c('percent.mt', 'nCount_RNA', 'nFeature_RNA', 'orig.ident'))]), selected = 'seurat_clusters' )
+        }else{
+          selectInput('scRNA_violin_gene_signature_groupby', 'Group by:', c('None'='None') )
+        }
+      })
+      outputOptions(output, "scRNA_violin_gene_signature_groupby",  suspendWhenHidden=FALSE)
+
       observeEvent(input$scRNA_UMAP2_gene_signature_start, {
+        output$scRNA_UMAP2_gene_signature_status <- renderText({NULL})
+        output$scRNA_violin_gene_signature_status <- renderText({NULL})
         if(!is.null(Seurat_obj())) {
-          if(nchar(input$scRNA_UMAP2_gene_signature) == 0){
-            output$scRNA_UMAP2_gene_signature_status <- renderText({'Please enter genes (line by line)'})
-            return(NULL)
+          if(input$scRNA_UMAP2_gene_signature_from_custom_geneset){
+            if(input$scRNA_UMAP2_gene_signature_from_custom_geneset_select == 'None'){
+              output$scRNA_UMAP2_gene_signature_status <- renderText({"Please select a custom gene set."})
+              output$scRNA_violin_gene_signature_status <- renderText({'Please select a custom gene set.'})
+              output$scRNA_UMAP2_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+              output$scRNA_violin_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+              return(NULL)
+            }
+            genesets <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_UMAP2_gene_signature_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+          }else{
+            if(nchar(input$scRNA_UMAP2_gene_signature) == 0){
+              output$scRNA_UMAP2_gene_signature_status <- renderText({'Please enter genes (line by line)'})
+              output$scRNA_violin_gene_signature_status <- renderText({'Please enter genes (line by line)'})
+              output$scRNA_UMAP2_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+              output$scRNA_violin_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+              return(NULL)
+            }
+            genesets <- unlist(strsplit(input$scRNA_UMAP2_gene_signature, split = "\n"))
           }
-          genesets <- unlist(strsplit(input$scRNA_UMAP2_gene_signature, split = "\n"))
-          if(length( intersect(rownames(Seurat_obj), genesets) == 0 )){
+          if(length( intersect(rownames(Seurat_obj()), genesets)) == 0 ){
             output$scRNA_UMAP2_gene_signature_status <- renderText({'None of the inputted genes are included in the dataset.'})
+            output$scRNA_violin_gene_signature_status <- renderText({'None of the inputted genes are included in the dataset.'})
+            output$scRNA_UMAP2_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+            output$scRNA_violin_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
             return(NULL)
           }
-          output$scRNA_UMAP2_gene_signature_status <- renderText({'Calculating...'})
           Seurat_obj <- Seurat_obj()
           GS <- list('Custom'=genesets)
           # expr_matrix <- GetAssayData(object = Seurat_obj(), assay = "RNA", slot = "data")
-          expr_matrix <- Seurat_expression()
+          expr_matrix <- Seurat_expression() # expr_matrix <- GetAssayData(object = Seurat_obj, assay = "RNA", slot = "data")
           expr_matrix <- as(expr_matrix, "dgCMatrix")
           # cells_rankings <- AUCell_buildRankings(expr_matrix, nCores = 1) 
           cells_AUC <- AUCell_run(expr_matrix, GS)
-          cells_AUC_df <- data.frame(t(getAUC(cells_AUC)))
-          cells_AUC_df$barcode <- rownames(cells_AUC_df)
+          cells_AUC_df <- data.frame(t(getAUC(cells_AUC))) # head(cells_AUC_df) meta <- Seurat_obj@meta.data head(meta)
+          cells_AUC_df$barcode <- as.character(rownames(cells_AUC_df))
           Seurat_umap <- Seurat_umap()
           Seurat_umap$barcode <- rownames(Seurat_umap)
           umap_AUC <- merge(Seurat_umap, cells_AUC_df, by='barcode')
-          # plot
+          # plot (feature plot)
           colnames(umap_AUC) <- c("barcode","UMAP_1", "UMAP_2","AUC.score" )
           output$scRNA_UMAP2_gene_signature_status <- renderText({NULL})
+          output$scRNA_violin_gene_signature_status <- renderText({NULL})
           output$scRNA_UMAP2_gene_signature_plot <- renderPlot({
-            p1 <- ggplot(umap_AUC,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=umap_AUC[umap_AUC$AUC.score == 0,] , size = 1, color= input$scRNA_umap2_gene_signature_zero_colour)
-            p1 <- p1 + geom_point(data=umap_AUC[umap_AUC$AUC.score > 0,] , size = 1, aes(color= AUC.score))
+            p1 <- ggplot(umap_AUC,aes(x=UMAP_1,y=UMAP_2)) + geom_point(data=umap_AUC[umap_AUC$AUC.score == 0,] , size = 0.01, color= input$scRNA_umap2_gene_signature_zero_colour)
+            p1 <- p1 + geom_point(data=umap_AUC[umap_AUC$AUC.score > 0,] , size = 0.01, aes(color= AUC.score))
             p1 <- p1 + scale_color_gradient(low  = input$scRNA_umap2_gene_signature_lowest_colour, high = input$scRNA_umap2_gene_signature_highest_colour)
             p1 <- p1 + theme(axis.text = element_text(size=input$scRNA_umap2_gene_signature_XY_label.font.size), axis.title = element_text(size=input$scRNA_umap2_gene_signature_XY_title.font.size))
             p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_umap2_gene_signature_legend_size), legend.title = element_text(size=input$scRNA_umap2_gene_signature_legend_size))
             p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap2_gene_signature_graph.title.font.size)) 
+            p1 <- p1 + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p1 <- p1 + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p1 <- p1 + theme(legend.key.size = unit(2, "mm"))
             # p1 <- p1 + ggtitle(gene)
-            if(input$scRNA_umap2_while_background){
-              p1 <- p1 + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+            if(input$scRNA_umap2_gene_signature_while_background){
+              p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p1 <- p1 + theme(panel.background = element_rect(fill="white", size=0))
+              p1 <- p1 + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
             }
             p1
-          },width=reactive(input$scRNA_umap2_gene_signature_fig.width), height=reactive(input$scRNA_umap2_gene_signature_fig.height))
-
+          },width=reactive(input$scRNA_umap2_gene_signature_fig.width), height=reactive(input$scRNA_umap2_gene_signature_fig.height), res=300)
+          # violin plot
+          meta <- Seurat_obj@meta.data
+          meta$barcode <- as.character(rownames(meta)) # head(meta)
+          barocde_order <- rownames(meta)  # head(barocde_order)
+          meta <- merge(meta, cells_AUC_df, by='barcode')# head(meta)
+          if(input$scRNA_violin_gene_signature_groupby == 'None'){
+            output$scRNA_violin_gene_signature_status <- renderText({'Please select one from the "Group by" option.'})
+            output$scRNA_violin_gene_signature_plot <- renderPlot({NULL}, width=100, height=100)
+          }
+          output$scRNA_violin_gene_signature_plot <- renderPlot({
+            p <- ggplot(meta, aes_string(x=input$scRNA_violin_gene_signature_groupby, y='Custom', fill=input$scRNA_violin_gene_signature_groupby)) + geom_violin(trim = FALSE, size=0.2)
+            p <- p + theme(axis.text = element_text(size=input$scRNA_violin_gene_signature_XY_label.font.size), axis.title = element_text(size=input$scRNA_violin_gene_signature_XY_title.font.size))
+            p <- p + theme(legend.text = element_text(size=input$scRNA_violin_gene_signature_legend_size), legend.title = element_text(size=input$scRNA_violin_gene_signature_legend_size))
+            # p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap2_gene_signature_graph.title.font.size)) 
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(legend.key.size=unit(0.8, 'mm'))
+            if(input$scRNA_violin_gene_signature_while_background){
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
+            if(input$scRNA_violin_gene_signature_rotate_x){
+              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+            }
+            p
+          },width=reactive(input$scRNA_violin_gene_signature_fig.width), height=reactive(input$scRNA_violin_gene_signature_fig.height), res=300)
         }
       })
 
@@ -5588,51 +5885,198 @@ server <- function(input, output, session) {
       output$scRNA_VlnPlot_status <- renderText({NULL})
       outputOptions(output, "scRNA_VlnPlot_status", suspendWhenHidden=FALSE)
 
-      # plot violin plot or RidgePlot or DotPlot
-      output$scRNA_VlnPlot <- renderPlot({
-        if(length( Seurat_obj()) == 0){
-          output$scRNA_VlnPlot_status <- renderText({"Please select a dataset"})
-          return(NULL)
-        }
-        seurat_obj_tmp <-  Seurat_obj()
-        if(is.null(seurat_obj_tmp) || input$scRNA_data_select == 'None'){
-          output$scRNA_VlnPlot_status <- renderText({"Please select a dataset"})
+      # when selecting genes from custom gene sets
+      output$scRNA_VlnPlot_gene_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('scRNA_VlnPlot_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+          })
+      outputOptions(output, "scRNA_VlnPlot_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
+      # input genes
+      output$scRNA_VlnPlot_all_status <- renderText({"Please select a dataset, set the input and choose the group to compare the gene expressions."})
+      scRNA_VlnPlot_input_gene <- reactiveVal({NULL})
+      scRNA_VlnPlot_input_gene <- reactive({
+        if(is.null(Seurat_obj())){
+          output$scRNA_VlnPlot_all_status <- renderText({"Please select a dataset, set the input and choose the group to compare the gene expressions."})
           return(NULL)
         }else{
-          output$scRNA_VlnPlot_status <- renderText({NULL})
-          if(input$scRNA_VlnPlot_groupBy != 'None' ){
-            gene_features <- unique(unlist(strsplit(input$scRNA_VlnPlot_gene, split = "\n")))
-            if(nchar(input$scRNA_VlnPlot_gene)==0){
-              output$scRNA_VlnPlot_status <- renderText({"Please enter genes (line by line)."})
+          if(input$scRNA_VlnPlot_gene_from_custom_geneset){
+            if(input$scRNA_VlnPlot_gene_from_custom_geneset_select == 'None'){
+              output$scRNA_VlnPlot_all_status <- renderText({"Please select a custom gene set."})
               return(NULL)
             }
-            output$scRNA_VlnPlot_status <- renderText({NULL})
-            gene_features <- gene_features[gene_features!= '']
-            gene_features <- gene_features[gene_features %in% rownames(seurat_obj_tmp)]
-            if(length(gene_features) != 0){   
-              seurat_obj_tmp <- SetIdent(seurat_obj_tmp, value = input$scRNA_VlnPlot_groupBy)
-              if(input$scRNA_Vln_figType == 'A'){
-                p <- VlnPlot(object = seurat_obj_tmp, features = gene_features, raster=FALSE, group.by=input$scRNA_VlnPlot_groupBy)
-              }else if(input$scRNA_Vln_figType == 'B'){
-                p <- RidgePlot(seurat_obj_tmp, features = gene_features, ncol=1)
-              }else{
-                p <- DotPlot(seurat_obj_tmp, features = gene_features) + RotatedAxis()
-              }
-              p <- p + theme(axis.title=element_blank())
-            }else{
-              output$scRNA_VlnPlot_status <- renderText({"Non of the inputted genes are detected in the dataset. \nPlease check if the names are correct and do not include unnecessary spaces. "})
-              return(NULL)
-            }
+            gene_features <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_VlnPlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
           }else{
-            output$scRNA_VlnPlot_status <- renderText({"Please select the category for grouping ('Group by')."})
+            if(nchar(input$scRNA_VlnPlot_gene)==0){
+              output$scRNA_VlnPlot_all_status <- renderText({"Please enter genes (line by line)."})
+              return(NULL)
+            }
+            gene_features <- unique(unlist(strsplit(input$scRNA_VlnPlot_gene, split = "\n")))
+          }
+          gene_features <- intersect(rownames(Seurat_obj()), gene_features)
+          if(length(gene_features) == 0){
+            output$scRNA_VlnPlot_all_status <- renderText({'None of the inputted genes are included in the dataset.'})
             return(NULL)
+          }else{
+            output$scRNA_VlnPlot_all_status <- renderText({NULL})
+            return(data.frame(Input=gene_features))
           }
         }
+      })
+      outputOptions(output, "scRNA_VlnPlot_all_status",  suspendWhenHidden=FALSE)
+
+      # input gene table (vlnplot)
+      output$scRNA_vln_vln_gene_table <- renderDataTable({
+        datatable( scRNA_VlnPlot_input_gene(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+      })
+
+      # # input gene table (ridge plot)
+      # output$scRNA_vln_rid_gene_table  <- renderDataTable({
+      #   datatable( scRNA_VlnPlot_input_gene(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+      # })
+
+      # plot Dotplot
+      output$scRNA_VlnPlot_dot_status <- renderText({"A dot plot will be shown here. Please set the input above."})
+      outputOptions(output, "scRNA_VlnPlot_dot_status", suspendWhenHidden=FALSE)
+      output$scRNA_VlnPlot_dot <- renderPlot({
+        if(is.null(Seurat_obj())){
+          output$scRNA_VlnPlot_dot_status <- renderText({"A dot plot will be shown here. Please set the input above."})
+          return(NULL)
+        }
+        seurat_obj_tmp <- Seurat_obj()
+        if(is.null(scRNA_VlnPlot_input_gene())){
+          output$scRNA_VlnPlot_dot_status <- renderText({"A dot plot will be shown here. Please set the input above."})
+          return(NULL)
+        }
+        genes <- scRNA_VlnPlot_input_gene()$Input
+        seurat_obj_tmp <- SetIdent(seurat_obj_tmp, value = input$scRNA_VlnPlot_groupBy)
+        p <- DotPlot(seurat_obj_tmp, features = genes, dot.scale=0.9, cols = c(input$scRNA_vln_low_col, input$scRNA_vln_high_col)) + RotatedAxis()
         p <- p + theme(legend.text=element_text(size=input$scRNA_vln_legend_size), legend.title=element_text(size=input$scRNA_vln_legend_size))
-        p <- p + theme(axis.text = element_text(size=input$scRNA_vln_label_size), axis.title = element_text(size=input$scRNA_vln_label_size))
+        p <- p + theme(axis.text.x = element_text(size=input$scRNA_vln_X_label_size), axis.text.y = element_text(size=input$scRNA_vln_Y_label_size))
+        p <- p + theme(axis.title = element_text(size=input$scRNA_vln_Y_title_size))
+        p <- p + ylab(input$scRNA_VlnPlot_groupBy)
+        p <- p + xlab(NULL)
+        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+        p <- p + theme(legend.key.size = unit(1.5, "mm"))
+        p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+        p <- p + theme(panel.background = element_rect(fill="white", size=0))
+        p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        output$scRNA_VlnPlot_dot_status <- renderText({NULL})
         p
-      }, width=reactive(input$scRNA_vln_fig.width), height=reactive(input$scRNA_vln_fig.height))
-      outputOptions(output, "scRNA_VlnPlot", suspendWhenHidden=FALSE)
+      }, width=reactive(input$scRNA_vln_fig.width), height=reactive(input$scRNA_vln_fig.height), res=300)
+      outputOptions(output, "scRNA_VlnPlot_dot", suspendWhenHidden=FALSE)
+
+      # plot vlnplot
+      output$scRNA_VlnPlot_vln_status <- renderText({"A violin plot will be shown here. Please set the input above."})
+      outputOptions(output, "scRNA_VlnPlot_vln_status", suspendWhenHidden=FALSE)
+      output$scRNA_VlnPlot_vln <- renderPlot({
+        if(is.null(Seurat_obj())){
+          output$scRNA_VlnPlot_vln_status <- renderText({"A violin plot will be shown here. Please set the input above."})
+          return(NULL)
+        }
+        seurat_obj_tmp <- Seurat_obj()
+        if(is.null(scRNA_VlnPlot_input_gene())){
+          output$scRNA_VlnPlot_vln_status <- renderText({"A violin plot will be shown here. Please set the input above."})
+          return(NULL)
+        }
+        if(length(input$scRNA_vln_vln_gene_table_rows_selected) == 0){
+          output$scRNA_VlnPlot_vln_status <- renderText({"Please select a gene from the table."})
+          return(NULL)
+        }
+        Gene <- scRNA_VlnPlot_input_gene()[input$scRNA_vln_vln_gene_table_rows_selected,]
+        # Seurat_expression <- GetAssayData(object = Seurat_obj, assay = "RNA", slot = "data") 
+        One_Gene_ex <- data.frame((Seurat_expression()[Gene,]))
+        colnames(One_Gene_ex) <- Gene # head(One_Gene_ex)
+        One_Gene_ex$barcode <- rownames(One_Gene_ex)
+        meta <- seurat_obj_tmp@meta.data # head(meta)
+        meta$barcode <- rownames(meta)
+        meta <- merge(meta, One_Gene_ex, by='barcode')
+        if(input$scRNA_VlnPlot_groupBy != 'None'){
+          p <- ggplot(meta, aes_string(x=input$scRNA_VlnPlot_groupBy, y=Gene, fill=input$scRNA_VlnPlot_groupBy))+ geom_violin(trim = FALSE, size=0.2)
+        }
+        # p <- VlnPlot(object = seurat_obj_tmp, features = Gene,  group.by=input$scRNA_VlnPlot_groupBy, pt.size = 0.2)
+        p <- p + theme(legend.text=element_text(size=input$scRNA_vln_vln_legend_size), legend.title=element_text(size=input$scRNA_vln_vln_legend_size))
+        p <- p + theme(axis.text.x = element_text(size=input$scRNA_vln_vln_X_label_size), axis.text.y = element_text(size=input$scRNA_vln_vln_Y_label_size))
+        p <- p + theme(axis.title = element_text(size=input$scRNA_vln_vln_Y_title_size))
+        p <- p + xlab(input$scRNA_VlnPlot_groupBy) + scale_y_continuous(limits = c(0, NA))
+        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+        p <- p + theme(legend.key.size = unit(1.5, "mm"))
+        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+        if(input$scRNA_vln_vln_white_back){
+          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+          p <- p + theme(panel.background = element_rect(fill="white", size=0))
+          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        }
+        if(input$scRNA_vln_vln_rotate_x){
+          p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+        }
+        output$scRNA_VlnPlot_vln_status <- renderText({NULL})
+        p
+                                        # fluidRow(
+                                        #   column(6,sliderInput('scRNA_vln_vln_fig.width', 'Fig width', min=300, max=3000, value=1200, step=10)),
+                                        #   column(6,sliderInput('scRNA_vln_vln_fig.height', 'Fig height', min=300, max=3000, value=500, step=1)),
+                                        #   column(6,sliderInput('scRNA_vln_vln_X_label_size', 'X label size', min=0.1, max=10, value=2, step=0.1)),
+                                        #   column(6,sliderInput('scRNA_vln_vln_Y_label_size', 'Y label size', min=0.1, max=10, value=2.5, step=0.1)),
+                                        #   column(6,sliderInput('scRNA_vln_vln_Y_title_size', 'Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        #   column(6,sliderInput('scRNA_vln_vln_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1))
+                                        # )
+      }, width=reactive(input$scRNA_vln_vln_fig.width), height=reactive(input$scRNA_vln_vln_fig.height), res=300)
+      outputOptions(output, "scRNA_VlnPlot_vln", suspendWhenHidden=FALSE)
+
+      # plot violin plot or RidgePlot or DotPlot
+      # output$scRNA_VlnPlot <- renderPlot({
+      #   if(length( Seurat_obj()) == 0){
+      #     output$scRNA_VlnPlot_status <- renderText({"Please select a dataset"})
+      #     return(NULL)
+      #   }
+      #   seurat_obj_tmp <-  Seurat_obj()
+      #   if(is.null(seurat_obj_tmp) || input$scRNA_data_select == 'None'){
+      #     output$scRNA_VlnPlot_status <- renderText({"Please select a dataset"})
+      #     return(NULL)
+      #   }else{
+      #     output$scRNA_VlnPlot_status <- renderText({NULL})
+      #     if(input$scRNA_VlnPlot_groupBy != 'None' ){
+      #       if(input$scRNA_VlnPlot_gene_from_custom_geneset){
+      #         if(input$Clinical_Survival_genes_from_custom_geneset_select == 'None'){
+      #           output$scRNA_VlnPlot_status <- renderText({"Please select a custom gene set."})
+      #           return(NULL)
+      #         }
+      #         gene_features <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+      #       }else{
+      #         if(nchar(input$scRNA_VlnPlot_gene)==0){
+      #           output$scRNA_VlnPlot_status <- renderText({"Please enter genes (line by line)."})
+      #           return(NULL)
+      #         }
+      #         gene_features <- unique(unlist(strsplit(input$scRNA_VlnPlot_gene, split = "\n")))
+      #       }
+      #       output$scRNA_VlnPlot_status <- renderText({NULL})
+      #       gene_features <- gene_features[gene_features!= '']
+      #       gene_features <- gene_features[gene_features %in% rownames(seurat_obj_tmp)]
+      #       if(length(gene_features) != 0){   
+      #         seurat_obj_tmp <- SetIdent(seurat_obj_tmp, value = input$scRNA_VlnPlot_groupBy)
+      #         if(input$scRNA_Vln_figType == 'A'){
+      #           p <- VlnPlot(object = seurat_obj_tmp, features = gene_features, raster=FALSE, group.by=input$scRNA_VlnPlot_groupBy)
+      #         }else if(input$scRNA_Vln_figType == 'B'){
+      #           p <- RidgePlot(seurat_obj_tmp, features = gene_features, ncol=1)
+      #         }else{
+      #           p <- DotPlot(seurat_obj_tmp, features = gene_features) + RotatedAxis()
+      #         }
+      #         p <- p + theme(axis.title=element_blank())
+      #       }else{
+      #         output$scRNA_VlnPlot_status <- renderText({"Non of the inputted genes are detected in the dataset. \nPlease check if the names are correct and do not include unnecessary spaces. "})
+      #         return(NULL)
+      #       }
+      #     }else{
+      #       output$scRNA_VlnPlot_status <- renderText({"Please select the category for grouping ('Group by')."})
+      #       return(NULL)
+      #     }
+      #   }
+      #   p <- p + theme(legend.text=element_text(size=input$scRNA_vln_legend_size), legend.title=element_text(size=input$scRNA_vln_legend_size))
+      #   p <- p + theme(axis.text = element_text(size=input$scRNA_vln_label_size), axis.title = element_text(size=input$scRNA_vln_label_size))
+      #   p
+      # }, width=reactive(input$scRNA_vln_fig.width), height=reactive(input$scRNA_vln_fig.height))
+      # outputOptions(output, "scRNA_VlnPlot", suspendWhenHidden=FALSE)
 
                               # column(12,sliderInput('scRNA_vln_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
                               # column(12,sliderInput('scRNA_vln_fig.height', 'Fig height', min=300, max=3000, value=500, step=1)),
@@ -6198,31 +6642,31 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Gene_correlation_genes_y_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
-        output$Gene_correlation_error_catch <- renderText({
-          "Please select a cohort, set the input genes and click 'Calcu;ate the correlation'."
-        })
+        output$Gene_correlation_all_status <- renderText({"Please select a cohort, set the input genes and click 'Calculate the correlation'."})
+        output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+        output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
         df_gene_correlation <- eventReactive(input$Gene_correlation_start, {
-          renderText({NULL})
+          # renderText({NULL})
           if(input$Clinical_data_select == 'None'){
-            output$Gene_correlation_error_catch <- renderText({'Please select a database.'})
+            output$Gene_correlation_all_status <- renderText({'Please select a database.'})
             return(NULL)
           }
           if(nchar(input$Gene_correlation_genes)==0){
-            output$Gene_correlation_error_catch <- renderText({'Please enter a gene name for the Y axis.'})
+            output$Gene_correlation_all_status <- renderText({'Please enter a gene name for the Y axis.'})
             return(NULL)
           }
           gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
           df_geneEx <- Clinical_gene_expression()
           if(!gene %in% rownames(df_geneEx)){
-            output$Gene_correlation_error_catch <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+            output$Gene_correlation_all_status <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
             return(NULL)
           }
           if(length(input$Gene_correlation_Corralation_method) == 0){
-            output$Gene_correlation_error_catch <- renderText({'Please choose the Method for correlation'})
+            output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
             return(NULL)
           }
           if(length(input$Gene_correlation_genes_comparison_type)==0){
-            output$Gene_correlation_error_catch <- renderText({'Please choose the Explore type'})
+            output$Gene_correlation_all_status <- renderText({'Please choose the "Explore type"'})
             return(NULL)
           }
           if(input$Gene_correlation_genes_comparison_type == 'A'){
@@ -6230,25 +6674,20 @@ server <- function(input, output, session) {
           }else if(input$Gene_correlation_genes_comparison_type == 'B'){
             if(input$Gene_correlation_genes_y_from_custom_geneset){
               if(input$Gene_correlation_genes_y_from_custom_geneset_select == 'None'){
-                output$Gene_correlation_error_catch <- renderText({"Please select a custom gene set."})
+                output$Gene_correlation_all_status <- renderText({"Please select a custom gene set."})
                 return(NULL)
               }
               genes_to_compare <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
             }else{
               if(nchar(input$Gene_correlation_genes_y)== 0 ){
-                output$Gene_correlation_error_catch <- renderText({"Please enter genes for the X axis (line by line)"})
+                output$Gene_correlation_all_status <- renderText({"Please enter genes for the X axis (line by line)"})
                 return(NULL)
               }
               genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
             }
-            # if(nchar(input$Gene_correlation_genes_y)==0){
-            #   output$Gene_correlation_error_catch <- renderText({'Please enter genes for Y-axis.'})
-            #   return(NULL)
-            # }
-            # genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, split = "\n"))
             genes_to_compare <- intersect(genes_to_compare, rownames(df_geneEx))
             if(length(genes_to_compare) == 0){
-              output$Gene_correlation_error_catch <- renderText({'The inputted genes (for Y-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
+              output$Gene_correlation_all_status <- renderText({'The inputted genes (for Y-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
               return(NULL)
             }
           }
@@ -6265,6 +6704,7 @@ server <- function(input, output, session) {
           df_cor_out <- df_cor_out[order(df_cor_out$r, decreasing = T),] # head(df_cor_out)
           rownames(df_cor_out) <- NULL
           df_cor_out$target <- gene
+          output$Gene_correlation_table_status <- renderText({NULL})
           df_cor_out
         })
         selected_cohort_cor <- reactive({ 0 })
@@ -6276,20 +6716,18 @@ server <- function(input, output, session) {
         })
         output$Gene_correlation_scatter_plot <- renderPlot({
           if(length(input$Clinical_data_select)==0){
-            output$Gene_correlation_error_catch <- renderText({'Please select a dataset and start the analysis.'})
+            output$Gene_correlation_all_status <- renderText({'Please select a dataset and start the analysis.'})
             return(NULL)
           }
           if(selected_cohort_cor() != input$Clinical_data_select){
-            output$Gene_correlation_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            output$Gene_correlation_all_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
             return(NULL)
           }
           if(is.null(df_gene_correlation())){
-            # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
             return(NULL)
           }else{
             if(length(input$Gene_correlation_table_rows_selected)>0){
               output$Gene_correlation_error_catch <- renderText({NULL})
-              # Gene1 <- unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
               Gene2 <- df_gene_correlation()$target[1]
               Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene
               df_geneEx <- Clinical_gene_expression()
@@ -6311,7 +6749,7 @@ server <- function(input, output, session) {
               }
               p
             }else{
-              output$Gene_correlation_error_catch <- renderText('Please select a gene from the table.')
+              output$Gene_correlation_error_catch <- renderText('Please select a gene from the correlation table.')
               return(NULL)
             }
           }
@@ -6582,14 +7020,78 @@ server <- function(input, output, session) {
       }, width=reactive(input$Expression_subtype_fig.width), height=reactive(input$Expression_subtype_fig.height), res=300)
 
     #### Upload ####
+      # file upload and reset function 
+      output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
+      output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
+      output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
+      output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
+      outputOptions(output, "new_cohort_upload_GE", suspendWhenHidden=FALSE)
+      outputOptions(output, "new_cohort_upload_sur", suspendWhenHidden=FALSE)
+      outputOptions(output, "new_cohort_upload_meta", suspendWhenHidden=FALSE)
+      outputOptions(output, "new_cohort_upload_mut", suspendWhenHidden=FALSE)
+
+      # reset
+      observeEvent(input$new_cohort_upload_reset, {
+        output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
+        output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
+        output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
+        output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
+        output$new_cohort_upload_GE_preview <- renderDataTable({NULL})
+        output$new_cohort_upload_sur_preview <- renderDataTable({NULL})
+        output$new_cohort_upload_meta_preview <- renderDataTable({NULL})
+        output$new_cohort_upload_mut_preview <- renderDataTable({NULL})
+        output$new_cohort_status <- renderText({ NULL })
+        output$new_cohort_upload_GE_preview_status <- renderText({"Please upload a gene expression file. The preview will be shown here."})
+        output$new_cohort_upload_sur_preview_status <- renderText({"Please upload a survival data file. The preview will be shown here."})
+        output$new_cohort_upload_meta_preview_status <- renderText({"Please upload a metadata file. The preview will be shown here."})
+        output$new_cohort_upload_mut_preview_status <- renderText({"Please upload a mutation data file. The preview will be shown here."})
+      })
+
+      ## load data if they are uploaded
+      # initial value
+      gx_table <- reactiveVal(NULL)
+      suv_table <- reactiveVal(NULL)
+      meta_table <- reactiveVal(NULL)
+      mut_table <- reactiveVal(NULL)
+
+      observe({
+        if(is.null(input$new_cohort_upload_GE)){
+          gx_table(NULL)
+        }else{
+          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T)
+          gx_table(gx_table)
+        }
+        if(is.null(input$new_cohort_upload_sur)){
+          suv_table(NULL)
+        }else{
+          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T)
+          suv_table(suv_table)
+        }
+        if(is.null(input$new_cohort_upload_meta)){
+          meta_table(NULL)
+        }else{
+          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T)
+          meta_table(meta_table)
+        }
+        if(is.null(input$new_cohort_upload_mut)){
+          mut_table(NULL)
+        }else{
+          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T)
+          mut_table(mut_table)
+        }
+      })
+
+
       # in case that the gx file has duplicated id names
-      new_cohort_upload_GE_table <- reactive({NULL})
+      output$new_cohort_status <- renderText({NULL})
       new_cohort_upload_GE_table <- reactive({
         output$new_cohort_status <- renderText({NULL})
-        req(input$new_cohort_upload_GE)
-        gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T)
+        if(is.null(gx_table())){
+          return(NULL)
+        }
+        gx_table <- gx_table()
         if(!'id' %in% colnames(gx_table)){
-          output$new_cohort_status <- renderText({'The gene expression table does not have "id" in its header.'})
+          output$new_cohort_status <- renderText({'Error: The gene expression table does not have "id" in its header.'})
         }
         duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
         if(length(duplicated_gene)==0){
@@ -6608,66 +7110,108 @@ server <- function(input, output, session) {
           df2 <- rbind(No_duplicated, Duplicated)
           return(df2)
         }
-      })
+      })    
+
+      # preview
+      output$new_cohort_upload_GE_preview_status <- renderText({"Please upload a gene expression file. The preview will be shown here."})
+      output$new_cohort_upload_sur_preview_status <- renderText({"Please upload a survival data file. The preview will be shown here."})
+      output$new_cohort_upload_meta_preview_status <- renderText({"Please upload a metadata file. The preview will be shown here."})
+      output$new_cohort_upload_mut_preview_status <- renderText({"Please upload a mutation data file. The preview will be shown here."})
 
       output$new_cohort_upload_GE_preview <- renderDataTable({
-        if(length(new_cohort_upload_GE_table())==0){
+        if(is.null(gx_table())){
           return(NULL)
         }else{
+          output$new_cohort_upload_GE_preview_status <- renderText({"The below are the first 10 lines."})
           datatable( head(new_cohort_upload_GE_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
         }
       })
 
       output$new_cohort_upload_sur_preview <- renderDataTable({
-        req(input$new_cohort_upload_sur)
-        tmp <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T)
-        datatable( head(tmp, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+        if(is.null(suv_table())){
+          return(NULL)
+        }else{
+          output$new_cohort_upload_sur_preview_status <- renderText({"The below are the first 10 lines."})
+          datatable( head(suv_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+        }
       })
 
       output$new_cohort_upload_meta_preview <- renderDataTable({
-        req(input$new_cohort_upload_meta)
-        tmp <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T)
-        datatable( head(tmp, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+        if(is.null(meta_table())){
+          return(NULL)
+        }else{
+          output$new_cohort_upload_meta_preview_status <- renderText("The below are the first 10 lines.")
+          datatable( head(meta_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+        }
       })
 
+      output$new_cohort_upload_mut_preview <- renderDataTable({
+        if(is.null(mut_table())){
+          return(NULL)
+        }else{
+          output$new_cohort_upload_mut_preview_status <- renderText("The below are the first 10 lines.")
+          datatable( head(mut_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+        }
+      })
+
+
+      # uploading
       observeEvent(input$new_cohort_upload_data,{
-        if(is.null(input$new_cohort_upload_GE) | is.null(input$new_cohort_upload_sur) | is.null(input$new_cohort_upload_meta) ){
-          output$new_cohort_status <- renderText({'Please upload all the files!'})
+        if(is.null(gx_table()) | is.null(suv_table()) | is.null(meta_table()) ){
+          output$new_cohort_status <- renderText({'Error: Please upload the files.'})
         }else{
           if(nchar(input$new_cohort_upload_dataset_name)==0 ){
-            output$new_cohort_status <- renderText('* is a mandatory filed!')
+            output$new_cohort_status <- renderText('Error: * is a mandatory filed.')
           }else{
-            cohort_name <- gsub(' ', '_', input$new_cohort_upload_dataset_name)
+            cohort_name <- input$new_cohort_upload_dataset_name
             if(cohort_name %in% Cliniacal_dataset()$Database.Name){
-              output$new_cohort_status <- renderText('The Cohort name is duplicated!')
+              output$new_cohort_status <- renderText('Error: The Cohort name is duplicated.')
             }else if (str_detect(cohort_name, "[;/,()\\[\\]!@#$%]")) {
-              output$new_cohort_status <- renderText('The Cohort name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+              output$new_cohort_status <- renderText('Error: Please avoid special characters for the cohort name. The Cohort name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
             }else{
-              time_stamp <- as.character(Sys.time()) 
-              dir.create(file.path('00_Clinical_dataset', cohort_name), recursive=T, showWarnings = F)
-              save_path_ge <- file.path('00_Clinical_dataset', cohort_name, input$new_cohort_upload_GE$name)
-              save_path_cli <- file.path('00_Clinical_dataset', cohort_name, input$new_cohort_upload_sur$name)
-              save_path_meta <- file.path('00_Clinical_dataset', cohort_name, input$new_cohort_upload_meta$name)
-              Description <- unlist(strsplit(input$new_cohort_upload_description, split = "\n"))[1]
-
               # in case there are duplicated genes
               error=0
-              gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T)
+              gx_table <- gx_table()
               if(!'id' %in% colnames(gx_table)){
-                output$new_cohort_status <- renderText('The gene expression table does not have "id" in its header.')
+                output$new_cohort_status <- renderText('Error: The gene expression table does not have "id" in its header.')
                 error= 1
               }
-              suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T)
+              suv_table <- suv_table()
               if(!'sample' %in% colnames(suv_table)){
-                output$new_cohort_status <- renderText('The survival table does not have "sample" in its header.')
+                output$new_cohort_status <- renderText('Error: The survival table does not have "sample" in its header.')
                 error= 1
               }
-              meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T)
+              meta_table <- meta_table()
               if(!'sample' %in% colnames(meta_table)){
-                output$new_cohort_status <- renderText('The meta data does not have "sample" in its header.')
+                output$new_cohort_status <- renderText('Error: The meta data does not have "sample" in its header.')
+                error= 1
+              }
+              mut_table <- mut_table()
+              if(!'sample' %in% colnames(mut_table)){
+                output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "sample" in its header.')
+                error= 1
+              }
+              mut_table <- mut_table()
+              if(!'id' %in% colnames(mut_table)){
+                output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "id" in its header.')
                 error= 1
               }
               if(error == 0){
+                time_stamp <- as.character(Sys.time()) 
+                Year <- format(Sys.time(), "%Y")
+                date <- format(Sys.time(), "%m.%d")
+                dir.create(file.path('00_Clinical_dataset', Year, date), recursive=T, showWarnings = F)
+
+                save_path_ge <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_GE$name))
+                save_path_cli <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_sur$name))
+                save_path_meta <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_meta$name))
+                if(is.null(mut_table())){
+                  save_path_mut <- NULL
+                }else{
+                  save_path_mut <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_mut$name))
+                }
+                Description <- unlist(strsplit(input$new_cohort_upload_description, split = "\n"))[1]
+
                 duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
                 if(length(duplicated_gene)==0){
                   file.copy(input$new_cohort_upload_GE$datapath, save_path_ge)
@@ -6688,6 +7232,9 @@ server <- function(input, output, session) {
                 # save
                 file.copy(input$new_cohort_upload_sur$datapath, save_path_cli)
                 file.copy(input$new_cohort_upload_meta$datapath, save_path_meta)
+                if(!is.null(mut_table())){
+                  file.copy(input$new_cohort_upload_mut$datapath, save_path_mut)
+                }               
 
                 tmp <- Cliniacal_dataset()
                 tmp <- add_row(tmp, Database.Name=cohort_name , 
@@ -6695,7 +7242,8 @@ server <- function(input, output, session) {
                   Expression_path= save_path_ge,
                   Survival_path= save_path_cli,
                   Meta_path= save_path_meta,
-                  added.when= time_stamp)
+                  added.when= time_stamp,
+                  Mutation_path= save_path_mut)
                 tmp <- tmp[order(tmp$added.when, decreasing =T),]
                 Cliniacal_dataset(tmp)
                 replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
