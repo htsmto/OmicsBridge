@@ -2038,7 +2038,7 @@ ui <- fluidPage(
                                 column(12, checkboxInput('Compare_across_cohorts_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
                                 conditionalPanel(
                                   condition = "input.Compare_across_cohorts_gene_from_custom_geneset == true",
-                                  column(7, htmlOutput('Compare_across_cohorts_gene_from_custom_geneset_select'))
+                                  column(12, htmlOutput('Compare_across_cohorts_gene_from_custom_geneset_select'))
                                 )
                               ),
                               fluidRow(
@@ -2070,6 +2070,7 @@ ui <- fluidPage(
                                       column(12, h4('')),
                                       column(12, actionButton('Compare_across_cohorts_mut_freq_start', 'Compare mutation frequencies')),
                                       column(12, h4('')),
+                                      column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~30 sec. Please be patient.', style="color: red;")) )
                                     ),
                                     fluidRow(
                                       column(12, h4('Table')),
@@ -2111,6 +2112,7 @@ ui <- fluidPage(
                                       column(12, h4('')),
                                       column(12, actionButton('Compare_across_cohorts_gx_start', 'Compare gene expression')),
                                       column(12, h4('')),
+                                      column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~2 min. Please be patient.', style="color: red;")) )
                                     ),
                                     fluidRow(
                                       column(12, h4('Plot')),
