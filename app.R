@@ -1434,45 +1434,49 @@ ui <- fluidPage(
                           column(8, 
                             tabsetPanel(
                               tabPanel("Kaplan-Meier curve",
-                                fluidRow(column(12, h4(''))),
-                                fluidRow(column(12, verbatimTextOutput('Clinical_Survial_plot_error_catch') )), 
-                                fluidRow(column(12, plotOutput("Clinical_Survial_plot", width="100%", height="100%") )),
-                                fluidRow(column(12, h4(''))),
-                                box(width=12, title='Graph options', collapsible = TRUE, collapsed = T, status='success',
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Survial_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
-                                    column(6,sliderInput('Clinical_Survial_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
-                                  ),
-                                  fluidRow(
-                                    column(4,sliderInput('Clinical_Survial_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4,sliderInput('Clinical_Survial_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4,sliderInput('Clinical_Survial_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
-                                  ),
-                                  fluidRow(
-                                    column(5, colourInput('Clinical_Survial_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
-                                    column(5, colourInput('Clinical_Survial_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
+                                box(width=12, title='Survival analysis', status='primary',
+                                  fluidRow(column(12, h4(''))),
+                                  fluidRow(column(12, verbatimTextOutput('Clinical_Survial_plot_error_catch') )), 
+                                  fluidRow(column(12, plotOutput("Clinical_Survial_plot", width="100%", height="100%") )),
+                                  fluidRow(column(12, h4(''))),
+                                  box(width=12, title='Graph options', collapsible = TRUE, collapsed = T, status='success',
+                                    fluidRow(
+                                      column(6,sliderInput('Clinical_Survial_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                      column(6,sliderInput('Clinical_Survial_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                    ),
+                                    fluidRow(
+                                      column(4,sliderInput('Clinical_Survial_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                      column(4,sliderInput('Clinical_Survial_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                      column(4,sliderInput('Clinical_Survial_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                    ),
+                                    fluidRow(
+                                      column(5, colourInput('Clinical_Survial_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
+                                      column(5, colourInput('Clinical_Survial_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
+                                    )
                                   )
                                 )
                               ),
                               tabPanel("Expression distribution",
-                                fluidRow(column(12, h4(''))),
-                                fluidRow(column(12, verbatimTextOutput('Clinical_Survial_plot_distribution_status') )), 
-                                fluidRow(column(12, plotOutput("Clinical_Survial_distribution_plot", width="100%", height="100%") )),
-                                fluidRow(column(12, h4(''))),
-                                box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,status='success',
-                                  fluidRow(
-                                    column(6,sliderInput('Clinical_Survial_distribution_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                                    column(6,sliderInput('Clinical_Survial_distribution_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                                  ),
-                                  fluidRow(
-                                    column(4,sliderInput('Clinical_Survial_distribution_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4,sliderInput('Clinical_Survial_distribution_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4,sliderInput('Clinical_Survial_distribution_graphtitle_size', 'Graph title size', min=0.1, max=10, value=4, step=0.1)),
-                                  ),
-                                  fluidRow(
-                                    column(4, colourInput('Clinical_Survial_distribution_colour', 'Colour:', value='#006FED')),
-                                    column(4, sliderInput('Clinical_Survial_distribution_bin_num', 'Bin number', min=10, max=100, value=20, step=1)),
-                                    column(4, checkboxInput('Clinical_Survial_distribution_white_background', 'Use white background', value=FALSE))
+                                box(width=12, title='Gene expression distribution', status='primary',
+                                  fluidRow(column(12, h4(''))),
+                                  fluidRow(column(12, verbatimTextOutput('Clinical_Survial_plot_distribution_status') )), 
+                                  fluidRow(column(12, plotOutput("Clinical_Survial_distribution_plot", width="100%", height="100%") )),
+                                  fluidRow(column(12, h4(''))),
+                                  box(width=12, title='Graph options', collapsible = TRUE, collapsed = T,status='success',
+                                    fluidRow(
+                                      column(6,sliderInput('Clinical_Survial_distribution_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                                      column(6,sliderInput('Clinical_Survial_distribution_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                                    ),
+                                    fluidRow(
+                                      column(4,sliderInput('Clinical_Survial_distribution_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                      column(4,sliderInput('Clinical_Survial_distribution_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                      column(4,sliderInput('Clinical_Survial_distribution_graphtitle_size', 'Graph title size', min=0.1, max=10, value=4, step=0.1)),
+                                    ),
+                                    fluidRow(
+                                      column(4, colourInput('Clinical_Survial_distribution_colour', 'Colour:', value='#006FED')),
+                                      column(4, sliderInput('Clinical_Survial_distribution_bin_num', 'Bin number', min=10, max=100, value=20, step=1)),
+                                      column(4, checkboxInput('Clinical_Survial_distribution_white_background', 'Use white background', value=FALSE))
+                                    )
                                   )
                                 )
                               )
@@ -1821,7 +1825,7 @@ ui <- fluidPage(
                             )
                           ),
                           column(1, radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA') ),
-                          column(2, 
+                          column(4, 
                             fluidRow(column(12, actionButton('Signature_start', 'Calculate the signature score'))),
                             fluidRow(column(12, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) ))
                           )
@@ -2023,9 +2027,126 @@ ui <- fluidPage(
                         )
                       )
                     ),
+                  ###### Compare cohorts
+                    tabPanel("Compare cohorts",
+                      box(width=12, title='Compare across cohorts', status='primary',
+                        fluidRow(
+                          column(5, 
+                            box(width=12, title='Input and Settings', status='primary',
+                              fluidRow(
+                                column(7, textAreaInput("Compare_across_cohorts_gene", 'Enter genes (line by line)')),
+                                column(12, checkboxInput('Compare_across_cohorts_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
+                                conditionalPanel(
+                                  condition = "input.Compare_across_cohorts_gene_from_custom_geneset == true",
+                                  column(7, htmlOutput('Compare_across_cohorts_gene_from_custom_geneset_select'))
+                                )
+                              ),
+                              fluidRow(
+                                column(12, verbatimTextOutput('Compare_across_cohorts_input_status'))
+                              ),
+                              fluidRow(
+                                column(6, 
+                                  fluidRow(
+                                    column(12, h4('Select one gene below')),
+                                    column(12, verbatimTextOutput('Compare_across_cohorts_gene_table_status')),
+                                    column(12, dataTableOutput("Compare_across_cohorts_gene_table")),
+                                  )
+                                ),
+                                column(6, 
+                                  fluidRow(
+                                    column(12, h4('Select cohorts below')),
+                                    column(12, dataTableOutput("Compare_across_cohorts_cohort_table")),
+                                  )
+                                ),
+                              ),
+                            ),
+                          ),
+                          column(7,
+                            box(width=12, title='Results and Plots', status='primary',
+                              tabsetPanel(
+                                tabPanel('Mutation Frequency',
+                                  box(width=12, title='Mutation Frequency', status='primary',
+                                    fluidRow(
+                                      column(12, h4('')),
+                                      column(12, actionButton('Compare_across_cohorts_mut_freq_start', 'Compare mutation frequencies')),
+                                      column(12, h4('')),
+                                    ),
+                                    fluidRow(
+                                      column(12, h4('Table')),
+                                      column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_table_status')),
+                                      column(12, dataTableOutput('Compare_across_cohorts_mut_freq_table')),
+                                    ),
+                                    fluidRow(
+                                      column(12, h4('Plot')),
+                                      column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_plot_status')),
+                                      column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
+                                      column(12, plotOutput('Compare_across_cohorts_mut_freq_plot', width="100%", height="100%")),
+                                      column(12, 
+                                        box(width=12, title='Plot Options', status='success', collapsible = TRUE, collapsed=TRUE,
+                                          fluidRow(
+                                            column(6,sliderInput('Compare_across_cohorts_mut_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                            column(6,sliderInput('Compare_across_cohorts_mut_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                          ),
+                                          fluidRow(
+                                            column(6,sliderInput('Compare_across_cohorts_mut_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                            column(6,sliderInput('Compare_across_cohorts_mut_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                            column(6,sliderInput('Compare_across_cohorts_mut_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                            column(6,sliderInput('Compare_across_cohorts_mut_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
+                                          ),
+                                          fluidRow(
+                                            column(6, colourInput('Compare_across_cohorts_mut_colour_high', 'Colour of the highest value:', value='#e14b22')),
+                                            column(6, colourInput('Compare_across_cohorts_mut_colour_zero', 'Colour of 0:', value='#ffffff')),
+                                            column(6, checkboxInput('Compare_across_cohorts_mut_white_background', 'Use white background', value=FALSE)),
+                                            column(6, checkboxInput('Compare_across_cohorts_mut_hide_score', 'Hide the scores', value=FALSE))
+                                          )
+                                        )
+                                      )
+                                    ),
+
+                                  )
+                                ),
+                                tabPanel('Gene expression',
+                                  box(width=12, title='Gene expression', status='primary',
+                                    fluidRow(
+                                      column(12, h4('')),
+                                      column(12, actionButton('Compare_across_cohorts_gx_start', 'Compare gene expression')),
+                                      column(12, h4('')),
+                                    ),
+                                    fluidRow(
+                                      column(12, h4('Plot')),
+                                      column(12, verbatimTextOutput('Compare_across_cohorts_gx_plot_status')),
+                                      # column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
+                                      column(12, plotOutput('Compare_across_cohorts_gx_plot', width="100%", height="100%"))
+                                    ),
+                                    fluidRow(
+                                      column(12, 
+                                        box(width=12, title='Plot Options', status='success', collapsible = TRUE, collapsed=TRUE,
+                                          fluidRow(
+                                            column(6,sliderInput('Compare_across_cohorts_gx_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                            column(6,sliderInput('Compare_across_cohorts_gx_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                          ),
+                                          fluidRow(
+                                            column(6,sliderInput('Compare_across_cohorts_gx_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                            column(6,sliderInput('Compare_across_cohorts_gx_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                            column(6,sliderInput('Compare_across_cohorts_gx_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                          ),
+                                          fluidRow(
+                                            column(6, checkboxInput('Compare_across_cohorts_gx_white_background', 'Use white background', value=FALSE)),
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ) 
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
                   ###### Cacner Gene Census (COSMIC)
                     tabPanel("Cacner Gene Census (COSMIC)",
-                      box(width=12,title='Cacner Gene Census (COSMIC)',
+                      box(width=12,title='Cacner Gene Census (COSMIC)', status='primary',
                         fluidRow(
                           column(12, verbatimTextOutput('CGC_message')),
                         ),
@@ -2453,7 +2574,7 @@ ui <- fluidPage(
         #### IGV ####
           tabItem( tabName='igv',
             h2('Genome Browser (IGV)'),
-            box( width=12, title='Data selection',
+            box( width=12, title='Data selection', status='primary',
               fluidRow( 
                 column(2, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
                 column(4, htmlOutput("igv_data_select")),
@@ -8004,7 +8125,7 @@ server <- function(input, output, session) {
           }
         })
 
-        output$Clinical_Mutation_frequency_plot_status_table <- renderText({ "Mutation counts (frequenceies) will be shown here." })
+        output$Clinical_Mutation_frequency_plot_status_table <- renderText({ "A table for Mutation counts (frequenceies) will be shown here." })
         output$Clinical_Mutation_frequency_plot_status_plot <- renderText({ " A plot for Mutation counts (frequenceies) will be shown here." })
         # Show the number of patients after filtering the sample if a category was set
         output$Clinical_Mutation_frequency_filter_selection_number <- renderText({
@@ -8463,10 +8584,10 @@ server <- function(input, output, session) {
       })
       CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-            selectInput('CGC_input_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
-          })
+        gene_sets_names <- c()
+        gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+        selectInput('CGC_input_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+      })
       outputOptions(output, "CGC_input_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
       CGC_input_genes <- reactive({
@@ -8511,7 +8632,216 @@ server <- function(input, output, session) {
         content = function(fname){ write.table(CGC_table_data(), fname, sep='\t', row.names=F, quote=F) }
       )
 
-    ####    
+    #### Compare cohorts
+      ## input
+        # cohort selection table
+        output$Compare_across_cohorts_cohort_table <- renderDataTable({ 
+          cohorts_list <- Cliniacal_dataset()$Database.Name
+          data_table_tmp <- data.frame(Cohort=cohorts_list)
+          datatable(data_table_tmp, selection = list(mode='multiple'), options = list(scrollX = TRUE, pageLength = 10)) 
+        })
+
+        # gene selection table
+        # select from custom gene sets
+        output$Compare_across_cohorts_gene_from_custom_geneset_select <- renderUI({
+          gene_sets_names <- c()
+          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          selectInput('Compare_across_cohorts_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+        })
+        outputOptions(output, "Compare_across_cohorts_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
+        output$Compare_across_cohorts_input_status <- renderText({'Please select a gene and cohorts to compare (more than one) below'})
+        gene_list <- reactive({
+          if(input$Compare_across_cohorts_gene_from_custom_geneset){
+            if(input$Compare_across_cohorts_gene_from_custom_geneset_select == 'None'){
+              output$Compare_across_cohorts_gene_table_status <- renderText({"Please select a custom gene set."})
+              return(NULL)
+            }
+            gene_list <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Compare_across_cohorts_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+            return(data.frame(Gene=gene_list))
+          }else{
+            if(nchar(input$Compare_across_cohorts_gene) == 0){
+              output$Compare_across_cohorts_gene_table_status <- renderText({"Please enter genes line by line."})
+              return(NULL)
+            }else{
+              gene_list <- unlist(strsplit(input$Compare_across_cohorts_gene, split = "\n"))
+              return(data.frame(Gene=gene_list))
+            }
+          }
+        })
+        output$Compare_across_cohorts_gene_table <- renderDataTable({ 
+          if(is.null(gene_list())){
+            datatable(data.frame(), selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)) 
+          }else{
+            output$Compare_across_cohorts_gene_table_status <- renderText({NULL})
+            datatable(gene_list(), selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)) 
+          }
+          
+        })
+      ## mutation freq
+        output$Compare_across_cohorts_mut_freq_plot_status <- renderText({'A plot for mutation counts or frequencies will be shown here'})
+        output$Compare_across_cohorts_mut_freq_table_status <- renderText({'A table for Mutation counts or frequenceies will be shown here.'})
+        outputOptions(output, "Compare_across_cohorts_mut_freq_plot_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "Compare_across_cohorts_mut_freq_table_status", suspendWhenHidden=FALSE)
+
+        Compare_cohort_mut_table <- reactiveVal()
+        observeEvent(input$Compare_across_cohorts_mut_freq_start,{
+          if(length(input$Compare_across_cohorts_gene_table_rows_selected) == 0){
+            output$Compare_across_cohorts_input_status <- renderText({'Please select a gene'})
+            Compare_cohort_mut_table(NULL)
+          }else if(length(input$Compare_across_cohorts_cohort_table_rows_selected) == 0){
+            output$Compare_across_cohorts_input_status <- renderText({'Please select cohorts (more than one)'})
+            Compare_cohort_mut_table(NULL)
+          }else{
+            cohorts <- Cliniacal_dataset()[input$Compare_across_cohorts_cohort_table_rows_selected,]$Database.Name
+            gene <- gene_list()[input$Compare_across_cohorts_gene_table_rows_selected,]
+            df_out <- data.frame(Cohort=c(),Mutation.Patients=c(), Frequency=c())
+            for (cohort in cohorts){
+              if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path)){
+                mut <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path, header=T))
+                if(gene %in% mut$id){
+                  mut_gene <- mut[mut$id == gene,] # df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
+                  df_tmp <- data.frame(Cohort=c(cohort),Mutation.Patients=c(length(unique(mut_gene$sample))), Frequency=c( round(length(unique(mut_gene$sample))/length(unique(mut$sample))*100, 2) ) )
+                  df_out <- rbind(df_out, df_tmp)
+                }
+                rm(mut,mut_gene)
+              }
+            }
+            if(length(df_out)==0){
+              output$Compare_across_cohorts_input_status <- renderText({"None of the cohort has a mutation of the selected gene. Please check if the gene name are correct and do not have unnecessary spaces."})
+              Compare_cohort_mut_table(NULL)
+            }else{
+              output$Compare_across_cohorts_input_status <- renderText({NULL})
+              Compare_cohort_mut_table(df_out)
+            }
+          }
+        })
+
+        output$Compare_across_cohorts_mut_freq_table <- renderDataTable({ 
+          if(is.null(Compare_cohort_mut_table())){
+            output$Compare_across_cohorts_mut_freq_table_status <- renderText({'A table for Mutation counts or frequenceies will be shown here.'})  
+            datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10, fixedColumns = list(leftColumns=1)), rownames=TRUE)   
+          }else{
+            output$Compare_across_cohorts_mut_freq_table_status <- renderText({NULL})
+            datatable(Compare_cohort_mut_table(), options = list(scrollX = TRUE, pageLength = 5, fixedColumns = list(leftColumns=1)), rownames=TRUE) 
+          }
+        })
+
+        output$Compare_across_cohorts_mut_freq_plot <- renderPlot({
+          if(is.null(Compare_cohort_mut_table())){
+            output$Compare_across_cohorts_mut_freq_plot_status <- renderText({'A plot for mutation counts or frequencies will be shown here'})
+            return(NULL)
+          }
+          df_tmp <- Compare_cohort_mut_table()
+          if(input$Compare_across_cohorts_mut_freq_plot_type == 'A'){
+            df_tmp <- df_tmp[order(df_tmp$Mutation.Patients, decreasing = T),]
+            df_tmp$Cohort <- factor(df_tmp$Cohort, level=df_tmp$Cohort)
+            p <- ggplot(df_tmp, aes(x=Cohort, y=Mutation.Patients, fill=Mutation.Patients))
+          }else{
+            df_tmp <- df_tmp[order(df_tmp$Frequency, decreasing = T),]
+            df_tmp$Cohort <- factor(df_tmp$Cohort, level=df_tmp$Cohort)
+            p <- ggplot(df_tmp, aes(x=Cohort, y=Frequency, fill=Frequency))
+          }
+          p <- p + geom_bar(stat = "identity")
+          if(!input$Compare_across_cohorts_mut_hide_score){
+            if(input$Compare_across_cohorts_mut_freq_plot_type == 'A'){
+              p <- p + geom_text(aes(label=Mutation.Patients), vjust=-0.5, color='black',size=input$Compare_across_cohorts_mut_score_size)
+            }else{
+              p <- p + geom_text(aes(label=Frequency), vjust=-0.5, color='black',size=input$Compare_across_cohorts_mut_score_size)
+            }
+          }
+          if(max(df_tmp$Frequency) > 0){
+            if(input$Compare_across_cohorts_mut_freq_plot_type == 'A'){
+              p <- p + scale_fill_gradientn( colors = c(input$Compare_across_cohorts_mut_colour_zero,input$Compare_across_cohorts_mut_colour_high ), values = scales::rescale(c(0, max(df_tmp$Mutation.Patients))) , limits = c(0, max(df_tmp$Mutation.Patients)), name=NULL)
+            }else{
+              p <- p + scale_fill_gradientn( colors = c(input$Compare_across_cohorts_mut_colour_zero,input$Compare_across_cohorts_mut_colour_high ), values = scales::rescale(c(0, max(df_tmp$Frequency))) , limits = c(0, max(df_tmp$Frequency)), name=NULL)
+            }
+          }else{
+            p <- p + scale_fill_gradientn(name=NULL)
+          }
+          p <- p + theme(axis.text = element_text(size = input$Compare_across_cohorts_mut_label_size))
+          p <- p + theme(axis.title = element_text(size = input$Compare_across_cohorts_mut_title_size))
+          p <- p + theme(legend.key.size = unit(2, "mm"))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
+          p <- p + theme(legend.text = element_text(size=input$Compare_across_cohorts_mut_legend_size))
+          if(input$Compare_across_cohorts_mut_white_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+          output$Compare_across_cohorts_mut_freq_plot_status <- renderText({NULL})
+          p
+        }, width=reactive(input$Compare_across_cohorts_mut_fig.width), height=reactive(input$Compare_across_cohorts_mut_fig.height), res=300)
+      
+      ## Gene expression compare
+
+        Compare_cohort_gx_table <- reactiveVal()
+        observeEvent(input$Compare_across_cohorts_gx_start,{
+          if(length(input$Compare_across_cohorts_gene_table_rows_selected) == 0){
+            output$Compare_across_cohorts_input_status <- renderText({'Please select a gene'})
+            Compare_cohort_gx_table(NULL)
+          }else if(length(input$Compare_across_cohorts_cohort_table_rows_selected) == 0){
+            output$Compare_across_cohorts_input_status <- renderText({'Please select cohorts (more than one)'})
+            Compare_cohort_gx_table(NULL)
+          }else{
+            cohorts <- Cliniacal_dataset()[input$Compare_across_cohorts_cohort_table_rows_selected,]$Database.Name
+            gene <- gene_list()[input$Compare_across_cohorts_gene_table_rows_selected,]
+            df_out <- data.frame(Cohort=c(), Expression=c())
+            for (cohort in cohorts){
+              if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path)){
+                gx <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path, header=T))
+                if(gene %in% gx$id){
+                  gx_gene <- gx[gx$id == gene,] 
+                  gx_gene <- gx_gene[!names(gx_gene) %in% 'id']
+                  gx_gene <- na.omit(gx_gene)
+                  df_tmp <- data.frame(Expression= as.numeric(gx_gene))
+                  df_tmp$Cohort <- cohort
+                  df_out <- rbind(df_out, df_tmp)
+                }
+                rm(gx,gx_gene)
+              }
+            }
+            if(length(df_out)==0){
+              output$Compare_across_cohorts_input_status <- renderText({"None of the cohort has a mutation of the selected gene. Please check if the gene name are correct and do not have unnecessary spaces."})
+              Compare_cohort_mut_table(NULL)
+            }else{
+              output$Compare_across_cohorts_input_status <- renderText({NULL})
+              Compare_cohort_gx_table(df_out)
+            }
+          }
+        })
+
+        output$Compare_across_cohorts_gx_plot <- renderPlot({
+          if(is.null(Compare_cohort_gx_table())){
+            output$Compare_across_cohorts_gx_plot_status <- renderText({'A plot for gene expression across cohorts will be shown here'})
+            return(NULL)
+          }
+          df_tmp <- Compare_cohort_gx_table()
+          df_tmp_med <- tapply(df_tmp$Expression, df_tmp$Cohort, median)
+          cohort_order <- names(df_tmp_med[order(df_tmp_med, decreasing=T)]) 
+          df_tmp$Cohort <- factor(df_tmp$Cohort, levels=cohort_order)
+          p <- ggplot(df_tmp, aes(x=Cohort, y=Expression, fill=Cohort))
+          p <- p + geom_boxplot(size=0.2, outlier.size=0.5)
+          p <- p + theme(axis.text = element_text(size = input$Compare_across_cohorts_gx_label_size))
+          p <- p + theme(axis.title = element_text(size = input$Compare_across_cohorts_gx_title_size))
+          p <- p + theme(legend.key.size = unit(2, "mm"))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
+          p <- p + theme(legend.text = element_text(size=input$Compare_across_cohorts_gx_legend_size), legend.title=element_blank())
+          if(input$Compare_across_cohorts_gx_white_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+          output$Compare_across_cohorts_gx_plot_status <- renderText({NULL})
+          p
+        }, width=reactive(input$Compare_across_cohorts_gx_fig.width), height=reactive(input$Compare_across_cohorts_gx_fig.height), res=300)
+      
+
+    ####
 
   ####
 
