@@ -10,22 +10,22 @@
   suppressMessages(library(dplyr))
   suppressMessages(library(DT))
   suppressMessages(library(ggrepel))
-  suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
-  suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
+  # suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
+  # suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
   suppressMessages(library(tibble))
-  suppressMessages(library(fgsea))
-  suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+  # suppressMessages(library(fgsea))
+  # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
   suppressMessages(library(org.Hs.eg.db)) # BiocManager::install("org.Hs.eg.db")
   suppressMessages(library(org.Mm.eg.db)) # BiocManager::install("org.Mm.eg.db")
   suppressMessages(library(forcats))
-  suppressMessages(library(decoupleR))  # BiocManager::install("decoupleR")
-  suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
-  suppressMessages(library(GenomicAlignments)) # BiocManager::install("GenomicAlignments")
+  # suppressMessages(library(decoupleR))  # BiocManager::install("decoupleR")
+  # suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
+  # suppressMessages(library(GenomicAlignments)) # BiocManager::install("GenomicAlignments")
   suppressMessages(library(colourpicker))
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
   suppressMessages(library(eulerr))
-  suppressMessages(library(visNetwork))
+  # suppressMessages(library(visNetwork))
   
 
   options(shiny.maxRequestSize = 10000*1024^2)
@@ -34,7 +34,7 @@
   set.seed(123)
   options(scipen = 10)
   set.seed(123)
-  net <- readRDS('data/OmnipathR_net.rds')
+  # net <- readRDS('data/OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
@@ -74,9 +74,9 @@ ui <- fluidPage(
 
     ### Side bar ####
       dashboardSidebar(width = 300, collapsed = TRUE, 
-        sidebarMenu(
+        sidebarMenu(id='sidebar',
           menuItem("Home", tabName='home', icon=icon('home')),
-          menuItem("Database", tabName='Database', icon=icon('table')),
+          menuItem("Database and Data Upload", tabName='Database', icon=icon('table')),
           menuItem("Data Overview", tabName='Data_Overview', icon=icon('chart-bar')),
           menuItem("Gene sets", tabName='Original_geneset', icon=icon('chart-bar')),
           menuItem("Compare across datasets", tabName='Compare_across_datasets', icon=icon('chart-bar')),
@@ -2900,6 +2900,28 @@ ui <- fluidPage(
 
 ##############################################################################
 server <- function(input, output, session) {
+
+  ### Library loading ################
+  observeEvent(input$sidebar,{
+    if(input$sidebar == 'scRNA'){
+      suppressMessages(library(Seurat))
+      suppressMessages(library(reshape2))
+      suppressMessages(library(cowplot))
+      suppressMessages(library(AUCell))
+    }else if(input$sidebar == 'igv'){
+      suppressMessages(library(igvShiny))
+      suppressMessages(library(GenomicAlignments))
+    }else if(input$sidebar == 'Data_Overview'){
+      suppressMessages(library(decoupleR))
+      suppressMessages(library(visNetwork))
+      net <- readRDS('data/OmnipathR_net.rds')
+      suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
+      suppressMessages(library(GSVA)) #
+      suppressMessages(library(fgsea))
+      suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+    }
+  })
+  ###
 
   ### Information Tab ##############################################################################
   
@@ -5747,10 +5769,10 @@ server <- function(input, output, session) {
   ###
 
   ### scRNA ########################################################################################
-    suppressMessages(library(Seurat))
-    suppressMessages(library(reshape2))
-    suppressMessages(library(cowplot))
-    suppressMessages(library(AUCell))
+    # suppressMessages(library(Seurat))
+    # suppressMessages(library(reshape2))
+    # suppressMessages(library(cowplot))
+    # suppressMessages(library(AUCell))
 
     #### data selection
       output$scRNA_data_select <- renderUI({ selectInput('scRNA_data_select', 'Select a scRNA data', c('None'='None', Dataset()[Dataset()$Data.Class == 'C',]$Dataset)) })
