@@ -14,7 +14,7 @@
   # suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
   suppressMessages(library(tibble))
   # suppressMessages(library(fgsea))
-  # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+  suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
   suppressMessages(library(org.Hs.eg.db)) # BiocManager::install("org.Hs.eg.db")
   suppressMessages(library(org.Mm.eg.db)) # BiocManager::install("org.Mm.eg.db")
   suppressMessages(library(forcats))
@@ -25,7 +25,8 @@
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
   suppressMessages(library(eulerr))
-  # suppressMessages(library(visNetwork))
+  suppressMessages(library(visNetwork))
+  suppressMessages(library(igvShiny))
   
 
   options(shiny.maxRequestSize = 10000*1024^2)
@@ -2909,16 +2910,16 @@ server <- function(input, output, session) {
       suppressMessages(library(cowplot))
       suppressMessages(library(AUCell))
     }else if(input$sidebar == 'igv'){
-      suppressMessages(library(igvShiny))
+      # suppressMessages(library(igvShiny))
       suppressMessages(library(GenomicAlignments))
     }else if(input$sidebar == 'Data_Overview'){
       suppressMessages(library(decoupleR))
-      suppressMessages(library(visNetwork))
+      # suppressMessages(library(visNetwork))
       net <- readRDS('data/OmnipathR_net.rds')
       suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
       suppressMessages(library(GSVA)) #
       suppressMessages(library(fgsea))
-      suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+      # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
     }
   })
   ###
