@@ -213,7 +213,7 @@ ui <- fluidPage(
           ),
         #### Database ####
           tabItem( tabName='Database',
-            h2('Database Information'),
+            h2('Database and DataUpload'),
             ## Data Table ##
             box(title='List of the datasets', width=12, status='info',
               fluidRow(column(3, htmlOutput("Data_type_filter")), column(3, htmlOutput("Seuqenced_by_filter"))),
@@ -269,23 +269,23 @@ ui <- fluidPage(
                 column(5, fileInput("upload_file", "Upload a file"))
               ),
               fluidRow( 
-                column(4, textInput("upload_dataset_name", "Dataset name *")), 
-                column(4, textInput("upload_Experiment", "Experiment name *")), 
-                column(4, textInput("upload_data_from", "Data from *")), 
-                column(4, textInput("upload_data_type", "Data type *")), 
-                column(4, textInput("upload_cell_line", "Cell line")), 
-                column(4, textInput("upload_when", "Wann")) 
+                column(4, textInput("upload_dataset_name", HTML("Dataset name * <br/> Ex.) WT vs KO in Cell A"))), 
+                column(4, textInput("upload_Experiment", HTML("Experiment name * <br/> Ex.) Gene A KO RNAseq"))), 
+                column(4, textInput("upload_data_from", HTML("Data from * <br/> Ex.) Public data, Student A") )), 
+                column(4, textInput("upload_data_type", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA, "))), 
+                column(4, textInput("upload_cell_line", HTML("Cell line <br/> Ex.) THP1, PBMC"))), 
+                column(4, textInput("upload_when", "When")) 
               ),
-              fluidRow( column(6, selectInput('upload_Data_Class', 'Data Class *', c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D' ), selected='B')), 
+              fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D' ), selected='B')), 
                 conditionalPanel(
                   condition = 'input.upload_Data_Class=="B"',
-                  column(3, textInput("upload_Control_group", "Control group name")), 
-                  column(3, textInput("upload_Treatment_group", "Treatment group name"))
+                  column(3, textInput("upload_Control_group", HTML("Control group name <br/> Ex.) Untreated, WT"))), 
+                  column(3, textInput("upload_Treatment_group", HTML("Treatment group name <br/> Ex.) Treated, KO")))
                 ),
                 conditionalPanel(
                   condition = 'input.upload_Data_Class=="A"',
                   column(6, h5('')),
-                  column(6, h5(span('In case of uoloading a count data, it is recommended that the columns are set to "SampleName_Rep#". See wiki for more information', style="color: red;"))) ,
+                  column(4, h5(span('\nIn case of uoloading a count data, please make sure that the columns are set to "SampleName_Rep#". See wiki for more information', style="color: red;"))) ,
                 )
               ),
               fluidRow( column(5, textAreaInput("upload_description", "Description")) ),
