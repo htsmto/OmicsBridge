@@ -185,14 +185,16 @@ ui <- fluidPage(
                   🔹 Custom Gene Sets – Define key genes from clinical or functional data and apply them across experiments. <br>
                   🔹 Comparative Analysis – Identify trends and reproducibility by comparing numerical scores across datasets. <br>
                   🔹 Clinical Relevance Exploration – Evaluate genes in patient cohorts to assess therapeutic significance. <br>
-                  🔹 Interactive Visualisations & Quick Analysis – Adjust thresholds, filter data, and perform GO analysis or GSEA—no coding required.
+                  🔹 Interactive Visualisations & Quick Analysis – Adjust thresholds, filter data, and perform GO analysis or GSEA—no coding required. <br>
+                  🔹 Our platform also functions as a centralised database, ensuring stress-free access to your datasets at any time.
                 </p>
                 <br>
                 <h2 style='text-align: center; font-family: Helvetica, Arial, serif !important; font-size: 26px;'><u><b>
-                  Stay Organised & Maximise Your Research
+                  Installing OmicsDBridge to your local PC
                 </b></u></h2>
                 <p style='text-align: center; font-family: Helvetica, Arial, serif; font-size: 22px;'>
-                  Our platform also functions as a centralised database, ensuring stress-free access to your datasets at any time.
+                  The source code and installation guide is available at <a href='https://github.com/Immune-Regulation-in-Cancer/OmicsBridge' target='_blank' rel='noopener noreferrer'><b>this github page</b></a>. <br>
+                  Please note that the data you upload to this website will be deleted once you leave the session. Please install and set up OmicsBridge to your local PC to use the full power of our interface. 
                 </p>
                 <br>
               ")
