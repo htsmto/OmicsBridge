@@ -16,19 +16,14 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 Plase make a clone of this repository first. In the terminal,
 
 ```bash
-git clone https://github.com/htsmto/OmicsBridge.git
+git clone https://github.com/Immune-Regulation-in-Cancer/OmicsBridge.git
 cd OmicsBridge
 ```
 
-<details>
-<summary> do not have git installed in your PC?</summary>
+Or, download the zip file from [here](https://omicsbridge.dkfz.de/OmicsBridge.zip), and umcompress it.
 
-> Please go to 'Code' > 'Download ZIP' on teh top right of this page, and you will get 'OmicsBridge-main.zip'. Please place this file in your desired folder and uncompress it.
 
-</details>
-<br>
-
-Please download the necessary data, uncompress and deploy the folder to the correct position. In the terminal,
+Please download the necessary data, uncompress and deploy the folder in the `OmicsBridge` folter.
 ```bash
 curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
 curl -O https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz
@@ -50,7 +45,9 @@ shiny::runApp('app.R')
 The interface will open in your brower.
 If not, check the console and find `Listening on http://127.0.0.1:XXXX`. Please go to your browser and enter `http://127.0.0.1:XXXX` in the URL bar.
 
+<p>
 
+If you have a shiny server, please deploy the folder in the shiny home. You can access the interface via `https://(Your-shiny-server-address)/OmicsBridge`
 
 ## Dependency
 
@@ -77,13 +74,6 @@ devtools::install_github('dviraran/xCell')
 ```
 
 If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
-
-<details>
-<summary> cannot install some libraries?</summary>
-
-> Please install the library one by one, not all in once. If you are a Mac user, installing [XQuartz](https://www.xquartz.org/) can solve the problem.
-
-</details>
 
 Depends on the system, it usually takes 30-45 minutes to install all the dependencies.
 
