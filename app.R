@@ -330,57 +330,65 @@ ui <- fluidPage(
                       tabPanel("Data Table", box(width=12, verbatimTextOutput('Count_data_DataTable_status'), DT::dataTableOutput("Count_data_DataTable")) ),
                     ####### swarm plot #######  
                       tabPanel("Swarm plot", 
-                        box(status='primary', width=12, title='Swarm plot', collapsible = T,
-                          column(3,
-                            fluidRow(
-                              column(12, textAreaInput("target_gene_for_RNA", "Enter genes (line by line)")),
-                              column(12, h5('Choose a gene from the table blow:') ),
-                              column(12,  dataTableOutput("target_gene_for_RNA_table") ),
-                            )
+                        fluidRow(
+                          column(width = 4,
+                            box(status='primary', width=12, title='Inputs',collapsible=TRUE,
+                              fluidRow(
+                                column(12, textAreaInput("target_gene_for_RNA", "Enter gene names")),
+                                column(12, h4('Choose gene(s) from the table blow:') ),
+                                column(12, verbatimTextOutput('Gene_ex_swarm_status_target_gene_for_RNA_table') ),
+                                column(12, dataTableOutput("target_gene_for_RNA_table") ),
+                              )
+                            ),
+                            box(title='Expression scores',collapsible=TRUE, status='primary', width=12,
+                              fluidRow(
+                                column(12, verbatimTextOutput('Gene_ex_swarm_status_outFile_expression') ),
+                                column(12, dataTableOutput("outFile_expression")),
+                                column(12, downloadButton('outFile_expression_download',"Download this table")),
+                              )
+                            )                       
                           ),
-                          column(9,
-                            fluidRow(
-                              column(12, h4('Plot')),
-                              column(12, verbatimTextOutput('Gene_ex_swarm_status')),
-                              column(12, plotOutput("Gene_ex_swarm", width="100%", height="100%")),
-                              column(12, checkboxInput("order_group", "Re-order the X axis (group names)", value=FALSE)),
-                              column(12, conditionalPanel( condition = "input.order_group == true",  textAreaInput("group_order", "Enter the group name line by line") )),
-                              column(12, conditionalPanel( condition = "input.order_group == true", h5('List of the available group names'), verbatimTextOutput("Data_Overview_Swarm_group_name_list") ))
+                          column( width = 8, 
+                            box(status='primary', width=12, title='Swarm Plot',collapsible=TRUE,
+                              fluidRow(
+                                column(12, verbatimTextOutput('Gene_ex_swarm_status') ),
+                                column(12, verbatimTextOutput('Gene_ex_swarm_status2') ),
+                                column(12, plotOutput("Gene_ex_swarm", width="100%", height="100%")),
+                                column(12, checkboxInput("Gene_ex_logsclae", "Use a log scale (log2)", value=FALSE)),
+                                column(12, checkboxInput("order_group", "Re-order the X axis (group names)", value=FALSE)),
+                                column(12, conditionalPanel( condition = "input.order_group == true",  textAreaInput("group_order", "Enter the group name line by line") )),
+                                column(12, conditionalPanel( condition = "input.order_group == true", h5('List of the available group names'), verbatimTextOutput("Data_Overview_Swarm_group_name_list") ))
+                              )
+                            ),
+                            box(title='Plot option', collapsible=TRUE,  width=12, collapsed = TRUE, status='success',
+                              fluidRow(
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
+                                column(4, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Y title size', min=1, max=10, value=4, step=0.1))
+                              ),
+                              fluidRow(
+                                column(4, checkboxInput('Data_Overview_Swarm_white_background', 'Use white background', value=FALSE))
+                              ),
+                              fluidRow(
+                                column(3, checkboxInput('Data_Overview_Swarm_change_colour_pallete', 'Change the colour pallete', value=FALSE)),
+                                conditionalPanel(
+                                  condition = "input.Data_Overview_Swarm_change_colour_pallete == true",
+                                  column(3, selectInput('Data_Overview_Swarm_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
+                                )
+                              ),
+                              fluidRow(
+                                column(3, checkboxInput('Data_Overview_Swarm_use_single_colour', 'Use a single colour', value=FALSE)),
+                                conditionalPanel(
+                                  condition = "input.Data_Overview_Swarm_use_single_colour == true",
+                                  column(3, colourInput('Data_Overview_Swarm_choose_single_colour', 'Choose a colour', value='#000000'))
+                                )
+                              ),                  
                             )
                           )
                         ),
-                        box(title='Expression scores',collapsible=TRUE, status='primary', width=4, 
-                          fluidRow(column(12, verbatimTextOutput("outFile_expression_status") )),
-                          fluidRow(column(12, dataTableOutput("outFile_expression") )),
-                          fluidRow(column(12, downloadButton('outFile_expression_download',"Download this table") ))
-                        ),
-                        box(title='Plot option', collapsible=TRUE,  width=8, collapsed = TRUE, status = 'success',
-                          fluidRow(
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=1000, step=10)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=15, value=4, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=15, value=4, step=1)),
-                            column(4, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1))
-                          ),
-                          fluidRow(
-                            column(4, checkboxInput('Data_Overview_Swarm_white_background', 'Use white background', value=FALSE))
-                          ),
-                          fluidRow(
-                            column(3, checkboxInput('Data_Overview_Swarm_change_colour_pallete', 'Change the colour pallete', value=FALSE)),
-                            conditionalPanel(
-                              condition = "input.Data_Overview_Swarm_change_colour_pallete == true",
-                              column(3, selectInput('Data_Overview_Swarm_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
-                            )
-                          ),
-                          fluidRow(
-                            column(3, checkboxInput('Data_Overview_Swarm_use_single_colour', 'Use a single colour', value=FALSE)),
-                            conditionalPanel(
-                              condition = "input.Data_Overview_Swarm_use_single_colour == true",
-                              column(3, colourInput('Data_Overview_Swarm_choose_single_colour', 'Choose a colour', value='#000000'))
-                            )
-                          ),                  
-                        )
                       ),
                     ####### heatmap #######  
                       tabPanel("Heatmap", 
@@ -2905,25 +2913,25 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   ### Library loading ################
-  observeEvent(input$sidebar,{
-    if(input$sidebar == 'scRNA'){
-      suppressMessages(library(Seurat))
-      suppressMessages(library(reshape2))
-      suppressMessages(library(cowplot))
-      suppressMessages(library(AUCell))
-    }else if(input$sidebar == 'igv'){
-      # suppressMessages(library(igvShiny))
-      suppressMessages(library(GenomicAlignments))
-    }else if(input$sidebar == 'Data_Overview'){
-      suppressMessages(library(decoupleR))
-      # suppressMessages(library(visNetwork))
-      net <- readRDS('data/OmnipathR_net.rds')
-      suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
-      suppressMessages(library(GSVA)) #
-      suppressMessages(library(fgsea))
-      # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
-    }
-  })
+    observeEvent(input$sidebar,{
+      if(input$sidebar == 'scRNA'){
+        suppressMessages(library(Seurat))
+        suppressMessages(library(reshape2))
+        suppressMessages(library(cowplot))
+        suppressMessages(library(AUCell))
+      }else if(input$sidebar == 'igv'){
+        # suppressMessages(library(igvShiny))
+        suppressMessages(library(GenomicAlignments))
+      }else if(input$sidebar == 'Data_Overview'){
+        suppressMessages(library(decoupleR))
+        # suppressMessages(library(visNetwork))
+        net <- readRDS('data/OmnipathR_net.rds')
+        suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
+        suppressMessages(library(GSVA)) #
+        suppressMessages(library(fgsea))
+        # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+      }
+    })
   ###
 
   ### Information Tab ##############################################################################
@@ -3551,34 +3559,74 @@ server <- function(input, output, session) {
 
         ###### Swarmplot ######
           # For count table matrix (RNA, protein), data frame of the expression of a specific gene for generating a swarmplot
-          
-          # inputted_gene_list
-          target_gene_for_RNA_table_tmp <- reactive({data.frame(Input=unique(unlist(strsplit(input$target_gene_for_RNA, split = "\n"))))})
+          # inputted gene list
+          target_gene_for_RNA_table_tmp <- reactive({
+            if(nchar(input$target_gene_for_RNA) == 0){
+              output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({"Please enter gene names above first."})
+              return(NULL)
+            }else{
+              output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({NULL})
+              data.frame(Input=unique(unlist(strsplit(input$target_gene_for_RNA, split = "\n"))))
+            }
+          })
+          # Table for selecting a inputted gene
           output$target_gene_for_RNA_table <- renderDataTable({
-            datatable( target_gene_for_RNA_table_tmp(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+            datatable( target_gene_for_RNA_table_tmp(), selection = list(mode='multiple'), options = list(scrollX = TRUE, scrollY=TRUE)) 
           })
           
-          # prepare a dataframe
+          # prepare a dataframe for expression
           df_gene <- reactive({
-            if(Data_class() == 'A'){
-              if(nchar(input$target_gene_for_RNA)==0){
-                output$Gene_ex_swarm_status <- renderText({'Please set the input and choose a gene. A swarm plot comparing the expression of the selected gene will be generated here.'})
-                output$outFile_expression_status <- renderText({'Please set the input first.'})
-              }else{
-                output$Gene_ex_swarm_status <- NULL
-                output$outFile_expression_status <- NULL
+            if(Data_class() == 'A'){ # the selected datasets has to be a count table
+              if(is.null(target_gene_for_RNA_table_tmp())){ # Not input genes
+                output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please set up the Inputs. \nA table for the expressions of the selected genes across samples will be shown here.'})
+                output$Gene_ex_swarm_status <- renderText({'Please set up the Inputs. \nA swarm plot will be displayed here.'})
+                return(NULL)
               }
-              req(input$target_gene_for_RNA)
-              if(nchar(input$target_gene_for_RNA)==0){return(NULL)}
-              else{
-                Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
-                if(length(Gene)>0){
-                  if(Gene %in% df()$id){
-                    gene_num <- which(df()$id==Gene)
-                    df_gene <- data.frame(t(df()[gene_num,2:dim(df())[2]])) 
-                    colnames(df_gene) <- c('Expression')
+              if(length(input$target_gene_for_RNA_table_rows_selected) == 0){ # When there are inputted genes but none is selected yet.
+                output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please select one or more genes from the table in the Inputs.'})
+                output$Gene_ex_swarm_status <- renderText({'Please select one or more genes from the table in the Inputs.'})
+                return(NULL)
+              }
+              Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
+              if(length(Gene)==1){ # when single gene is selected, return an expression table
+                if(Gene %in% df()$id){ # If the gene is really in the dataset
+                  gene_num <- which(df()$id==Gene)
+                  target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
+                  df_gene <- data.frame(t(df()[gene_num,target_samples])) 
+                  colnames(df_gene) <- c('Expression')
+                  Group <- c()
+                  for (i in strsplit(rownames(df_gene), '_')){
+                    tmp <- ''
+                    for(j in 1:(length(i)-1)){
+                      tmp <- paste0(tmp, i[j],'_')
+                    }
+                    tmp <- substr(tmp, 1, nchar(tmp)-1)
+                    Group <- c(Group, tmp)
+                  }
+                  df_gene$Group <- Group
+                  df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
+                  if(input$Gene_ex_logsclae){
+                    df_gene$Expression <- log2(df_gene$Expression+1)
+                  }
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
+                  output$Gene_ex_swarm_status <- renderText({NULL})
+                  return(df_gene) 
+                }else{ # when the gene is not found in the dataset
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
+                  output$Gene_ex_swarm_status <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
+                  return(NULL)
+                }
+              }else{ # when selecting multiple gene
+                genes_not_included = c()
+                df_gene <- data.frame('Expression' = c(), 'Group'=c(), 'Gene'= c())
+                for (each_gene in Gene){
+                  if(each_gene %in% df()$id){
+                    gene_num <- which(df()$id==each_gene)
+                    target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
+                    df_gene_tmp <- data.frame(t(df()[gene_num,target_samples])) 
+                    colnames(df_gene_tmp) <- c('Expression')
                     Group <- c()
-                    for (i in strsplit(rownames(df_gene), '_')){
+                    for (i in strsplit(rownames(df_gene_tmp), '_')){
                       tmp <- ''
                       for(j in 1:(length(i)-1)){
                         tmp <- paste0(tmp, i[j],'_')
@@ -3586,39 +3634,52 @@ server <- function(input, output, session) {
                       tmp <- substr(tmp, 1, nchar(tmp)-1)
                       Group <- c(Group, tmp)
                     }
-                    df_gene$Group <- Group
-                    return(df_gene)
+                    df_gene_tmp$Group <- Group
+                    df_gene_tmp$Gene <- each_gene
+                    rownames(df_gene_tmp) <- NULL
+                    df_gene <- rbind(df_gene, df_gene_tmp)
                   }else{
-                    output$Gene_ex_swarm_status <- renderText({'The inputted gene is not in this data. \nPlease make sure the gene name is correct and do not have unnecessary spaces.'})
-                    output$outFile_expression_status <- renderText({'Error: Please check the input.'})
-                    return(NULL)
+                    genes_not_included <- c(genes_not_included, each_gene)
                   }
+                }
+                if(length(genes_not_included) > 0){ # If there are genes not found in the dataset
+                  genes_not_found <- paste(genes_not_included, collapse=', ')
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
+                  output$Gene_ex_swarm_status <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
                 }else{
-                  output$Gene_ex_swarm_status <- renderText({'Please select a gene from the table'})
-                  output$outFile_expression_status <- renderText({'Please select a gene. A table of the expressions of the selected genes in all the sample will be shown here.'})
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
+                  output$Gene_ex_swarm_status <- renderText({NULL})
+                }
+                if(length(df_gene)>0){
+                  df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
+                  if(input$Gene_ex_logsclae){
+                    df_gene$Expression <- log2(df_gene$Expression+1)
+                  }
+                  return(df_gene)
+                }else{
+                  genes_not_found <- paste(genes_not_included, collapse=', ')
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
+                  output$Gene_ex_swarm_status <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
                   return(NULL)
                 }
               }
+            }else{
+              return(NULL)
             }
           })
 
-          # display the data frame    
+          # display the expression table
           output$outFile_expression <- renderDataTable({ 
-            req(input$target_gene_for_RNA)
             datatable( data.frame(df_gene()), options = list(scrollX = TRUE, scrollY = TRUE)) 
           })
           
-          # list of the groups
+          # list of the groups (for selecting groups when re-odering the X axis)
           output$Data_Overview_Swarm_group_name_list <- renderText({
-            if(length(input$target_gene_for_RNA_table_rows_selected) == 0){
+            if(is.null(df_gene())){
               NULL
             }else{
-              tmp <- ""
               groups <- unique(df_gene()$Group)[order(unique(df_gene()$Group))]
-              for (group in groups){
-                tmp <- paste0(tmp, group , '\n')
-              }
-              tmp
+              paste(groups, collapse='\n')
             }
           })
 
@@ -3632,50 +3693,92 @@ server <- function(input, output, session) {
 
           # plot
           output$Gene_ex_swarm <- renderPlot({
-            
-            if(is.null(input$Dataset_select) || input$Dataset_select=='None'){
-              return(NULL)
-            }else{
-              Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
-              df_tmp <- df_gene()
-              if(!is.null(df_tmp)){
-                if(input$order_group){
-                  selected_group <- intersect(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
-                  df_tmp <- df_tmp[df_tmp$Group %in% selected_group,]
-                  df_tmp$Group <- factor(df_tmp$Group, levels = c(selected_group))
-                } 
-                # p <- ggplot(df_tmp, aes(x = Group, y = Expression)) + geom_quasirandom(size=input$Data_Overview_Swarm_pt.size)
-                # p <- ggplot(df_tmp, aes(x = Group, y = Expression, fill=Group)) + geom_point(size=input$Data_Overview_Swarm_pt.size, position=position_jitter(width=0.2))
-                if(input$Data_Overview_Swarm_use_single_colour){
-                  p <- ggplot(df_tmp, aes(x = Group, y = Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
-                }else{
-                  p <- ggplot(df_tmp, aes(x = Group, y = Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
-                  if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
-                    p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
-                  }
-                }
-                p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + ggtitle(Gene)+ theme(legend.position = 'none')
-                p <- p + theme(axis.title = element_blank()) + theme(plot.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
-                p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_Swarm_xlab.font.size))
-                # column(12, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=1, max=10, value=2))
-              }else{
-                return(NULL)
+            if(is.null(df_gene())){
+              return(ggplot())
+            }
+            df_tmp <- df_gene()
+            if(input$order_group){ # When re-ordering the X axis.
+              if(nchar(input$group_order) == 0){ # when nothing is written in the text area yet.
+                output$Gene_ex_swarm_status2 <- renderText({'Please write the group names that you want to use for plotting.'})
+                return(ggplot())
               }
+              selected_group <- intersect(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
+              not_found_selected_group <- setdiff(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
+              if(length(not_found_selected_group) > 0){ # when entered group names does not exsist
+                output$Gene_ex_swarm_status2 <- renderText({
+                  tmp <- paste(not_found_selected_group, collapse=', ')
+                  paste0('The following groups are not in the dataset. \nPlease enter the right group names. \n', tmp)
+                })
+                if(length(selected_group) == 0){
+                  return(ggplot())
+                }
+              }else{
+                output$Gene_ex_swarm_status2 <- renderText({NULL})
+              }
+              df_tmp <- df_tmp[df_tmp$Group %in% selected_group,]
+              df_tmp$Group <- factor(df_tmp$Group, levels = c(selected_group))
+            }else{
+              output$Gene_ex_swarm_status2 <- renderText({NULL})
+            }
+            Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
+            if(length(Gene) == 1){
+              if(input$Data_Overview_Swarm_use_single_colour){
+                p <- ggplot(df_tmp, aes(x = Group, y = Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
+              }else{
+                p <- ggplot(df_tmp, aes(x = Group, y = Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
+                if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
+                  p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
+                }
+              }
+              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ theme(legend.position = 'none')
+              p <- p + theme(axis.title.x = element_blank()) # + theme(plot.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+              p <- p + ylab(Gene)
+            }else{
+              data_list <- split(df_tmp, df_tmp$Gene)
+              num_plots <- length(data_list)
+              plots <- lapply(seq_along(data_list), function(i) {
+                if(input$Data_Overview_Swarm_use_single_colour){
+                  p <- ggplot(data_list[[i]], aes(x=Group, y=Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
+                }else{
+                  p <- ggplot(data_list[[i]], aes(x=Group, y=Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
+                    if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
+                      p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
+                    } 
+                }
+                each_gene <- data_list[[i]]$Gene[1]
+                p <- p + ylab(each_gene) + theme(axis.title.y = element_text(size = input$Data_Overview_Swarm_graph.title.font.size)) + theme(legend.position = 'none')  + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size))
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+                if( i < num_plots){
+                  p <- p + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+                }else{
+                  p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size), axis.title.x = element_blank())
+                }
+                if(input$Data_Overview_Swarm_white_background){
+                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                }
+                return(p)
+              })
+              p <- wrap_plots(plots, ncol=1)
             }
             p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_Swarm_xlab.font.size))
+            p <- p + theme(axis.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
             if(input$Data_Overview_Swarm_white_background){
               p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
               p <- p + theme(panel.background = element_rect(fill="white", size=0))
               p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
             }
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p
           }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height), res=300)
 
           # download the table
           output$outFile_expression_download <- downloadHandler(
-          filename = function(){"One_Gene_expression.tsv"}, 
-          content = function(fname){ write.table(df_gene(), fname, sep='\t',  quote=F) }
+            filename = function(){"Swarm_plot.tsv"}, 
+            content = function(fname){ write.table(df_gene(), fname, sep='\t',  quote=F) }
           )
 
         ###### Scatter plot ######
@@ -9152,7 +9255,9 @@ server <- function(input, output, session) {
         colours <- setNames(c(input$Cross_tabulation_plot_col1_colour,input$Cross_tabulation_plot_col2_colour), col_group)
         p <- p + scale_fill_manual(values = colours)
         if(input$Cross_tabulation_plot_col2_colour_while_background){
-          p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+          p <- p + theme(panel.background = element_rect(fill="white", size=0))
+          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
         }
         if(input$Cross_tabulation_plot_rotate_x){
           if(!is.na(input$Cross_tabulation_plot_rotate_x_angle)){
