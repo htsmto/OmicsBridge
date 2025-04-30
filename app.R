@@ -390,6 +390,90 @@ ui <- fluidPage(
                           )
                         ),
                       ),
+                    ####### two genes correlation #######    
+                      tabPanel("Two genes correlation",
+                        fluidRow(
+                          column(3,
+                            box(width=12, status='primary', title='Inputs and Settings', collapsible = TRUE,
+                              fluidRow(
+                                column(12, radioButtons('Two_gene_corr_corr_Input', "Choose one from below:", choices=c('Enter both X and Y-axis genes'='A', 'Enter Y-axis gene and explore the correlations'='B'), selected='A')),
+                                column(12, textInput('Two_gene_corr_gene1', 'Gene1 (Y-axis)')),
+                                conditionalPanel(
+                                  condition = "input.Two_gene_corr_corr_Input == 'A'",
+                                  column(12, textInput('Two_gene_corr_gene2', 'Gene2 (X-axis)')),
+                                ),
+                                conditionalPanel(
+                                  condition = "input.Two_gene_corr_corr_Input == 'B'",
+                                  column(12, radioButtons('Two_gene_corr_gene2_list_Input', "Genes to explore are given from:", choices=c('Text input'='A', 'Custom Genesets'='B'), selected='A')),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_gene2_list_Input == 'A'",
+                                    column(12, textAreaInput('Two_gene_corr_gene2_list', 'List of genes to explore (line by line)')),                                      
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_gene2_list_Input == 'B'",
+                                    column(12, htmlOutput('Two_gene_corr_gene2_Input_from_custom_geneset_select'))
+                                  )
+
+                                ),
+                                column(12, radioButtons('Two_gene_corr_corr_method', "Correlation calculation method:", choices=c('pearson', 'spearman'), selected='pearson')),
+                                # column(12, h5('Other options:')),
+                                column(12, checkboxInput("Two_gene_corr_log", "Use log scale", value=FALSE)),
+                                column(12, h4('')),
+                                conditionalPanel(
+                                  condition = "input.Two_gene_corr_corr_Input == 'B'",
+                                  column(12, actionButton('Two_gene_corr_start', 'Calculate the corralations')),
+                                  column(12, h4('')),
+                                  column(12, h4('Choose a row from below:')),
+                                  column(12, verbatimTextOutput('Two_gene_corr_table_status') ),
+                                  column(12,  dataTableOutput("Two_gene_corr_table") ),
+                                )
+                              ),
+                            ),
+                          ),
+                          column(9,
+                            box(width=12, status='primary', title='Plot', collapsible = TRUE,
+                              fluidRow(
+                                column(12, verbatimTextOutput('Two_gene_corr_statusA') ),
+                                column(12, verbatimTextOutput('Two_gene_corr_statusB') ),
+                                column(12, verbatimTextOutput('Two_gene_corr_corr_score') ),
+                                column(12, verbatimTextOutput('Two_gene_corr_status_selectsample') )
+                              ),
+                              fluidRow(
+                                column(12, plotOutput("Two_gene_corr_plot", width="100%", height="100%")),
+                              ),
+                              fluidRow(
+                                column(3, checkboxInput('Two_gene_corr_plot_line', 'Show the correlation line', value=FALSE) ),
+                                column(3, checkboxInput("Two_gene_corr_colour_grorp", "Colour by groups", value=TRUE)),
+                                column(12, checkboxInput("Two_gene_corr_choose_sample", "Select samples", value=FALSE)),
+                                conditionalPanel(
+                                  condition = "input.Two_gene_corr_choose_sample",
+                                  column(12, textAreaInput('Two_gene_corr_choose_sample_input', "Enter sample names (line by line)")),
+                                  column(12, 
+                                    tags$details(
+                                      tags$summary("List of sample names ▼"),  # クリックすると開閉されるタイトル
+                                      div(
+                                        verbatimTextOutput('Two_gene_corr_choose_sample_input_list')
+                                      )
+                                    )
+                                  )
+                                ),
+                              )
+                            ),
+                            box(width=12, title='Plot Options', status='success', collapsible = TRUE, collapsed=TRUE,
+                              fluidRow(
+                                column(6, sliderInput('Two_gene_corr_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
+                                column(6, sliderInput('Two_gene_corr_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput('Two_gene_corr_pt.size', 'Point size', min=0.01, max=5, value=1, step=0.01)),
+                                column(6, sliderInput('Two_gene_corr_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=1)),
+                                column(6, sliderInput('Two_gene_corr_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=1)),
+                                column(6, sliderInput('Two_gene_corr_legend.font.size', 'Legend font size', min=1, max=15, value=4, step=1)),
+                                column(6, checkboxInput('Two_gene_corr_while_background', 'Use white background', value=FALSE)),
+
+                              )
+                            )
+                          ),
+                        )
+                      ),
                     ####### heatmap #######  
                       tabPanel("Heatmap", 
                         box(collapsible=TRUE, status='primary', width=12, title='Heatmap',
@@ -4763,7 +4847,266 @@ server <- function(input, output, session) {
             paste(unlist(samples), collapse='\n')
           })
           # output$Data_Overview_PCA_Sample_list <- renderText({"hoge"})
-          
+        ###### two genes correlation #######    
+          df_Two_gene_corr <- reactive({
+            if(input$Two_gene_corr_corr_Input == 'A'){
+              output$Two_gene_corr_statusB <- renderText({NULL}) 
+              gene1 <- input$Two_gene_corr_gene1
+              gene2 <- input$Two_gene_corr_gene2
+              # when no input
+              if(nchar(input$Two_gene_corr_gene1) == 0 | nchar(input$Two_gene_corr_gene2) == 0 ){
+                output$Two_gene_corr_statusA <- renderText({"Please enter gene1 and gene2"}) 
+                return(NULL)
+              }
+              # when input genes are not in the dataset
+              tmp1=''; tmp2=''
+              if(!gene1 %in% df()$id){
+                tmp1 <- paste0("Error in Gene1: '", gene1, "' is not included in the dataset.")
+              }
+              if(!gene2 %in% df()$id){
+                tmp2 <- paste0("Error in Gene2: '", gene2, "' is not included in the dataset.")
+              }
+              if(tmp1!='' | tmp2!=''){
+                if(tmp1 == ''){ 
+                  output$Two_gene_corr_statusA <- renderText({tmp2}) 
+                }else if(tmp2 == ''){
+                  output$Two_gene_corr_statusA <- renderText({tmp1}) 
+                }else{
+                  output$Two_gene_corr_statusA <- renderText({paste(tmp1, tmp2, sep='\n')}) 
+                }
+                return(NULL)
+              }
+            }else if(input$Two_gene_corr_corr_Input == 'B'){
+              output$Two_gene_corr_statusA <- renderText({NULL}) 
+              gene1 <- input$Two_gene_corr_gene1
+              if(is.null(df_Two_gene_corr_inputB())){
+                return(NULL)
+              }
+              if(length(input$Two_gene_corr_table_rows_selected)==0){
+                return(NULL)
+              }
+              gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
+            }
+            # prepare the table
+            output$Two_gene_corr_statusA <- renderText({NULL}) 
+            output$Two_gene_corr_statusB <- renderText({NULL}) 
+            df_tmp <- df()[df()$id %in% c(gene1, gene2),] # df_tmp <- df[df$id %in% c(gene2, gene1),]
+            rownames(df_tmp) <- df_tmp$id
+            df_tmp <- df_tmp[,-which(colnames(df_tmp) == 'id')]
+            df_tmp <- t(df_tmp)
+            if(input$Two_gene_corr_choose_sample){ # when focusing on some samples
+              if(nchar(input$Two_gene_corr_choose_sample_input) == 0){
+                output$Two_gene_corr_status_selectsample <- renderText({'You are selecting "Select samples" below. Please enter the sample names there.'})
+                return(NULL)
+              }
+              samples <- intersect(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp)) 
+              samples_not_found <- setdiff(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp))
+              if(length(samples_not_found) > 0){
+                samples_not_found_tmp <- paste(samples_not_found, collappse=', ')
+                output$Two_gene_corr_status_selectsample <- renderText({paste0('The following sample names are not found. Please enter the correct names: \n', samples_not_found_tmp)})
+              }else{
+                output$Two_gene_corr_status_selectsample <- renderText({NULL})
+              }
+              if(length(samples)==0){
+                return(NULL)
+              }
+              df_tmp <- df_tmp[samples,]
+            }else{
+              output$Two_gene_corr_status_selectsample <- renderText({NULL})
+            }
+            # when taking log2
+            if(input$Two_gene_corr_corr_Input == 'A'){
+              if(input$Two_gene_corr_log){
+                df_tmp <- log2(df_tmp+1)
+              }
+            }else if(input$Two_gene_corr_corr_Input == 'B'){
+              if(df_Two_gene_corr_inputB()$log[1] == 1){
+                df_tmp <- log2(df_tmp+1)
+              }
+            }
+
+            # when using groups for colouring
+            if(input$Two_gene_corr_colour_grorp){
+              Group <- c()
+              for (i in strsplit(rownames(df_tmp), '_')){
+                tmp <- ''
+                for(j in 1:(length(i)-1)){
+                  tmp <- paste0(tmp, i[j],'_')
+                }
+                tmp <- substr(tmp, 1, nchar(tmp)-1)
+                Group <- c(Group, tmp)
+              }
+              df_tmp <- data.frame(df_tmp)
+              df_tmp$Group <- Group
+            }
+            return(df_tmp)
+          })
+          output$Two_gene_corr_choose_sample_input_list <- renderText({
+            tmp <- colnames(df())[which(colnames(df()) != 'id')]
+            tmp <- tmp[order(tmp)]
+            paste(tmp, collapse='\n')
+          })
+
+          # gene2 from custome genesets
+          output$Two_gene_corr_gene2_Input_from_custom_geneset_select <- renderUI({
+                gene_sets_names <- c()
+                gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+                selectInput('Two_gene_corr_gene2_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              })
+          outputOptions(output, "Two_gene_corr_gene2_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+        
+          # when exploring correlation
+          df_Two_gene_corr_inputB <- reactiveVal({NULL})
+          observeEvent(input$Two_gene_corr_start,{ #df_Two_gene_corr_inputB <- 
+            if(input$Two_gene_corr_corr_Input == 'B'){
+              ## set up the gene1
+              gene1 <- input$Two_gene_corr_gene1
+              if(gene1 == ''){
+                output$Two_gene_corr_corr_score <- renderText({NULL})
+                output$Two_gene_corr_statusB <- renderText({"Please enter Gene1 first."}) 
+                df_Two_gene_corr_inputB(NULL)
+                return(NULL)
+              }else if(!gene1 %in% df()$id){
+                output$Two_gene_corr_corr_score <- renderText({NULL})
+                output$Two_gene_corr_statusB <- renderText({paste0("Gene1: '", gene1, "' not found in the dataset.")}) 
+                df_Two_gene_corr_inputB(NULL)
+                return(NULL)
+              }
+              gene1_score <- as.numeric(df()[df()$id == gene1,-which(colnames(df()) == 'id')])
+              ## set up the gene2
+              if(input$Two_gene_corr_gene2_list_Input == 'A'){
+                if(nchar(input$Two_gene_corr_gene2_list) == 0){
+                  output$Two_gene_corr_corr_score <- renderText({NULL})
+                  output$Two_gene_corr_statusB <- renderText({"Please enter Gene2s (line by line)."}) 
+                  df_Two_gene_corr_inputB(NULL)
+                  return(NULL)
+                }
+                gene2s <- unlist(strsplit(input$Two_gene_corr_gene2_list, split = "\n"))
+              }else if(input$Two_gene_corr_gene2_list_Input == 'B'){
+                if(input$Two_gene_corr_gene2_Input_from_custom_geneset_select == 'None'){
+                  output$Two_gene_corr_statusB <- renderText({"Please select a custom gene set."}) 
+                  return(NULL)
+                }
+                gene2s <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Two_gene_corr_gene2_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              }
+              gene2_not_in_data <- c() # gene2_not_in_data <- c('hoge', 'fuga')
+              df_out <- data.frame(Gene=c(), Correlation=c(), Pvalue=c(), log=c())
+              for (gene2 in gene2s){
+                if(!gene2 %in% df()$id){
+                  gene2_not_in_data <- c(gene2_not_in_data, gene2)
+                }else{
+                  gene2_score <- as.numeric(df()[df()$id == gene2,-which(colnames(df()) == 'id')])
+                  if(input$Two_gene_corr_log){
+                    cor_res <- cor.test(log2(gene1_score + 1), log2(gene2_score+1), method=input$Two_gene_corr_corr_method)  
+                  }else{
+                    cor_res <- cor.test(gene1_score, gene2_score, method=input$Two_gene_corr_corr_method)
+                  }
+                  r <- cor_res$estimate; pval <- cor_res$p.value
+                  df_tmp <- data.frame(Gene=c(gene2), Correlation=c(r), Pvalue=c(pval))
+                  if(input$Two_gene_corr_log){
+                    df_tmp$log <- 1
+                  }else{
+                    df_tmp$log <- 0
+                  }
+                  df_out <- rbind(df_out, df_tmp)
+                }
+              }
+              if(length(gene2_not_in_data) > 0){
+                output$Two_gene_corr_statusB <- renderText({paste0("Gene2: The following genes are not in the dataset \n", paste(gene2_not_in_data, collapse=','))}) 
+              }
+              df_out <- df_out[order(df_out$Pvalue),]
+              rownames(df_out) <- NULL
+              df_Two_gene_corr_inputB(df_out)
+              return(NULL)
+            }else{
+              df_Two_gene_corr_inputB(NULL)
+              return(NULL)
+            }
+          })
+
+          output$Two_gene_corr_table_status <- renderText({
+            if(is.null(df_Two_gene_corr_inputB())){
+              "Please calculate the correlations first"
+            }else{
+              return(NULL)
+            }
+          })
+
+          # display a table
+          output$Two_gene_corr_table <- renderDataTable({
+            datatable( data.frame(df_Two_gene_corr_inputB()[, c('Gene', 'Correlation', 'Pvalue')]), selection = list(mode='single'),  options = list(scrollX = TRUE, scrollY = TRUE)) 
+          })
+
+          # plot
+          output$Two_gene_corr_plot <- renderPlot({
+            if(is.null(df_Two_gene_corr())){
+              if(input$Two_gene_corr_corr_Input == 'B'){
+                if(is.null(df_Two_gene_corr_inputB())){
+                  output$Two_gene_corr_corr_score <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
+                }else{
+                  if(length(input$Two_gene_corr_table_rows_selected) == 0){
+                    output$Two_gene_corr_corr_score <- renderText({"Please select a row from the table."})
+                  }else{
+                    output$Two_gene_corr_corr_score <- renderText({NULL})
+                  }
+                }
+              }else{
+                output$Two_gene_corr_corr_score <- renderText({NULL})
+              }
+              return(ggplot())
+            }else{
+              if(input$Two_gene_corr_corr_Input == 'A'){
+                gene1 <- input$Two_gene_corr_gene1
+                gene2 <- input$Two_gene_corr_gene2
+                df_tmp <- df_Two_gene_corr()
+              }else{
+                gene1 <- input$Two_gene_corr_gene1
+                gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
+                df_tmp <- df_Two_gene_corr()
+              }
+              if(!is.null(df_tmp)){
+                if(input$Two_gene_corr_colour_grorp){
+                  p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1, color='Group')) + geom_point(size=input$Two_gene_corr_pt.size)
+                }else{
+                  p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1)) + geom_point(size=input$Two_gene_corr_pt.size)
+                }
+                if(input$Two_gene_corr_plot_line){
+                  p <- p + geom_smooth(method='lm', se=TRUE, size=0.2, color='black')
+                }
+                if(input$Two_gene_corr_corr_Input == 'A' & input$Two_gene_corr_log){
+                  p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
+                }
+                if(input$Two_gene_corr_corr_Input == 'B'){
+                  if(df_Two_gene_corr_inputB()$log[1] == 1){
+                    p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
+                  }
+                }
+                # calculate R and p
+                res <- cor.test(df_tmp[, gene1], df_tmp[, gene2], method=input$Two_gene_corr_corr_method)
+                r <- res$estimate
+                pval <- res$p.value
+                output$Two_gene_corr_corr_score <- renderText({
+                  paste0('Correlation: ', r, '\n', 'P-value: ', pval)
+                })
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              }else{
+                return(ggplot())
+              }
+            }
+            p <- p + theme(axis.title = element_text(size=input$Two_gene_corr_title.font.size), axis.text = element_text(size=input$Two_gene_corr_label.font.size))
+            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(legend.key.size = unit(2, "mm"))
+            p <- p + theme(legend.title = element_blank(), legend.text = element_text(size=input$Two_gene_corr_title.font.size))
+            if(input$Two_gene_corr_while_background){
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
+            p
+          }, width=reactive(input$Two_gene_corr_fig.width), height=reactive(input$Two_gene_corr_fig.height), res=300)
+
+        ######
       #####
     ####
   ####
