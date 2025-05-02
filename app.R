@@ -217,13 +217,13 @@ ui <- fluidPage(
           tabItem( tabName='Database',
             h2('Database and DataUpload'),
             ## Data Table ##
-            box(title='List of the datasets', width=12, status='info',
+            box(title='List of the datasets', width=12, status='primary', solidHeader = TRUE,
               fluidRow(column(3, htmlOutput("Data_type_filter")), column(3, htmlOutput("Seuqenced_by_filter"))),
               fluidRow(column(12, DT::dataTableOutput("DataBaseTable") )),
               fluidRow( column(2, actionButton('save_dt', 'Save changes')), column(2, actionButton('delete_row', 'Delete selected data')), column(7, verbatimTextOutput('status')) )
             ),
             ## Data Upload ##
-            box(width=12,  collapsible=TRUE, title='Data upload',status='danger',
+            box(width=12,  collapsible=TRUE, title='Data upload',status='danger', solidHeader = TRUE,
               fluidRow(column(12, 
                 tags$style(HTML("
                   /* font, size etc for the toggle title */
@@ -316,7 +316,7 @@ ui <- fluidPage(
                 fluidRow( column(3, htmlOutput("Seuqenced_by")), column(5, htmlOutput("Experiments")), column(4, htmlOutput("Data_type")) )
               ),
             ##### Plot #####
-            box(width=12, 
+            box(width=12, title='Overview and Analysis', status = "primary", solidHeader = TRUE,
               ###### Message when nothing is selected
                 conditionalPanel(
                   condition = "output.Data_class != 'A' & output.Data_class != 'B'",
@@ -651,13 +651,13 @@ ui <- fluidPage(
                               box( title='Display Options',  collapsible=TRUE, status='primary',width=12,
                                 # select x and y
                                 fluidRow( 
-                                  column(12, h4('Choose X and Y axis:')),
+                                  column(12, h4(strong('Choose X and Y axis:'))),
                                   column(6, htmlOutput("Scat.X")), 
                                   column(6, htmlOutput("Scat.Y")),
                                 ),
                                 # when highlighting specific genes
                                 fluidRow(
-                                  column(12, h4('Highlight the genes of interest')),
+                                  column(12, h4(strong('Highlight the genes of interest'))),
                                   column(8, textAreaInput("target_gene", "Enter genes (line by line)")),
                                   column(12, verbatimTextOutput('Scatter_interesting_gene_status') ),
                                 ),
@@ -1057,12 +1057,12 @@ ui <- fluidPage(
         #### Original_geneset ####
           tabItem( tabName='Original_geneset',
             h2('Custom Genesets Information'),
-            box(width=12, title='Custom Gene Sets', status='primary', collapsible = TRUE,
+            box(width=12, title='Custom Gene Sets', status='primary', collapsible = TRUE, solidHeader = TRUE,
               fluidRow(column(3, htmlOutput("Original_geneset_filter_Cell"))),
               DT::dataTableOutput("Original_geneset_DataBaseTable"),
               fluidRow( column(2, actionButton('Original_geneset_save_dt', 'Save changes')), column(2, actionButton('Original_geneset_delete_row', 'Delete selected data')), column(2, verbatimTextOutput('Original_geneset_status')) )
             ),
-            box(width=12, title='Add a Gene Set', status='danger', collapsible = TRUE,
+            box(width=12, title='Add a Gene Set', status='danger', collapsible = TRUE, solidHeader = TRUE,
               tags$details(
                 tags$summary("Quick upload guide ▼"),  # クリックすると開閉されるタイトル
                 div(
@@ -1095,7 +1095,7 @@ ui <- fluidPage(
           tabItem( tabName='Compare_across_datasets',
             h2('Compare across datasets'),
             #####
-            box(width=12, collapsible=TRUE, title='Dataset selection', status='primary',
+            box(width=12, collapsible=TRUE, title='Dataset selection', status='info',solidHeader = TRUE,
               fluidRow( column(12, verbatimTextOutput('Compare_dataset_selection_status')) ),
               fluidRow( column(8, htmlOutput("choose_data_type")) ),
               fluidRow( column(12, h4('Dataset select') )),
@@ -1106,7 +1106,7 @@ ui <- fluidPage(
                 column(4,htmlOutput("Compare_dataset_filtering_Experiment")),
               ) 
             ),
-            box(width=12, title='Anlaysis', status='primary',
+            box(width=12, title='Anlaysis', status='primary',solidHeader = TRUE,
               tabsetPanel(
                 ## Overlap the hits
                 tabPanel("Get the overlap",
@@ -1225,7 +1225,7 @@ ui <- fluidPage(
         #### Integrate_two_dataset ####
           tabItem( tabName='Integrate_two_dataset', 
             h2('Integrate two datasets'),
-            box(width=12, title='Data exchanging', collapsible=TRUE, status='primary',
+            box(width=12, title='Side by Side comparison', collapsible=TRUE, status='primary', solidHeader = TRUE,
               box(width=12, title='Direction', collapsible=TRUE, status='primary',
                 radioButtons("Integrate_data_map_direction", "", choices = c('See the selected genes from Data1 onto Data2'='A', 'See the selected genes from Data2 onto Data1'='B'), selected='A')
               ),
@@ -1367,7 +1367,7 @@ ui <- fluidPage(
                 )
               )
             ),
-            box(width=12, title='Integration Plot', collapsible=TRUE, status='primary',
+            box(width=12, title='Integration Plot', collapsible=TRUE, status='primary', solidHeader = TRUE,
               box(width=6, title='Plot', status='primary',
                 fluidRow( 
                   column(6, htmlOutput("Integrate_data1_plus_2_Scat.X")), 
@@ -1452,14 +1452,14 @@ ui <- fluidPage(
           tabItem( tabName = 'Clinical_dataset',
             h2('Clinical data'),
             ##### Dataset selection #####
-              box(width=12, title='Data selection', status='primary',
+              box(width=12, title='Data selection', status='info', solidHeader = TRUE,
                 fluidRow( 
                   column(4, htmlOutput("Clinical_data_select")) ,
                   column(8, h5('Dataset detail:'), verbatimTextOutput('Clinical_Dataset_detail'))
                 ),
               ),
             ##### Analysis part #####
-              box(width=12, status='info',
+              box(width=12, status='primary', solidHeader = TRUE, title='Overview and Analysis',
                 tabsetPanel(
                   ###### view database ######
                     tabPanel("View the data",
@@ -2357,14 +2357,14 @@ ui <- fluidPage(
           tabItem( tabName='scRNA',
             h2('scRNA'),
             #### dataset selection ####
-              box( width=12, title='Dataset selection', status='primary',
+              box( width=12, title='Dataset selection', status='info', solidHeader = TRUE,
                 fluidRow( 
                   column(6, htmlOutput("scRNA_data_select")) ,
                   column(6, h5('Dataset detail:'), verbatimTextOutput('scRNA_data_Dataset_detail'))
                 )
               ),
             #### UMAP & Feature plot ####
-              box(width=12, title='Data Overview',status='primary',
+              box(width=12, title='Data Overview',status='primary', solidHeader = TRUE,
                 box(width=12, title='Umap plot', collapsible = TRUE, status = 'primary',
                   fluidRow(
                     column(8,
@@ -2543,7 +2543,7 @@ ui <- fluidPage(
                 )
               ),
             #### Other plot ####
-              box(width=12, title='Other plots', collapsible = TRUE, collapsed = TRUE, status='primary',
+              box(width=12, title='Other plots', collapsible = TRUE, collapsed = TRUE, status='primary',solidHeader = TRUE,
                 tabsetPanel(
                   tabPanel("Dot/Ridge/Vlnplot",
                     box(width=12, title='Gene expression across groups', collapsible = TRUE, status = 'primary',
@@ -2677,7 +2677,7 @@ ui <- fluidPage(
         #### IGV ####
           tabItem( tabName='igv',
             h2('Genome Browser (IGV)'),
-            box( width=12, title='Data selection', status='primary',
+            box( width=12, title='Data selection', status='info', solidHeader = TRUE,
               fluidRow( 
                 column(2, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
                 column(4, htmlOutput("igv_data_select")),
@@ -2698,7 +2698,7 @@ ui <- fluidPage(
                 column(4, htmlOutput("igv_data_Experiment"))
               )
             ),
-            box( width=12, title='IGV', 
+            box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
               igvShinyOutput("igv", height = "1000px")
             )
           ),
@@ -2707,8 +2707,8 @@ ui <- fluidPage(
             h2('Tools'),
             tabsetPanel(
               tabPanel('Human <=> Mouse',
-                box(width=12, 
-                  h3("Convert Huamns genes with Mouse genes."),
+                box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
+                  # h3("Convert Huamns genes with Mouse genes."),
                   box(width=12, title='Inputs and Settings', status='primary', collapsible = TRUE,
                     fluidRow(
                       column(4, radioButtons("human_mouse_convert_direction", "Human <=> Mouse direction", choices = c('Convert mouse genes to human genes' = 'A', 'Convert human genes to mouse genes' = 'B'), selected='A')),
@@ -2742,8 +2742,8 @@ ui <- fluidPage(
                 )
               ),
               tabPanel('Gene symbol <=> Ensembl',
-                box(width=12,
-                h3("Convert Ensemble gene ids with Gene symbols."),
+                box(width=12, status='primary',  solidHeader = TRUE, title='Convert Ensemble gene ids with Gene symbols',
+                # h3("Convert Ensemble gene ids with Gene symbols."),
                   box(width=12,  title='Inputs and Settings', status='primary',collapsible = TRUE,
                     fluidRow(
                       column(2, radioButtons("Gene_Ensembl_spieces", "Species", choices=c("Human"='A', "Mouse"='B'), selected="A")),
@@ -2773,8 +2773,8 @@ ui <- fluidPage(
                 )
               ),
               tabPanel('Find gene loci',
-                box(width=12,
-                  h3("Find the genomic loci"),
+                box(width=12, status='primary',  solidHeader = TRUE, title='Find the genomic loci',
+                  # h3("Find the genomic loci"),
                   box(width=12, title='Inputs and Settings', status= 'primary',collapsible = TRUE,
                     fluidRow(
                       column(6, radioButtons("Find_genome_loci_direction", "Choose the method", choices = c('Input genes and find the coordinates' = 'A', 'Input coordinates and find the genes' = 'B'), selected='A')),
@@ -2803,8 +2803,8 @@ ui <- fluidPage(
                 )
               ),
               tabPanel('Cross-tabulation analysis',
-                box(width=12,
-                  h3('Cross-tabulation analysis'),
+                box(width=12, status='primary',  solidHeader = TRUE, title='Cross-tabulation analysis',
+                  # h3('Cross-tabulation analysis'),
                   fluidRow(
                     column(5,
                       fluidRow(
@@ -2882,7 +2882,7 @@ ui <- fluidPage(
                 )
               ),
               tabPanel('Venn Diagram',
-                box(width=12, title='Venn Diagram',
+                box(width=12, title='Venn Diagram', status='primary',  solidHeader = TRUE,
                   fluidRow(
                     column(4,
                       box(width=12, title='Information of each group',collapsible = TRUE, status='primary',
@@ -2939,9 +2939,9 @@ ui <- fluidPage(
                   )
                 )
               ),
-              tabPanel('Network plot',
-                box(width=12,
-                    h3('Network plot'),
+              tabPanel('Network plot', 
+                box(width=12, status='primary',  solidHeader = TRUE, title='Network plot',
+                    # h3('Network plot'),
                     fluidRow(
                     column(4,
                       box(width=12, title='Input',collapsible = TRUE,status='primary',
@@ -2992,7 +2992,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 30. April, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 3rd. May, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -3510,15 +3510,18 @@ server <- function(input, output, session) {
         ###### pathway analysis ######
           # load a gmt file and select the pathway
           Gene_set <- reactive({
-            req(input$show_filterin_input_option=='C')
-            if(input$pathway_dataset_select == 'HALLMARK (human)'){ gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt') }
-            else if(input$pathway_dataset_select == 'HALLMARK (mouse)'){ gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt') } 
-            else if(input$pathway_dataset_select == 'Custom'){ 
-              tmp <- input$upload_custom_pathway_file
-              if (is.null(tmp)){ gsc <- NULL }
-              else { gsc <- getGmt(tmp$datapath)}
+            if(input$show_filterin_input_option=='C'){
+              if(input$pathway_dataset_select == 'HALLMARK (human)'){ gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt') }
+              else if(input$pathway_dataset_select == 'HALLMARK (mouse)'){ gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt') } 
+              else if(input$pathway_dataset_select == 'Custom'){ 
+                tmp <- input$upload_custom_pathway_file
+                if (is.null(tmp)){ gsc <- NULL }
+                else { gsc <- getGmt(tmp$datapath)}
+              }
+              gsc
+            }else{
+              return(NULL)
             }
-            gsc
           })
 
           # select pathway
@@ -3540,7 +3543,6 @@ server <- function(input, output, session) {
           # Show pathway genes information as a table
           df_outliers_pathway <- reactive({
             df_main_plot <- df()
-            req(input$show_filterin_input_option=='C')
             if(input$show_filterin_input_option=='C') { 
               if(input$Main_scatter_pathway_filter){
                 df_main_plot_pathway <- df_main_plot[df_main_plot$id %in% genes_in_the_pathway(),]
