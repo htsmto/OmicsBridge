@@ -671,7 +671,8 @@ ui <- fluidPage(
                         ## main plot part
                           fluidRow(
                             column(6, 
-                              box(title=strong('Main plot'), collapsible=TRUE, status='danger', width=12, 
+                              box(collapsible=TRUE, status='danger', width=12, 
+                                title = div(style = "color: #c7163c; font-weight: bold;", "Main plot"), 
                                 tabsetPanel(
                                   tabPanel(strong("Scatter Plot"),
                                     fluidRow(
