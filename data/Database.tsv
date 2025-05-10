@@ -1,4 +1,11 @@
 Dataset	Data.type	CellLine	Data.from	When	Experiment	Control.group	Treatment.group	Description	Data.Class	Path	Added.When
+Lung scRNA	scRNA	Human Lung cancer patients	GSE148071	-	Lung cancer scRNA (GSE148071)			-	C	00_Expression_data_all/2025/05.05/Seurat_obj_reduced.rds	2025-05-05 10:37:50.895309
+U937 CXCL10 LOF screening	CRISPR screening	U937	Lab	NA	CXCL10 LOF screening	CXCL10 Low	CXCL10 High	NA	B	00_Expression_data_all/2025/03.31/11.13.23-U937_CXCL10_low_vs_high.gene_summary_2.txt	2025-03-31 11:13:23.872386
+GSE114725_BRCA	scRNA	Human BRCA patients	GSE114725	-	BRCA scRNA (GSE114725)			-	C	00_Expression_data_all/2025/03.28/Seurat.rds	2025-03-28 10:37:50.895309
+THP1 ATACseq IFN-treated Rep2	ATACseq (narrowPeak)	THP1	GSE165426	-	THP1 ATACseq (GSE165426)			ATACseq of IFN-treated THP1 cells	D	00_Expression_data_all/2025/03.25/17.21.06-THP1_IFN_Rep2.narrowPeak	2025-03-25 17:21:06.542375
+THP1 ATACseq IFN-treated Rep1	ATACseq (narrowPeak)	THP1	GSE165426	-	THP1 ATACseq (GSE165426)			ATACseq of IFN-treated THP1 cells	D	00_Expression_data_all/2025/03.25/17.08.38-THP1_IFN_Rep1.narrowPeak	2025-03-25 17:08:38.90328
+THP1 ATACseq Untreated Rep2	ATACseq (narrowPeak)	THP1	GSE165426	-	THP1 ATACseq (GSE165426)			ATACseq of untreated THP1 cells	D	00_Expression_data_all/2025/03.25/17.07.56-THP1_CT_Rep2.narrowPeak	2025-03-25 17:07:56.177222
+THP1 ATACseq Untreated Rep1	ATACseq (narrowPeak)	THP1	GSE165426	-	THP1 ATACseq (GSE165426)			ATACseq of untreated THP1 cells	D	00_Expression_data_all/2025/03.25/17.07.37-THP1_CT_Rep1.narrowPeak	2025-03-25 17:07:37.638558
 GATA3 KO in 7 Tcell cell lines (GSE201742)	RNAseq (Count table)	7 T cell cell lines	GSE201742	2022-04	GATA3_KO_in_T_cells	WT	GATA3 KO	A gene expression table of a GATA3 KO experiment in the 7 Tcell cell lines from GSE201742	A	00_Expression_data_all/2025/02.17/GSE201742_all_cnt_FeatureCounts_cpm_gene.tsv	2025-02-17 16:51:51
 WT vs GATA3 KO in THP6	RNAseq (DEG)	THP6	GSE201742	2022-04	GATA3_KO_in_T_cells	WT	GATA3 KO	GATA3 KO in THP6 obtained from GSE201742	B	00_Expression_data_all/2025/02.17/DESeq2_THP6_WT_vs_KO_gene.tsv	2025-02-17 16:49:40
 WT vs GATA3 KO in SUPT1	RNAseq (DEG)	SUPT1	GSE201742	2022-04	GATA3_KO_in_T_cells	WT	GATA3 KO	GATA3 KO in SUPT1 obtained from GSE201742	B	00_Expression_data_all/2025/02.17/DESeq2_SUPT1_WT_vs_KO_gene.tsv	2025-02-17 16:49:25
