@@ -1,5 +1,0 @@
-site_name: My Docs
-site_dir: site  # 出力先のディレクトリを 'site' に指定
-theme:
-  name: 'material'
-  

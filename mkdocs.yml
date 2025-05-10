@@ -1,0 +1,5 @@
+site_name: OmicsBridge
+nav:
+  - Home: index.md
+theme:
+  name: material
