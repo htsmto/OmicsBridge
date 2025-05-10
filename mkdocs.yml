@@ -11,4 +11,4 @@ nav:
   - Gonome Browser: igv.md
   - Tools: Tools.md
   - FAQ: FAQ.md
-
+theme: readthedocs
