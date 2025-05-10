@@ -8,3 +8,7 @@ data/Database.tsv
 data/Clinical_data_database.tsv
 data/Genesets_list.tsv
 data/Database.tsv
+videos/
+STK11KO_RNAseq/
+00_Clinical_dataset.tar.gz
+Database.tsv
