@@ -1,5 +1,14 @@
 site_name: OmicsBridge
 nav:
   - Home: index.md
-theme:
-  name: material
+  - Database and Data Uplaod: Database.md
+  - Data Overview: Data_Overview.md
+  - Custom Genesets: Gene_set.md
+  - Comapre Across Datasets: Compare_acorss_datasets.md
+  - Cilinical Data Analysis: Cilinical_data.md
+  - Two Datasets Integration: integrate_two.md
+  - scRNA Data Overview: scRNA.md
+  - Gonome Browser: igv.md
+  - Tools: Tools.md
+  - FAQ: FAQ.md
+
