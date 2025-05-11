@@ -1,19 +1,27 @@
 
-# **Database**
+# **Database and Data Upload**
 
-This section allows users to browse all datasets registered in the interface. Here, users can also upload new datasets and edit information for existing ones. </span>
+This section allows users to browse all datasets registered within the interface (i.e., custom database). Additionally, users can upload new datasets and modify information regarding existing datasets.
 
 
 ## <u> **Available data types** </u>
 
- 
-The interface supports four types of data:
+The interface accommodates four distinct types of data and specifies the required formatting for each.
 
-1. **Count data / Expression Matrix data**: 
-   <br> Normalized (or non-normalized) read count tables from RNAseq, proteomics, etc. While non-normalized data is accepted, please note that the interface does not include data normalization functionality.
+1. **Count Data / Expression Matrix Data**: 
+    <br> The read count tables derived from RNA sequencing, proteomics, and various other sources, whether normalised or non-normalised, are considered. It is essential to note that while non-normalised data is permissible, the interface does not offer functionality for data normalisation. Ensure that the data adheres to the following criteria:
+       - The table must be in <span style="color: red;"> tab-delimited </span> format (either tsv or .txt file), featuring gene names in the index and sample names in the columns.
+       - The header name (column name) containing gene names <span style="color: red;">should be designated as "id" </span>.
+       - The sample names must conclude with <span style="color: red;">*_Rep# or *_rep#</span>.
+    ??? Example
+        ![Example](img/1_expression_table.png)
 
-2. **Comparison data**: 
-    <br> Any data containing (log) fold changes, including differentially expressed gene results from RNAseq, CRISPR screening, ChIPseq, proteomics, etc.
+2. **Comparison Data**: 
+    <br> Any dataset containing log fold changes and statistical scores, including differentially expressed gene results from RNA sequencing and outcomes of CRISPR screening, among others, suitable for generating a volcano plot, may be input into OmicsBridge. It is imperative that the data complies with the following criteria:
+       - The table must be formatted as tab-delimited (either tsv or .txt file) and must include headers, featuring gene names in the index.
+       - The header name (column name) that encompasses gene names should be designated as "id".
+    ??? Example
+        ![Example](img/1_log_table.png)
 
 3. **scRNAseq data**: 
     <br> Users can browse their single-cell RNAseq data, but it must be properly processed and saved as an RDS file. See the "scRNA" section for more details. 
