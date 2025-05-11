@@ -1,5 +1,5 @@
 
-# <u> **Database and Data Upload** </u>
+# **Database and Data Upload** 
 
 This section allows users to browse all datasets registered within the interface (i.e., custom database). Additionally, users can upload new datasets and modify information regarding existing datasets.
 
@@ -36,10 +36,10 @@ Bam, bed, and bigwig files generated from ATACseq, ChIPseq, etc. can be browsed 
 
 Users can upload new datasets in the 'Data upload' section by following these steps.
 
-### 1. Upload a file. 
+### **1. Upload a file**. 
 A file can be selected or dragged and dropped into the file upload section. Make sure the file format and data format meet the requirements described above. The maximum data size to upload is 1 GB.
 
-### 2. Complete the dataset information.
+### **2. Complete the dataset information**.
 <span style="color: red;">Refrain from utilising line breaks</span> in any text boxes, as only the first line will be retained in the database. Sections marked with an asterisk (*) are mandatory. Additionally, avoid the use of special symbols (e.g., /,!,?, etc.).
 
 - **Dataset Name***: Denotes the name assigned to the dataset to be uploaded. Duplicate dataset names are prohibited.
@@ -51,15 +51,15 @@ A file can be selected or dragged and dropped into the file upload section. Make
 - **Collection Date** (Optional): Denotes the time period during which the dataset was collected.
 - **Description** (Optional): Provides additional details regarding the dataset.
 
-### 3. Click on ‘Add to the dataset’.
+### **3. Click on ‘Add to the dataset’**.
 If the upload is successful, a message stating “Uploaded!” will appear adjacent to the upload button. Additionally, the newly added dataset will be displayed as the first entry in the table.
 
 
 ## <u> **How to edit the database** </u>
 
-### Editing the database
+### **Editing the database**
 Each cell can be edited by double-clicking. Upon the user making an edit, the change will be manifested below the table. The editing process is deemed successful once the user clicks “Save changes” and subsequently confirms the message “saved!”. 
 
-### Deleting some data
+### **Deleting some data**
 Each row of the database can be selected by simply clicking on it. It is possible to make multiple selections, and the number of selected rows is displayed at the bottom of the table. By clicking “Delete selected data”, all selected rows will be removed from the database.
 
