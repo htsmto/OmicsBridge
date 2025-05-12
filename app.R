@@ -259,7 +259,7 @@ ui <- fluidPage(
           ),
         #### Database ####
           tabItem( tabName='Database',
-              h2('Database and Data Upload'),
+              h2(' Database and Data Upload'),
               ## Data Table ##
                 box(title='List of the datasets', width=12, status='primary', solidHeader = TRUE,
                   fluidRow(
@@ -340,7 +340,7 @@ ui <- fluidPage(
           ),
         #### Data_Overview ####
           tabItem( tabName='Data_Overview',
-            h2('Data Overview'),
+            h2(' Data Overview'),
             ##### Data selection #####
               box(width=12, collapsible=TRUE, title='Dataset Selection', status = "info", solidHeader = TRUE,
                 fluidRow(
@@ -762,7 +762,9 @@ ui <- fluidPage(
                               ), 
                               ## filtering options
                               box(width=12, collapsible=TRUE, status='info', title=strong('Highlight filterd genes or gene sets in the plot'),
-                                radioButtons("show_filterin_input_option", "Please Choose one below:", choices=c("None"="A", "Filtered genes"="B", "Pathway genes"="C", "Custom genesets"="D"), selected="A"),
+                                fluidRow(
+                                  column(12, radioButtons("show_filterin_input_option", "Please Choose one below:", choices=c("None"="A", "Filtered genes"="B", "Pathway genes"="C", "Custom genesets"="D"), selected="A", inline=TRUE),)
+                                ),
                                 # Flitered genes
                                 conditionalPanel(
                                   condition = "input.show_filterin_input_option == 'B'",
@@ -806,8 +808,11 @@ ui <- fluidPage(
                                     )
                                   ),
                                   fluidRow(
-                                    column(6, materialSwitch('show_threhold_lines', 'Show the threshold lines', value=FALSE, status='info')),
-                                    column(6, materialSwitch('show_information', 'Show the filtered genes information', value=FALSE, status='info'))
+                                    column(6, materialSwitch('show_information', 'Show the filtered genes information', value=FALSE, status='info')),
+                                    conditionalPanel(
+                                      condition = "input.How_to_filter == 'B'",
+                                      column(6, materialSwitch('show_threhold_lines', 'Show the threshold lines', value=FALSE, status='info')),
+                                    )
                                   ),
                                   fluidRow(
                                     column(6, materialSwitch('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE, status='info')),
@@ -838,37 +843,35 @@ ui <- fluidPage(
                                     )
                                   ),
                                   fluidRow(
-                                    column(6, checkboxInput('hide_gene_label_pathway', 'Hide labels', value=FALSE)),
-                                    column(6, checkboxInput('show_information_pathway', 'Show the genes information', value=FALSE))
+                                    column(6, materialSwitch('hide_gene_label_pathway', 'Hide labels', value=FALSE, status='info')),
+                                    column(6, materialSwitch('show_information_pathway', 'Show the genes information', value=FALSE, status='info'))
                                   ),
                                   fluidRow(
-                                    column(6, checkboxInput("pathway_gene_colour", "change the colour", value=FALSE)),
+                                    column(6, materialSwitch("pathway_gene_colour", "change the colour", value=FALSE, status='info')),
                                     conditionalPanel(
                                       condition = "input.pathway_gene_colour == true",
                                         column(6, colourpicker::colourInput('pathway_gene_colour_id', 'select colour:', value='#FF00FF'))
                                     )
                                   ),
-                                  fluidRow(column(12, checkboxInput("Main_scatter_pathway_filter", "Apply further filtering", value=FALSE) )),
+                                  fluidRow(column(12, materialSwitch("Main_scatter_pathway_filter", "Apply further filtering", value=FALSE, status='info') )),
                                   conditionalPanel(
                                     condition = "input.Main_scatter_pathway_filter == true",
-                                    h3(''),
                                     fluidRow(
-                                      column(12,
-                                        box(width=12, title='Apply filtering', collapsible=T, 
-                                          fluidRow(
-                                            column(3,
-                                              fluidRow(
-                                                column(12, numericInput('Main_scatter_pathway_thr_X1', 'X threshold 1',  value=1, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
-                                              )
-                                            ),
-                                            column(3,
-                                              fluidRow(
-                                                column(12, numericInput('Main_scatter_pathway_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
-                                              )
-                                            ),
-                                            column(3, radioButtons("Main_scatter_pathway_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
-                                            column(3, radioButtons("Main_scatter_pathway_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') )
-                                          )
+                                      column(12, h4('Futher filtering')),
+                                      column(12, 
+                                        fluidRow(
+                                          column(3,
+                                            fluidRow(
+                                              column(12, numericInput('Main_scatter_pathway_thr_X1', 'X threshold 1',  value=1, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
+                                            )
+                                          ),
+                                          column(3,
+                                            fluidRow(
+                                              column(12, numericInput('Main_scatter_pathway_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
+                                            )
+                                          ),
+                                          column(3, radioButtons("Main_scatter_pathway_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
+                                          column(3, radioButtons("Main_scatter_pathway_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') )
                                         )
                                       )
                                     )
@@ -881,17 +884,17 @@ ui <- fluidPage(
                                     column(12, htmlOutput("Plot_Gene_set_select_geneset")),
                                   ),
                                   fluidRow(
-                                    column(6, checkboxInput('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE)),
-                                    column(6, checkboxInput('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE))
+                                    column(6, materialSwitch('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE, status='info')),
+                                    column(6, materialSwitch('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE, status='info'))
                                   ),
                                   fluidRow(
-                                    column(6, checkboxInput("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE)),
+                                    column(6, materialSwitch("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE, status='info')),
                                     conditionalPanel(
                                       condition = "input.Plot_Gene_set_pathway_gene_colour == true",
                                         column(6, colourpicker::colourInput('Plot_Gene_set_pathway_gene_colour_id', 'select colour:', value='#fcc203'))
                                     )
                                   ),
-                                  fluidRow(column(12, checkboxInput("Main_scatter_geneset_filter", "Apply further filtering", value=FALSE) )),
+                                  fluidRow(column(12, materialSwitch("Main_scatter_geneset_filter", "Apply further filtering", value=FALSE, status='info') )),
                                   conditionalPanel(
                                     condition = "input.Main_scatter_geneset_filter == true",
                                     h3(''),
@@ -1170,7 +1173,7 @@ ui <- fluidPage(
           ),
         #### Original_geneset ####
           tabItem( tabName='Original_geneset',
-            h2('Custom Genesets Information'),
+            h2(' Custom Genesets Information'),
             box(width=12, title='Custom Gene Sets', status='primary', collapsible = TRUE, solidHeader = TRUE,
               fluidRow(column(3, htmlOutput("Original_geneset_filter_Cell"))),
               DT::dataTableOutput("Original_geneset_DataBaseTable"),
@@ -1207,7 +1210,7 @@ ui <- fluidPage(
           ),
         #### Compare_across_datasets ####
           tabItem( tabName='Compare_across_datasets',
-            h2('Compare across datasets'),
+            h2(' Compare across datasets'),
             #####
             box(width=12, collapsible=TRUE, title='Dataset selection', status='info',solidHeader = TRUE,
               fluidRow( 
@@ -1390,7 +1393,7 @@ ui <- fluidPage(
           ),  
         #### Integrate_two_dataset ####
           tabItem( tabName='Integrate_two_dataset', 
-            h2('Integrate two datasets'),
+            h2(' Integrate two datasets'),
             ## side by side plot
               box(width=12, title='Side by Side comparison', collapsible=TRUE, status='primary', solidHeader = TRUE,
                 ## Direction
@@ -1697,7 +1700,7 @@ ui <- fluidPage(
           ),
         #### Clinical_dataset ####
           tabItem( tabName = 'Clinical_dataset',
-            h2('Clinical data'),
+            h2(' Clinical data'),
             ##### Dataset selection #####
               box(width=12, title='Data selection', status='info', solidHeader = TRUE,
                 fluidRow( 
@@ -2666,7 +2669,7 @@ ui <- fluidPage(
           ),
         #### scRNA ####
           tabItem( tabName='scRNA',
-            h2('scRNA'),
+            h2(' scRNA'),
             #### dataset selection ####
               box( width=12, title='Dataset selection', status='info', solidHeader = TRUE, collapsible=TRUE,
                 fluidRow( 
@@ -3017,7 +3020,7 @@ ui <- fluidPage(
           ),
         #### IGV ####
           tabItem( tabName='igv',
-            h2('Genome Browser (IGV)'),
+            h2(' Genome Browser (IGV)'),
             box( width=12, title='Data selection', status='info', solidHeader = TRUE,
               fluidRow( 
                 column(2, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
@@ -3045,38 +3048,38 @@ ui <- fluidPage(
           ),
         #### Tools ####
           tabItem( tabName='Tools',
-            h2('Tools'),
+            h2(' Tools'),
             tabsetPanel(
               tabPanel('Human <=> Mouse',
                 box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
                   # h3("Convert Huamns genes with Mouse genes."),
-                  box(width=12, title='Inputs and Settings', status='primary', collapsible = TRUE,
-                    fluidRow(
-                      column(4, radioButtons("human_mouse_convert_direction", "Human <=> Mouse direction", choices = c('Convert mouse genes to human genes' = 'A', 'Convert human genes to mouse genes' = 'B'), selected='A')),
-                      column(4, radioButtons("human_mouse_convert_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
-                      column(4, radioButtons("human_mouse_convert_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A'))
+                  fluidRow(
+                    column(5,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12, radioButtons("human_mouse_convert_direction", "Human <=> Mouse direction", choices = c('Convert mouse genes to human genes' = 'A', 'Convert human genes to mouse genes' = 'B'), selected='A')),
+                          column(6, radioButtons("human_mouse_convert_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
+                          column(6, radioButtons("human_mouse_convert_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
+                          column(12, textAreaInput('human_mouse_convert_input_gene', 'Enter genes (line by line)')),
+                          column(12, h4('')),
+                          column(12, verbatimTextOutput('human_mouse_convert_status') ),
+                          column(12, h4('')),
+                          column(8, h4('')),
+                          column(4, actionButton('human_mouse_convert_start', 'Convert genes', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                        )
+                      )
                     ),
-                    fluidRow(
-                      column(5, textAreaInput('human_mouse_convert_input_gene', 'Enter genes (line by line)')),
-                    ),
-                    h4(''),
-                    fluidRow(column(10, verbatimTextOutput('human_mouse_convert_status') )),
-                    h4(''),
-                    fluidRow(column(12, actionButton('human_mouse_convert_start', 'Convert genes') ))
-                    
-                  ),
-                  box(width=12, title='Results',status='primary',collapsible = TRUE,
-                    fluidRow(
-                      column(7, 
-                        fluidRow(column(12, h4('Conversion table') )),
+                    column(4,
+                      box(width=12, title='Conversion Table', status='danger', collapsible = TRUE,
                         fluidRow(
                           column(12, verbatimTextOutput('human_mouse_convert_table_status')),
                           column(12, DT::dataTableOutput('human_mouse_convert_table') )
                         )
-                      ),
-                      column(5, 
-                      fluidRow(column(12, h4('List of converted genes') )),
-                      fluidRow(column(12, verbatimTextOutput('human_mouse_convert_result') ))
+                      )
+                    ),
+                    column(3,
+                      box(width=12, title='List of converted genes', status='warning', collapsible = TRUE,
+                        fluidRow(column(12, verbatimTextOutput('human_mouse_convert_result') ))
                       )
                     )
                   )
@@ -3150,7 +3153,7 @@ ui <- fluidPage(
                     column(5,
                       fluidRow(
                         column(12, 
-                          box(width=12, title='Table contents', status='primary',collapsible = TRUE,
+                          box(width=12, title='Table contents', status='info',collapsible = TRUE,
                             fluidRow(
                               column(12, h4('Group Names')),
                               column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
@@ -3168,13 +3171,13 @@ ui <- fluidPage(
                           )
                         ),
                         column(12,
-                          box(width=12,title='2x2 Table', status='primary',collapsible = TRUE,
+                          box(width=12,title='2x2 Table', status='warning',collapsible = TRUE,
                             fluidRow(column(12, verbatimTextOutput("cross_table_status"))),
                             fluidRow(column(12, dataTableOutput("Cross_tabulation_table")))
                           )
                         ),
                         column(12,
-                          box(width=12, title='Statistic test', status='primary',collapsible = TRUE,
+                          box(width=12, title='Statistic test', status='danger',collapsible = TRUE,
                             fluidRow(
                               column(12, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
                               column(12, verbatimTextOutput("cross_table_Statistic")),
@@ -3184,36 +3187,42 @@ ui <- fluidPage(
                       )
                     ),
                     column(7,
-                      box(width=12, title='Plot',status='primary',collapsible = TRUE,
-                        radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
-                          'Calculate the percentile (stack bar plot)'='A', 
-                          'Use the original count (stack bar plot)'='C',
-                          'Use the original count (dodge bar plot)'='D'
-                          ), selected='A'),
-                        verbatimTextOutput("Cross_tabulation_plot_status"),
-                        plotOutput("Cross_tabulation_plot",  width="100%", height="100%"),
-                        box(width=12, title='Plot options', collapsible=TRUE, collapsed=TRUE,status='success',
-                          fluidRow(
-                            column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=1, max=15, value=5, step=1)),
-                            column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=1, max=15, value=5, step=1)),
-                            column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=1, max=15, value=5, step=1)),
+                      box(width=12, title='Plot',status='danger',collapsible = TRUE,
+                        fluidRow(
+                          column(12, radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
+                              'Calculate the percentile (stack bar plot)'='A', 
+                              'Use the original count (stack bar plot)'='C',
+                              'Use the original count (dodge bar plot)'='D'
+                            ), selected='A')
                           ),
-                          fluidRow(
-                            column(6, colourpicker::colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
-                            column(6, colourpicker::colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
-                          ),
-                          fluidRow(
-                            column(6, checkboxInput('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE) )
-                          ),
-                          fluidRow(
-                            column(6, checkboxInput('Cross_tabulation_plot_rotate_x', 'Rotate X labels', value=FALSE) ),
-                            column(6, 
-                              conditionalPanel(
-                                condition='input.Cross_tabulation_plot_rotate_x == true',
-                                numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 45, min=0)
-                              )
+                          column(12, verbatimTextOutput("Cross_tabulation_plot_status")),
+                          column(12, plotOutput("Cross_tabulation_plot",  width="100%", height="100%")),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=1, max=15, value=5, step=1)),
+                                column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=1, max=15, value=5, step=1)),
+                                column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=1, max=15, value=5, step=1)),
+                              ),
+                              fluidRow(
+                                column(6, colourpicker::colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
+                                column(6, colourpicker::colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE, status = "success") )
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Cross_tabulation_plot_rotate_x', 'Rotate X labels', value=FALSE, status = "success") ),
+                                column(6, 
+                                  conditionalPanel(
+                                    condition='input.Cross_tabulation_plot_rotate_x == true',
+                                    numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 45, min=0)
+                                  )
+                                )
+                              ),
+                              circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                             )
                           )
                         )
@@ -3226,7 +3235,7 @@ ui <- fluidPage(
                 box(width=12, title='Venn Diagram', status='primary',  solidHeader = TRUE,
                   fluidRow(
                     column(4,
-                      box(width=12, title='Information of each group',collapsible = TRUE, status='primary',
+                      box(width=12, title='Information of each group',collapsible = TRUE, status='info',
                         fluidRow(
                           column(12, radioButtons('Venn_Diagram_method', 'Choose a method', choices=c('2D Venn diagram'='A', '3D Venn diagram'='B'), selected='A')),
                           column(12, textInput("Venn_Diagram_Group1_name", "Group 1 title")),
@@ -3258,25 +3267,30 @@ ui <- fluidPage(
                       )
                     ),
                     column(8,
-                      box(width=12, title='Plot',collapsible = TRUE, status='primary',
-                        verbatimTextOutput("Venn_Diagram_status"),
-                        plotOutput("Venn_Diagram_plot", width="100%", height="100%"),
-                        box(width=12, title='Plot options', collapsible=TRUE, collapsed=TRUE,status='success',
-                          fluidRow(
-                            column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
-                            column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
-                            column(6, colourpicker::colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
-                            column(6, colourpicker::colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
-                            conditionalPanel(
-                              condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
-                              column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
+                      box(width=12, title='Plot',collapsible = TRUE, status='danger',
+                        fluidRow(
+                          column(12, verbatimTextOutput("Venn_Diagram_status")),
+                          column(12, plotOutput("Venn_Diagram_plot", width="100%", height="100%")),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
+                                column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
+                                column(6, colourpicker::colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
+                                column(6, colourpicker::colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
+                                conditionalPanel(
+                                  condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
+                                  column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
+                                )
+                              ),
+                              circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                             )
                           )
                         )
                       )
-                    ),
+                    )
                   )
                 )
               ),
@@ -3291,14 +3305,14 @@ ui <- fluidPage(
                           column(12, materialSwitch('Network_input_example', 'Use an example data', value=FALSE,  status='info') )
                         ),
                         fluidRow(
-                          column(12, h5(strong('The input data table'))),
+                          column(12, h4('The input data table')),
                           column(12, dataTableOutput("Network_input_table")),
                           column(12, h4(''))
                         )
                       )
                     ),
                     column(8,
-                      box(width=12, title='Plot',collapsible = TRUE,status='primary',
+                      box(width=12, title='Plot',collapsible = TRUE,status='danger',
                         fluidRow(
                           column(12, verbatimTextOutput("Network_input_table_visNet_status") ),
                           column(2, 
@@ -3313,6 +3327,7 @@ ui <- fluidPage(
                               circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Graph Settings")
                             ),
                           ),
+                          column(12, h4('')),
                           column(12, visNetworkOutput("Network_input_table_visNet" , width = "100%", height = "1000px") )
                         )
                       )
@@ -3323,7 +3338,7 @@ ui <- fluidPage(
             )
           ),
         #### wiki-document ####
-          tabItem( tabName='wiki_document',
+          tabItem( tabName=' wiki_document',
             # tabsetPanel(
             #     tabPanel("Introduction", box(width=12, uiOutput("Introduction_md"))),
             #     tabPanel("Database", box(width=12, uiOutput("Database_md"))),
@@ -3480,8 +3495,10 @@ server <- function(input, output, session) {
       })
 
       output$upload_data_type <- renderUI({
-        if(input$upload_data_type_select_select == 'Other'){
-          textInput("upload_data_type_manual", "Write the data type here")
+        if(length(input$upload_data_type_select_select) > 0){
+          if(input$upload_data_type_select_select == 'Other'){
+            textInput("upload_data_type_manual", "Write the data type here")
+          }
         }
       })
 
@@ -3489,6 +3506,8 @@ server <- function(input, output, session) {
       observeEvent(input$upload_data,{
         if(is.null(input$upload_file)){
           output$status_upload <- renderText('Please upload a file!')
+          show_alert(title='Error.',text='Please upload a file!', type='error')
+          return()
         }
         req(input$upload_file)
         uploaded_file <- input$upload_file
@@ -3513,26 +3532,41 @@ server <- function(input, output, session) {
         }
         if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 |  input$upload_data_type_select_select == '--Select from the below--' ){
           output$status_upload <- renderText('* is a mandatory filed!')
+          show_alert(title='Error.',text='* is a mandatory filed!', type='error')
+          return()
         }else if(dataset.name.upload %in% Dataset()$Dataset){
           output$status_upload <- renderText('The Dataset name is duplicated!')
+          show_alert(title='Error.',text='The Dataset name is duplicated!', type='error')
+          return()
         }else if (str_detect(dataset.name.upload, "[;/,!@#$%]")) {
           output$status_upload <- renderText('The Dataset name cannot contain "/ , ! # @ $ % " !')
+          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+          return()
         }else if (str_detect(Experiment.upload, "[;/,!@#$%]")) {
           output$status_upload <- renderText('The Experiment name cannot contain "/ , ! # @ $ % " !')
+          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+          return()
         }else if (str_detect(Data.from.upload, "[;/,!@#$%]")) {
           output$status_upload <- renderText('The Data.from cannot contain "/ , ! # @ $ % " !')
+          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+          return()
         }else if (str_detect(data.type.upload, "[;/,!@#$%]")) {
           output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
+          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+          return()
         }else if(input$upload_data_type_select_select == 'Other'){
           if(nchar(input$upload_data_type_manual)==0){
             output$status_upload <- renderText('* is a mandatory filed!')
+            show_alert(title='Error.',text='* is a mandatory filed!', type='error')
+            return()
           }
         }else{
           gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
           if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
             if(!'id' %in% colnames(gx_table)){
               output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
-              return(NULL)
+              show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
+              return()
             }
           }
           time_stamp <- as.character(Sys.time())  
@@ -3554,6 +3588,8 @@ server <- function(input, output, session) {
           write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
           output$status_upload <- renderText('uploaded!')
           }
+          show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
+          return()
       
 
       })
@@ -4352,8 +4388,6 @@ server <- function(input, output, session) {
                     p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
                     if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) }
                     if(input$Main_scatter_geneset_filter){
-                      # if(input$Direction == 'A' || input$Direction == 'B'){p <- p + geom_vline(xintercept=input$x_threshold, linetype='dotted', size=0.2)}
-                      # if(input$Direction == 'A' || input$Direction == 'C'){p <- p + geom_vline(xintercept=-input$x_threshold_neg, linetype='dotted', size=0.2)}
                       switch(input$Main_scatter_geneset_thr_X_method,
                         'B' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2),
                         'C' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
@@ -4366,7 +4400,6 @@ server <- function(input, output, session) {
                         'D' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
                         'E' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
                       ) 
-                      # p <- p + geom_hline(yintercept=input$y_threshold, linetype='dotted')
                     } 
                   }
                 }
@@ -4391,7 +4424,9 @@ server <- function(input, output, session) {
             tryCatch(
               expr = {
                 res <- brushedPoints(df(), input$plot_brush)
-                p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=100, segment.size=0.2)
+                if(length(res$id)<500){
+                  p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                }
               },
               error = function(e){NULL}
             )
@@ -9987,17 +10022,17 @@ server <- function(input, output, session) {
         df_cross <- cross_table()
         if(length(df_cross[is.na(df_cross)])>0){
           output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
-          return(NULL)          
+          return(ggplot())
         }else if(length(df_cross[df_cross==0])==4){
           output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
-          return(NULL)          
+          return(ggplot())         
         }
         col_group <- colnames(df_cross)
         df_cross$Row_group <- rownames(df_cross)
         df_cross_melt <- pivot_longer(df_cross, cols=-Row_group, names_to = 'Column_group')
         if(length(input$Cross_tabulation_plot_method) == 0){
           output$Cross_tabulation_plot_status <- renderText({'Please choose the plot method'}) 
-          return(NULL)
+          return(ggplot())
         }
         output$Cross_tabulation_plot_status <- renderText({NULL}) 
         p <- ggplot(df_cross_melt, aes(x=Row_group, y=value, fill=Column_group))
@@ -10107,7 +10142,7 @@ server <- function(input, output, session) {
 
       output$Venn_Diagram_plot <- renderPlot({
         if(is.null(venn_data())){
-          return(NULL)
+          return(ggplot())
         }
         euler_data <- euler(venn_data())
         if(input$Venn_Diagram_method == 'A'){
@@ -10123,10 +10158,6 @@ server <- function(input, output, session) {
             legend = list(labels = c(input$Venn_Diagram_Group1_name, input$Venn_Diagram_Group2_name, input$Venn_Diagram_Group3_name), cex = input$Venn_Diagram_plot_legend_size)
           )
         }
-
-        # p <- ggVennDiagram(venn_data(), label_alpha=0.6, category.names= c())
-        # p <- p + theme(legend.position="none")  + coord_flip()
-        # p
       }, width=reactive(input$Venn_Diagram_plot.width), height=reactive(input$Venn_Diagram_plot.height), res=300)
 
       output$Venn_Diagram_show_overlap_2D_list <- renderText({
@@ -10159,7 +10190,7 @@ server <- function(input, output, session) {
           edges <- data.frame(
             from = c("STAT1", "STAT1", "STAT1", "STAT1", "STAT2", "STAT2", "STAT2", "STAT3", "STAT3", "STAT3", "STAT3", "STAT5", "STAT5", "STAT5", "STAT3", "STAT5", "STAT1", "STAT2", "STAT2", "STAT3", "STAT1", "STAT2", "STAT3", "STAT5"),
             to = c("IRF1", "GBP1", "ISG15", "MX1", "ISG15",  "IRF9", "OAS1", "SAA1", "CRP", "VEGF", "MYC", "CSN2", "WAP", "BCL2L1",  "BCL2L1", "CISH", "IL6", "MX1", "IL6", "IL6", "SOCS1", "SOCS1", "SOCS1", "SOCS1"),
-            weight = c(1.0, 0.8, 0.9, 0.7, 0.9,  0.5, 1.0, 0.8, 0.9, 0.7, 1.0, 0.8, 0.9, 0.7, 1.0, 0.8, 1.0, 0.9, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0)
+            weight = c(10.0, 5.8, 2.9, 1.7, 10.9,  0.5, 12.0, 5.8, 1.9, 3.7, 1.0, 2.8, 7.9, 1.7, 5.0, 8.8, 6.0, 1.9, 2.9,10.9, 10.0, 5.0, 6.0, 8.0)
           )
           return(edges)
         }else{
