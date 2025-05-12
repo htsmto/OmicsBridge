@@ -9604,7 +9604,7 @@ server <- function(input, output, session) {
           if (!triggered()) {
             return(ggplot())
           }else if (isCalculating()) {
-            datatable(ggplot()) # 計算中なら空データフレームを返してスピナーを出す
+            return(ggplot()) # 計算中なら空データフレームを返してスピナーを出す
           }
           if(is.null(Compare_cohort_mut_table())){
             output$Compare_across_cohorts_mut_freq_plot_status <- renderText({'A plot for mutation counts or frequencies will be shown here'})
