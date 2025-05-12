@@ -29,6 +29,7 @@
   suppressMessages(library(visNetwork))
   suppressMessages(library(igvShiny))
   suppressMessages(library(shinyWidgets))
+  suppressMessages(library(shinycssloaders))
   
 
   options(shiny.maxRequestSize = 10000*1024^2)
@@ -258,69 +259,84 @@ ui <- fluidPage(
           ),
         #### Database ####
           tabItem( tabName='Database',
-            h2('Database and DataUpload'),
-            ## Data Table ##
-            box(title='List of the datasets', width=12, status='primary', solidHeader = TRUE,
-              fluidRow(column(3, htmlOutput("Data_type_filter")), column(3, htmlOutput("Seuqenced_by_filter"))),
-              fluidRow(column(12, DT::dataTableOutput("DataBaseTable") )),
-              fluidRow( column(2, actionButton('save_dt', 'Save changes')), column(2, actionButton('delete_row', 'Delete selected data')), column(7, verbatimTextOutput('status')) )
-            ),
-            ## Data Upload ##
-            box(width=12,  collapsible=TRUE, title='Data upload',status='danger', solidHeader = TRUE,
-              fluidRow( 
-                column(12, h4(strong('1. Upload a file'))),
-                column(5, fileInput("upload_file", "")),
-                column(6, h4('')),
-                column(1, 
-                  div(id='help',
-                    dropdownButton( 
-                      fluidRow(
-                        column(12, h4(strong("Data upload quick guide"))),
-                        column(12, helpText(strong("- Make sure that the column name containing gene names is set 'id'."))),
-                        column(12, helpText("- The boxes with * are mandatory.")),
-                        column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots.")),
-                        column(12, helpText("- Dataset name must be unique.")),
-                        column(12, helpText("- In case uploading a count data, it is recommended that the columns are set to Sample_Rep#. See wiki for more information.")),
-                      ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE
-                    ),
-                  ) 
-                )
-              ),
-              fluidRow( 
-                column(12, h4(strong("2. Fill in the dataset information"))), 
-                column(4, textInput("upload_dataset_name", HTML("Dataset name * <br/> Ex.) WT vs KO in Cell A"))), 
-                column(4, textInput("upload_Experiment", HTML("Experiment name * <br/> Ex.) Gene A KO RNAseq"))), 
-                column(4, textInput("upload_data_from", HTML("Data from * <br/> Ex.) Public data, Student A") )), 
-                column(4, textInput("upload_data_type", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA"))), 
-                column(4, textInput("upload_cell_line", HTML("Cell line, Data source <br/> Ex.) THP1, PBMC"))), 
-                column(4, textInput("upload_when", HTML("When <br/> Ex.) 2025-01"))) 
-              ),
-              fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D' ), selected='B')), 
-                conditionalPanel(
-                  condition = 'input.upload_Data_Class=="B"',
-                  column(3, textInput("upload_Control_group", HTML("Control group name <br/> Ex.) Untreated, WT"))), 
-                  column(3, textInput("upload_Treatment_group", HTML("Treatment group name <br/> Ex.) Treated, KO")))
+              h2('Database and Data Upload'),
+              ## Data Table ##
+                box(title='List of the datasets', width=12, status='primary', solidHeader = TRUE,
+                  fluidRow(
+                    column(3, htmlOutput("Seuqenced_by_filter")), 
+                    column(3, htmlOutput("Experiment_filter")), 
+                    column(3, htmlOutput("Data_type_filter"))
+                  ),
+                  fluidRow(column(12, DT::dataTableOutput("DataBaseTable") )),
+                  fluidRow(
+                    column(2, actionButton('save_dt', 'Save changes', style="color: #ffffff; background-color: #bc2929; border-color: #e130f9")), 
+                    column(2, actionButton('delete_row', 'Delete selected data', style="color: #ffffff; background-color: #2d3cac; border-color: #1c48fa")), 
+                    column(7, verbatimTextOutput('status')) 
+                  )
                 ),
-                conditionalPanel(
-                  condition = 'input.upload_Data_Class=="A"',
-                  column(6, h5('')),
-                  column(4, h5(span('\nIn case of uoloading a count data, please make sure that the columns are set to "SampleName_Rep#". See wiki for more information', style="color: red;"))) ,
+              ## Data Upload ##
+                box(width=12,  collapsible=TRUE, title='Data upload',status='danger', solidHeader = TRUE,
+                  fluidRow( 
+                    column(12, h4(strong('1. Upload a file'))),
+                    column(5, fileInput("upload_file", "")),
+                    column(6, h4('')),
+                    column(1, 
+                      div(id='help',
+                        dropdownButton( 
+                          fluidRow(
+                            column(12, h4(strong("Data upload quick guide"))),
+                            column(12, helpText(strong("- Make sure that the column name containing gene names is set 'id'."))),
+                            column(12, helpText("- The boxes with * are mandatory.")),
+                            column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots.")),
+                            column(12, helpText("- Dataset name must be unique.")),
+                            column(12, helpText("- In case uploading a count data, it is recommended that the columns are set to Sample_Rep#. See wiki for more information.")),
+                          ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE
+                        ),
+                      ) 
+                    )
+                  ),
+                  fluidRow( 
+                    column(12, h4(strong("2. Fill in the dataset information"))), 
+                    column(4, textInput("upload_dataset_name", HTML("Dataset name * <br/> Ex.) WT vs KO in Cell A"))), 
+                    column(4, textInput("upload_Experiment", HTML("Experiment name * <br/> Ex.) Gene A KO RNAseq"))), 
+                    column(4, textInput("upload_data_from", HTML("Data from * <br/> Ex.) Public data, Student A") )), 
+                    column(4, 
+                      # textInput("upload_data_type", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA"))
+                      fluidRow(
+                        column(12, htmlOutput("upload_data_type_select")),
+                        column(12, uiOutput("upload_data_type")),
+                      )
+                    ), 
+                    column(4, textInput("upload_cell_line", HTML("Cell line, Data source <br/> Ex.) THP1, PBMC"))), 
+                    column(4, textInput("upload_when", HTML("When <br/> Ex.) 2025-01"))) 
+                  ),
+                  fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D' ), selected='B')), 
+                    conditionalPanel(
+                      condition = 'input.upload_Data_Class=="B"',
+                      column(3, textInput("upload_Control_group", HTML("Control group name <br/> Ex.) Untreated, WT"))), 
+                      column(3, textInput("upload_Treatment_group", HTML("Treatment group name <br/> Ex.) Treated, KO")))
+                    ),
+                    conditionalPanel(
+                      condition = 'input.upload_Data_Class=="A"',
+                      column(6, h5('')),
+                      column(4, h5(span('\nIn case of uoloading a count data, please make sure that the columns are set to "SampleName_Rep#". See wiki for more information', style="color: red;"))) ,
+                    )
+                  ),
+                  fluidRow( column(6, textAreaInput("upload_description", "Description")) ),
+                  fluidRow( 
+                    column(12, h4('')),
+                    column(12, h4(strong("3. Click the button below"))), 
+                    column(3, actionButton('upload_data', 'Add to the dataset',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
+                    column(9, verbatimTextOutput('status_upload'))
+                  ),
+                  fluidRow(
+                    column(12, h4()),
+                    column(12, h4('Preview:')),
+                    column(9, verbatimTextOutput('upload_data_preview_status')),
+                    column(12, dataTableOutput("upload_data_preview"))
+                  )
                 )
-              ),
-              fluidRow( column(6, textAreaInput("upload_description", "Description")) ),
-              fluidRow( 
-                column(12, h4('')),
-                column(12, h4(strong("3. Click the button below"))), 
-                column(3, actionButton('upload_data', 'Add to the dataset',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
-                column(9, verbatimTextOutput('status_upload'))
-              ),
-              fluidRow(
-                column(12, h4()),
-                column(12, h4('Preview:')),
-                column(9, verbatimTextOutput('upload_data_preview_status')),
-                column(12, dataTableOutput("upload_data_preview"))
-              )
-            )
+              ##
           ),
         #### Data_Overview ####
           tabItem( tabName='Data_Overview',
@@ -679,7 +695,7 @@ ui <- fluidPage(
                                       column(12, h4('')),
                                       column(12, verbatimTextOutput('Gene_ex_status')),
                                       column(12, h4('')),
-                                      column(12, plotOutput("Gene_ex", brush = "plot_brush", width="100%", height="100%")),
+                                      column(12, withSpinner(plotOutput("Gene_ex", brush = "plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1')),
                                       column(12, 
                                         dropdownButton( h4(strong("Plot Options")),
                                           fluidRow(
@@ -987,17 +1003,17 @@ ui <- fluidPage(
                                         ),
                                         box(title='Plot options',collapsible=TRUE, width=12, collapsed = T, status='success', 
                                           fluidRow(
-                                            column(12, sliderInput('GO_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
-                                            column(12, sliderInput('GO_fig.height','Fig height', min=300, max=3000, value=1000, step=10)),
+                                            column(6, sliderInput('GO_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                            column(6, sliderInput('GO_fig.height','Fig height', min=300, max=3000, value=1000, step=10)),
                                           ),
                                           fluidRow(
-                                            column(12, sliderInput('GO_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
-                                            column(12, sliderInput('GO_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1))
+                                            column(6, sliderInput('GO_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
+                                            column(6, sliderInput('GO_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1))
                                           ),
                                           fluidRow(
-                                            column(12, sliderInput('GO_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
-                                            column(12, sliderInput('GO_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1)),
-                                            column(12, sliderInput('GO_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1))
+                                            column(6, sliderInput('GO_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
+                                            column(6, sliderInput('GO_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1)),
+                                            column(6, sliderInput('GO_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1))
                                           )
                                         )
                                       ),
@@ -2430,116 +2446,111 @@ ui <- fluidPage(
                     ),
                   ###### Compare cohorts
                     tabPanel("Compare cohorts",
-                      box(width=12, title='Compare across cohorts', status='primary',
-                        fluidRow(
-                          column(5, 
-                            box(width=12, title='Input and Settings', status='primary',
-                              fluidRow(
-                                column(7, textAreaInput("Compare_across_cohorts_gene", 'Enter genes (line by line)')),
-                                column(12, checkboxInput('Compare_across_cohorts_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
-                                conditionalPanel(
-                                  condition = "input.Compare_across_cohorts_gene_from_custom_geneset == true",
-                                  column(12, htmlOutput('Compare_across_cohorts_gene_from_custom_geneset_select'))
+                      h4(''),
+                      fluidRow(
+                        column(5, 
+                          box(width=12, title='Inputs and Settings', status='info',
+                            fluidRow(
+                              column(7, textAreaInput("Compare_across_cohorts_gene", 'Enter genes (line by line)')),
+                              column(12, materialSwitch('Compare_across_cohorts_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                              conditionalPanel(
+                                condition = "input.Compare_across_cohorts_gene_from_custom_geneset == true",
+                                column(12, htmlOutput('Compare_across_cohorts_gene_from_custom_geneset_select'))
+                              )
+                            ),
+                            fluidRow(
+                              column(12, verbatimTextOutput('Compare_across_cohorts_input_status'))
+                            ),
+                            fluidRow(
+                              h4(''),
+                              column(6, 
+                                fluidRow(
+                                  column(12, h4(strong('Select one gene below'))),
+                                  column(12, verbatimTextOutput('Compare_across_cohorts_gene_table_status')),
+                                  column(12, dataTableOutput("Compare_across_cohorts_gene_table")),
                                 )
                               ),
-                              fluidRow(
-                                column(12, verbatimTextOutput('Compare_across_cohorts_input_status'))
-                              ),
-                              fluidRow(
-                                column(6, 
-                                  fluidRow(
-                                    column(12, h4('Select one gene below')),
-                                    column(12, verbatimTextOutput('Compare_across_cohorts_gene_table_status')),
-                                    column(12, dataTableOutput("Compare_across_cohorts_gene_table")),
-                                  )
-                                ),
-                                column(6, 
-                                  fluidRow(
-                                    column(12, h4('Select cohorts below')),
-                                    column(12, dataTableOutput("Compare_across_cohorts_cohort_table")),
-                                  )
-                                ),
+                              column(6, 
+                                fluidRow(
+                                  column(12, h4(strong('Select cohorts below'))),
+                                  column(12, dataTableOutput("Compare_across_cohorts_cohort_table")),
+                                )
                               ),
                             ),
                           ),
-                          column(7,
-                            box(width=12, title='Results and Plots', status='primary',
-                              tabsetPanel(
-                                tabPanel('Mutation Frequency',
-                                  box(width=12, title='Mutation Frequency', status='primary',
-                                    fluidRow(
-                                      column(12, h4('')),
-                                      column(12, actionButton('Compare_across_cohorts_mut_freq_start', 'Compare mutation frequencies')),
-                                      column(12, h4('')),
-                                      column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~30 sec. Please be patient.', style="color: red;")) )
-                                    ),
-                                    fluidRow(
-                                      column(12, h4('Table')),
-                                      column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_table_status')),
-                                      column(12, dataTableOutput('Compare_across_cohorts_mut_freq_table')),
-                                    ),
-                                    fluidRow(
-                                      column(12, h4('Plot')),
-                                      column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_plot_status')),
-                                      column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
-                                      column(12, plotOutput('Compare_across_cohorts_mut_freq_plot', width="100%", height="100%")),
-                                      column(12, 
-                                        box(width=12, title='Plot Options', status='success', collapsible = TRUE, collapsed=TRUE,
-                                          fluidRow(
-                                            column(6,sliderInput('Compare_across_cohorts_mut_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
-                                            column(6,sliderInput('Compare_across_cohorts_mut_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
-                                          ),
-                                          fluidRow(
-                                            column(6,sliderInput('Compare_across_cohorts_mut_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6,sliderInput('Compare_across_cohorts_mut_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6,sliderInput('Compare_across_cohorts_mut_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6,sliderInput('Compare_across_cohorts_mut_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
-                                          ),
-                                          fluidRow(
-                                            column(6, colourpicker::colourInput('Compare_across_cohorts_mut_colour_high', 'Colour of the highest value:', value='#e14b22')),
-                                            column(6, colourpicker::colourInput('Compare_across_cohorts_mut_colour_zero', 'Colour of 0:', value='#ffffff')),
-                                            column(6, checkboxInput('Compare_across_cohorts_mut_white_background', 'Use white background', value=FALSE)),
-                                            column(6, checkboxInput('Compare_across_cohorts_mut_hide_score', 'Hide the scores', value=FALSE))
-                                          )
-                                        )
-                                      )
-                                    ),
-
+                        ),
+                        column(7,
+                          box(width=12, title='Results and Plots', status='danger',
+                            tabsetPanel(
+                              tabPanel('Mutation Frequency',
+                                fluidRow(
+                                  column(12, h4('')),
+                                  column(12, h4('')),
+                                  column(12, actionButton('Compare_across_cohorts_mut_freq_start', 'Compare mutation frequencies',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                  column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~30 sec. Please be patient.', style="color: red;")) )
+                                ),
+                                fluidRow(
+                                  column(12, h4(strong('Plot'))),
+                                  column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_plot_status')),
+                                  column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
+                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_mut_freq_plot', width="100%", height="100%"), type=5, color='#0dc5c1')),
+                                  column(10, h4('')),
+                                  column(2, 
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6,sliderInput('Compare_across_cohorts_mut_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                        column(6,sliderInput('Compare_across_cohorts_mut_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                      ),
+                                      fluidRow(
+                                        column(6,sliderInput('Compare_across_cohorts_mut_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Compare_across_cohorts_mut_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Compare_across_cohorts_mut_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Compare_across_cohorts_mut_score_size', 'Score font size', min=0.1, max=5, value=1, step=0.1)),
+                                      ),
+                                      fluidRow(
+                                        column(6, colourpicker::colourInput('Compare_across_cohorts_mut_colour_high', 'Colour of the highest value:', value='#e14b22')),
+                                        column(6, colourpicker::colourInput('Compare_across_cohorts_mut_colour_zero', 'Colour of 0:', value='#ffffff')),
+                                        column(6, materialSwitch('Compare_across_cohorts_mut_white_background', 'Use white background', value=FALSE, status = "success")),
+                                        column(6, materialSwitch('Compare_across_cohorts_mut_hide_score', 'Hide the scores', value=FALSE, status = "success"))
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                    )
                                   )
                                 ),
-                                tabPanel('Gene expression',
-                                  box(width=12, title='Gene expression', status='primary',
-                                    fluidRow(
-                                      column(12, h4('')),
-                                      column(12, actionButton('Compare_across_cohorts_gx_start', 'Compare gene expression')),
-                                      column(12, h4('')),
-                                      column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~2 min. Please be patient.', style="color: red;")) )
-                                    ),
-                                    fluidRow(
-                                      column(12, h4('Plot')),
-                                      column(12, verbatimTextOutput('Compare_across_cohorts_gx_plot_status')),
-                                      # column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
-                                      column(12, plotOutput('Compare_across_cohorts_gx_plot', width="100%", height="100%"))
-                                    ),
-                                    fluidRow(
-                                      column(12, 
-                                        box(width=12, title='Plot Options', status='success', collapsible = TRUE, collapsed=TRUE,
-                                          fluidRow(
-                                            column(6,sliderInput('Compare_across_cohorts_gx_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
-                                            column(6,sliderInput('Compare_across_cohorts_gx_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
-                                          ),
-                                          fluidRow(
-                                            column(6,sliderInput('Compare_across_cohorts_gx_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6,sliderInput('Compare_across_cohorts_gx_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6,sliderInput('Compare_across_cohorts_gx_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
-                                          ),
-                                          fluidRow(
-                                            column(6, checkboxInput('Compare_across_cohorts_gx_white_background', 'Use white background', value=FALSE)),
-                                          )
-                                        )
-                                      )
+                                fluidRow(
+                                  column(12, h4('Table')),
+                                  column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_table_status')),
+                                  column(12, dataTableOutput('Compare_across_cohorts_mut_freq_table')),
+                                ),
+                              ),
+                              tabPanel('Gene expression',
+                                fluidRow(
+                                  column(12, h4('')),
+                                  column(12, h4('')),
+                                  column(12, actionButton('Compare_across_cohorts_gx_start', 'Compare gene expressions',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                  column(12, h5(span('This takes time depending on how many cohorts you use and the size of each cohort.\nNote: When using all the TCGA, it takes ~2 min. Please be patient.', style="color: red;")) )
+                                ),
+                                fluidRow(
+                                  column(12, h4(strong('Plot'))),
+                                  column(12, verbatimTextOutput('Compare_across_cohorts_gx_plot_status')),
+                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_gx_plot', width="100%", height="100%"), type=5, color='#0dc5c1')),
+                                  column(10, h4('')),
+                                  column(2, 
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6,sliderInput('Compare_across_cohorts_gx_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                        column(6,sliderInput('Compare_across_cohorts_gx_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                      ),
+                                      fluidRow(
+                                        column(6,sliderInput('Compare_across_cohorts_gx_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Compare_across_cohorts_gx_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                      ),
+                                      fluidRow(
+                                        column(6, materialSwitch('Compare_across_cohorts_gx_white_background', 'Use white background', value=FALSE, status = "success")),
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                     )
-                                  ) 
+                                  )
                                 )
                               )
                             )
@@ -3313,22 +3324,33 @@ ui <- fluidPage(
           ),
         #### wiki-document ####
           tabItem( tabName='wiki_document',
-            tabsetPanel(
-                tabPanel("Introduction", box(width=12, uiOutput("Introduction_md"))),
-                tabPanel("Database", box(width=12, uiOutput("Database_md"))),
-                tabPanel("Data_Overview", box(width=12, uiOutput("Data_Overview_md"))),
-                tabPanel("Gene Set", box(width=12, uiOutput("Gene_set_md"))),
-                tabPanel("Compare acorss datasets", box(width=12, uiOutput("Compare_acorss_datasets_md"))),
-                tabPanel("Clinical data", box(width=12, uiOutput("Cilinical_data_md"))),
-                tabPanel("Integration", box(width=12, uiOutput("integrate_two_md"))),
-                tabPanel("scRNA", box(width=12, uiOutput("scRNA_md"))),
-                tabPanel("IGV", box(width=12, uiOutput("igv_md"))),
-                tabPanel("Tools", box(width=12, uiOutput("Tools_md"))),
-                tabPanel("FAQ", box(width=12, uiOutput("FAQ_md")))
+            # tabsetPanel(
+            #     tabPanel("Introduction", box(width=12, uiOutput("Introduction_md"))),
+            #     tabPanel("Database", box(width=12, uiOutput("Database_md"))),
+            #     tabPanel("Data_Overview", box(width=12, uiOutput("Data_Overview_md"))),
+            #     tabPanel("Gene Set", box(width=12, uiOutput("Gene_set_md"))),
+            #     tabPanel("Compare acorss datasets", box(width=12, uiOutput("Compare_acorss_datasets_md"))),
+            #     tabPanel("Clinical data", box(width=12, uiOutput("Cilinical_data_md"))),
+            #     tabPanel("Integration", box(width=12, uiOutput("integrate_two_md"))),
+            #     tabPanel("scRNA", box(width=12, uiOutput("scRNA_md"))),
+            #     tabPanel("IGV", box(width=12, uiOutput("igv_md"))),
+            #     tabPanel("Tools", box(width=12, uiOutput("Tools_md"))),
+            #     tabPanel("FAQ", box(width=12, uiOutput("FAQ_md")))
+            # )
+            tags$div(
+              HTML("
+                <br>
+                <p style='text-align: center; font-family: Helvetica, Arial, serif; font-size: 22px;'>
+                  The wiki for OmicsBridge is available at 
+                  <a href='https://htsmto.github.io/OmicsBridge/' target='_blank' style='color: #007ACC;'>
+                    this link
+                  </a>.
+                </p>
+              ")
             )
           )
       ),
-      h4(tags$div("Last updated on 3rd. May, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 11. May, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -3453,6 +3475,17 @@ server <- function(input, output, session) {
         }
       })
 
+      output$upload_data_type_select <- renderUI({
+        selectInput("upload_data_type_select_select", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA"), choices=c('--Select from the below--', unique(Dataset()$Data.type), 'Other'), selected='None')
+      })
+
+      output$upload_data_type <- renderUI({
+        if(input$upload_data_type_select_select == 'Other'){
+          textInput("upload_data_type_manual", "Write the data type here")
+        }
+      })
+
+
       observeEvent(input$upload_data,{
         if(is.null(input$upload_file)){
           output$status_upload <- renderText('Please upload a file!')
@@ -3461,7 +3494,11 @@ server <- function(input, output, session) {
         uploaded_file <- input$upload_file
         # detail
         dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
-        data.type.upload <- unlist(strsplit(input$upload_data_type, split = "\n"))[1]
+        if(input$upload_data_type_select_select == 'Other'){
+          data.type.upload <- unlist(strsplit(input$upload_data_type_manual, split = "\n"))[1]
+        }else{
+          data.type.upload <- input$upload_data_type_select_select
+        }
         cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
         Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
         When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
@@ -3474,7 +3511,7 @@ server <- function(input, output, session) {
           Control.group.upload <- ''
           Treatment.group.upload <- ''
         }
-        if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 | nchar(input$upload_data_type)==0 ){
+        if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 |  input$upload_data_type_select_select == '--Select from the below--' ){
           output$status_upload <- renderText('* is a mandatory filed!')
         }else if(dataset.name.upload %in% Dataset()$Dataset){
           output$status_upload <- renderText('The Dataset name is duplicated!')
@@ -3486,6 +3523,10 @@ server <- function(input, output, session) {
           output$status_upload <- renderText('The Data.from cannot contain "/ , ! # @ $ % " !')
         }else if (str_detect(data.type.upload, "[;/,!@#$%]")) {
           output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
+        }else if(input$upload_data_type_select_select == 'Other'){
+          if(nchar(input$upload_data_type_manual)==0){
+            output$status_upload <- renderText('* is a mandatory filed!')
+          }
         }else{
           gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
           if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
@@ -9460,7 +9501,7 @@ server <- function(input, output, session) {
         output$Compare_across_cohorts_cohort_table <- renderDataTable({ 
           cohorts_list <- Cliniacal_dataset()$Database.Name
           data_table_tmp <- data.frame(Cohort=cohorts_list)
-          datatable(data_table_tmp, selection = list(mode='multiple'), options = list(scrollX = TRUE, pageLength = 10)) 
+          datatable(data_table_tmp, selection = list(mode='multiple'), options = list(scrollX = TRUE, pageLength = 10, buttons=c('selectAll', 'selectNone'),dom='Blfrtip', rowId=0)) 
         })
 
         # gene selection table
@@ -9506,14 +9547,22 @@ server <- function(input, output, session) {
         outputOptions(output, "Compare_across_cohorts_mut_freq_plot_status", suspendWhenHidden=FALSE)
         outputOptions(output, "Compare_across_cohorts_mut_freq_table_status", suspendWhenHidden=FALSE)
 
+        isCalculating <- reactiveVal(FALSE) 
+        triggered <- reactiveVal(FALSE)
         Compare_cohort_mut_table <- reactiveVal()
         observeEvent(input$Compare_across_cohorts_mut_freq_start,{
+          isCalculating(TRUE)   # 計算中フラグを立てる
+          triggered(TRUE) 
           if(length(input$Compare_across_cohorts_gene_table_rows_selected) == 0){
             output$Compare_across_cohorts_input_status <- renderText({'Please select a gene'})
             Compare_cohort_mut_table(NULL)
+            isCalculating(FALSE)
+            return()
           }else if(length(input$Compare_across_cohorts_cohort_table_rows_selected) == 0){
             output$Compare_across_cohorts_input_status <- renderText({'Please select cohorts (more than one)'})
             Compare_cohort_mut_table(NULL)
+            isCalculating(FALSE)
+            return()
           }else{
             cohorts <- Cliniacal_dataset()[input$Compare_across_cohorts_cohort_table_rows_selected,]$Database.Name
             gene <- gene_list()[input$Compare_across_cohorts_gene_table_rows_selected,]
@@ -9535,6 +9584,8 @@ server <- function(input, output, session) {
             }else{
               output$Compare_across_cohorts_input_status <- renderText({NULL})
               Compare_cohort_mut_table(df_out)
+              isCalculating(FALSE)
+              return()
             }
           }
         })
@@ -9550,9 +9601,14 @@ server <- function(input, output, session) {
         })
 
         output$Compare_across_cohorts_mut_freq_plot <- renderPlot({
+          if (!triggered()) {
+            return(ggplot())
+          }else if (isCalculating()) {
+            datatable(ggplot()) # 計算中なら空データフレームを返してスピナーを出す
+          }
           if(is.null(Compare_cohort_mut_table())){
             output$Compare_across_cohorts_mut_freq_plot_status <- renderText({'A plot for mutation counts or frequencies will be shown here'})
-            return(NULL)
+            return(ggplot())
           }
           df_tmp <- Compare_cohort_mut_table()
           if(input$Compare_across_cohorts_mut_freq_plot_type == 'A'){
@@ -9596,17 +9652,24 @@ server <- function(input, output, session) {
           output$Compare_across_cohorts_mut_freq_plot_status <- renderText({NULL})
           p
         }, width=reactive(input$Compare_across_cohorts_mut_fig.width), height=reactive(input$Compare_across_cohorts_mut_fig.height), res=300)
-      
-      ## Gene expression compare
 
+      ## Gene expression compare
         Compare_cohort_gx_table <- reactiveVal()
+        isCalculating <- reactiveVal(FALSE) 
+        triggered <- reactiveVal(FALSE)
         observeEvent(input$Compare_across_cohorts_gx_start,{
+          isCalculating(TRUE)   # calculating flag
+          triggered(TRUE) 
           if(length(input$Compare_across_cohorts_gene_table_rows_selected) == 0){
             output$Compare_across_cohorts_input_status <- renderText({'Please select a gene'})
             Compare_cohort_gx_table(NULL)
+            isCalculating(FALSE)
+            return()
           }else if(length(input$Compare_across_cohorts_cohort_table_rows_selected) == 0){
             output$Compare_across_cohorts_input_status <- renderText({'Please select cohorts (more than one)'})
             Compare_cohort_gx_table(NULL)
+            isCalculating(FALSE)
+            return()
           }else{
             cohorts <- Cliniacal_dataset()[input$Compare_across_cohorts_cohort_table_rows_selected,]$Database.Name
             gene <- gene_list()[input$Compare_across_cohorts_gene_table_rows_selected,]
@@ -9626,19 +9689,28 @@ server <- function(input, output, session) {
               }
             }
             if(length(df_out)==0){
-              output$Compare_across_cohorts_input_status <- renderText({"None of the cohort has a mutation of the selected gene. Please check if the gene name are correct and do not have unnecessary spaces."})
+              output$Compare_across_cohorts_input_status <- renderText({"None of the cohort has the selected gene. Please check if the gene name are correct and do not have unnecessary spaces."})
               Compare_cohort_mut_table(NULL)
+              isCalculating(FALSE)
+              return()
             }else{
               output$Compare_across_cohorts_input_status <- renderText({NULL})
               Compare_cohort_gx_table(df_out)
+              isCalculating(FALSE)
+              return()
             }
           }
         })
 
         output$Compare_across_cohorts_gx_plot <- renderPlot({
+          if (!triggered()) {
+            return(ggplot())
+          }else if (isCalculating()) {
+            return(ggplot()) # 計算中なら空を返してスピナーを出す
+          }
           if(is.null(Compare_cohort_gx_table())){
             output$Compare_across_cohorts_gx_plot_status <- renderText({'A plot for gene expression across cohorts will be shown here'})
-            return(NULL)
+            return(ggplot())
           }
           df_tmp <- Compare_cohort_gx_table()
           df_tmp_med <- tapply(df_tmp$Expression, df_tmp$Cohort, median)
@@ -9648,10 +9720,9 @@ server <- function(input, output, session) {
           p <- p + geom_boxplot(size=0.2, outlier.size=0.5)
           p <- p + theme(axis.text = element_text(size = input$Compare_across_cohorts_gx_label_size))
           p <- p + theme(axis.title = element_text(size = input$Compare_across_cohorts_gx_title_size))
-          p <- p + theme(legend.key.size = unit(2, "mm"))
           p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
           p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
-          p <- p + theme(legend.text = element_text(size=input$Compare_across_cohorts_gx_legend_size), legend.title=element_blank())
+          p <- p + theme(legend.position='none')
           if(input$Compare_across_cohorts_gx_white_background){
             p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
             p <- p + theme(panel.background = element_rect(fill="white", size=0))
@@ -9661,7 +9732,8 @@ server <- function(input, output, session) {
           output$Compare_across_cohorts_gx_plot_status <- renderText({NULL})
           p
         }, width=reactive(input$Compare_across_cohorts_gx_fig.width), height=reactive(input$Compare_across_cohorts_gx_fig.height), res=300)
-      
+
+      ##
 
     ####
 
