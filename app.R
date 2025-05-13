@@ -440,8 +440,12 @@ ui <- fluidPage(
                                   ),
                                 ),
                                 column(12, materialSwitch("order_group", "Re-order the X axis (group names)", value=FALSE, status='danger')),
-                                column(12, conditionalPanel( condition = "input.order_group == true",  textAreaInput("group_order", "Enter the group name line by line") )),
-                                column(12, conditionalPanel( condition = "input.order_group == true", h5('List of the available group names'), verbatimTextOutput("Data_Overview_Swarm_group_name_list") ))
+                                conditionalPanel( 
+                                  condition = "input.order_group == true",  
+                                  column(12, textAreaInput("group_order", "Enter the group name line by line") ),
+                                  column(12, h5('List of the available group names')),
+                                  column(12, verbatimTextOutput("Data_Overview_Swarm_group_name_list") ) 
+                                )
                               )
                             )
                           )
@@ -569,12 +573,18 @@ ui <- fluidPage(
                             box(width=12, collapsible=TRUE, status='danger', title='Plot',
                               fluidRow(
                                 column(12, verbatimTextOutput('Data_Overview_heatmap_status') ),
+                                column(9, sliderInput(inputId = 'Cluster_num', label='Cluster number', min=1, max=20, value=1, step=1)),
                                 column(12, h4('')),
-                                column(12, plotOutput("Data_Overview_heatmap_plot", width="100%", height="100%") ),
+                                column(12, withSpinner(plotOutput("Data_Overview_heatmap_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                column(12, materialSwitch("Data_Overview_heatmap_orderSample", "Re order the Y axis (Sample anmes)", status='danger')),
+                                conditionalPanel(
+                                  condition='input.Data_Overview_heatmap_orderSample == true',
+                                  column(12, textAreaInput("Data_Overview_heatmap_orderSample_input", "Enter the sample names line by line")),
+                                  column(12, h5('List of the sample names')),
+                                  column(12, verbatimTextOutput("Data_Overview_heatmap_orderSample_list") ) 
+                                )
                               ),
                               fluidRow(
-                                column(9, sliderInput(inputId = 'Cluster_num', label='Cluster number', min=1, max=20, value=1, step=1)),
-                                column(1, h4('')),
                                 column(2, 
                                   dropdownButton( h4(strong("Plot Options")),
                                     fluidRow(
@@ -588,7 +598,7 @@ ui <- fluidPage(
                                       column(4, colourpicker::colourInput(inputId = 'Data_Overview_heatmap_col_mid', 'Colour for value = 0', value='white')),
                                       column(4, materialSwitch('Data_Overview_heatmap_white_background', 'Use white background', value=FALSE, status = "success"))
                                     ),
-                                    circle = FALSE, status = "success", icon = icon("gear"), width = "900px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                    circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                                   )
                                 )
                               )
@@ -3423,7 +3433,7 @@ server <- function(input, output, session) {
         if(!is.null(input$Data_type_filter) && input$Data_type_filter != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.type == input$Data_type_filter, ] }
         else if(!is.null(input$Seuqenced_by_filter) && input$Seuqenced_by_filter != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Seuqenced_by_filter,] }
         datatable(data_table_tmp, 
-          selection='none', extensions=c('Select'), 
+          selection='none', extensions=c('Select'), rownames=F,
           options = list(select=list(style="multi", items='row'), scrollX = TRUE, pageLength = 10 , dom='Blfrtip', rowId=0), 
           editable='cell') 
       },server = FALSE)
@@ -5033,11 +5043,11 @@ server <- function(input, output, session) {
             data.frame(Sample_name=samples[order(samples)])
           })
           output$Data_Overview_heatmap_sample_table <- renderDataTable({
-            datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons'),
+            datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
               options = list(
                 select=list(style="multi", items='row'),
-                scrollX = TRUE, scrollY=TRUE, 
-                dom='Blfrtip', rowId=0, buttons=c('selectAll', 'selectNone'), pageLength = 5 )) 
+                scroller=TRUE, deferRender=TRUE, scrollY=200,
+                dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
           },server = FALSE)
 
 
@@ -5055,11 +5065,17 @@ server <- function(input, output, session) {
           output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
           # heatmap table
           ex_datafreme_for_heatmap <- reactiveVal(NULL)
+          isCalculating <- reactiveVal(FALSE) 
+          triggered <- reactiveVal(FALSE)
           observeEvent(input$Gene_Overview_heatmap_start, {
+            isCalculating(TRUE)   
+            triggered(TRUE) 
             if(is.null(genes_for_heatmap())){
               output$Data_Overview_heatmap_status <- renderText('Please enter/choose input genes.')
               output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
               ex_datafreme_for_heatmap(NULL)
+              isCalculating(FALSE)   
+              return()
             }else{
               output$Data_Overview_heatmap_status <- NULL
               output$Data_Overview_heatmap_expression_status <- NULL
@@ -5069,6 +5085,8 @@ server <- function(input, output, session) {
                 output$Data_Overview_heatmap_status <- renderText('None of the inputted genes are in the data.')
                 output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
                 ex_datafreme_for_heatmap(NULL)
+                isCalculating(FALSE)   
+                return()
               }else{
                 df_ex <- df_ex[df_ex$id %in% genes_for_heatmap(),] 
                 rownames(df_ex) <- df_ex$id
@@ -5084,23 +5102,9 @@ server <- function(input, output, session) {
                   # standardise
                   df_ex <- sd_table(df_ex)
                   df_ex <- df_ex %>% select_if(~ !any(is.na(.)))
-                  # clustering
-                  set.seed(123)
-                  if(input$Cluster_num > length(genes_for_heatmap())){
-                    output$Data_Overview_heatmap_status <- renderText('The cluster number exceeds the number of genes. Please chosse a lower cluster number.')
-                    output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
-                    ex_datafreme_for_heatmap(NULL)
-                  }else{
-                    km <- kmeans(t(df_ex), centers = input$Cluster_num, nstart = 25)
-                    clusters <- as.data.frame(km$cluster)
-                    colnames(clusters) <- "Cluster"
-                    # combine the cluster number and the expression table
-                    gene_expression_matrix <- as.data.frame(t(df_ex))
-                    gene_expression_matrix$Cluster <- clusters$Cluster
-                    new_colnames <- c('Cluster', colnames(gene_expression_matrix)[1:dim(gene_expression_matrix)[2]-1])
-                    gene_expression_matrix <- gene_expression_matrix[,new_colnames]
-                    ex_datafreme_for_heatmap(gene_expression_matrix)
-                  }
+                  ex_datafreme_for_heatmap(df_ex)
+                  isCalculating(FALSE)   
+                  return()
                 }
               }
             }
@@ -5109,7 +5113,28 @@ server <- function(input, output, session) {
           # heatmap plot
           output$Data_Overview_heatmap_plot <- renderPlot({
             if(!is.null(ex_datafreme_for_heatmap())){
-              gene_expression_matrix <- ex_datafreme_for_heatmap()
+              df_ex <- ex_datafreme_for_heatmap()
+
+              # clustering
+              set.seed(123)
+              if(input$Cluster_num > length(genes_for_heatmap())){
+                output$Data_Overview_heatmap_status <- renderText('The cluster number exceeds the number of genes. Please chosse a lower cluster number.')
+                output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
+                return(ggplot())
+              }
+              km <- kmeans(t(df_ex), centers = input$Cluster_num, nstart = 25)
+              clusters <- as.data.frame(km$cluster)
+              colnames(clusters) <- "Cluster"
+              # combine the cluster number and the expression table
+              gene_expression_matrix <- as.data.frame(t(df_ex))
+              gene_expression_matrix$Cluster <- clusters$Cluster
+              new_colnames <- c('Cluster', colnames(gene_expression_matrix)[1:dim(gene_expression_matrix)[2]-1])
+              gene_expression_matrix <- gene_expression_matrix[,new_colnames]
+
+                                  # condition='input.Data_Overview_heatmap_orderSample == true',
+                                  # column(12, textAreaInput("Data_Overview_heatmap_orderSample_input", "Enter the sample names line by line")),
+                                  # column(12, h5('List of the sample names')),
+                                  # column(12, verbatimTextOutput("Data_Overview_heatmap_orderSample_list") ) 
               cols <- colnames(gene_expression_matrix)
               cols <- cols[2:length(cols)]
               cols <- cols[order(cols)]
@@ -5590,7 +5615,7 @@ server <- function(input, output, session) {
           if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment!= 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
         }
         datatable(data_table_tmp, 
-          selection='none', extensions=c('Select', 'Buttons'), 
+          selection='none', extensions=c('Select', 'Buttons'), rownames=F,
           options = list( select=list(style="multi", items='row'), 
             scrollX = TRUE, pageLength = 10, 
             dom='Blfrtip', rowId=0, buttons=c('selectAll', 'selectNone') ))
