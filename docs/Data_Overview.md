@@ -1,14 +1,13 @@
 
-# Data Overview
+# Data Overview and Downstream Analysis
 
-This section provides an overview of the selected dataset (except for scRNA data and bam/bed files, which are viewable in the "scRNA" and "Genome Browser" sections). Users can create various plots, identify and highlight significant genes and hits, examine overlaps with gene sets of interest, and conduct downstream analyses including GO/KEGG and GSEA analysis.
+This section provides an overview of the selected dataset (except for scRNA data and bam/bed files, which are viewable in the "scRNA" and "Genome Browser" sections). Users can create various plots, identify and highlight significant genes and hits, examine overlaps with gene sets of interest, and conduct downstream analyses including GO/KEGG and GSEA analyses.
 
 ## <u> **Data Selection** </u>
 
+To begin, a dataset will be chosen in the “Dataset Selection” section. Upon selection, the details of the dataset will be displayed on the right side. Users can filter datasets by “Data from," "Experiment," or “Data type" inside the toggle button. Depending on whether the data is in the form of a Count Table (A) or Comparison Data (B), the content will be presented in the “Overview and Analysis” section. Please refer to the following for more information.
 
-Users can filter and select datasets using three categories defined during upload: "Data from," "Experiment," and "Data type." The interface then shows detailed information about the selected dataset. Once a dataset is selected, users can view it as a spreadsheet in the "Data Table" tab. Depending on the data type, users can also create visualisations and conduct downstream analyses in additional tabs.
-
-## <u> **When the data type is "Comparison data"** </u>
+## <u> **Analysis of "Comparison data"** </u>
 
 In the "Plot" tab, users can visualise the data and perform several downstream analyses, including GO and GSEA analysis.
 >
