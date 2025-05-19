@@ -51,6 +51,13 @@ If you have a shiny server, please deploy the folder in the shiny home. You can 
 
 ## Dependency
 
+### Docker image
+
+We provide a Docker image availabe from Docker Hub
+```bash
+docker pull htsmto/omicsbridge
+```
+
 To use OmicsBridge, R is requrired and version should be >=4.4.0. We confirmed that R 4.2 or R 4.3 can be also okay for most of the functions, but some functions (ex. GSVA packages) will cause some errors, so we recommend to install the latest version of R.
 
 The necessary R libraries can be installed as the follwings:
