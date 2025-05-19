@@ -85,26 +85,9 @@ If you cannot install BiocManager >= 3.20 due to the version of R, you may insta
 Depends on the system, it usually takes 30-45 minutes to install all the dependencies.
 
 
-### Using renv
-
-The renv package is a tool for managing project-specific package dependencies in R. We provide a lockfile for Ubuntsu and MacOS in case you restore the R environemnt via renv.
-
-```R
-install.packages('rnev') # skippable if you already have rnev
-
-## For Linux (Ubuntsu)
-renv::restore(lockfile='renv.lock')
-## For Mac
-renv::restore(lockfile='renv_Mac.lock')
-
-# Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
-# Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
-
-```
-
-<br>
-Depends on the OS, it usually takes 15-30 minutes.
-
 ## How to use?
 
-Please refer to the Wiki in the interface. We provide concise instructions and short demo videos for each visualisation and analysis there.
+Please refer to the Wiki in the interface.
+https://htsmto.github.io/OmicsBridge/
+We provide concise instructions and short demo videos for each visualisation and analysis there.
+
