@@ -9,7 +9,7 @@ You can use OmicsBridge in a stand alone web interface at https://omicsbridge.dk
 There, the uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
-![Interface overview](www/interface_overview.png)
+![Interface overview](docs/img/interface_overview.png)
 
 ## Installation
 
