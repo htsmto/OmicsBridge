@@ -41,7 +41,7 @@
   # net <- readRDS('data/OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
-  human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
+  human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = TRUE)
 ####
 
 
@@ -3353,7 +3353,7 @@ ui <- fluidPage(
             )
           ),
         #### wiki-document ####
-          tabItem( tabName=' wiki_document',
+          tabItem( tabName='wiki_document',
             # tabsetPanel(
             #     tabPanel("Introduction", box(width=12, uiOutput("Introduction_md"))),
             #     tabPanel("Database", box(width=12, uiOutput("Database_md"))),
@@ -3417,7 +3417,7 @@ server <- function(input, output, session) {
   
     #### Show the data list ####
       Dataset <- reactiveVal({
-        tmp <- read.delim('data/Database.tsv', sep='\t', header=T)
+        tmp <- read.delim('data/Database.tsv', sep='\t', header=T,check.names = TRUE)
         data.frame(tmp)
       })
       output$Data_type_filter <- renderUI({ 
@@ -3491,7 +3491,7 @@ server <- function(input, output, session) {
         req(input$upload_file)
         extension <- strsplit(input$upload_file$datapath, '\\.')[[1]][ length(strsplit(input$upload_file$datapath, '\\.')[[1]]) ]
         if(extension == 'tsv' | extension == 'txt'){
-          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
+          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = TRUE)
           if(!'id' %in% colnames(gx_table)){
             output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
           }else{
@@ -3576,7 +3576,7 @@ server <- function(input, output, session) {
             return()
           }
         }else{
-          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T)
+          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = TRUE)
           if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
             if(!'id' %in% colnames(gx_table)){
               output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
@@ -3804,7 +3804,7 @@ server <- function(input, output, session) {
                 return(NULL)
               }
               output$Count_data_DataTable_status <- renderText({NULL})
-              df_tmp <- read.table(path, sep='\t', header=T)
+              df_tmp <- read.table(path, sep='\t', header=T,check.names = TRUE)
               if(colnames(df_tmp)[1] == 'X'){ colnames(df_tmp)[1] <- 'id'}
               if("X.log10.pvalue." %in% colnames(df_tmp)){ df_tmp$X.log10.pvalue. <- replace_inf_with_largest_values(df_tmp$X.log10.pvalue.) }
               if("X.log10.padj." %in% colnames(df_tmp)){ df_tmp$X.log10.padj. <- replace_inf_with_largest_values(df_tmp$X.log10.padj.) }
@@ -5640,7 +5640,7 @@ server <- function(input, output, session) {
       output$Choose_datasets_y <- renderUI({ 
         if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
             y_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None', y_names))
@@ -5656,7 +5656,7 @@ server <- function(input, output, session) {
       output$Choose_datasets_colour <- renderUI({ 
         if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
             col_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None', col_names))
@@ -5702,7 +5702,7 @@ server <- function(input, output, session) {
         if(input$Choose_datasets_colour == 'None'){
           df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
             colnames(df_tmp_tmp_Y)[2] <- dataset 
@@ -5717,7 +5717,7 @@ server <- function(input, output, session) {
           df_col_tmp <- data.frame(id = Genes_to_be_shown_list)
           col <- input$Choose_datasets_colour
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
             df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
@@ -5884,7 +5884,7 @@ server <- function(input, output, session) {
       output$Compare_dataset_get_overview_select_score <- renderUI({ 
         if(!is.null(input$choose_data_type)){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
             y_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='logFC') }
@@ -5925,7 +5925,7 @@ server <- function(input, output, session) {
           df_tmp <- data.frame()    
           i=0
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_sorted <- df_tmp_tmp[,c('id', sorted_score)][order(df_tmp_tmp[,sorted_score], decreasing = T),] # head(df_tmp_tmp_sorted)
             # get the threshold score
@@ -6114,7 +6114,7 @@ server <- function(input, output, session) {
       data_load <- function(selected_data){
         if(!is.null(selected_data) && selected_data!= 'None'){
           path <- Dataset()[Dataset()$Dataset == selected_data, ]$Path
-          df_tmp <- read.table(path, sep='\t', header=T)
+          df_tmp <- read.table(path, sep='\t', header=T,check.names = TRUE)
           if(colnames(df_tmp)[1] == 'X'){ colnames(df_tmp)[1] <- 'id'}
           if("X.log10.pvalue." %in% colnames(df_tmp)){ df_tmp$X.log10.pvalue. <- replace_inf_with_largest_values(df_tmp$X.log10.pvalue.) }
           if("X.log10.padj." %in% colnames(df_tmp)){ df_tmp$X.log10.padj. <- replace_inf_with_largest_values(df_tmp$X.log10.padj.) }
@@ -7418,7 +7418,7 @@ server <- function(input, output, session) {
       # change the header of the bed file
       bed_data <- reactive({ 
         path <- Dataset()[Dataset()$Dataset == input$igv_data_select, ]$Path
-        tmp <- read.table(path, sep='\t') # head(bed_data)
+        tmp <- read.table(path, sep='\t',check.names = TRUE) # head(bed_data)
         colnames(tmp)[1] <- 'chrom'
         colnames(tmp)[2] <- 'start'
         colnames(tmp)[3] <- 'end'
@@ -7447,7 +7447,7 @@ server <- function(input, output, session) {
   ### Clinical_data ################################################################################
 
     #### Clinical data loading ####
-      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T))})
+      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T,check.names = TRUE))})
       output$Clinical_data_select <- renderUI({ selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) })
       outputOptions(output, "Clinical_data_select", suspendWhenHidden=FALSE)
       output$Clinical_Dataset_detail <- renderText({
@@ -7466,7 +7466,7 @@ server <- function(input, output, session) {
             output$Clinical_View_Geneexpression_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nhttps://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz \n \n or, please upload the data again. '})  
             return(NULL)
           }
-          tmp <- read.table(path, sep='\t', header=T, row.names=1)
+          tmp <- read.table(path, sep='\t', header=T, row.names=1,check.names = TRUE)
           output$Clinical_View_Geneexpression_status <- renderText({
             paste0('Number of genes: ', dim(tmp)[1], '\n', 'Number of samples: ' , dim(tmp)[2])
           })
@@ -7484,7 +7484,7 @@ server <- function(input, output, session) {
             output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
             return(NULL)
           }
-          data.frame(read.delim(path, header=T))
+          data.frame(read.delim(path, header=T,check.names = TRUE,check.names = TRUE))
         }else{
           output$Clinical_View_Survival_status <- renderText({'Please select a dataset.'})
           NULL
@@ -7498,7 +7498,7 @@ server <- function(input, output, session) {
             output$Clinical_View_MetaData_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
             return(NULL)
           }
-          data.frame(read.delim(path, header=T))
+          data.frame(read.delim(path, header=T,check.names = TRUE))
         }else{
           output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
           NULL
@@ -7512,7 +7512,7 @@ server <- function(input, output, session) {
             NULL
           }else{
             if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
-              data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T))
+              data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T,check.names = TRUE))
             }else{
               output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
               NULL
@@ -8216,25 +8216,25 @@ server <- function(input, output, session) {
         if(is.null(input$new_cohort_upload_GE)){
           gx_table(NULL)
         }else{
-          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T)
+          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T,check.names = TRUE)
           gx_table(gx_table)
         }
         if(is.null(input$new_cohort_upload_sur)){
           suv_table(NULL)
         }else{
-          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T)
+          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T,check.names = TRUE)
           suv_table(suv_table)
         }
         if(is.null(input$new_cohort_upload_meta)){
           meta_table(NULL)
         }else{
-          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T)
+          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T,check.names = TRUE)
           meta_table(meta_table)
         }
         if(is.null(input$new_cohort_upload_mut)){
           mut_table(NULL)
         }else{
-          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T)
+          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T,check.names = TRUE)
           mut_table(mut_table)
         }
       })
@@ -9518,7 +9518,7 @@ server <- function(input, output, session) {
       output$CGC_message <- renderText({
         'We are using the Cancer Gene Census from COSMIC. (For more details, visit https://cancer.sanger.ac.uk/census) \nPlease enter gene names below or select a gene set.\nIf the genes are associated with cancer predisposition, they will appear in the table. Otherwise, the entire database will be displayed.'
       })
-      CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T)
+      CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = TRUE)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
         gene_sets_names <- c()
         gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
@@ -9642,7 +9642,7 @@ server <- function(input, output, session) {
             df_out <- data.frame(Cohort=c(),Mutation.Patients=c(), Frequency=c())
             for (cohort in cohorts){
               if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path)){
-                mut <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path, header=T))
+                mut <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path, header=T,check.names = TRUE))
                 if(gene %in% mut$id){
                   mut_gene <- mut[mut$id == gene,] # df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
                   df_tmp <- data.frame(Cohort=c(cohort),Mutation.Patients=c(length(unique(mut_gene$sample))), Frequency=c( round(length(unique(mut_gene$sample))/length(unique(mut$sample))*100, 2) ) )
@@ -9749,7 +9749,7 @@ server <- function(input, output, session) {
             df_out <- data.frame(Cohort=c(), Expression=c())
             for (cohort in cohorts){
               if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path)){
-                gx <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path, header=T))
+                gx <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path, header=T,check.names = TRUE))
                 if(gene %in% gx$id){
                   gx_gene <- gx[gx$id == gene,] 
                   gx_gene <- gx_gene[!names(gx_gene) %in% 'id']
@@ -9951,7 +9951,7 @@ server <- function(input, output, session) {
     
     ### Find the genomic loci
 
-      Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T) # head(Gene_coords_GRch38)
+      Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T,check.names = TRUE) # head(Gene_coords_GRch38)
       output$Find_genome_loci_status <- renderText({'Please enter the inputs, set the method and click "Search". '})
       output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
       output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
@@ -10233,7 +10233,7 @@ server <- function(input, output, session) {
           return(edges)
         }else{
           req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
-          edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t')
+          edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = TRUE)
           return(edges)
         }
       })
