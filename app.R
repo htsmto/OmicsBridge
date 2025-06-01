@@ -1720,7 +1720,12 @@ ui <- fluidPage(
               box(width=12, title='Data selection', status='info', solidHeader = TRUE,
                 fluidRow( 
                   column(4, htmlOutput("Clinical_data_select")) ,
-                  column(8, h5('Dataset detail:'), verbatimTextOutput('Clinical_Dataset_detail'))
+                  column(8, 
+                    fluidRow(
+                      column(12, h5('Dataset detail:')),
+                      column(12, withSpinner(verbatimTextOutput('Clinical_Dataset_detail'), type = 5, color = "#0dc5c1" ))
+                    )
+                  )
                 ),
               ),
             ##### Analysis part #####
@@ -1780,15 +1785,37 @@ ui <- fluidPage(
                                   )
                                 )                            
                               ),
-                              column(5,
+                              column(2,
                                 fluidRow(
-                                  column(12, radioButtons('Clinical_Survival_Split_way', 'Split the samples by:', choices = c('Median'='A', 'Top 25% vs Bottom 25%'='B'),selected='A') ),
+                                  column(12, radioButtons('Clinical_Survival_Split_way', 'Split the samples by:', choices = c('Median'='A', 'Top 25% vs Bottom 25%'='B'),selected='A') )
+                                )
+                              ),
+                              column(2,
+                                fluidRow(
+                                  column(12, htmlOutput('Clinical_Survival_choose_score_type')),
+                                  column(12, h3('')),
                                   column(12, actionButton('Clinical_Survival_start', 'Start the survival analysis',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                                 )
+                              ),
+                              column(1,
+                                div(id='help',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Quick guide"))),
+                                      column(12, helpText("0. Select a cohort.")),
+                                      column(12, helpText("1. Set the input. Enter gene names in the text box or select from the custom gene sets.")),
+                                      column(12, helpText("2. Select the way to split the samples.")),
+                                      column(12, helpText("3. Select the type of event for the survival analysis.")),
+                                      column(12, helpText("4. Click the 'Start the survival analysis' button to run the analysis.")),
+                                      column(12, helpText("5. A table containing the p valaue and the hazard ratio for each gene will be displayed in the 'Results' section below.")),
+                                      column(12, helpText("6. By clicking a gene (row) in the table, the Kaplan-Meier curve and the histogram of the expression distribution will be displayed in the 'Plots' section."))
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                  ),
+                                ) 
                               )
                             ),
                             fluidRow(
-                              column(12, verbatimTextOutput('Clinical_Survial_all_status') )
+                              column(8, verbatimTextOutput('Clinical_Survial_all_status') )
                             )
                           )
                         )
@@ -1797,8 +1824,8 @@ ui <- fluidPage(
                         column(4, 
                           box(width=12, status='warning', title='Results (Hazard Ratios)',
                             fluidRow(
-                              column(12, verbatimTextOutput('Clinical_Survial_table_status') ),
-                              column(12, dataTableOutput("Clinical_Survial_table") ),
+                              column(12, withSpinner(verbatimTextOutput('Clinical_Survial_table_status'), type = 5, color = "#0dc5c1" ) ),
+                              column(12, withSpinner(dataTableOutput("Clinical_Survial_table"), type = 5, color = "#0dc5c1" ) ),
                               column(12, downloadButton('Clinical_Survial_table_download',"Download this table") )
                             )
                           )
@@ -1810,7 +1837,7 @@ ui <- fluidPage(
                                 fluidRow(
                                   column(12, h4('')),
                                   column(12, verbatimTextOutput('Clinical_Survial_plot_error_catch') ),
-                                  column(12, plotOutput("Clinical_Survial_plot", width="100%", height="100%") ),
+                                  column(12, withSpinner(plotOutput("Clinical_Survial_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) ),
                                   column(12, h4('')),
                                   column(2,
                                     dropdownButton( h4(strong("Plot Options")),
@@ -1870,9 +1897,8 @@ ui <- fluidPage(
                       fluidRow(
                         column(12, 
                           box(width=12, status='info', title='Inputs and Settings',
-                            fluidRow(column(12, verbatimTextOutput('Gene_correlation_all_status'))),
                             fluidPage(
-                              column(8, 
+                              column(7, 
                                 fluidRow(
                                   column(12, radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', choices=c("Explore one gene's correlation with all the genes"='A', "Explore one gene's correlation with specific genes"='B'),selected='B')),
                                   column(12, 
@@ -1899,12 +1925,31 @@ ui <- fluidPage(
                                   )
                                 )
                               ), 
-                              column(4, 
+                              column(2, 
                                 fluidRow(column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson'))),
                                 fluidRow(column(12, h4(''))),
+                                fluidRow(column(12, h4(''))),
+                                fluidRow(column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
+                              ),
+                              column(1,
+                                div(id='help',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Quick guide"))),
+                                      column(12, helpText("0. Select a cohort.")),
+                                      column(12, helpText("1. Select 'Explore type'.")),
+                                      column(12, helpText("2. Enter ONE gene. This gene's expression will be on the Y-axis.")),
+                                      column(12, helpText("2-2. If you selected 'Explore one gene's correlation with specific genes', enter/set the genes for the X-axis.")),
+                                      column(12, helpText("3. Select the method for correlation.")),
+                                      column(12, helpText("4. Click the 'Calculate the correlation' button to run the analysis.")),
+                                      column(12, helpText("5. A table of the p-value and the correlation score for each gene will be displayed in the 'Correlation table' section below.")),
+                                      column(12, helpText("6. By selecting a gene in the table, a scatter plot will be displayed in the 'Scatter plot' section."))
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                  ),
+                                )
                               )
                             ),
-                            fluidRow(column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
+                            fluidRow(column(9, verbatimTextOutput('Gene_correlation_all_status')))
                           ),
                         )
                       ),
@@ -1913,8 +1958,8 @@ ui <- fluidPage(
                           box(width=12, status='warning', title='Correlation table',
                             fluidRow(
                               column(12, h4('') ),
-                              column(12, verbatimTextOutput('Gene_correlation_table_status')),
-                              column(12, DT::dataTableOutput("Gene_correlation_table") ),
+                              column(12, withSpinner(verbatimTextOutput('Gene_correlation_table_status'), type = 5, color = "#0dc5c1" )),
+                              column(12, withSpinner(DT::dataTableOutput("Gene_correlation_table"), type = 5, color = "#0dc5c1" ) ),
                               column(12, downloadButton('Gene_correlation_table_download',"Download this table") )
                             )
                           )
@@ -1924,7 +1969,7 @@ ui <- fluidPage(
                             fluidRow(
                               column(12, h4('') ),
                               column(12, verbatimTextOutput('Gene_correlation_error_catch') ),
-                              column(12, plotOutput("Gene_correlation_scatter_plot", width="100%", height="100%") ),
+                              column(12, withSpinner(plotOutput("Gene_correlation_scatter_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) ),
                               column(2, 
                                 dropdownButton( h4(strong("Plot Options")),
                                   fluidRow(
@@ -3409,6 +3454,9 @@ server <- function(input, output, session) {
         suppressMessages(library(GSVA)) #
         suppressMessages(library(fgsea))
         # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+      }else if(input$sidebar == 'Clinical_data'){
+        suppressMessages(library(survival))
+        suppressMessages(library(survminer))
       }
     })
   ###
@@ -7447,83 +7495,93 @@ server <- function(input, output, session) {
   ### Clinical_data ################################################################################
 
     #### Clinical data loading ####
-      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T,check.names = TRUE))})
+      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T, check.names = FALSE))})
       output$Clinical_data_select <- renderUI({ selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) })
       outputOptions(output, "Clinical_data_select", suspendWhenHidden=FALSE)
-      output$Clinical_Dataset_detail <- renderText({
-        df_tmp <- Cliniacal_dataset()
-        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          paste0('Description: ' , as.character(df_tmp[df_tmp$Database.Name == input$Clinical_data_select, ]$Description), '\n' )
-        }else{
-          'Please select a dataset.'
-        }
-      })
 
-      Clinical_gene_expression <- reactive({
-        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          path <- Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Expression_path
-          if(!file.exists(path)){
-            output$Clinical_View_Geneexpression_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nhttps://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz \n \n or, please upload the data again. '})  
-            return(NULL)
-          }
-          tmp <- read.table(path, sep='\t', header=T, row.names=1,check.names = TRUE)
-          output$Clinical_View_Geneexpression_status <- renderText({
-            paste0('Number of genes: ', dim(tmp)[1], '\n', 'Number of samples: ' , dim(tmp)[2])
-          })
-          data.frame(tmp)
-        }else{
-          output$Clinical_View_Geneexpression_status <- renderText({'Please select a dataset.'})
-          NULL
-        }
-      })
-      Clinical_surival <- reactive({
-        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          output$Clinical_View_Survival_status <- renderText({NULL})
-          path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Survival_path
-          if(!file.exists(path)){
-            output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
-            return(NULL)
-          }
-          data.frame(read.delim(path, header=T,check.names = TRUE,check.names = TRUE))
-        }else{
-          output$Clinical_View_Survival_status <- renderText({'Please select a dataset.'})
-          NULL
-        }
-      })  
-      Clinical_meta <- reactive({
-        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          output$Clinical_View_MetaData_status <- renderText({NULL})
-          path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Meta_path
-          if(!file.exists(path)){
-            output$Clinical_View_MetaData_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nXXX \n \n or, please upload the data again. '})  
-            return(NULL)
-          }
-          data.frame(read.delim(path, header=T,check.names = TRUE))
-        }else{
-          output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
-          NULL
-        }
-      })  
-      Clinical_mutation <- reactive({
-        if(!is.null(input$Clinical_data_select) && input$Clinical_data_select != 'None'){
-          output$Clinical_View_mutation_status <- renderText({NULL})
-          if(is.na(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
-            output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
-            NULL
+      # show the details when it is selected
+        output$Clinical_Dataset_detail <- renderText({
+          df_tmp <- Cliniacal_dataset()
+          if(input$Clinical_data_select != 'None'){
+            paste0('Description: ' , as.character(df_tmp[df_tmp$Database.Name == input$Clinical_data_select, ]$Description), '\n' )
           }else{
-            if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
-              data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T,check.names = TRUE))
-            }else{
-              output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
-              NULL
-            }
+            'Please select a dataset.'
           }
-        }else{
-          output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
-          NULL
-        } 
-      })
-    
+        })
+
+      # load all the data
+        Clinical_gene_expression <- reactiveVal(NULL)
+        Clinical_surival <- reactiveVal(NULL)
+        Clinical_meta <- reactiveVal(NULL)
+        Clinical_mutation <- reactiveVal(NULL)
+
+        # when selecting a cohort
+          observe({
+            req(input$Clinical_data_select)
+            if(input$Clinical_data_select != 'None'){
+              # Gene expression
+                path <- Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Expression_path
+                if(!file.exists(path)){
+                  output$Clinical_View_Geneexpression_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nhttps://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz \n \n or, please upload the data again. '})  
+                  Clinical_gene_expression(NULL)
+                }else{
+                  tmp <- read.table(path, sep='\t', header=T, row.names=1, check.names = FALSE)
+                  output$Clinical_View_Geneexpression_status <- renderText({
+                    paste0('Number of genes: ', dim(tmp)[1], '\n', 'Number of samples: ' , dim(tmp)[2])
+                  })
+                  Clinical_gene_expression(tmp)
+                }
+
+              # survival
+                output$Clinical_View_Survival_status <- renderText({NULL})
+                path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Survival_path
+                if(!file.exists(path)){
+                  output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you successfully upload the data? '})  
+                  Clinical_surival(NULL)
+                }else{
+                  tmp <- read.table(path, header=T, check.names = FALSE, sep='\t')
+                  Clinical_surival(tmp)
+                }
+
+              # meta
+                output$Clinical_View_MetaData_status <- renderText({NULL})
+                path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Meta_path
+                if(!file.exists(path)){
+                  output$Clinical_View_MetaData_status <- renderText({'The file does not exsit. \nDid you upload the data?'})  
+                  Clinical_meta(NULL)
+                }else{
+                  tmp <- read.delim(path, header=T,check.names = FALSE)
+                  Clinical_meta(tmp)
+                }
+
+              # mutation
+                output$Clinical_View_mutation_status <- renderText({NULL})
+                if(is.na(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
+                  output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
+                  Clinical_mutation(NULL)
+                }else{
+                  if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
+                    tmp <- read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T,check.names = FALSE)
+                    Clinical_mutation(tmp)
+                  }else{
+                    output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
+                    Clinical_mutation(NULL)
+                  }
+                }
+              #
+            }else{
+              output$Clinical_View_Geneexpression_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_Survival_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
+              Clinical_gene_expression(NULL)
+              Clinical_surival(NULL)
+              Clinical_meta(NULL)
+              Clinical_mutation(NULL)
+            }
+          })
+      #
+
     #### display the table of the data (gene expression, survival, metadata) ####
       output$Clinical_View_Geneexpression <- DT::renderDataTable({
         # radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
@@ -7553,165 +7611,239 @@ server <- function(input, output, session) {
 
 
     #### Survival analysis ####
-      suppressMessages(library(survival))
-      suppressMessages(library(survminer))
+      # suppressMessages(library(survival))
+      # suppressMessages(library(survminer))
 
       ##### Calculate the p and HR #####
         # when using a custom gene set
-        output$Clinical_Survival_genes_from_custom_geneset_select <- renderUI({
-          gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-          selectInput('Clinical_Survival_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-        })
-        outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
+          output$Clinical_Survival_genes_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('Clinical_Survival_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+          })
+          outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
         # initial status of the error message
-        output$Clinical_Survial_all_status <- renderText({"Please enter the input and choose the setting, and click 'Start the survival analysis'."})
-        output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
-        output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the hazard ratios first." })
-        output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+          output$Clinical_Survial_all_status <- renderText({"Please enter the input and choose the setting, and click 'Start the survival analysis'."})
+          output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+          output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+          output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
 
-        selected_cohort_suv <- reactive({ 0 })
-        df_Suv_p_and_HR <- eventReactive(input$Clinical_Survival_start, {
-          if(input$Clinical_data_select=='None'){
-            output$Clinical_Survial_all_status <- renderText({"Please select the clinical dataset"})
-            return(NULL)
-          }
-          df_geneEx <- Clinical_gene_expression()
-          df_OS <- Clinical_surival()
-          if(input$Clinical_Survival_genes_from_custom_geneset){
-            if(input$Clinical_Survival_genes_from_custom_geneset_select == 'None'){
-              output$Clinical_Survial_all_status <- renderText({"Please select a custom gene set."})
-              return(NULL)
+        # calculate p and HR
+          # choose which event to evaluate (OS, PFS, etc)
+          output$Clinical_Survival_choose_score_type <- renderUI({
+            if(!is.null(Clinical_surival())){
+              suv_colnames <- colnames(Clinical_surival())
+              col_tmp <- suv_colnames[grepl("\\.time", suv_colnames, ignore.case = TRUE)]
+              col_first_parts <- sapply(strsplit(col_tmp, "\\."), `[`, 1)
+            }else{
+              col_first_parts <- NULL
             }
-            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-          }else{
-            if(nchar(input$Clinical_Survival_genes)== 0 ){
-              output$Clinical_Survial_all_status <- renderText({"Please enter genes (line by line)"})
-              return(NULL)
-            }
-            genes <- unlist(strsplit(input$Clinical_Survival_genes, '\n'))
-          }
-          genes <- intersect(genes, rownames(df_geneEx))
-          if(length(genes) == 0){
-            output$Clinical_Survial_all_status <- renderText({"None of the inputted genes are not in the dataset. \nPlease make sure the gene names are correct and does not include unnecessary spaces."})
-            return(NULL)
-          }
+            selectInput('Clinical_Survival_choose_score_type', 'Select the event type',  c('None'='None', col_first_parts))
+          })
+          outputOptions(output, "Clinical_Survival_choose_score_type",  suspendWhenHidden=FALSE)
 
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-          # genes <- unlist(strsplit(input$Clinical_Survival_genes, split = "\n")) # genes <- c('CXCL10', 'CXCL9')
-          df_out <- data.frame('Gene'=c(), 'P.value'=c(), 'Hazard.Ratio'=c())
-          error_genes <- c()
-          output$Clinical_Survial_table_status <- renderText({NULL})
-          for (gene in genes){ # gene <- genes[1]
-            if(gene!=''){ 
-              if(!(gene %in% rownames(df_geneEx))){
-                df_tmp <- data.frame('Gene'=gene, 'P.value'=NA, 'Hazard.Ratio'=NA)
-                df_out <- rbind(df_out, df_tmp)
+          # record the selected cohort name, so that when you change the cohort, the generated plot will be initialised.
+          selected_cohort_suv <- reactiveVal(NULL)
+          selected_score_type <- reactiveVal(NULL)
+
+          # caluculate the p and HR value and save as a table.
+          df_Suv_p_and_HR <- reactiveVal(NULL)
+          observeEvent(input$Clinical_Survival_start, {
+            # After clicking the button, the table for p and HR (df_Suv_p_and_HR) will be updated.
+            # update the selected cohort name and event type
+              selected_cohort_suv(input$Clinical_data_select)
+              selected_score_type(input$Clinical_Survival_choose_score_type)
+
+            # when a cohort is not selected
+              if(input$Clinical_data_select=='None'){
+                show_alert(title='Error.',text='Please select a clinical dataset', type='error')
+                output$Clinical_Survial_all_status <- renderText({"Please select the clinical dataset"})
+                output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                df_Suv_p_and_HR(NULL)
+                return()
+              }
+
+            # load data
+              df_geneEx <- Clinical_gene_expression()
+              df_OS <- Clinical_surival()
+
+            # gene selection for input
+              if(input$Clinical_Survival_genes_from_custom_geneset){ # gene selection (from custom geneset)
+                if(input$Clinical_Survival_genes_from_custom_geneset_select == 'None'){
+                  show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+                  output$Clinical_Survial_all_status <- renderText({"Please select a custom gene set."})
+                  output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                  output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                  output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                  df_Suv_p_and_HR(NULL)
+                  return()
+                }
+                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              }else{  # gene selection (from text input)
+                if(nchar(input$Clinical_Survival_genes)== 0 ){
+                  show_alert(title='Error.',text='Please enter genes (line by line)', type='error')
+                  output$Clinical_Survial_all_status <- renderText({"Please enter genes (line by line)"})
+                  output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                  output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                  output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                  df_Suv_p_and_HR(NULL)
+                  return()
+                }
+                genes <- unlist(strsplit(input$Clinical_Survival_genes, '\n'))
+              }
+              genes <- intersect(genes, rownames(df_geneEx))
+              if(length(genes) == 0){
+                show_alert(title='Error.',text='None of the inputted genes are not in the dataset.', type='error')
+                output$Clinical_Survial_all_status <- renderText({"None of the inputted genes are not in the dataset. \nPlease make sure the gene names are correct and does not include unnecessary spaces."})
+                output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                df_Suv_p_and_HR(NULL)
+                return()
+              }
+              if(input$Clinical_Survival_choose_score_type == 'None'){
+                show_alert(title='Error.',text='Please select an event type.', type='error')
+                output$Clinical_Survial_all_status <- renderText({"Please select an event type."})
+                output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                df_Suv_p_and_HR(NULL)
+                return()
+              }
+
+            # calculate p and HR for each gene
+              df_out <- data.frame('Gene'=c(), 'P.value'=c(), 'Hazard.Ratio'=c())
+              error_genes <- c()
+              output$Clinical_Survial_table_status <- renderText({NULL})
+              for (gene in genes){ # gene <- genes[1]
+                if(gene!=''){ 
+                  if(!(gene %in% rownames(df_geneEx))){
+                    df_tmp <- data.frame('Gene'=gene, 'P.value'=NA, 'Hazard.Ratio'=NA)
+                    df_out <- rbind(df_out, df_tmp)
+                  }else{
+                    if(input$Clinical_Survival_Split_way == 'A'){
+                      med <- median(unlist(df_geneEx[gene,]))
+                      df_high_sample <- colnames(df_geneEx[,df_geneEx[gene,] >= med])
+                      df_low_sample <- colnames(df_geneEx[,df_geneEx[gene,] < med])
+                    }else{
+                      top25 <- quantile(unlist(df_geneEx[gene,]), 0.75, na.rm = T)
+                      bottom25 <- quantile(unlist(df_geneEx[gene,]), 0.25, na.rm = T)
+                      df_high_sample <- colnames(df_geneEx[,df_geneEx[gene,] >= top25])
+                      df_low_sample <- colnames(df_geneEx[,df_geneEx[gene,] <= bottom25])
+                    }
+                    if(length(df_high_sample)==0|length(df_low_sample)==0){
+                      error_genes <- c(error_genes, gene)
+                    }else{
+                      # add group
+                      df_OS$group = NA
+                      df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
+                      df_OS[df_OS$sample %in% df_low_sample,]$group <- 'Low'
+                      df_OS$group <- factor(df_OS$group, levels=c('Low', 'High'))
+                      # survival object
+                      surv_obj <- Surv(time = df_OS[, paste0(input$Clinical_Survival_choose_score_type, '.time')], event = df_OS[,input$Clinical_Survival_choose_score_type]) ###### 
+                      # calculate the kaplan-meier for each group
+                      km_fit <- survfit(surv_obj ~ group, data = df_OS)
+                      cox_model <- coxph(surv_obj ~ group, data = df_OS)
+                      # Hazard ratio and p
+                      HR <- exp(cox_model$coefficients)
+                      p_value <- summary(cox_model)$coefficients[, 5]
+                      df_tmp <- data.frame('Gene'=gene, 'P.value'=p_value, 'Hazard.Ratio'=HR)
+                      df_out <- rbind(df_out, df_tmp)
+                    }
+                  }
+                }
+              }
+              if(length(error_genes)>0){
+                output$Clinical_Survial_table_status <- renderText({
+                  tmp <- 'Cannot divide the samples into high/low for the following these with the selected method. \nThe expressions may be too small: \n'
+                  for (key in error_genes){
+                    tmp <- paste(tmp, key, sep='\n')
+                  }
+                  tmp
+                })
               }else{
-                if(input$Clinical_Survival_Split_way == 'A'){
-                  med <- median(unlist(df_geneEx[gene,]))
-                  df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] >= med]))
-                  df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] < med]))
-                }else{
-                  top25 <- quantile(unlist(df_geneEx[gene,]), 0.75, na.rm = T)
-                  bottom25 <- quantile(unlist(df_geneEx[gene,]), 0.25, na.rm = T)
-                  df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] >= top25]))
-                  df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene,] <= bottom25]))
-                }
-                if(length(df_high_sample)==0|length(df_low_sample)==0){
-                  error_genes <- c(error_genes, gene)
-                }else{
-                  # add group
-                  df_OS$group = NA
-                  df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
-                  df_OS[df_OS$sample %in% df_low_sample,]$group <- 'Low'
-                  df_OS$group <- factor(df_OS$group, levels=c('Low', 'High'))
-                  # survival object
-                  surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
-                  # calculate the kaplan-meier for each group
-                  km_fit <- survfit(surv_obj ~ group, data = df_OS)
-                  cox_model <- coxph(surv_obj ~ group, data = df_OS)
-                  # Hazard ratio and p
-                  HR <- exp(cox_model$coefficients)
-                  p_value <- summary(cox_model)$coefficients[, 5]
-                  df_tmp <- data.frame('Gene'=gene, 'P.value'=p_value, 'Hazard.Ratio'=HR)
-                  df_out <- rbind(df_out, df_tmp)
-                }
+                output$Clinical_Survial_table_status <- renderText({NULL})
               }
-            }
-          }
-          if(length(error_genes)>0){
-            output$Clinical_Survial_table_status <- renderText({
-              tmp <- 'Cannot divide the samples into high/low for the following these with the selected method. \nThe expressions may be too small: \n'
-              for (key in error_genes){
-                tmp <- paste(tmp, key, sep='\n')
-              }
-              tmp
-            })
-          }else{
-            output$Clinical_Survial_table_status <- renderText({NULL})
-          }
-          if(dim(df_out)[1]==0){
-            output$Clinical_Survial_all_status <- renderText({'None of the inputted genes are not in the dataset.'})
-            return(NULL)
-          }else{
-            df_out <- df_out[order(df_out$Hazard.Ratio, decreasing = T),]
-            df_out$method <- input$Clinical_Survival_Split_way
-            output$Clinical_Survial_all_status <- renderText({NULL})
-            return(df_out)
-          }
-        })
-        selected_cohort_suv <- eventReactive(input$Clinical_Survival_start, { input$Clinical_data_select })
 
-        output$Clinical_Survial_table <- DT::renderDataTable({
-          tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
-          rownames(tmp) <- NULL
-          datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-        })
+            # concatenate
+              if(dim(df_out)[1]==0){
+                show_alert(title='Error.',text='Cannot divide the samples into high/low for all the genes with the selected method', type='error')
+                output$Clinical_Survial_all_status <- renderText({'Cannot divide the samples into high/low for all the genes with the selected method.'})
+                output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                df_Suv_p_and_HR(NULL)
+                return()
+              }else{
+                df_out <- df_out[order(df_out$Hazard.Ratio, decreasing = T),]
+                df_out$method <- input$Clinical_Survival_Split_way
+                output$Clinical_Survial_all_status <- renderText({NULL})
+                df_Suv_p_and_HR(df_out)
+                return()
+              }
+          })
+
+          # show as a table
+          output$Clinical_Survial_table <- DT::renderDataTable({
+            if(is.null(df_Suv_p_and_HR())){
+              tmp <- data.frame('Gene'=character(0), 'P.value'=numeric(0), 'Hazard.Ratio'=numeric(0), stringsAsFactors = FALSE)
+            }else{
+              tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
+            }
+            rownames(tmp) <- NULL
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          })
         
         # download the table
-        output$Clinical_Survial_table_download <- downloadHandler(
-          filename = function(){"Survival_analysis.tsv"}, 
-          content = function(fname){ write.table(df_Suv_p_and_HR(), fname, sep='\t', row.names=F, quote=F) }
-        )
-
+          output$Clinical_Survial_table_download <- downloadHandler(
+            filename = function(){"Survival_analysis.tsv"}, 
+            content = function(fname){ write.table(df_Suv_p_and_HR(), fname, sep='\t', row.names=F, quote=F) }
+          )
+        #
       ##### plot a Kaplan meier #####
-        # output$Clinical_Survial_plot_Geneselect <- renderUI({ 
-        #   selectInput('Clinical_Survial_plot_Geneselect', 'Gene', c('None'='None', unlist(strsplit(input$Clinical_Survival_genes, split = "\n")))) 
-        # })
         output$Clinical_Survial_plot <- renderPlot({
-          if(length(input$Clinical_data_select)==0){
-            # output$Clinical_Survial_plot_error_catch <- renderText({'Please select a dataset, enter input genes and start the analysis.'})
-            return(NULL)
+          if(is.null(df_Suv_p_and_HR())){
+            output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+            return(ggplot())
           }
-          if(selected_cohort_suv() != input$Clinical_data_select){
-            # output$Clinical_Survial_plot_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
+          if(!is.null(selected_score_type()) && selected_score_type() != input$Clinical_Survival_choose_score_type){
+            output$Clinical_Survial_plot_error_catch <- renderText({"You changed the event type. \nPlease calculate the p value and the hazard ratios first." })
+            return(ggplot())
+          }
+          if(!is.null(selected_cohort_suv()) && selected_cohort_suv() != input$Clinical_data_select){
+            output$Clinical_Survial_plot_error_catch <- renderText({"You changed the cohort. \nPlease calculate the p value and the hazard ratios first." })
+            return(ggplot())
+          }
+          if(input$Clinical_Survival_choose_score_type == 'None'){
+            output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please select an event type."})
+            return(ggplot())
           }
           df_geneEx <- Clinical_gene_expression()
           df_OS <- Clinical_surival()
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-          if(is.null(df_Suv_p_and_HR())==TRUE){
-            # output$Clinical_Survial_plot_error_catch <- renderText({NULL})
-            return(NULL)
+          # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          if(is.null(df_Suv_p_and_HR())){
+            return(ggplot())
           }
           # gene_kaplan <- input$Clinical_Survial_plot_Geneselect
           if(length(input$Clinical_Survial_table_rows_selected)==0){
             output$Clinical_Survial_plot_error_catch <- renderText({'Please select a gene from the table.'})
-            return(NULL)
+            return(ggplot())
           }
           output$Clinical_Survial_plot_error_catch <- renderText({NULL})
           gene_kaplan <- df_Suv_p_and_HR()[input$Clinical_Survial_table_rows_selected,]$Gene
           if(df_Suv_p_and_HR()$method[1] == 'A'){
             med <- median(unlist(df_geneEx[gene_kaplan,]))
-            df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= med]))
-            df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] < med]))
+            df_high_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= med])
+            df_low_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] < med])
           }else{
             top25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.75, na.rm = T)
             bottom25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.25, na.rm = T)
-            df_high_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= top25]))
-            df_low_sample <- gsub('\\.', '-', colnames(df_geneEx[,df_geneEx[gene_kaplan,] <= bottom25]))
+            df_high_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= top25])
+            df_low_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] <= bottom25])
           }
           df_OS$group = NA
           df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
@@ -7719,7 +7851,7 @@ server <- function(input, output, session) {
           df_OS$group <- factor(df_OS$group, levels=c('High', 'Low'))
 
           # survival object
-          surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
+          surv_obj <- Surv(time = df_OS[, paste0(input$Clinical_Survival_choose_score_type, '.time')], event = df_OS[,input$Clinical_Survival_choose_score_type])
           km_fit <- survfit(surv_obj ~ group, data = df_OS)
           km_data <- broom::tidy(km_fit)
           # graph
@@ -7751,22 +7883,21 @@ server <- function(input, output, session) {
 
       ##### distribution #####
         output$Clinical_Survial_distribution_plot <- renderPlot({
+          if(is.null(df_Suv_p_and_HR())){
+            output$Clinical_Survial_plot_distribution_status <- renderText({'Please calculate the p value and the hazard ratios first.'})
+            return(ggplot())
+          }
           if(length(input$Clinical_data_select)==0){
-            # output$Clinical_Survial_plot_distribution_status <- renderText({'Please select a dataset and start the analysis.'})
-            return(NULL)
+            output$Clinical_Survial_plot_distribution_status <- renderText({'Please calculate the p value and the hazard ratios first.'})
+            return(ggplot())
           }
           if(selected_cohort_suv() != input$Clinical_data_select){
-            # output$Clinical_Survial_plot_distribution_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
+            output$Clinical_Survial_plot_distribution_status <- renderText({'You changed the cohort. \nPlease calculate the p value and the hazard ratios first.'})
+            return(ggplot())
           }
-          if(is.null(df_Suv_p_and_HR())==TRUE){
-            # output$Clinical_Survial_plot_distribution_status <- renderText({NULL})
-            return(NULL)
-          }
-          # gene_kaplan <- input$Clinical_Survial_plot_Geneselect
           if(length(input$Clinical_Survial_table_rows_selected)==0){
             output$Clinical_Survial_plot_distribution_status <- renderText({'Please select a gene from the table.'})
-            return(NULL)
+            return(ggplot())
           }
           output$Clinical_Survial_plot_distribution_status <- renderText({NULL})
           gene_histgram <- df_Suv_p_and_HR()[input$Clinical_Survial_table_rows_selected,]$Gene
@@ -7789,100 +7920,145 @@ server <- function(input, output, session) {
           }
           p
         }, width=reactive(input$Clinical_Survial_distribution_fig.width), height=reactive(input$Clinical_Survial_distribution_fig.height),res=300)
+      #### 
 
     #### Gene corralation ####
       ##### Calculate the correlation #####
         # when using a custom gene set
-        output$Gene_correlation_genes_y_from_custom_geneset_select <- renderUI({
-          gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-          selectInput('Gene_correlation_genes_y_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-        })
-        outputOptions(output, "Gene_correlation_genes_y_from_custom_geneset_select", suspendWhenHidden=FALSE)
+          output$Gene_correlation_genes_y_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('Gene_correlation_genes_y_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+          })
+          outputOptions(output, "Gene_correlation_genes_y_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
-        output$Gene_correlation_all_status <- renderText({"Please select a cohort, set the input genes and click 'Calculate the correlation'."})
-        output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
-        output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
-        df_gene_correlation <- eventReactive(input$Gene_correlation_start, {
-          # renderText({NULL})
-          if(input$Clinical_data_select == 'None'){
-            output$Gene_correlation_all_status <- renderText({'Please select a database.'})
-            return(NULL)
-          }
-          if(nchar(input$Gene_correlation_genes)==0){
-            output$Gene_correlation_all_status <- renderText({'Please enter a gene name for the Y axis.'})
-            return(NULL)
-          }
-          gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
-          df_geneEx <- Clinical_gene_expression()
-          if(!gene %in% rownames(df_geneEx)){
-            output$Gene_correlation_all_status <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
-            return(NULL)
-          }
-          if(length(input$Gene_correlation_Corralation_method) == 0){
-            output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
-            return(NULL)
-          }
-          if(length(input$Gene_correlation_genes_comparison_type)==0){
-            output$Gene_correlation_all_status <- renderText({'Please choose the "Explore type"'})
-            return(NULL)
-          }
-          if(input$Gene_correlation_genes_comparison_type == 'A'){
-            genes_to_compare <- rownames(df_geneEx)
-          }else if(input$Gene_correlation_genes_comparison_type == 'B'){
-            if(input$Gene_correlation_genes_y_from_custom_geneset){
-              if(input$Gene_correlation_genes_y_from_custom_geneset_select == 'None'){
-                output$Gene_correlation_all_status <- renderText({"Please select a custom gene set."})
-                return(NULL)
-              }
-              genes_to_compare <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-            }else{
-              if(nchar(input$Gene_correlation_genes_y)== 0 ){
-                output$Gene_correlation_all_status <- renderText({"Please enter genes for the X axis (line by line)"})
-                return(NULL)
-              }
-              genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
-            }
-            genes_to_compare <- intersect(genes_to_compare, rownames(df_geneEx))
-            if(length(genes_to_compare) == 0){
-              output$Gene_correlation_all_status <- renderText({'The inputted genes (for Y-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
-              return(NULL)
-            }
-          }
-          df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
-          a <- unlist(df_geneEx[gene,])
-          for ( gene2 in genes_to_compare){
-            b <- unlist(df_geneEx[gene2,])
-            c <- cor.test(a, b, method=input$Gene_correlation_Corralation_method)
-            r <- c$estimate
-            p <- c$p.value
-            df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
-            df_cor_out <- rbind(df_cor_out, df_cor_tmp)
-          }
-          df_cor_out <- df_cor_out[order(df_cor_out$r, decreasing = T),] # head(df_cor_out)
-          rownames(df_cor_out) <- NULL
-          df_cor_out$target <- gene
-          output$Gene_correlation_table_status <- renderText({NULL})
-          df_cor_out
-        })
-        selected_cohort_cor <- reactive({ 0 })
-        selected_cohort_cor <- eventReactive(input$Gene_correlation_start, { input$Clinical_data_select })
+        # initial status of the error message
+          output$Gene_correlation_all_status <- renderText({"Please select a cohort, set the input genes and click 'Calculate the correlation'."})
+          output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+          output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+        
+        # calculate the correlation after clicking the button
+          df_gene_correlation <- reactiveVal(NULL)
+          selected_cohort_cor <- reactiveVal(NULL)
 
+          observeEvent(input$Gene_correlation_start, {
+            selected_cohort_cor(input$Clinical_data_select)
+
+            if(input$Clinical_data_select == 'None'){
+              show_alert(title='Error.',text='Please select a cohort', type='error')
+              output$Gene_correlation_all_status <- renderText({'Please select a cohort'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            if(nchar(input$Gene_correlation_genes)==0){
+              show_alert(title='Error.',text='Please enter a gene name for the Y axis.', type='error')
+              output$Gene_correlation_all_status <- renderText({'Please enter a gene name for the Y axis.'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
+            df_geneEx <- Clinical_gene_expression()
+            if(!gene %in% rownames(df_geneEx)){
+              show_alert(title='Error.',text='The inputted gene for the Y-axis is not in the selected dataset.', type='error')
+              output$Gene_correlation_all_status <- renderText({'The inputted gene for the Y-axis is not in the selected dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            if(length(input$Gene_correlation_Corralation_method) == 0){
+              show_alert(title='Error.',text='Please choose the Method for correlation.', type='error')
+              output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            if(length(input$Gene_correlation_genes_comparison_type)==0){
+              show_alert(title='Error.',text='Please choose the "Explore type".', type='error')
+              output$Gene_correlation_all_status <- renderText({'Please choose the "Explore type"'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            if(input$Gene_correlation_genes_comparison_type == 'A'){
+              genes_to_compare <- rownames(df_geneEx)
+            }else if(input$Gene_correlation_genes_comparison_type == 'B'){
+              if(input$Gene_correlation_genes_y_from_custom_geneset){
+                if(input$Gene_correlation_genes_y_from_custom_geneset_select == 'None'){
+                  show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+                  output$Gene_correlation_all_status <- renderText({"Please select a custom gene set."})
+                  output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                  output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                  df_gene_correlation(NULL)
+                  return()
+                }
+                genes_to_compare <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              }else{
+                if(nchar(input$Gene_correlation_genes_y)== 0 ){
+                  show_alert(title='Error.',text='Please enter genes for the X axis (line by line).', type='error')
+                  output$Gene_correlation_all_status <- renderText({"Please enter genes for the X axis (line by line)"})
+                  output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                  output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                  df_gene_correlation(NULL)
+                  return()
+                }
+                genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
+              }
+              genes_to_compare <- intersect(genes_to_compare, rownames(df_geneEx))
+              if(length(genes_to_compare) == 0){
+                show_alert(title='Error.',text='The inputted genes (for X-axis) are not in the selected dataset.', type='error')
+                output$Gene_correlation_all_status <- renderText({'The inputted genes (for X-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
+                output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                df_gene_correlation(NULL)
+                return()
+              }
+            }
+            df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
+            a <- unlist(df_geneEx[gene,])
+            for ( gene2 in genes_to_compare){
+              b <- unlist(df_geneEx[gene2,])
+              c <- cor.test(a, b, method=input$Gene_correlation_Corralation_method)
+              r <- c$estimate
+              p <- c$p.value
+              df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
+              df_cor_out <- rbind(df_cor_out, df_cor_tmp)
+            }
+            df_cor_out <- df_cor_out[order(df_cor_out$r, decreasing = T),] # head(df_cor_out)
+            rownames(df_cor_out) <- NULL
+            df_cor_out$target <- gene
+            output$Gene_correlation_table_status <- renderText({NULL})
+            df_gene_correlation(df_cor_out)
+            return()
+          })
+        #
       ##### Plot the correlation by a scatter plot #####
         output$Gene_correlation_table <- DT::renderDataTable({
-          datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-        })
-        output$Gene_correlation_scatter_plot <- renderPlot({
-          if(length(input$Clinical_data_select)==0){
-            output$Gene_correlation_all_status <- renderText({'Please select a dataset and start the analysis.'})
-            return(NULL)
+          if(!is.null(df_gene_correlation())){
+            datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          }else{
+            tmp <- data.frame('Gene'=character(0), 'r'=numeric(0), 'p'=numeric(0), stringsAsFactors = FALSE)
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
           }
-          if(selected_cohort_cor() != input$Clinical_data_select){
-            output$Gene_correlation_all_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
+        })
+
+        output$Gene_correlation_scatter_plot <- renderPlot({
+          if(length(input$Clinical_data_select)==0 || is.null(selected_cohort_cor())){
+            output$Gene_correlation_all_status <- renderText({'Please select a dataset and start the analysis.'})
+            return(ggplot())
+          }
+          if(!is.null(selected_cohort_cor()) && selected_cohort_cor() != input$Clinical_data_select){
+            output$Gene_correlation_all_status <- renderText({'You changed the dataset. Please re-start the analysis.'})
+            return(ggplot())
           }
           if(is.null(df_gene_correlation())){
-            return(NULL)
+            return(ggplot())
           }else{
             if(length(input$Gene_correlation_table_rows_selected)>0){
               output$Gene_correlation_error_catch <- renderText({NULL})
@@ -7908,7 +8084,7 @@ server <- function(input, output, session) {
               p
             }else{
               output$Gene_correlation_error_catch <- renderText('Please select a gene from the correlation table.')
-              return(NULL)
+              return(ggplot())
             }
           }
           p
@@ -7919,7 +8095,8 @@ server <- function(input, output, session) {
           filename = function(){"Gene_correlation_in_cohort.tsv"}, 
           content = function(fname){ write.table(df_gene_correlation(), fname, sep='\t', row.names=F, quote=F) }
         )
-
+      ####
+      
     #### Expression across subtypes ####
       # select "Groupby"
       output$Expression_subtype_groupBy <- renderUI({ selectInput('Expression_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
