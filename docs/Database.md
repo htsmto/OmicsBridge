@@ -14,7 +14,8 @@ The read count tables derived from RNA sequencing, proteomics, and various other
 - The table must be in <span style="color: red;"> tab-delimited </span> format (either tsv or .txt file), featuring gene names in the index and sample names in the columns.
 - The header name (column name) containing gene names <span style="color: red;">should be designated as "id" </span>.
 - The sample names must conclude with <span style="color: red;">*_Rep# or *_rep#</span>.
-??? Example
+
+??? tip "Example"
     ![Example](img/1_expression_table.png)
 
 ### **B. Comparison Data**: 
@@ -22,7 +23,8 @@ Any dataset containing log fold changes and statistical scores, including differ
 
 - The table must be formatted as <span style="color: red;">tab-delimited</span> (either tsv or .txt file) and must include headers, featuring gene names in the index.
 - The header name (column name) that encompasses gene names <span style="color: red;">should be designated as "id"</span>.
-??? Example
+
+??? tip "Example"
     ![Example](img/1_log_table.png)
 
 ### **C. scRNAseq data**: 
@@ -40,7 +42,7 @@ Users can upload new datasets in the 'Data upload' section by following these st
 A file can be selected or dragged and dropped into the file upload section. Make sure the file format and data format meet the requirements described above. The maximum data size to upload is 1 GB.
 
 ### **2. Complete the dataset information**.
-<span style="color: red;">Refrain from utilising line breaks</span> in any text boxes, as only the first line will be retained in the database. Sections marked with an asterisk (*) are mandatory. Additionally, avoid the use of special symbols (e.g., /,!,?, etc.).
+<span style="color: red;">Do not use line breaks</span> in any text boxes, as the database will only keep the first line. Fields marked with an asterisk (*) are required. Also, avoid using special characters (such as /,!,?, etc.).
 
 - **Dataset Name***: Denotes the name assigned to the dataset to be uploaded. Duplicate dataset names are prohibited.
 - **Experiment Name***: Refers to the name of the experiment to which the dataset is associated. This information aids in filtering the dataset for selection in the Database or Data Overview section.
