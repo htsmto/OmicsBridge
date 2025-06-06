@@ -363,7 +363,7 @@ ui <- fluidPage(
                   column(5, 
                     fluidRow(
                       column(12, h5(strong('Dataset detail:'))),
-                      column(12, verbatimTextOutput('Dataset_detail'))
+                      column(12, withSpinner(verbatimTextOutput('Dataset_detail'), type=5, color='#0dc5c1') ),
                     )
                   )
                 )
@@ -407,7 +407,7 @@ ui <- fluidPage(
                                 fluidRow(
                                   column(12, verbatimTextOutput('Gene_ex_swarm_status') ),
                                   column(12, verbatimTextOutput('Gene_ex_swarm_status2') ),
-                                  column(12, plotOutput("Gene_ex_swarm", width="100%", height="100%")),
+                                  column(12, withSpinner(plotOutput("Gene_ex_swarm", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                   column(10, materialSwitch("Gene_ex_logsclae", "Use a log scale (log2)", value=FALSE, status='danger')),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
@@ -741,7 +741,7 @@ ui <- fluidPage(
                                       column(12, h4('')),
                                       column(12, verbatimTextOutput("Gene_ex_barplot_status")),
                                       column(12, h4('')),
-                                      column(12, plotOutput("Gene_ex_barplot", width="100%", height="100%") ),
+                                      column(12, withSpinner(plotOutput("Gene_ex_barplot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                     )
                                   )
                                 )
@@ -943,7 +943,7 @@ ui <- fluidPage(
                                   condition = "input.show_entered_gene_info == true",
                                   box(title='Information of genes of interest', collapsible=TRUE, status='warning',  width=12,
                                     fluidRow( column(12, verbatimTextOutput('Interesting_gene_outFile_status') )),
-                                    fluidRow( column(12, dataTableOutput("Interesting_gene_outFile") )),
+                                    fluidRow( column(12, withSpinner(dataTableOutput("Interesting_gene_outFile"), type=5, color='#0dc5c1') )),
                                     fluidRow( column(12, downloadButton('Interesting_gene_download',"Download this table") ))
                                   )
                                 ),
@@ -951,7 +951,7 @@ ui <- fluidPage(
                                 conditionalPanel(
                                   condition = "input.show_filterin_input_option=='B' & input.show_information == true",
                                   box(title='Outliers Information', collapsible=TRUE, status='warning', width=12,
-                                    dataTableOutput("outFile3"),
+                                    withSpinner(dataTableOutput("outFile3"), type=5, color='#0dc5c1'),
                                     fluidRow(
                                       column(3, downloadButton('filtered_download',"Download this table")),
                                       column(5, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('filtered_gene_list') ))
@@ -962,7 +962,7 @@ ui <- fluidPage(
                                 conditionalPanel(
                                   condition = "input.show_pathway == true & input.show_information_pathway== true",
                                   box(title='Pathway Genes Information', collapsible=TRUE, status='warning', width=12,
-                                    dataTableOutput("outFile3_pathway"),
+                                    withSpinner(dataTableOutput("outFile3_pathway"), type=5, color='#0dc5c1'),
                                     fluidRow(
                                       column(3, downloadButton('pathway_download',"Download this table")),
                                       column(5, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('pathway_gene_list'))),
@@ -973,7 +973,7 @@ ui <- fluidPage(
                                 conditionalPanel(
                                   condition = "input.Plot_Gene_set == true & input.Plot_Gene_setshow_information== true",
                                   box(title='Custom Gene Sets Information', collapsible=TRUE, status='warning', width=12,
-                                    dataTableOutput("outFile3_custom_geneset"),
+                                    withSpinner(dataTableOutput("outFile3_custom_geneset"), type=5, color='#0dc5c1'),
                                     fluidRow(
                                       column(3, downloadButton('custom_geneset_download',"Download this table")),
                                       column(5, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Custom_geneset_gene_list')))
@@ -2734,7 +2734,9 @@ ui <- fluidPage(
               box( width=12, title='Dataset selection', status='info', solidHeader = TRUE, collapsible=TRUE,
                 fluidRow( 
                   column(6, htmlOutput("scRNA_data_select")) ,
-                  column(6, h5('Dataset detail:'), verbatimTextOutput('scRNA_data_Dataset_detail'))
+                  column(6, h5('Dataset detail:'), 
+                    withSpinner(verbatimTextOutput('scRNA_data_Dataset_detail'), type = 5, color = "#0dc5c1" )
+                  )
                 )
               ),
             #### UMAP & Feature plot ####
@@ -2748,7 +2750,7 @@ ui <- fluidPage(
                         box(width=12, collapsible = TRUE, status = 'danger', title='Plot',
                           fluidRow(
                             column(12, verbatimTextOutput('scRNA_UMAP1_status')),
-                            column(12, plotOutput("scRNA_UMAP1", brush = "scRNA_UMAP1_brush", width="100%", height="100%")),
+                            column(12, withSpinner(plotOutput("scRNA_UMAP1", brush = "scRNA_UMAP1_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                             column(2,
                               dropdownButton( h4(strong("Plot Options")),
                                 column(6, sliderInput('scRNA_umap1_fig.width', 'Fig width', min=300, max=3000, value=900, step=10) ),
@@ -2818,7 +2820,7 @@ ui <- fluidPage(
                             box(width=12, status='danger', title='Plot', 
                               fluidRow(
                                 column(12, verbatimTextOutput('Feature_Plot_status_catch') ),
-                                column(12, plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%") ),
+                                column(12, withSpinner(plotOutput("scRNA_UMAP2", brush = "scRNA_UMAP2_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                 column(2, 
                                   dropdownButton( h4(strong("Plot Options")),
                                     fluidRow(
