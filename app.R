@@ -7613,8 +7613,8 @@ server <- function(input, output, session) {
 
 
     #### Survival analysis ####
-      # suppressMessages(library(survival))
-      # suppressMessages(library(survminer))
+      suppressMessages(library(survival))
+      suppressMessages(library(survminer))
 
       ##### Calculate the p and HR #####
         # when using a custom gene set
