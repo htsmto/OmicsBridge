@@ -380,7 +380,11 @@ ui <- fluidPage(
                     condition = "output.Data_class == 'A'",
                     tabsetPanel(
                       ####### table #######
-                        tabPanel(strong("Data Table"), h4(''), box(width=12, DT::dataTableOutput("Count_data_DataTable"))),
+                        tabPanel(strong("Data Table"), h4(''), 
+                          box(width=12, status='warning', title=strong('Data table'), collapsible=TRUE, 
+                            withSpinner(DT::dataTableOutput("Count_data_DataTable"), type=5, color='#0dc5c1')
+                          ),
+                        ),
                       ####### swarm plot #######  
                         tabPanel(strong("Swarm plot"), 
                           h4(''),
@@ -389,8 +393,14 @@ ui <- fluidPage(
                               box(status='info', width=12, title=strong('Inputs'),collapsible=TRUE,
                                 fluidRow(
                                   column(12, textAreaInput("target_gene_for_RNA", "Enter gene names")),
-                                  column(12, h4('Choose gene(s) from the table blow:') ),
+                                  column(12, materialSwitch('target_gene_for_RNA_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                  conditionalPanel(
+                                    condition = "input.target_gene_for_RNA_from_custom_geneset == true",
+                                    column(12, htmlOutput('target_gene_for_RNA_from_custom_geneset_select'))
+                                  ),
                                   column(12, verbatimTextOutput('Gene_ex_swarm_status_target_gene_for_RNA_table') ),
+                                  column(12, h4('') ),
+                                  column(12, h4('Choose gene(s) from the table blow:') ),
                                   column(12, dataTableOutput("target_gene_for_RNA_table") ),
                                 )
                               ),
@@ -405,43 +415,44 @@ ui <- fluidPage(
                             column( width = 8, 
                               box(status='danger', width=12, title=strong('Swarm Plot'),collapsible=TRUE,
                                 fluidRow(
-                                  column(12, verbatimTextOutput('Gene_ex_swarm_status') ),
-                                  column(12, verbatimTextOutput('Gene_ex_swarm_status2') ),
-                                  column(12, withSpinner(plotOutput("Gene_ex_swarm", width="100%", height="100%"), type=5, color='#0dc5c1') ),
-                                  column(10, materialSwitch("Gene_ex_logsclae", "Use a log scale (log2)", value=FALSE, status='danger')),
+                                  column(10, verbatimTextOutput('Gene_ex_swarm_status') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Y title size', min=1, max=10, value=4, step=0.1))
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Y title size', min=1, max=10, value=4, step=0.1))
                                       ),
                                       fluidRow(
                                         column(12, materialSwitch('Data_Overview_Swarm_white_background', 'Use white background', value=FALSE, status = "success"))
                                       ),
                                       fluidRow(
-                                        column(5, materialSwitch('Data_Overview_Swarm_change_colour_pallete', 'Change the colour pallete', value=FALSE, status = "success")),
+                                        column(6, materialSwitch('Data_Overview_Swarm_change_colour_pallete', 'Change the colour pallete', value=FALSE, status = "success")),
                                         conditionalPanel(
                                           condition = "input.Data_Overview_Swarm_change_colour_pallete == true",
-                                          column(5, selectInput('Data_Overview_Swarm_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
+                                          column(6, selectInput('Data_Overview_Swarm_select_colour_pallete', 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
                                         )
                                       ),
                                       fluidRow(
-                                        column(5, materialSwitch('Data_Overview_Swarm_use_single_colour', 'Use a single colour', value=FALSE, status = "success")),
+                                        column(6, materialSwitch('Data_Overview_Swarm_use_single_colour', 'Use a single colour', value=FALSE, status = "success")),
                                         conditionalPanel(
                                           condition = "input.Data_Overview_Swarm_use_single_colour == true",
-                                          column(5, colourpicker::colourInput('Data_Overview_Swarm_choose_single_colour', 'Choose a colour', value='#000000'))
+                                          column(6, colourpicker::colourInput('Data_Overview_Swarm_choose_single_colour', 'Choose a colour', value='#000000'))
                                         )
                                       ),  
-                                      circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "900px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     ),
                                   ),
+                                  column(12, withSpinner(plotOutput("Gene_ex_swarm", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                  column(12, h4('') ),
+                                  column(12, materialSwitch("Gene_ex_logsclae", "Use a log scale (log2)", value=FALSE, status='danger')),
                                   column(12, materialSwitch("order_group", "Re-order the X axis (group names)", value=FALSE, status='danger')),
                                   conditionalPanel( 
                                     condition = "input.order_group == true",  
+                                    column(12, verbatimTextOutput('Gene_ex_swarm_status2') ),
                                     column(12, textAreaInput("group_order", "Enter the group name line by line") ),
                                     column(12, h5('List of the available group names')),
                                     column(12, verbatimTextOutput("Data_Overview_Swarm_group_name_list") ) 
@@ -452,11 +463,11 @@ ui <- fluidPage(
                           ),
                         ),
                       ####### two genes correlation #######    
-                        tabPanel("Two genes correlation",
+                        tabPanel(strong("Two genes correlation"),
                           h4(''),
                           fluidRow(
                             column(4,
-                              box(width=12, status='info', title='Inputs and Settings', collapsible = TRUE,
+                              box(width=12, status='info', title=strong('Inputs and Settings'), collapsible = TRUE,
                                 fluidRow(
                                   column(12, radioButtons('Two_gene_corr_corr_Input', "Choose one from below:", choices=c('Enter both X and Y-axis genes'='A', 'Enter Y-axis gene and explore the correlations'='B'), selected='A')),
                                   column(12, textInput('Two_gene_corr_gene1', 'Gene1 (Y-axis)')),
@@ -478,12 +489,11 @@ ui <- fluidPage(
 
                                   ),
                                   column(12, radioButtons('Two_gene_corr_corr_method', "Correlation calculation method:", choices=c('pearson', 'spearman'), selected='pearson')),
-                                  # column(12, h5('Other options:')),
                                   column(12, materialSwitch("Two_gene_corr_log", "Use log scale", value=FALSE, status='info')),
                                   column(12, h4('')),
                                   conditionalPanel(
                                     condition = "input.Two_gene_corr_corr_Input == 'B'",
-                                    column(12, actionButton('Two_gene_corr_start', 'Calculate the corralations')),
+                                    column(12, actionButton('Two_gene_corr_start', 'Calculate the corralations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
                                     column(12, h4('')),
                                     column(12, h4('Choose a row from below:')),
                                     column(12, verbatimTextOutput('Two_gene_corr_table_status') ),
@@ -493,46 +503,43 @@ ui <- fluidPage(
                               ),
                             ),
                             column(8,
-                              box(width=12, status='danger', title='Plot', collapsible = TRUE,
+                              box(width=12, status='danger', title=strong('Plot'), collapsible = TRUE,
                                 fluidRow(
                                   column(12, verbatimTextOutput('Two_gene_corr_statusA') ),
                                   column(12, verbatimTextOutput('Two_gene_corr_statusB') ),
-                                  column(12, verbatimTextOutput('Two_gene_corr_corr_score') ),
-                                  column(12, verbatimTextOutput('Two_gene_corr_status_selectsample') )
-                                ),
-                                fluidRow(
-                                  column(12, plotOutput("Two_gene_corr_plot", width="100%", height="100%")),
-                                ),
-                                fluidRow(
-                                  column(3, materialSwitch('Two_gene_corr_plot_line', 'Show the correlation line', value=FALSE, status='danger') ),
-                                  column(7, materialSwitch("Two_gene_corr_colour_grorp", "Colour by groups", value=TRUE, status='danger')),
+                                  column(10, verbatimTextOutput('Two_gene_corr_corr_score') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
-                                        column(4, sliderInput('Two_gene_corr_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
-                                        column(4, sliderInput('Two_gene_corr_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                                        column(4, sliderInput('Two_gene_corr_pt.size', 'Point size', min=0.01, max=5, value=1, step=0.01)),
-                                        column(4, sliderInput('Two_gene_corr_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput('Two_gene_corr_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput('Two_gene_corr_legend.font.size', 'Legend font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput('Two_gene_corr_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
+                                        column(6, sliderInput('Two_gene_corr_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                                        column(6, sliderInput('Two_gene_corr_pt.size', 'Point size', min=0.01, max=5, value=1, step=0.01)),
+                                        column(6, sliderInput('Two_gene_corr_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput('Two_gene_corr_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput('Two_gene_corr_legend.font.size', 'Legend font size', min=0.1, max=10, value=4, step=0.1)),
                                         column(6, materialSwitch('Two_gene_corr_while_background', 'Use white background', value=FALSE, status = "success")),
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "900px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                      circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                     )
                                   )
+                                ),
+                                fluidRow(
+                                  column(12, withSpinner(plotOutput("Two_gene_corr_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                  column(12, h4(""))
+                                ),
+                                fluidRow(
+                                  column(3, materialSwitch('Two_gene_corr_plot_line', 'Show the correlation line', value=FALSE, status='danger') ),
+                                  column(7, materialSwitch("Two_gene_corr_colour_grorp", "Colour by groups", value=TRUE, status='danger'))
                                 ),
                                 fluidRow(
                                   column(12, materialSwitch("Two_gene_corr_choose_sample", "Select samples", value=FALSE, status='danger')),
                                   conditionalPanel(
                                     condition = "input.Two_gene_corr_choose_sample",
+                                    column(12, verbatimTextOutput('Two_gene_corr_status_selectsample') ),
                                     column(12, textAreaInput('Two_gene_corr_choose_sample_input', "Enter sample names (line by line)")),
                                     column(12, 
-                                      tags$details(
-                                        tags$summary("List of sample names ▼"),  # クリックすると開閉されるタイトル
-                                        div(
-                                          verbatimTextOutput('Two_gene_corr_choose_sample_input_list')
-                                        )
-                                      )
+                                      h5('List of the sample names'),
+                                      verbatimTextOutput('Two_gene_corr_choose_sample_input_list')
                                     )
                                   ),
                                 )
@@ -541,11 +548,11 @@ ui <- fluidPage(
                           )
                         ),
                       ####### heatmap #######  
-                        tabPanel("Heatmap", 
+                        tabPanel(strong("Heatmap"), 
                           h4(''),
                           fluidRow(
                             column(4, 
-                              box(width=12, collapsible=TRUE, status='info', title='Inputs and Settings',
+                              box(width=12, collapsible=TRUE, status='info', title=strong('Inputs and Settings'),
                                 fluidRow(
                                   column(12, radioButtons('Data_Overview_heatmap_target_gene_type', 'Genes from', choices = c('Text input'='A', 'Custom Gene Sets'='B', 'HALLMARK (Human)'='C', 'HALLMARK (Mouse)'='D', 'input a gmt file'='E'), selected='A')),
                                   column(12, verbatimTextOutput('Data_Overview_heatmap_target_gene_type_status')),
@@ -565,58 +572,57 @@ ui <- fluidPage(
                                   column(12, h4('Choose the samples to use below:')),
                                   column(12,  dataTableOutput("Data_Overview_heatmap_sample_table")),
                                   column(12, h4('')),
+                                  column(12, h4('')),
                                   column(12, actionButton('Gene_Overview_heatmap_start', 'Generate a heatmap', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
                                 )
                               )
                             ),
                             column(8, 
-                              box(width=12, collapsible=TRUE, status='danger', title='Plot',
+                              box(width=12, collapsible=TRUE, status='danger', title=strong('Plot'),
                                 fluidRow(
-                                  column(12, verbatimTextOutput('Data_Overview_heatmap_status') ),
-                                  column(9, sliderInput(inputId = 'Cluster_num', label='Cluster number', min=1, max=20, value=1, step=1)),
-                                  column(12, h4('')),
-                                  column(12, withSpinner(plotOutput("Data_Overview_heatmap_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
-                                  column(12, materialSwitch("Data_Overview_heatmap_orderSample", "Re order the Y axis (Sample anmes)", status='danger')),
-                                  conditionalPanel(
-                                    condition='input.Data_Overview_heatmap_orderSample == true',
-                                    column(12, textAreaInput("Data_Overview_heatmap_orderSample_input", "Enter the sample names line by line")),
-                                    column(12, h5('List of the sample names')),
-                                    column(12, verbatimTextOutput("Data_Overview_heatmap_orderSample_list") ) 
-                                  )
-                                ),
-                                fluidRow(
+                                  column(10, verbatimTextOutput('Data_Overview_heatmap_status') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
                                         column(6, sliderInput(inputId = 'Data_Overview_heatmap_fig.width', label='fig width', min=300, max=3000, value=700, step=10)),
                                         column(6, sliderInput(inputId = 'Data_Overview_heatmap_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_heatmap_xlab.font.size', label='X label size', min=0, max=10, value=1, step=0.1)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_heatmap_ylab.font.size', label='Y label size', min=0, max=10, value=3, step=0.1)),
-                                        column(4, sliderInput(inputId = 'Data_Overview_heatmap_legend.size', label='Legend size', min=1, max=10, value=3, step=1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_heatmap_xlab.font.size', label='X label size', min=0, max=10, value=1, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_heatmap_ylab.font.size', label='Y label size', min=0, max=10, value=3, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_heatmap_legend.size', label='Legend size', min=1, max=10, value=3, step=1)),
+                                      ),
+                                      fluidRow(
                                         column(4, colourpicker::colourInput(inputId = 'Data_Overview_heatmap_col_high', 'Colour for the highest value', value='red')),
                                         column(4, colourpicker::colourInput(inputId = 'Data_Overview_heatmap_col_low', 'Colour for the lowest value', value='blue')),
                                         column(4, colourpicker::colourInput(inputId = 'Data_Overview_heatmap_col_mid', 'Colour for value = 0', value='white')),
-                                        column(4, materialSwitch('Data_Overview_heatmap_white_background', 'Use white background', value=FALSE, status = "success"))
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      fluidRow(
+                                        column(12, materialSwitch('Data_Overview_heatmap_white_background', 'Use white background', value=FALSE, status = "success"))
+                                      ),
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, h4('')),
+                                  column(12, withSpinner(plotOutput("Data_Overview_heatmap_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                  column(12, h4('')),
+                                  column(9, sliderInput(inputId = 'Cluster_num', label='Cluster number', min=1, max=20, value=1, step=1)),
                                 )
                               )
                             )
                           ),
                           fluidRow(
-                            box(title='Expression scores', collapsible=TRUE, status='warning', width=12, 
-                              fluidRow(
-                                column(12, verbatimTextOutput('Data_Overview_heatmap_expression_status') ),
-                                column(12, dataTableOutput("Data_Overview_heatmap_expression"))
-                              ),
-                              fluidRow(
-                                column(3, downloadButton('Data_Overview_heatmap_expression_download',"Download this table", style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")),
-                                column(4, 
-                                  box(width=12, title='List of the genes in each cluster.', collapsible=TRUE, collapsed=TRUE,
-                                    fluidRow(column(12, htmlOutput('Data_Overview_heatmap_expression_cluster_select'))),
-                                    fluidRow(column(12, verbatimTextOutput('Data_Overview_heatmap_expression_cluster_genename')))
+                            column(12, 
+                              box(title=strong('Expression scores'), collapsible=TRUE, status='warning', width=12, 
+                                fluidRow(
+                                  column(12, verbatimTextOutput('Data_Overview_heatmap_expression_status') ),
+                                  column(12, dataTableOutput("Data_Overview_heatmap_expression"))
+                                ),
+                                fluidRow(
+                                  column(3, downloadButton('Data_Overview_heatmap_expression_download',"Download this table", style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")),
+                                  column(4, 
+                                    box(width=12, title='List of the genes in each cluster.', collapsible=TRUE, collapsed=TRUE,
+                                      fluidRow(column(12, htmlOutput('Data_Overview_heatmap_expression_cluster_select'))),
+                                      fluidRow(column(12, verbatimTextOutput('Data_Overview_heatmap_expression_cluster_genename')))
+                                    )
                                   )
                                 )
                               )
@@ -624,65 +630,73 @@ ui <- fluidPage(
                           )
                         ),
                       ####### PCA ####### 
-                        tabPanel("PCA plot",
+                        tabPanel(strong("PCA plot"),
                           h4(''),
-                          box(width=8, title='Plot', collapsible = TRUE, status='danger',
-                            fluidRow(
-                              column(12, verbatimTextOutput('Data_Overview_PCA_status')),
-                              column(12, plotOutput("Data_Overview_PCA_plot", width="100%", height="100%")),
-                              column(2,
-                                dropdownButton( h4(strong("Plot Options")),
-                                  fluidRow(
-                                    column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
-                                    column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.height', label='fig height', min=300, max=3000, value=600, step=10))
+                          fluidRow(
+                            column(8,
+                              box(width=12, title=strong('Plot'), collapsible = TRUE, status='danger',
+                                fluidRow(
+                                  column(10, verbatimTextOutput('Data_Overview_PCA_status')),
+                                  column(2,
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_fig.height', label='fig height', min=300, max=3000, value=600, step=10))
+                                      ),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.font.size', label='X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='Y/Y title size', min=0.1, max=10, value=4, step=0.1))
+                                      ),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_point_size', 'Points size', min=0.1, max=5, value=1, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_label_size', 'Sample label side', min=0.1, max=5, value=1, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_legend_size', 'Legend size', min=0.1, max=5, value=4, step=0.1))
+                                      ),
+                                      fluidRow(
+                                        column(4, materialSwitch('Data_Overview_PCA_change_colour_by_group', 'Colour by groups', value=TRUE, status = "success")),
+                                        column(4, materialSwitch('Data_Overview_PCA_label_hide', 'Hide labels', value=TRUE, status = "success")),
+                                      ),
+                                      fluidRow(
+                                        column(12, materialSwitch('Data_Overview_PCA_white_background', 'Use white background', value=FALSE, status = "success"))
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                    )
                                   ),
-                                  fluidRow(
-                                    column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.font.size', label='X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='Y/Y title size', min=0.1, max=10, value=4, step=0.1))
+                                  column(12, withSpinner(plotOutput("Data_Overview_PCA_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                )
+                              )
+                            ),
+                            column(4, 
+                              box(width=12, title=strong("Settings"), collapsible = TRUE,  status='info',
+                                fluidRow(
+                                  column(12, radioButtons('Data_Overview_PCA_Setting', 'Please chosse', choices = c('Default setting'='A', 'Define the groups'='B'), selected='A')),
+                                  column(12,
+                                    conditionalPanel(
+                                      condition = "input.Data_Overview_PCA_Setting == 'B'",
+                                      helpText("Please specify the sample names and their group names that you want to use as the following example."),
+                                      helpText("Ex.)"),
+                                      helpText("    Sample1_rep1,Group1"),
+                                      helpText("    Sample1_rep2,Group1"),
+                                      helpText("    Sample2_rep1,Group2"),
+                                      helpText("    ..."),
+                                      textAreaInput("Data_Overview_PCA_Setting_group_define", "Enter the group description"),
+                                      h3(""),
+                                      tags$details(
+                                        tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
+                                        div(
+                                          verbatimTextOutput('Data_Overview_PCA_Sample_list')
+                                        )
+                                      ),
+                                      h3("")
+                                    ),
                                   ),
-                                  fluidRow(
-                                    column(4, sliderInput(inputId = 'Data_Overview_PCA_point_size', 'Points size', min=0.1, max=5, value=1, step=0.1)),
-                                    column(4, sliderInput(inputId = 'Data_Overview_PCA_label_size', 'Sample label side', min=0.1, max=5, value=1, step=0.1)),
-                                    column(4, sliderInput(inputId = 'Data_Overview_PCA_legend_size', 'Legend size', min=0.1, max=5, value=4, step=0.1))
-                                  ),
-                                  fluidRow(
-                                    column(4, materialSwitch('Data_Overview_PCA_change_colour_by_group', 'Colour by groups', value=TRUE, status = "success")),
-                                    column(4, materialSwitch('Data_Overview_PCA_label_hide', 'Hide labels', value=TRUE, status = "success")),
-                                    column(4, materialSwitch('Data_Overview_PCA_white_background', 'Use white background', value=FALSE, status = "success"))
-                                  ),
-                                  circle = FALSE, status = "success", icon = icon("gear"), width = "900px",  tooltip = tooltipOptions(title = "Plot Options")
+                                  column(12, actionButton('Data_Overview_PCA_Start', 'Generate a PCA plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
                                 )
                               )
                             )
-                          ),
-                          box(width=4, title="Settings", collapsible = TRUE,  status='info',
-                            fluidRow(
-                              column(12, radioButtons('Data_Overview_PCA_Setting', 'Please chosse', choices = c('Default setting'='A', 'Define the groups'='B'), selected='A')),
-                              column(12,
-                                conditionalPanel(
-                                  condition = "input.Data_Overview_PCA_Setting == 'B'",
-                                  helpText("Please specify the sample names and their group names that you want to use as the following example."),
-                                  helpText("Ex.)"),
-                                  helpText("    Sample1_rep1,Group1"),
-                                  helpText("    Sample1_rep2,Group1"),
-                                  helpText("    Sample2_rep1,Group2"),
-                                  helpText("    ..."),
-                                  textAreaInput("Data_Overview_PCA_Setting_group_define", "Enter the group description"),
-                                  h3(""),
-                                  tags$details(
-                                    tags$summary("List of sample names ▼"),  # クリックすると開閉されるタイトル
-                                    div(
-                                      verbatimTextOutput('Data_Overview_PCA_Sample_list')
-                                    )
-                                  ),
-                                  h3("")
-                                ),
-                              ),
-                              column(12, actionButton('Data_Overview_PCA_Start', 'Generate a PCA plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
-                            )
                           )
                         )
-                      #
+                      #######
                     )
                   ),
                 ###### when type B is slected ######
@@ -690,7 +704,11 @@ ui <- fluidPage(
                     condition = "output.Data_class == 'B'",
                     tabsetPanel(
                       ####### Table #######
-                        tabPanel("Data Table", h4(''), box(width=12, DT::dataTableOutput("DataTable")) ),  
+                        tabPanel("Data Table", h4(''), 
+                          box(width=12, status='warning', title=strong('Data table'), collapsible=TRUE, 
+                            withSpinner(DT::dataTableOutput("DataTable"), type=5, color='#0dc5c1') 
+                          )
+                        ),  
                       ####### Plot #######  
                         tabPanel(strong("Plot & Downstream Analysis"),
                           fluidRow(column(12,  h4(''))),
@@ -703,9 +721,7 @@ ui <- fluidPage(
                                     tabPanel(strong("Scatter Plot"),
                                       fluidRow(
                                         column(12, h4('')),
-                                        column(12, verbatimTextOutput('Gene_ex_status')),
-                                        column(12, h4('')),
-                                        column(10, h4('')),
+                                        column(10, verbatimTextOutput('Gene_ex_status')),
                                         column(2, 
                                           dropdownButton( h4(strong("Plot Options")),
                                             fluidRow(
@@ -734,6 +750,7 @@ ui <- fluidPage(
                                             tooltip = tooltipOptions(title = "Plot Options")
                                           ),
                                         ),
+                                        column(12, h4('')),
                                         column(12, withSpinner(plotOutput("Gene_ex", brush = "plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1'))
                                       )
                                     ),
@@ -751,13 +768,13 @@ ui <- fluidPage(
                                 box( title=strong('Display Options'),  collapsible=TRUE, status='info',width=12,
                                   # select x and y
                                   fluidRow( 
-                                    column(12, h4(strong('Choose X and Y axis:'))),
+                                    column(12, h4('Choose X and Y axis:')),
                                     column(6, htmlOutput("Scat.X")), 
                                     column(6, htmlOutput("Scat.Y")),
                                   ),
                                   # when highlighting specific genes
                                   fluidRow(
-                                    column(12, h4(strong('Highlight the genes of interest'))),
+                                    column(12, h4('Highlight the genes of interest')),
                                     column(8, textAreaInput("target_gene", "Enter genes (line by line)")),
                                     column(12, verbatimTextOutput('Scatter_interesting_gene_status') ),
                                   ),
@@ -785,14 +802,17 @@ ui <- fluidPage(
                                     conditionalPanel(
                                       condition = "input.How_to_filter == 'A'", # take top/bottom N %
                                       fluidRow(
+                                        column(12, h3('')),
                                         column(6, numericInput('Overviwe_Top_threshold', 'The threshold for Top hits (%)', min=0, max=100, value=10, step=1)),
                                         column(6, numericInput('Overviwe_Bottom_threshold', 'The threshold for Bottom hits (%)', min=0, max=100, value=10, step=1)),
-                                        column(6, numericInput('Overviwe_Top_bottom_Y_threshold', 'The threshold for Y axis', min=0, value=0, step=0.1))
+                                        column(6, numericInput('Overviwe_Top_bottom_Y_threshold', 'The threshold for Y axis', min=0, value=0, step=0.1)),
+                                        column(12, h3(''))
                                       )
                                     ),
                                     conditionalPanel(
                                       condition = "input.How_to_filter == 'B'",
                                       fluidRow(
+                                        column(12, h3('')),
                                         column(3,
                                           fluidRow(
                                             column(12, numericInput('Main_scatter_thr_X1', 'X threshold 1',  value=1, step=0.1) ),
@@ -806,12 +826,19 @@ ui <- fluidPage(
                                           )
                                         ),
                                         column(3, radioButtons("Main_scatter_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
-                                        column(3, radioButtons("Main_scatter_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') )
-                                      )                                  
+                                        column(3, radioButtons("Main_scatter_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') ),
+                                        column(12, h3('')),
+                                      )
                                     ),
                                     fluidRow(
+                                      column(12, h3('')),
                                       column(6, materialSwitch('hide_gene_label', 'Hide labels', value=FALSE, status='info')),
-                                      column(6, materialSwitch("outlier_gene_colour", "change the colour", value=FALSE, status='info')),
+                                      column(6, materialSwitch('show_information', 'Show the filtered genes information', value=FALSE, status='info')),
+                                      conditionalPanel(
+                                        condition = "input.How_to_filter == 'B'",
+                                        column(6, materialSwitch('show_threhold_lines', 'Show the threshold lines', value=FALSE, status='info')),
+                                      ),
+                                      column(12, materialSwitch("outlier_gene_colour", "change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.outlier_gene_colour == true",
                                           column(6, colourpicker::colourInput('outlier_gene_colour_id', 'Positive side:', value='#0000CD')),
@@ -819,18 +846,11 @@ ui <- fluidPage(
                                       )
                                     ),
                                     fluidRow(
-                                      column(6, materialSwitch('show_information', 'Show the filtered genes information', value=FALSE, status='info')),
-                                      conditionalPanel(
-                                        condition = "input.How_to_filter == 'B'",
-                                        column(6, materialSwitch('show_threhold_lines', 'Show the threshold lines', value=FALSE, status='info')),
-                                      )
-                                    ),
-                                    fluidRow(
-                                      column(6, materialSwitch('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE, status='info')),
-                                      column(6,
+                                      column(12, materialSwitch('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE, status='info')),
+                                      column(12,
                                         conditionalPanel(
                                           condition = " input.show_outliers_bar_plot == true ",
-                                          fluidRow(column(12, radioButtons('show_outliers_bar_colour', 'Colour by:', choices = c("X", "Y", "None")), selecetd='None')),
+                                          fluidRow(column(12, radioButtons('show_outliers_bar_colour', 'Colour by:', choices = c("X", "Y", "None"), selected='None', inline=TRUE))),
                                           fluidRow(column(12, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable in the bar plot', status='info')))
                                         )
                                       )
@@ -1061,14 +1081,18 @@ ui <- fluidPage(
                                         )
                                       ),
                                     ## GSEA
-                                      tabPanel('GSEA analysis',
-                                        box(width=12, collapsible=TRUE, title='Settings', status='primary',
+                                      tabPanel(strong('GSEA analysis'),
+                                        h4(''),
+                                        box(width=12, collapsible=TRUE, title=strong('Settings'), status='info',
                                           fluidRow(
-                                            column(5,
+                                            column(10,
                                               fluidRow(
                                                 column(5, radioButtons("GSEA_pathway_dataset_select", "pathways from:", choices = c("HALLMARK (human)"='B', "HALLMARK (mouse)"='C', "Upload a gmt file (other gene sets)"='D', "Calculate the enrichment of one gene set"='E'), selected="B")),
                                                 column(6, htmlOutput("GSEA_select_score")),
-                                                conditionalPanel( condition = "input.GSEA_pathway_dataset_select == 'D'", column(7, fileInput("GSEA_upload_custom_pathway_file", "Upload a gmt file")) ),
+                                                conditionalPanel( 
+                                                  condition = "input.GSEA_pathway_dataset_select == 'D'", 
+                                                  column(7, fileInput("GSEA_upload_custom_pathway_file", "Upload a gmt file")) 
+                                                ),
                                                 conditionalPanel( condition = "input.GSEA_pathway_dataset_select == 'E'", 
                                                   column(7, 
                                                     fluidRow(
@@ -1079,37 +1103,42 @@ ui <- fluidPage(
                                                   )
                                                 )
                                               ),
-                                              fluidRow( column(6, actionButton("GSEA_start", "Start GESA Analysis")) ),
-                                              fluidRow( column(6, h4('') )),
-                                              fluidRow( column(6, verbatimTextOutput('GSEA_analysis_status') )),
-                                            ),
-                                            column(7,
-                                              box(title='Plot options',collapsible=TRUE, width=12,  collapsed=TRUE, status='success',
+                                              fluidRow( 
+                                                column(6, actionButton("GSEA_start", "Start GESA Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                                column(12, h4('')),
+                                                column(12, verbatimTextOutput('GSEA_analysis_status'))
+                                              )
+                                            )
+                                          )
+                                        ),
+                                        box(title=strong('GSEA results table'), collapsible=TRUE, width=4, status='warning',
+                                          fluidRow( column(12, verbatimTextOutput('GSEA_goTable_status') )),
+                                          fluidRow( column(12, withSpinner(DT::dataTableOutput("GSEA_goTable", width="100%", height="100%"), type=5, color='#0dc5c1') )), 
+                                          fluidRow( column(12, downloadButton('GSEA_download',"Download this table") ))
+                                        ),
+                                        box(title=strong('Plots'), collapsible=TRUE, width=8, status='danger',
+                                          fluidRow( 
+                                            column(12, verbatimTextOutput('GSEA_plot_status') ),
+                                            column(10, verbatimTextOutput('GSEA_status')),
+                                            column(2, 
+                                              dropdownButton( h4(strong("Plot Options")),
                                                 fluidRow(
                                                   column(4, sliderInput('GSEA_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
                                                   column(4, sliderInput('GSEA_fig.height','Fig height', min=300, max=3000, value=500, step=10))
                                                 ),
                                                 fluidRow(
-                                                    column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=15, value=5, step=1)),
-                                                    column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=15, value=5, step=1)),
-                                                    column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=15, value=5, step=1))
-                                                )
-                                              )
-                                            )
-                                          )
-                                        ),
-                                        box(title='Plots', collapsible=TRUE, width=12, status='primary',
-                                          fluidRow( column(12, verbatimTextOutput('GSEA_goTable_status') )),
-                                          fluidRow(
-                                            column(4, 
-                                              fluidRow( column(12, h4('GSEA results table') )), 
-                                              fluidRow( column(12, DT::dataTableOutput("GSEA_goTable", width="100%", height="100%") )), 
-                                              fluidRow( column(12, downloadButton('GSEA_download',"Download this table") ))
+                                                  column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=15, value=5, step=1)),
+                                                  column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=15, value=5, step=1)),
+                                                  column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=15, value=5, step=1))
+                                                ),
+                                                fluidRow(
+                                                  column(4, colourpicker::colourInput('GSEA_graph_line_colour', 'GSEA line colour:', value='green')),
+                                                  column(4, colourpicker::colourInput('GSEA_graph_maxmin_line_colour', 'Max/Min line colour:', value='red'))
+                                                ),
+                                                circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                              ),
                                             ),
-                                            column(8, 
-                                              fluidRow( column(12, verbatimTextOutput('GSEA_plot_status') )),
-                                              fluidRow( column(12, plotOutput("GSEA_plot", width="100%", height="100%") )),
-                                              fluidRow( column(12, verbatimTextOutput('GSEA_status')) ))
+                                            column(12, withSpinner(plotOutput("GSEA_plot", width="100%", height="100%"), type=5, color='#0dc5c1') )
                                           )
                                         )
                                       ),
@@ -3465,7 +3494,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 11. May, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 7. June, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -3944,18 +3973,18 @@ server <- function(input, output, session) {
 
 
           # the outliers checkbox and the pathway genes checkbox are exclusive each other
-          observeEvent(input$show_outliers, { 
-            if(input$show_outliers){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
-            if(input$show_outliers){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
-          })
-          observeEvent(input$show_pathway, { 
-            if(input$show_pathway){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
-            if(input$show_pathway){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
-          })
-          observeEvent(input$Plot_Gene_set, { 
-            if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
-            if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
-          })
+          # observeEvent(input$show_outliers, { 
+          #   if(input$show_outliers){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
+          #   if(input$show_outliers){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
+          # })
+          # observeEvent(input$show_pathway, { 
+          #   if(input$show_pathway){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
+          #   if(input$show_pathway){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
+          # })
+          # observeEvent(input$Plot_Gene_set, { 
+          #   if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
+          #   if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
+          # })
 
         ###### Interesting genes #####
           # Genes of interest
@@ -4187,74 +4216,69 @@ server <- function(input, output, session) {
 
         ###### Swarmplot ######
           # For count table matrix (RNA, protein), data frame of the expression of a specific gene for generating a swarmplot
+          # select from a custom gene list
+            output$target_gene_for_RNA_from_custom_geneset_select <- renderUI({
+              gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+              selectInput('target_gene_for_RNA_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+            })
+            outputOptions(output, "target_gene_for_RNA_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
           # inputted gene list
-          target_gene_for_RNA_table_tmp <- reactive({
-            if(nchar(input$target_gene_for_RNA) == 0){
-              output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({"Please enter gene names above first."})
-              return(NULL)
-            }else{
-              output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({NULL})
-              data.frame(Input=unique(unlist(strsplit(input$target_gene_for_RNA, split = "\n"))))
-            }
-          })
+            target_gene_for_RNA_table_tmp <- reactive({
+              # when from a custom geneset
+              if(input$target_gene_for_RNA_from_custom_geneset){
+                if(input$target_gene_for_RNA_from_custom_geneset_select == 'None'){
+                  output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({"Please select a custom geneset above first."})
+                  return(NULL)
+                }else{
+                  output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({NULL})
+                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$target_gene_for_RNA_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  data.frame(Input=unique(unlist(strsplit(genes, split = "\n"))))
+                }
+              }else{
+                if(nchar(input$target_gene_for_RNA) == 0){
+                  output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({"Please enter gene names above first."})
+                  return(NULL)
+                }else{
+                  output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({NULL})
+                  data.frame(Input=unique(unlist(strsplit(input$target_gene_for_RNA, split = "\n"))))
+                }
+              }
+            })
+
           # Table for selecting a inputted gene
-          output$target_gene_for_RNA_table <- renderDataTable({
-            datatable( target_gene_for_RNA_table_tmp(), selection = list(mode='multiple'), options = list(scrollX = TRUE, scrollY=TRUE)) 
-          })
+            output$target_gene_for_RNA_table <- renderDataTable({
+              if(is.null(target_gene_for_RNA_table_tmp())){
+                tmp <- data.frame('Genes'=character(0), stringsAsFactors = FALSE)
+                datatable( tmp, selection = list(mode='multiple'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+              }else{
+                datatable( target_gene_for_RNA_table_tmp(), selection = list(mode='multiple'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+              }
+              
+            })
           
           # prepare a dataframe for expression
-          df_gene <- reactive({
-            if(Data_class() == 'A'){ # the selected datasets has to be a count table
-              if(is.null(target_gene_for_RNA_table_tmp())){ # Not input genes
-                output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please set up the Inputs. \nA table for the expressions of the selected genes across samples will be shown here.'})
-                output$Gene_ex_swarm_status <- renderText({'Please set up the Inputs. \nA swarm plot will be displayed here.'})
-                return(NULL)
-              }
-              if(length(input$target_gene_for_RNA_table_rows_selected) == 0){ # When there are inputted genes but none is selected yet.
-                output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please select one or more genes from the table in the Inputs.'})
-                output$Gene_ex_swarm_status <- renderText({'Please select one or more genes from the table in the Inputs.'})
-                return(NULL)
-              }
-              Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
-              if(length(Gene)==1){ # when single gene is selected, return an expression table
-                if(Gene %in% df()$id){ # If the gene is really in the dataset
-                  gene_num <- which(df()$id==Gene)
-                  target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
-                  df_gene <- data.frame(t(df()[gene_num,target_samples])) 
-                  colnames(df_gene) <- c('Expression')
-                  Group <- c()
-                  for (i in strsplit(rownames(df_gene), '_')){
-                    tmp <- ''
-                    for(j in 1:(length(i)-1)){
-                      tmp <- paste0(tmp, i[j],'_')
-                    }
-                    tmp <- substr(tmp, 1, nchar(tmp)-1)
-                    Group <- c(Group, tmp)
-                  }
-                  df_gene$Group <- Group
-                  df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
-                  if(input$Gene_ex_logsclae){
-                    df_gene$Expression <- log2(df_gene$Expression+1)
-                  }
-                  output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
-                  output$Gene_ex_swarm_status <- renderText({NULL})
-                  return(df_gene) 
-                }else{ # when the gene is not found in the dataset
-                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
-                  output$Gene_ex_swarm_status <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
+            df_gene <- reactive({
+              if(Data_class() == 'A'){ # the selected datasets has to be a count table
+                if(is.null(target_gene_for_RNA_table_tmp())){ # Not input genes
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please set up the Inputs. \nA table for the expressions of the selected genes across samples will be shown here.'})
+                  output$Gene_ex_swarm_status <- renderText({'Please set up the Inputs. \nA swarm plot will be displayed here.'})
                   return(NULL)
                 }
-              }else{ # when selecting multiple gene
-                genes_not_included = c()
-                df_gene <- data.frame('Expression' = c(), 'Group'=c(), 'Gene'= c())
-                for (each_gene in Gene){
-                  if(each_gene %in% df()$id){
-                    gene_num <- which(df()$id==each_gene)
+                if(length(input$target_gene_for_RNA_table_rows_selected) == 0){ # When there are inputted genes but none is selected yet.
+                  output$Gene_ex_swarm_status_outFile_expression <- renderText({'Please select one or more genes from the table in the Inputs.'})
+                  output$Gene_ex_swarm_status <- renderText({'Please select one or more genes from the table in the Inputs.'})
+                  return(NULL)
+                }
+                Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
+                if(length(Gene)==1){ # when single gene is selected, return an expression table
+                  if(Gene %in% df()$id){ # If the gene is really in the dataset
+                    gene_num <- which(df()$id==Gene)
                     target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
-                    df_gene_tmp <- data.frame(t(df()[gene_num,target_samples])) 
-                    colnames(df_gene_tmp) <- c('Expression')
+                    df_gene <- data.frame(t(df()[gene_num,target_samples])) 
+                    colnames(df_gene) <- c('Expression')
                     Group <- c()
-                    for (i in strsplit(rownames(df_gene_tmp), '_')){
+                    for (i in strsplit(rownames(df_gene), '_')){
                       tmp <- ''
                       for(j in 1:(length(i)-1)){
                         tmp <- paste0(tmp, i[j],'_')
@@ -4262,152 +4286,185 @@ server <- function(input, output, session) {
                       tmp <- substr(tmp, 1, nchar(tmp)-1)
                       Group <- c(Group, tmp)
                     }
-                    df_gene_tmp$Group <- Group
-                    df_gene_tmp$Gene <- each_gene
-                    rownames(df_gene_tmp) <- NULL
-                    df_gene <- rbind(df_gene, df_gene_tmp)
+                    df_gene$Group <- Group
+                    df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
+                    if(input$Gene_ex_logsclae){
+                      df_gene$Expression <- log2(df_gene$Expression+1)
+                    }
+                    output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
+                    output$Gene_ex_swarm_status <- renderText({NULL})
+                    return(df_gene) 
+                  }else{ # when the gene is not found in the dataset
+                    output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
+                    output$Gene_ex_swarm_status <- renderText({ paste0('The inputted gene ("', Gene, '") is not in this data. \nPlease make sure the gene name is correct and does not have unnecessary spaces.') })
+                    return(NULL)
+                  }
+                }else{ # when selecting multiple gene
+                  genes_not_included = c()
+                  df_gene <- data.frame('Expression' = c(), 'Group'=c(), 'Gene'= c())
+                  for (each_gene in Gene){
+                    if(each_gene %in% df()$id){
+                      gene_num <- which(df()$id==each_gene)
+                      target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
+                      df_gene_tmp <- data.frame(t(df()[gene_num,target_samples])) 
+                      colnames(df_gene_tmp) <- c('Expression')
+                      Group <- c()
+                      for (i in strsplit(rownames(df_gene_tmp), '_')){
+                        tmp <- ''
+                        for(j in 1:(length(i)-1)){
+                          tmp <- paste0(tmp, i[j],'_')
+                        }
+                        tmp <- substr(tmp, 1, nchar(tmp)-1)
+                        Group <- c(Group, tmp)
+                      }
+                      df_gene_tmp$Group <- Group
+                      df_gene_tmp$Gene <- each_gene
+                      rownames(df_gene_tmp) <- NULL
+                      df_gene <- rbind(df_gene, df_gene_tmp)
+                    }else{
+                      genes_not_included <- c(genes_not_included, each_gene)
+                    }
+                  }
+                  if(length(genes_not_included) > 0){ # If there are genes not found in the dataset
+                    genes_not_found <- paste(genes_not_included, collapse=', ')
+                    output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
+                    output$Gene_ex_swarm_status <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
                   }else{
-                    genes_not_included <- c(genes_not_included, each_gene)
+                    output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
+                    output$Gene_ex_swarm_status <- renderText({NULL})
+                  }
+                  if(length(df_gene)>0){
+                    df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
+                    if(input$Gene_ex_logsclae){
+                      df_gene$Expression <- log2(df_gene$Expression+1)
+                    }
+                    return(df_gene)
+                  }else{
+                    genes_not_found <- paste(genes_not_included, collapse=', ')
+                    output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
+                    output$Gene_ex_swarm_status <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
+                    return(NULL)
                   }
                 }
-                if(length(genes_not_included) > 0){ # If there are genes not found in the dataset
-                  genes_not_found <- paste(genes_not_included, collapse=', ')
-                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
-                  output$Gene_ex_swarm_status <- renderText({ paste0('The following genes are not in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
-                }else{
-                  output$Gene_ex_swarm_status_outFile_expression <- renderText({NULL})
-                  output$Gene_ex_swarm_status <- renderText({NULL})
-                }
-                if(length(df_gene)>0){
-                  df_gene$Group <- factor(Group, levels=unique(Group[order(Group)]))
-                  if(input$Gene_ex_logsclae){
-                    df_gene$Expression <- log2(df_gene$Expression+1)
-                  }
-                  return(df_gene)
-                }else{
-                  genes_not_found <- paste(genes_not_included, collapse=', ')
-                  output$Gene_ex_swarm_status_outFile_expression <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
-                  output$Gene_ex_swarm_status <- renderText({ paste0('None of the selected genes are not found in this data. \nPlease make sure the gene names are correct and do not have unnecessary spaces. \n', genes_not_found)})
-                  return(NULL)
-                }
+              }else{
+                return(NULL)
               }
-            }else{
-              return(NULL)
-            }
-          })
+            })
 
           # display the expression table
-          output$outFile_expression <- renderDataTable({ 
-            datatable( data.frame(df_gene()), options = list(scrollX = TRUE, scrollY = TRUE)) 
-          })
+            output$outFile_expression <- renderDataTable({ 
+              datatable( data.frame(df_gene()), options = list(scrollX = TRUE, scrollY = TRUE)) 
+            })
           
           # list of the groups (for selecting groups when re-odering the X axis)
-          output$Data_Overview_Swarm_group_name_list <- renderText({
-            if(is.null(df_gene())){
-              NULL
-            }else{
-              groups <- unique(df_gene()$Group)[order(unique(df_gene()$Group))]
-              paste(groups, collapse='\n')
-            }
-          })
+            output$Data_Overview_Swarm_group_name_list <- renderText({
+              if(is.null(df_gene())){
+                NULL
+              }else{
+                groups <- unique(df_gene()$Group)[order(unique(df_gene()$Group))]
+                paste(groups, collapse='\n')
+              }
+            })
 
           # colour option are mutually exclusive (use pallete or use a single colour)
-          observeEvent(input$Data_Overview_Swarm_change_colour_pallete, { 
-            if(input$Data_Overview_Swarm_change_colour_pallete){ updateCheckboxInput(session, "Data_Overview_Swarm_use_single_colour", value=FALSE)}
-          })
-          observeEvent(input$Data_Overview_Swarm_use_single_colour, { 
-            if(input$Data_Overview_Swarm_use_single_colour){ updateCheckboxInput(session, "Data_Overview_Swarm_change_colour_pallete", value=FALSE)}
-          })
+            observeEvent(input$Data_Overview_Swarm_change_colour_pallete, { 
+              if(input$Data_Overview_Swarm_change_colour_pallete){ updateCheckboxInput(session, "Data_Overview_Swarm_use_single_colour", value=FALSE)}
+            })
+            observeEvent(input$Data_Overview_Swarm_use_single_colour, { 
+              if(input$Data_Overview_Swarm_use_single_colour){ updateCheckboxInput(session, "Data_Overview_Swarm_change_colour_pallete", value=FALSE)}
+            })
 
           # plot
-          output$Gene_ex_swarm <- renderPlot({
-            if(is.null(df_gene())){
-              return(ggplot())
-            }
-            df_tmp <- df_gene()
-            if(input$order_group){ # When re-ordering the X axis.
-              if(nchar(input$group_order) == 0){ # when nothing is written in the text area yet.
-                output$Gene_ex_swarm_status2 <- renderText({'Please write the group names that you want to use for plotting.'})
+            output$Gene_ex_swarm <- renderPlot({
+              if(is.null(df_gene())){
                 return(ggplot())
               }
-              selected_group <- intersect(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
-              not_found_selected_group <- setdiff(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
-              if(length(not_found_selected_group) > 0){ # when entered group names does not exsist
-                output$Gene_ex_swarm_status2 <- renderText({
-                  tmp <- paste(not_found_selected_group, collapse=', ')
-                  paste0('The following groups are not in the dataset. \nPlease enter the right group names. \n', tmp)
-                })
-                if(length(selected_group) == 0){
+              df_tmp <- df_gene()
+              if(input$order_group){ # When re-ordering the X axis.
+                if(nchar(input$group_order) == 0){ # when nothing is written in the text area yet.
+                  output$Gene_ex_swarm_status2 <- renderText({'Please write the group names that you want to use for plotting.'})
                   return(ggplot())
                 }
+                selected_group <- intersect(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
+                not_found_selected_group <- setdiff(unlist(strsplit(input$group_order, split = "\n")), df_tmp$Group)
+                if(length(not_found_selected_group) > 0){ # when entered group names does not exsist
+                  output$Gene_ex_swarm_status2 <- renderText({
+                    tmp <- paste(not_found_selected_group, collapse=', ')
+                    paste0('The following groups are not in the dataset. \nPlease enter the right group names. \n', tmp)
+                  })
+                  if(length(selected_group) == 0){
+                    return(ggplot())
+                  }
+                }else{
+                  output$Gene_ex_swarm_status2 <- renderText({NULL})
+                }
+                df_tmp <- df_tmp[df_tmp$Group %in% selected_group,]
+                df_tmp$Group <- factor(df_tmp$Group, levels = c(selected_group))
               }else{
                 output$Gene_ex_swarm_status2 <- renderText({NULL})
               }
-              df_tmp <- df_tmp[df_tmp$Group %in% selected_group,]
-              df_tmp$Group <- factor(df_tmp$Group, levels = c(selected_group))
-            }else{
-              output$Gene_ex_swarm_status2 <- renderText({NULL})
-            }
-            Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
-            if(length(Gene) == 1){
-              if(input$Data_Overview_Swarm_use_single_colour){
-                p <- ggplot(df_tmp, aes(x = Group, y = Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
-              }else{
-                p <- ggplot(df_tmp, aes(x = Group, y = Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
-                if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
-                  p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
-                }
-              }
-              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ theme(legend.position = 'none')
-              p <- p + theme(axis.title.x = element_blank()) # + theme(plot.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
-              p <- p + ylab(Gene)
-            }else{
-              data_list <- split(df_tmp, df_tmp$Gene)
-              num_plots <- length(data_list)
-              plots <- lapply(seq_along(data_list), function(i) {
+              Gene <- target_gene_for_RNA_table_tmp()[input$target_gene_for_RNA_table_rows_selected,]
+              if(length(Gene) == 1){
                 if(input$Data_Overview_Swarm_use_single_colour){
-                  p <- ggplot(data_list[[i]], aes(x=Group, y=Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
+                  p <- ggplot(df_tmp, aes(x = Group, y = Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
                 }else{
-                  p <- ggplot(data_list[[i]], aes(x=Group, y=Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
-                    if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
-                      p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
-                    } 
+                  p <- ggplot(df_tmp, aes(x = Group, y = Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
+                  if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
+                    p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
+                  }
                 }
-                each_gene <- data_list[[i]]$Gene[1]
-                p <- p + ylab(each_gene) + theme(axis.title.y = element_text(size = input$Data_Overview_Swarm_graph.title.font.size)) + theme(legend.position = 'none')  + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size))
-                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
-                if( i < num_plots){
-                  p <- p + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
-                }else{
-                  p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size), axis.title.x = element_blank())
-                }
-                if(input$Data_Overview_Swarm_white_background){
-                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
-                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-                }
-                return(p)
-              })
-              p <- wrap_plots(plots, ncol=1)
-            }
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_Swarm_xlab.font.size))
-            p <- p + theme(axis.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
-            if(input$Data_Overview_Swarm_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p
-          }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height), res=300)
+                p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ theme(legend.position = 'none')
+                p <- p + theme(axis.title.x = element_blank()) # + theme(plot.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+                p <- p + ylab(Gene)
+              }else{
+                data_list <- split(df_tmp, df_tmp$Gene)
+                num_plots <- length(data_list)
+                plots <- lapply(seq_along(data_list), function(i) {
+                  if(input$Data_Overview_Swarm_use_single_colour){
+                    p <- ggplot(data_list[[i]], aes(x=Group, y=Expression)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size, color=input$Data_Overview_Swarm_choose_single_colour)
+                  }else{
+                    p <- ggplot(data_list[[i]], aes(x=Group, y=Expression, color=Group)) + geom_beeswarm(size=input$Data_Overview_Swarm_pt.size)
+                      if(input$Data_Overview_Swarm_select_colour_pallete != 'None'){
+                        p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
+                      } 
+                  }
+                  each_gene <- data_list[[i]]$Gene[1]
+                  p <- p + ylab(each_gene) + theme(axis.title.y = element_text(size = input$Data_Overview_Swarm_graph.title.font.size)) + theme(legend.position = 'none')  + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size))
+                  p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                  p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+                  if( i < num_plots){
+                    p <- p + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+                  }else{
+                    p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size), axis.title.x = element_blank())
+                  }
+                  if(input$Data_Overview_Swarm_white_background){
+                    p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                    p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                    p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                  }
+                  return(p)
+                })
+                p <- wrap_plots(plots, ncol=1)
+              }
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_Swarm_xlab.font.size))
+              p <- p + theme(axis.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+              if(input$Data_Overview_Swarm_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
+            }, width=reactive(input$Data_Overview_Swarm_fig.width), height=reactive(input$Data_Overview_Swarm_fig.height), res=300)
 
           # download the table
-          output$outFile_expression_download <- downloadHandler(
-            filename = function(){"Swarm_plot.tsv"}, 
-            content = function(fname){ write.table(df_gene(), fname, sep='\t',  quote=F) }
-          )
+            output$outFile_expression_download <- downloadHandler(
+              filename = function(){"Swarm_plot.tsv"}, 
+              content = function(fname){ write.table(df_gene(), fname, sep='\t',  quote=F) }
+            )
+          
+          #
 
         ###### Scatter plot ######
           # main plot for overvirw
@@ -4835,160 +4892,171 @@ server <- function(input, output, session) {
         
         ###### GSEA analysis ######
           # select gene set
-          output$GSEA_goTable_status <- renderText({'Please select the input and click "Start GSEA Analysis".'})
-          GSEA_Gene_set <- reactive({
-            if(input$GSEA_pathway_dataset_select == 'B'){ gsc <- gmtPathways('data/h.all.v2023.2.Hs.symbols.gmt') }
-            else if(input$GSEA_pathway_dataset_select == 'C'){ gsc <- gmtPathways('data/mh.all.v2023.2.Mm.symbols.gmt') } 
-            else if(input$GSEA_pathway_dataset_select == 'D'){ 
-              tmp <- input$GSEA_upload_custom_pathway_file
-              if (is.null(tmp)){ 
-                output$GSEA_analysis_status <- renderText({'Please upload a gmt file.'})
-                gsc <- NULL 
+            output$GSEA_goTable_status <- renderText({'Please select the input and click "Start GSEA Analysis".'})
+            GSEA_Gene_set <- reactive({
+              if(input$GSEA_pathway_dataset_select == 'B'){ gsc <- gmtPathways('data/h.all.v2023.2.Hs.symbols.gmt') }
+              else if(input$GSEA_pathway_dataset_select == 'C'){ gsc <- gmtPathways('data/mh.all.v2023.2.Mm.symbols.gmt') } 
+              else if(input$GSEA_pathway_dataset_select == 'D'){ 
+                tmp <- input$GSEA_upload_custom_pathway_file
+                if (is.null(tmp)){ 
+                  output$GSEA_analysis_status <- renderText({'Please upload a gmt file.'})
+                  gsc <- NULL 
+                }
+                else { gsc <- gmtPathways(tmp$datapath)}
+              }else if(input$GSEA_pathway_dataset_select == 'E'){
+                if(length(input$GSEA_pathway_dataset_select_one_geneset_select) == 0){
+                  output$GSEA_analysis_status <- renderText({'Please select which pathway data to use.'})
+                  gsc <- NULL 
+                }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'A'){
+                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
+                  gsc <- list('Selected custom gene set' = genes)
+                }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'B'){
+                  genes <- unlist(strsplit(input$GSEA_pathway_dataset_select_one_geneset_select_from_text, split = "\n"))
+                  gsc <- list('Inputted gene set' = genes) # genes <- c('CXCL10', 'CXCL9')
+                }
               }
-              else { gsc <- gmtPathways(tmp$datapath)}
-            }else if(input$GSEA_pathway_dataset_select == 'E'){
-              if(length(input$GSEA_pathway_dataset_select_one_geneset_select) == 0){
-                output$GSEA_analysis_status <- renderText({'Please select which pathway data to use.'})
-                gsc <- NULL 
-              }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'A'){
-                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
-                gsc <- list('Selected custom gene set' = genes)
-              }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'B'){
-                genes <- unlist(strsplit(input$GSEA_pathway_dataset_select_one_geneset_select_from_text, split = "\n"))
-                gsc <- list('Inputted gene set' = genes) # genes <- c('CXCL10', 'CXCL9')
-              }
-            }
-            gsc
-          }) 
+              gsc
+            }) 
 
           # when chooseing from the custom gene set
-          output$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-            selectInput('GSEA_pathway_dataset_select_one_geneset_select_from_custom_set', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-          })
-          outputOptions(output, "GSEA_pathway_dataset_select_one_geneset_select_from_custom_set", suspendWhenHidden=FALSE)
+            output$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set <- renderUI({
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              selectInput('GSEA_pathway_dataset_select_one_geneset_select_from_custom_set', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+            })
+            outputOptions(output, "GSEA_pathway_dataset_select_one_geneset_select_from_custom_set", suspendWhenHidden=FALSE)
 
           # which score to use for the GSEA
-          output$GSEA_select_score <- renderUI({ 
-            # req(input$GSEA_pathway_dataset_select)
-            if(length(Dataoverview_Data_type())!=0){
-              if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
-              else if(Dataoverview_Data_type() == 'CRISPR-a screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
-              else if(Dataoverview_Data_type() == 'ORF screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='log2LFC')  }
-              else if(Dataoverview_Data_type() == 'RNAseq (DEG)' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='Log2FoldChange')  }
-              else{ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())))  }
-              selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df()))) 
-            }
-          })
-          outputOptions(output, "GSEA_select_score", suspendWhenHidden=FALSE)
+            output$GSEA_select_score <- renderUI({ 
+              # req(input$GSEA_pathway_dataset_select)
+              if(length(Dataoverview_Data_type())!=0){
+                if(Dataoverview_Data_type() == 'CRISPR screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
+                else if(Dataoverview_Data_type() == 'CRISPR-a screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='logFC')  }
+                else if(Dataoverview_Data_type() == 'ORF screening' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='log2LFC')  }
+                else if(Dataoverview_Data_type() == 'RNAseq (DEG)' ){ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())), selected='Log2FoldChange')  }
+                else{ selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df())))  }
+                selectInput('GSEA_select_score', 'Use the score of:', c('None'='None', colnames(df()))) 
+              }
+            })
+            outputOptions(output, "GSEA_select_score", suspendWhenHidden=FALSE)
 
-          output$GSEA_status <- renderText({NULL})
-          output$GSEA_plot_status <- renderText({NULL})
-          output$GSEA_analysis_status <- renderText({NULL})
-          # output$GSEA_goTable_status <-  renderText({NULL})
-          outputOptions(output, "GSEA_status", suspendWhenHidden=FALSE)
-          outputOptions(output, "GSEA_plot_status", suspendWhenHidden=FALSE) 
-          outputOptions(output, "GSEA_analysis_status", suspendWhenHidden=FALSE) 
+          # defalut status message
+            output$GSEA_status <- renderText({NULL})
+            output$GSEA_plot_status <- renderText({NULL})
+            output$GSEA_analysis_status <- renderText({NULL})
+            outputOptions(output, "GSEA_status", suspendWhenHidden=FALSE)
+            outputOptions(output, "GSEA_plot_status", suspendWhenHidden=FALSE) 
+            outputOptions(output, "GSEA_analysis_status", suspendWhenHidden=FALSE) 
 
           # main part of GSEA calculation
-          GSEA_results <- eventReactive(input$GSEA_start, {
-            # when the ranking score is not selected
-            if(input$GSEA_select_score=='None'){
-              output$GSEA_analysis_status <- renderText({'Please choose the score for the analysis'})
-              output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
-              return(NULL)
-            }
-            # when the ranking score is not numeric
-            ranked_genes <- df()[,input$GSEA_select_score]
-            if(!is.numeric(ranked_genes)){
-              output$GSEA_analysis_status <- renderText({'The selected score is not numeric, and cannot be used for the GSEA analysis. Please choose another.'})
-              output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
-              return(NULL)
-            }
-            output$GSEA_analysis_status <- renderText({NULL})
-            output$GSEA_goTable_status <- renderText({NULL})
-            names(ranked_genes) <- df()$id
-            # output$GSEA_status <- renderText({ 'AAA' })
-            if(is.null(GSEA_Gene_set())){
-              return(NULL)
-            }
-            fgseaRes2 <- fgsea(pathways = GSEA_Gene_set(), stats = ranked_genes, minSize = 1, maxSize = 5000)
-            if(dim(fgseaRes2)[1] == 0){
-              output$GSEA_analysis_status <- renderText({
-                tmp <- "No pathway was able to calculate the GSEA score to this dataset.\n"
-                tmp <- paste0(tmp, "Potential cause:\n")
-                tmp <- paste0(tmp, "- Using differnet species\n")
-                tmp <- paste0(tmp, "- The gene names in the dataset are not gene symbol\n")
-                tmp <- paste0(tmp, "- No overlap between the genes in the dataset and the genes in the pathwas\n")
-                tmp <- paste0(tmp, "- The size of the gene set is too small\n")
-                tmp
-              }) 
-              output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
-              return(NULL)
-            }
-            fgseaRes2 <- data.frame(fgseaRes2[order(pval), ])
-            # output$GSEA_plot_status_tmp <- renderText({dim(fgseaRes2)})
-            fgseaRes2 <- fgseaRes2[c('pathway', 'pval', 'padj', 'log2err', 'ES', 'NES', 'size')]
-            fgseaRes2$GSEA_select_score <- input$GSEA_select_score
-            fgseaRes2
-          })
-          GSEA_Gene_set_after_start <- eventReactive(input$GSEA_start, {
-            GSEA_Gene_set()
-          })
-
-          # outputOptions(output, "GSEA_results", suspendWhenHidden=FALSE)
-
-          # dispaly the table
-          output$GSEA_goTable <- DT::renderDataTable({
-            if(is.null(GSEA_results())){ data.frame() }
-            else{ 
-              tmp <- as.data.frame(GSEA_results())
-              datatable(tmp[, c('pathway', 'pval', 'padj', 'log2err', 'ES', 'NES', 'size')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-            }
-          })
-          outputOptions(output, "GSEA_goTable", suspendWhenHidden=FALSE)
-
-          # download button
-          output$GSEA_download <- downloadHandler(
-            filename = function(){"GSEA_results.csv"}, 
-            content = function(fname){ write.csv(as.data.frame(GSEA_results()), fname) }
-          )
-
-          # GSEA plot
-          output$GSEA_plot <- renderPlot({
-            if(is.null(GSEA_results())){
-              output$GSEA_status <- renderText({NULL})
-              NULL 
-            }
-            else{
-              if(length(input$GSEA_goTable_rows_selected) == 0){
-                output$GSEA_plot_status <- renderText({'Please select the pathway (row) from the GSEA results table'})
-                output$GSEA_status <- renderText({NULL})
+            GSEA_results <- reactiveVal(NULL)
+            GSEA_Gene_set_after_start <- reactiveVal(NULL)
+            observeEvent(input$GSEA_start, {
+              GSEA_Gene_set_after_start(GSEA_Gene_set())
+              # when the ranking score is not selected
+              if(input$GSEA_select_score=='None'){
+                show_alert(title='Error.',text='Please choose the score for the analysis.', type='error')
+                output$GSEA_analysis_status <- renderText({'Please choose the score for the analysis'})
+                output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
+                GSEA_results(NULL)
                 return(NULL)
               }
-              output$GSEA_plot_status <- renderText({NULL})
-              GSEA_select_score <- GSEA_results()[,'GSEA_select_score'][1]
-              ranked_genes <- df()[,GSEA_select_score]
+              # when the ranking score is not numeric
+              ranked_genes <- df()[,input$GSEA_select_score]
+              if(!is.numeric(ranked_genes)){
+                show_alert(title='Error.',text=' Please check the input.', type='error')
+                output$GSEA_analysis_status <- renderText({'The selected score is not numeric, and cannot be used for the GSEA analysis. Please choose another.'})
+                output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
+                GSEA_results(NULL)
+                return(NULL)
+              }
+              output$GSEA_analysis_status <- renderText({NULL})
+              output$GSEA_goTable_status <- renderText({NULL})
               names(ranked_genes) <- df()$id
-              selected_pathway <- GSEA_results()[input$GSEA_goTable_rows_selected,]$pathway
-              p <- plotEnrichment(GSEA_Gene_set_after_start()[[selected_pathway]],ranked_genes) + labs(title=selected_pathway)
-              p <- p + theme(axis.text=element_text(size=input$GSEA_lab.font.size), axis.title=element_text(size=input$GSEA_title.font.size))
-              p <- p + theme(plot.title = element_text(size = input$GSEA_graph_title.font.size))
-              output$GSEA_status <- renderText({ 
-                paste0('P value: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$pval), '\n', 
-                  'adjusted-P value: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$padj), '\n', 
-                  'ES: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$ES), '\n', 
-                  'NES: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$NES), '\n', 
-                  'size: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$size))
-              })
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              p
-            }
-          }, width=reactive(input$GSEA_fig.width), height=reactive(input$GSEA_fig.height),res=300)
-          outputOptions(output, "GSEA_plot", suspendWhenHidden=FALSE)
+              # output$GSEA_status <- renderText({ 'AAA' })
+              if(is.null(GSEA_Gene_set())){
+                GSEA_results(NULL)
+                return(NULL)
+              }
+              fgseaRes2 <- fgsea(pathways = GSEA_Gene_set(), stats = ranked_genes, minSize = 1, maxSize = 5000)
+              if(dim(fgseaRes2)[1] == 0){
+                output$GSEA_analysis_status <- renderText({
+                  tmp <- "No pathway was able to calculate the GSEA score to this dataset.\n"
+                  tmp <- paste0(tmp, "Potential cause:\n")
+                  tmp <- paste0(tmp, "- Using differnet species\n")
+                  tmp <- paste0(tmp, "- The gene names in the dataset are not gene symbol\n")
+                  tmp <- paste0(tmp, "- No overlap between the genes in the dataset and the genes in the pathwas\n")
+                  tmp <- paste0(tmp, "- The size of the gene set is too small\n")
+                  tmp
+                })
+                show_alert(title='Error.',text='Please check the input.', type='error')
+                output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
+                GSEA_results(NULL)
+                return(NULL)
+              }
+              fgseaRes2 <- data.frame(fgseaRes2[order(pval), ])
+              # output$GSEA_plot_status_tmp <- renderText({dim(fgseaRes2)})
+              fgseaRes2 <- fgseaRes2[c('pathway', 'pval', 'padj', 'log2err', 'ES', 'NES', 'size')]
+              fgseaRes2$GSEA_select_score <- input$GSEA_select_score
+              GSEA_results(fgseaRes2)
+              fgseaRes2
+            })
 
+
+          # dispaly the table
+            output$GSEA_goTable <- DT::renderDataTable({
+              if(is.null(GSEA_results())){ 
+                tmp <- as.data.frame(list('pathway'=character(0), 'pval'=character(0), 'ES'=character(0), 'NES'=character(0), 'size'=character(0), 'log2err'=character(0), 'padj'=character(0)))
+                datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+              }else{ 
+                tmp <- as.data.frame(GSEA_results())
+                datatable(tmp[, c('pathway', 'pval', 'padj', 'log2err', 'ES', 'NES', 'size')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+              }
+            })
+            outputOptions(output, "GSEA_goTable", suspendWhenHidden=FALSE)
+
+          # download button
+            output$GSEA_download <- downloadHandler(
+              filename = function(){"GSEA_results.csv"}, 
+              content = function(fname){ write.csv(as.data.frame(GSEA_results()), fname) }
+            )
+
+          # GSEA plot
+            output$GSEA_plot <- renderPlot({
+              if(is.null(GSEA_results())){
+                output$GSEA_status <- renderText({NULL})
+                return(ggplot())
+              }else{
+                if(length(input$GSEA_goTable_rows_selected) == 0){
+                  output$GSEA_plot_status <- renderText({'Please select the pathway (row) from the GSEA results table'})
+                  output$GSEA_status <- renderText({NULL})
+                  return(ggplot())
+                }
+                output$GSEA_plot_status <- renderText({NULL})
+                GSEA_select_score <- GSEA_results()[,'GSEA_select_score'][1]
+                ranked_genes <- df()[,GSEA_select_score]
+                names(ranked_genes) <- df()$id
+                selected_pathway <- GSEA_results()[input$GSEA_goTable_rows_selected,]$pathway
+                p <- plotEnrichment(GSEA_Gene_set_after_start()[[selected_pathway]],ranked_genes) + labs(title=selected_pathway)
+                p <- p + theme(axis.text=element_text(size=input$GSEA_lab.font.size), axis.title=element_text(size=input$GSEA_title.font.size))
+                p <- p + theme(plot.title = element_text(size = input$GSEA_graph_title.font.size))
+                output$GSEA_status <- renderText({ 
+                  paste0('P value: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$pval), '\n', 
+                    'adjusted-P value: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$padj), '\n', 
+                    'ES: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$ES), '\n', 
+                    'NES: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$NES), '\n', 
+                    'size: ', as.character(GSEA_results()[GSEA_results()$pathway==selected_pathway,]$size))
+                })
+                p$layers[[1]]$aes_params$colour <- input$GSEA_graph_line_colour
+                p$layers[[3]]$aes_params$colour <- input$GSEA_graph_maxmin_line_colour
+                p$layers[[4]]$aes_params$colour <- input$GSEA_graph_maxmin_line_colour
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p
+              }
+            }, width=reactive(input$GSEA_fig.width), height=reactive(input$GSEA_fig.height),res=300)
+            outputOptions(output, "GSEA_plot", suspendWhenHidden=FALSE)
+          #
 
 
         ###### TF activity inference (DecoupleR) ######
@@ -5061,605 +5129,633 @@ server <- function(input, output, session) {
         ###### heatmap for the count table ######
           # verbatimTextOutput('Data_Overview_heatmap_status'),
           # genes for the heatmap
-          output$Data_Overview_heatmap_target_select_geneset <- renderUI({
-            if(length(input$Data_Overview_heatmap_target_gene_type)==0){
-              output$Data_Overview_heatmap_target_gene_type_status <- renderText({"Please select one from 'Gene from'"})
-              return(NULL)
-            }
-            output$Data_Overview_heatmap_target_gene_type_status <- renderText({NULL})
-            if(input$Data_Overview_heatmap_target_gene_type == 'B'){
-              gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-              selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
-            }else if (input$Data_Overview_heatmap_target_gene_type == 'C') {
-              gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
-              gene_sets_names <- c()
-              for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
-              selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
-            }else if (input$Data_Overview_heatmap_target_gene_type == 'D') {
-              gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
-              gene_sets_names <- c()
-              for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
-              selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names)) 
-            }else if (input$Data_Overview_heatmap_target_gene_type == 'E'){
-              tmp <- input$Data_Overview_heatmap_target_upload_custom_pathway
-              if (is.null(tmp)){ 
-                selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None'))
-              }else{
-                gsc <- getGmt(tmp$datapath)
+            output$Data_Overview_heatmap_target_select_geneset <- renderUI({
+              if(length(input$Data_Overview_heatmap_target_gene_type)==0){
+                output$Data_Overview_heatmap_target_gene_type_status <- renderText({"Please select one from 'Gene from'"})
+                return(NULL)
+              }
+              output$Data_Overview_heatmap_target_gene_type_status <- renderText({NULL})
+              if(input$Data_Overview_heatmap_target_gene_type == 'B'){
+                gene_sets_names <- c()
+                gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+                selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
+              }else if (input$Data_Overview_heatmap_target_gene_type == 'C') {
+                gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
+                gene_sets_names <- c()
+                for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
+                selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
+              }else if (input$Data_Overview_heatmap_target_gene_type == 'D') {
+                gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
                 gene_sets_names <- c()
                 for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
                 selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names)) 
-              }
-            }
-          })
-          outputOptions(output, "Data_Overview_heatmap_target_select_geneset", suspendWhenHidden=FALSE)
-
-          genes_for_heatmap <- reactive({
-            if(length(input$Data_Overview_heatmap_target_gene_type)==0){
-              output$Data_Overview_heatmap_target_gene_type_status <- renderText({"Please select one from 'Gene from'"})
-              return(NULL)
-            }
-            output$Data_Overview_heatmap_target_gene_type_status <- renderText({NULL})
-            if(input$Data_Overview_heatmap_target_gene_type == 'A'){
-              if(nchar(input$Data_Overview_heatmap_target_genes) == 0){
-                return(NULL)
-              }else{
-                unlist(strsplit(input$Data_Overview_heatmap_target_genes, split = "\n"))
-              }
-            }else if(input$Data_Overview_heatmap_target_gene_type == 'B') {
-              if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                unlist(strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', '))
-              }else{
-                return(NULL)
-              }
-            }else if(input$Data_Overview_heatmap_target_gene_type == 'C'){
-              if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
-                gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
-              }else{
-                return(NULL)
-              }            
-            }else if(input$Data_Overview_heatmap_target_gene_type == 'D'){
-              if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
-                gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
-              }else{
-                return(NULL)
-              }            
-            }else if(input$Data_Overview_heatmap_target_gene_type == 'E'){
-              if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
+              }else if (input$Data_Overview_heatmap_target_gene_type == 'E'){
                 tmp <- input$Data_Overview_heatmap_target_upload_custom_pathway
-                gsc <- getGmt(tmp$datapath)
-                gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
-              }else{
+                if (is.null(tmp)){ 
+                  selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None'))
+                }else{
+                  gsc <- getGmt(tmp$datapath)
+                  gene_sets_names <- c()
+                  for ( i in 1:length(gsc)){ gene_sets_names <- c(gene_sets_names, gsc@.Data[[i]]@setName)}
+                  selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names)) 
+                }
+              }
+            })
+            outputOptions(output, "Data_Overview_heatmap_target_select_geneset", suspendWhenHidden=FALSE)
+
+            genes_for_heatmap <- reactive({
+              if(length(input$Data_Overview_heatmap_target_gene_type)==0){
+                output$Data_Overview_heatmap_target_gene_type_status <- renderText({"Please select one from 'Gene from'"})
                 return(NULL)
-              }  
-            }
-          })
+              }
+              output$Data_Overview_heatmap_target_gene_type_status <- renderText({NULL})
+              if(input$Data_Overview_heatmap_target_gene_type == 'A'){
+                if(nchar(input$Data_Overview_heatmap_target_genes) == 0){
+                  return(NULL)
+                }else{
+                  unlist(strsplit(input$Data_Overview_heatmap_target_genes, split = "\n"))
+                }
+              }else if(input$Data_Overview_heatmap_target_gene_type == 'B') {
+                if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
+                  unlist(strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', '))
+                }else{
+                  return(NULL)
+                }
+              }else if(input$Data_Overview_heatmap_target_gene_type == 'C'){
+                if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
+                  gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
+                  gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
+                }else{
+                  return(NULL)
+                }            
+              }else if(input$Data_Overview_heatmap_target_gene_type == 'D'){
+                if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
+                  gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt')
+                  gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
+                }else{
+                  return(NULL)
+                }            
+              }else if(input$Data_Overview_heatmap_target_gene_type == 'E'){
+                if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
+                  tmp <- input$Data_Overview_heatmap_target_upload_custom_pathway
+                  gsc <- getGmt(tmp$datapath)
+                  gsc[[input$Data_Overview_heatmap_target_select_geneset]]@geneIds
+                }else{
+                  return(NULL)
+                }  
+              }
+            })
 
           # samples to use
-          Data_Overview_heatmap_sample_table_tmp <- reactive({
-            samples <- colnames(df())[!(colnames(df())=='id')]
-            data.frame(Sample_name=samples[order(samples)])
-          })
-          output$Data_Overview_heatmap_sample_table <- renderDataTable({
-            datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
-              options = list(
-                select=list(style="multi", items='row'),
-                scroller=TRUE, deferRender=TRUE, scrollY=200,
-                dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
-          },server = FALSE)
-
+            Data_Overview_heatmap_sample_table_tmp <- reactive({
+              samples <- colnames(df())[!(colnames(df())=='id')]
+              data.frame(Sample_name=samples[order(samples)])
+            })
+            output$Data_Overview_heatmap_sample_table <- renderDataTable({
+              datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
+                options = list(
+                  select=list(style="multi", items='row'),
+                  scroller=TRUE, deferRender=TRUE, scrollY=200,
+                  dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
+            },server = FALSE)
 
           # function for standardise the table
-          sd_table <- function(df_ex){
-            for (key in colnames(df_ex)){
-                tmp <- df_ex[,key] - mean(df_ex[,key])
-                tmp <- tmp/sd(tmp)
-                df_ex[,key] <- tmp
+            sd_table <- function(df_ex){
+              for (key in colnames(df_ex)){
+                  tmp <- df_ex[,key] - mean(df_ex[,key])
+                  tmp <- tmp/sd(tmp)
+                  df_ex[,key] <- tmp
+              }
+              return(df_ex)
             }
-            return(df_ex)
-          }
 
-          output$Data_Overview_heatmap_status <- renderText('Please enter/choose inputs and select the samples, and click "Generate a heatmap"\nA heatmap showing the standardised expression of the selected genes across the selected samples will be generated here.')
-          output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
+          # default status
+            output$Data_Overview_heatmap_status <- renderText('Please enter/choose inputs and select the samples, and click "Generate a heatmap"\nA heatmap showing the standardised expression of the selected genes across the selected samples will be generated here.')
+            output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
+
           # heatmap table
-          ex_datafreme_for_heatmap <- reactiveVal(NULL)
-          isCalculating <- reactiveVal(FALSE) 
-          triggered <- reactiveVal(FALSE)
-          observeEvent(input$Gene_Overview_heatmap_start, {
-            isCalculating(TRUE)   
-            triggered(TRUE) 
-            if(is.null(genes_for_heatmap())){
-              output$Data_Overview_heatmap_status <- renderText('Please enter/choose input genes.')
-              output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
-              ex_datafreme_for_heatmap(NULL)
-              isCalculating(FALSE)   
-              return()
-            }else{
-              output$Data_Overview_heatmap_status <- NULL
-              output$Data_Overview_heatmap_expression_status <- NULL
-              df_ex <- df()
-              # extract the target genes
-              if(length(df_ex$id[df_ex$id %in% genes_for_heatmap()]) == 0){
-                output$Data_Overview_heatmap_status <- renderText('None of the inputted genes are in the data.')
-                output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
+            ex_datafreme_for_heatmap <- reactiveVal(NULL)
+            isCalculating <- reactiveVal(FALSE) 
+            triggered <- reactiveVal(FALSE)
+            observeEvent(input$Gene_Overview_heatmap_start, {
+              isCalculating(TRUE)   
+              triggered(TRUE) 
+              if(is.null(genes_for_heatmap())){
+                show_alert(title='Error.',text='Please enter/choose input genes.', type='error')
+                output$Data_Overview_heatmap_status <- renderText('Please enter/choose input genes.')
+                output$Data_Overview_heatmap_expression_status <- renderText('Please generate a heatmap first. A table of the scores using the heatmap will be shown here.')
                 ex_datafreme_for_heatmap(NULL)
                 isCalculating(FALSE)   
                 return()
               }else{
-                df_ex <- df_ex[df_ex$id %in% genes_for_heatmap(),] 
-                rownames(df_ex) <- df_ex$id
-                df_ex <- df_ex[,2:dim(df_ex)[2]] ## select which samples are included
-                selected_samples <- Data_Overview_heatmap_sample_table_tmp()[input$Data_Overview_heatmap_sample_table_rows_selected,]
-                if(length(selected_samples)<=1){
-                  output$Data_Overview_heatmap_status <- renderText("Please select at least two samples.")
+                output$Data_Overview_heatmap_status <- NULL
+                output$Data_Overview_heatmap_expression_status <- NULL
+                df_ex <- df()
+                # extract the target genes
+                if(length(df_ex$id[df_ex$id %in% genes_for_heatmap()]) == 0){
+                  show_alert(title='Error.',text='None of the inputted genes are in the data.', type='error')
+                  output$Data_Overview_heatmap_status <- renderText('None of the inputted genes are in the data.')
                   output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
                   ex_datafreme_for_heatmap(NULL)
-                }else{
-                  df_ex <- df_ex[,selected_samples]
-                  df_ex <- data.frame(t(df_ex))
-                  # standardise
-                  df_ex <- sd_table(df_ex)
-                  df_ex <- df_ex %>% select_if(~ !any(is.na(.)))
-                  ex_datafreme_for_heatmap(df_ex)
                   isCalculating(FALSE)   
                   return()
+                }else{
+                  df_ex <- df_ex[df_ex$id %in% genes_for_heatmap(),] 
+                  rownames(df_ex) <- df_ex$id
+                  df_ex <- df_ex[,2:dim(df_ex)[2]] ## select which samples are included
+                  selected_samples <- Data_Overview_heatmap_sample_table_tmp()[input$Data_Overview_heatmap_sample_table_rows_selected,]
+                  if(length(selected_samples)<=1){
+                    show_alert(title='Error.',text='Please select at least two samples.', type='error')
+                    output$Data_Overview_heatmap_status <- renderText("Please select at least two samples.")
+                    output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
+                    ex_datafreme_for_heatmap(NULL)
+                  }else{
+                    df_ex <- df_ex[,selected_samples]
+                    df_ex <- data.frame(t(df_ex))
+                    # standardise
+                    df_ex <- sd_table(df_ex)
+                    df_ex <- df_ex %>% select_if(~ !any(is.na(.)))
+                    ex_datafreme_for_heatmap(df_ex)
+                    isCalculating(FALSE)   
+                    return()
+                  }
                 }
               }
-            }
-          })
+            })
 
           # heatmap plot
-          output$Data_Overview_heatmap_plot <- renderPlot({
-            if(!is.null(ex_datafreme_for_heatmap())){
-              df_ex <- ex_datafreme_for_heatmap()
+            clustered_heatmap_ex <- reactiveVal(NULL)
+            output$Data_Overview_heatmap_plot <- renderPlot({
+              if(!is.null(ex_datafreme_for_heatmap())){
+                df_ex <- ex_datafreme_for_heatmap()
 
-              # clustering
-              set.seed(123)
-              if(input$Cluster_num > length(genes_for_heatmap())){
-                output$Data_Overview_heatmap_status <- renderText('The cluster number exceeds the number of genes. Please chosse a lower cluster number.')
-                output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
-                return(ggplot())
+                # clustering
+                set.seed(123)
+                if(input$Cluster_num > length(genes_for_heatmap())){
+                  output$Data_Overview_heatmap_status <- renderText('The cluster number exceeds the number of genes. Please chosse a lower cluster number.')
+                  output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
+                  return(ggplot())
+                }
+                km <- kmeans(t(df_ex), centers = input$Cluster_num, nstart = 25)
+                clusters <- as.data.frame(km$cluster)
+                colnames(clusters) <- "Cluster"
+                # combine the cluster number and the expression table
+                gene_expression_matrix <- as.data.frame(t(df_ex))
+                gene_expression_matrix$Cluster <- clusters$Cluster
+                new_colnames <- c('Cluster', colnames(gene_expression_matrix)[1:dim(gene_expression_matrix)[2]-1])
+                gene_expression_matrix <- gene_expression_matrix[,new_colnames]
+                clustered_heatmap_ex(gene_expression_matrix)
+                cols <- colnames(gene_expression_matrix)
+                cols <- cols[2:length(cols)]
+                cols <- cols[order(cols)]
+                df_2 <- t(gene_expression_matrix[,cols]) # head(df_2)
+                df5 <- data.frame(df_2)
+                df5$sample <- rownames(df5) 
+                df_target_order <- rownames(gene_expression_matrix[order(gene_expression_matrix$Cluster),])
+                df5 <- pivot_longer(data = df5, cols = -c(sample), names_to = "Genes", values_to = "value") # head(df5)
+                df5$Genes <- factor(x = df5$Genes, levels = df_target_order, ordered = TRUE)
+                df5$sample <- factor(x = df5$sample, levels =  cols, ordered = TRUE)
+                p <- ggplot(data = df5, aes(x = Genes, y = sample)) + geom_tile(aes(fill = value)) +
+                    scale_fill_gradient2(low=input$Data_Overview_heatmap_col_low, high=input$Data_Overview_heatmap_col_high,mid=input$Data_Overview_heatmap_col_mid, midpoint=0) +
+                    theme(axis.text.y = element_text(size = input$Data_Overview_heatmap_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_heatmap_xlab.font.size))
+                p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+                p <- p + xlab('') + ylab('')
+                if(input$Data_Overview_heatmap_white_background){
+                    p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
+                }
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p <- p + theme(legend.text = element_text(size = input$Data_Overview_heatmap_legend.size), legend.title = element_text(size = input$Data_Overview_heatmap_legend.size) )
+                p <- p + theme(legend.key.size = unit(1.5, "mm"))
+                p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+                p
+              }else{
+                p <- ggplot()
+                p
               }
-              km <- kmeans(t(df_ex), centers = input$Cluster_num, nstart = 25)
-              clusters <- as.data.frame(km$cluster)
-              colnames(clusters) <- "Cluster"
-              # combine the cluster number and the expression table
-              gene_expression_matrix <- as.data.frame(t(df_ex))
-              gene_expression_matrix$Cluster <- clusters$Cluster
-              new_colnames <- c('Cluster', colnames(gene_expression_matrix)[1:dim(gene_expression_matrix)[2]-1])
-              gene_expression_matrix <- gene_expression_matrix[,new_colnames]
-
-                                  # condition='input.Data_Overview_heatmap_orderSample == true',
-                                  # column(12, textAreaInput("Data_Overview_heatmap_orderSample_input", "Enter the sample names line by line")),
-                                  # column(12, h5('List of the sample names')),
-                                  # column(12, verbatimTextOutput("Data_Overview_heatmap_orderSample_list") ) 
-              cols <- colnames(gene_expression_matrix)
-              cols <- cols[2:length(cols)]
-              cols <- cols[order(cols)]
-              df_2 <- t(gene_expression_matrix[,cols]) # head(df_2)
-              df5 <- data.frame(df_2)
-              df5$sample <- rownames(df5) 
-              df_target_order <- rownames(gene_expression_matrix[order(gene_expression_matrix$Cluster),])
-              df5 <- pivot_longer(data = df5, cols = -c(sample), names_to = "Genes", values_to = "value") # head(df5)
-              df5$Genes <- factor(x = df5$Genes, levels = df_target_order, ordered = TRUE)
-              df5$sample <- factor(x = df5$sample, levels =  cols, ordered = TRUE)
-              p <- ggplot(data = df5, aes(x = Genes, y = sample)) + geom_tile(aes(fill = value)) +
-                  scale_fill_gradient2(low=input$Data_Overview_heatmap_col_low, high=input$Data_Overview_heatmap_col_high,mid=input$Data_Overview_heatmap_col_mid, midpoint=0) +
-                  theme(axis.text.y = element_text(size = input$Data_Overview_heatmap_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_heatmap_xlab.font.size))
-              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-              p <- p + xlab('') + ylab('')
-              if(input$Data_Overview_heatmap_white_background){
-                  p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-              }
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              p <- p + theme(legend.text = element_text(size = input$Data_Overview_heatmap_legend.size), legend.title = element_text(size = input$Data_Overview_heatmap_legend.size) )
-              p <- p + theme(legend.key.size = unit(1.5, "mm"))
-              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-              p
-            }else{
-              p <- ggplot()
-              p
-            }
-          }, width=reactive(input$Data_Overview_heatmap_fig.width), height=reactive(input$Data_Overview_heatmap_fig.height), res=300)
+            }, width=reactive(input$Data_Overview_heatmap_fig.width), height=reactive(input$Data_Overview_heatmap_fig.height), res=300)
 
           # display the standardised table
-          output$Data_Overview_heatmap_expression <- DT::renderDataTable({
-            if(is.null(ex_datafreme_for_heatmap())){ data.frame() }
-            else{ datatable(as.data.frame(ex_datafreme_for_heatmap()), options = list(scrollX = TRUE)) }
-          })
+            output$Data_Overview_heatmap_expression <- DT::renderDataTable({
+              if(is.null(clustered_heatmap_ex())){ data.frame() }
+              else{ datatable(as.data.frame(clustered_heatmap_ex()), options = list(scrollX = TRUE)) }
+            })
 
           # Download the standardised table
-          output$Data_Overview_heatmap_expression_download <- downloadHandler(
-            filename = function(){"Heatmap_expression_tablle.tsv"}, 
-            content = function(fname){ write.table(ex_datafreme_for_heatmap(), fname, sep='\t', quote=F) }
-          )
+            output$Data_Overview_heatmap_expression_download <- downloadHandler(
+              filename = function(){"Heatmap_expression_tablle.tsv"}, 
+              content = function(fname){ write.table(clustered_heatmap_ex(), fname, sep='\t', quote=F) }
+            )
 
           # select the cluster to show the gene names
-          output$Data_Overview_heatmap_expression_cluster_select <- renderUI({
-            if(is.null(ex_datafreme_for_heatmap())){
-              return(NULL)
-            }
-            clusters <- unique(ex_datafreme_for_heatmap()$Cluster)
-            selectInput('Data_Overview_heatmap_expression_cluster_select', 'Select the cluster number',  c('None'='None', clusters))  
-          })
-          outputOptions(output, "Data_Overview_heatmap_expression_cluster_select", suspendWhenHidden=FALSE)
+            output$Data_Overview_heatmap_expression_cluster_select <- renderUI({
+              if(is.null(clustered_heatmap_ex())){
+                return(NULL)
+              }
+              clusters <- sort(unique(clustered_heatmap_ex()$Cluster))
+              selectInput('Data_Overview_heatmap_expression_cluster_select', 'Select the cluster number',  c('None'='None', clusters))  
+            })
+            outputOptions(output, "Data_Overview_heatmap_expression_cluster_select", suspendWhenHidden=FALSE)
 
           # show the list of gene names
-          output$Data_Overview_heatmap_expression_cluster_genename <- renderText({
-            if(is.null(ex_datafreme_for_heatmap())){
-              return(NULL)
-            }
-            if(input$Data_Overview_heatmap_expression_cluster_select == 'None'){
-              return(NULL)
-            }
-            ex_datafreme_for_heatmap_cluster <- ex_datafreme_for_heatmap()[ex_datafreme_for_heatmap()$Cluster == input$Data_Overview_heatmap_expression_cluster_select, ]
-            paste(rownames(ex_datafreme_for_heatmap_cluster), collapse = "\n")
-          })
+            output$Data_Overview_heatmap_expression_cluster_genename <- renderText({
+              if(is.null(clustered_heatmap_ex())){
+                return(NULL)
+              }
+              if(input$Data_Overview_heatmap_expression_cluster_select == 'None'){
+                return(NULL)
+              }
+              ex_datafreme_for_heatmap_cluster <- clustered_heatmap_ex()[clustered_heatmap_ex()$Cluster == input$Data_Overview_heatmap_expression_cluster_select, ]
+              paste(rownames(ex_datafreme_for_heatmap_cluster), collapse = "\n")
+            })
+          #
 
         ###### PCA plot ######
-          output$Data_Overview_PCA_status <- renderText({"Please go to the Settings on the right and click 'Generate a PCA plot'."})
-          PCA_table <- reactiveVal(NULL)
-          observeEvent(input$Data_Overview_PCA_Start, {
-            output$Data_Overview_PCA_status <- renderText({NULL})
-            df_ex <- df()
-            # df_ex <- read.table('/home/h023o/ShinyApps/in_house_screening/00_Expression_data_all/Helena/Human_T_cell_activation_Vora/all_cnt_FeatureCounts_cpm_gene.tsv', sep='\t', header=T)
-            rownames(df_ex) <- df_ex$id
-            df_ex <- df_ex[,2:dim(df_ex)[2]] # df_ex[1:3, 1:3]
-            df_ex[is.na(df_ex)] <- 0
-            if(input$Data_Overview_PCA_Setting=='B'){
-              if(nchar(input$Data_Overview_PCA_Setting_group_define)==0){
-                output$Data_Overview_PCA_status <- renderText({"Please fill in the 'Enter the group descriptions' box."})
-                PCA_table(NULL)
-              }
-              df_sample_group <- data.frame('Sample'=c(), 'Grounp'=c())
-              for ( sample_group in unlist(strsplit(input$Data_Overview_PCA_Setting_group_define, split = "\n"))){
-                # sample_group='Sample1_rep1,Group1'
-                sample_tmp <- strsplit(sample_group, split=',')[[1]][1]
-                group_tmp <- strsplit(sample_group, split=',')[[1]][2]
-                df_sample_group_tmp <- data.frame('Sample'=c(sample_tmp), 'Grounp'=c(group_tmp))
-                df_sample_group <- rbind(df_sample_group, df_sample_group_tmp)
-              }
-              if( anyDuplicated(df_sample_group$Sample)>0){
-                output$Data_Overview_PCA_status <- renderText({"There are duplicated sample names."})
-                PCA_table(NULL)
-              }
-              output$Data_Overview_PCA_plot_tmp <- renderDataTable({
-                datatable(df_sample_group)
-              })
-              samples <- df_sample_group$Sample
-              samples_intersect <- intersect(samples, colnames(df_ex)) # colnames(df_ex)[1:3, 1:3]
-              if(length(samples_intersect)==0){
-                output$Data_Overview_PCA_status <- renderText({"Non of the inputted sample names are in the dataset. \nPlease check the sample names are correct and do not contain unnecessary spaces."})
-                PCA_table(NULL)
-              }
-              df_ex <- df_ex[,samples_intersect]
-            }
-            df2 <- df_ex[(rowSums(df_ex) > 5*dim(df_ex)[2]),] # dim(df2)
-            df3 <- data.frame(t(df2)) # df3[1:3, 1:3]
-            df3$sample <- rownames(df3)
-            df3 <- df3[order(df3$sample),] 
-            pca_res <- prcomp(df3[, colnames(df3) != 'sample'], scale. = TRUE) 
-            pca_df <- data.frame(pca_res[5]$x[, 1:2]) # head(pca_df)
-            pca_df$sample <- rownames(pca_df)
-            if(input$Data_Overview_PCA_Setting=='B'){
-              Group <- c()
-              for (i in rownames(pca_df)){
-                tmp <- df_sample_group[df_sample_group$Sample == i, ]$Grounp
-                Group <- c(Group, tmp)
-              }
-              pca_df$Group <- Group
-            }else{
-              Group <- c()
-              for (i in strsplit(rownames(pca_df), '_')){
-                tmp <- ''
-                for(j in 1:(length(i)-1)){
-                  tmp <- paste0(tmp, i[j],'_')
+          # calculate PCA
+            output$Data_Overview_PCA_status <- renderText({"Please go to the Settings on the right and click 'Generate a PCA plot'."})
+            PCA_table <- reactiveVal(NULL)
+            observeEvent(input$Data_Overview_PCA_Start, {
+              output$Data_Overview_PCA_status <- renderText({NULL})
+              df_ex <- df()
+              # df_ex <- read.table('/home/h023o/ShinyApps/in_house_screening/00_Expression_data_all/Helena/Human_T_cell_activation_Vora/all_cnt_FeatureCounts_cpm_gene.tsv', sep='\t', header=T)
+              rownames(df_ex) <- df_ex$id
+              df_ex <- df_ex[,2:dim(df_ex)[2]] # df_ex[1:3, 1:3]
+              df_ex[is.na(df_ex)] <- 0
+              if(input$Data_Overview_PCA_Setting=='B'){
+                if(nchar(input$Data_Overview_PCA_Setting_group_define)==0){
+                  show_alert(title='Error.',text='Please enter the group description.', type='error')
+                  output$Data_Overview_PCA_status <- renderText({"Please fill in the 'Enter the group descriptions' box."})
+                  PCA_table(NULL)
+                  return(NULL)
                 }
-                tmp <- substr(tmp, 1, nchar(tmp)-1)
-                Group <- c(Group, tmp)
-              }
-              pca_df$Group <- Group
-            }
-            PCA_table(pca_df)
-          })
-
-          output$Data_Overview_PCA_plot <- renderPlot({
-            pca_df <- PCA_table()
-            if(is.null(pca_df)){
-              return(ggplot())
-            }
-            if(input$Data_Overview_PCA_change_colour_by_group){
-              p <- ggplot(pca_df, aes(x=PC1, y=PC2, label=sample, color=Group)) + geom_point(size=input$Data_Overview_PCA_point_size) 
-              p <- p + theme(legend.text = element_text(size=input$Data_Overview_PCA_legend_size), legend.title=element_blank())
-            }else{
-              p <- ggplot(pca_df, aes(x=PC1, y=PC2, label=sample)) + geom_point(size=input$Data_Overview_PCA_point_size) 
-            }
-            if(!input$Data_Overview_PCA_label_hide){
-              p <- p + geom_text_repel(data = pca_df,  color = 'black', aes(label = sample), size = input$Data_Overview_PCA_label_size, max.overlaps = Inf, segment.size=0.2)
-            }
-            p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
-            p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p <- p + theme(legend.key.size = unit(2, "mm"))
-            if(input$Data_Overview_PCA_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p
-          }, width=reactive(input$Data_Overview_PCA_fig.width), height = reactive(input$Data_Overview_PCA_fig.height), res=300)
-        
-          output$Data_Overview_PCA_Sample_list <- renderText({
-            df_ex <- df()
-            samples <- colnames(df_ex)[2:dim(df_ex)[2]]
-            samples <- samples[order(samples)]
-            paste(unlist(samples), collapse='\n')
-          })
-          # output$Data_Overview_PCA_Sample_list <- renderText({"hoge"})
-        ###### two genes correlation #######    
-          df_Two_gene_corr <- reactive({
-            if(input$Two_gene_corr_corr_Input == 'A'){
-              output$Two_gene_corr_statusB <- renderText({NULL}) 
-              gene1 <- input$Two_gene_corr_gene1
-              gene2 <- input$Two_gene_corr_gene2
-              # when no input
-              if(nchar(input$Two_gene_corr_gene1) == 0 | nchar(input$Two_gene_corr_gene2) == 0 ){
-                output$Two_gene_corr_statusA <- renderText({"Please enter gene1 and gene2"}) 
-                return(NULL)
-              }
-              # when input genes are not in the dataset
-              tmp1=''; tmp2=''
-              if(!gene1 %in% df()$id){
-                tmp1 <- paste0("Error in Gene1: '", gene1, "' is not included in the dataset.")
-              }
-              if(!gene2 %in% df()$id){
-                tmp2 <- paste0("Error in Gene2: '", gene2, "' is not included in the dataset.")
-              }
-              if(tmp1!='' | tmp2!=''){
-                if(tmp1 == ''){ 
-                  output$Two_gene_corr_statusA <- renderText({tmp2}) 
-                }else if(tmp2 == ''){
-                  output$Two_gene_corr_statusA <- renderText({tmp1}) 
-                }else{
-                  output$Two_gene_corr_statusA <- renderText({paste(tmp1, tmp2, sep='\n')}) 
+                df_sample_group <- data.frame('Sample'=c(), 'Grounp'=c())
+                for ( sample_group in unlist(strsplit(input$Data_Overview_PCA_Setting_group_define, split = "\n"))){
+                  # sample_group='Sample1_rep1,Group1'
+                  sample_tmp <- strsplit(sample_group, split=',')[[1]][1]
+                  group_tmp <- strsplit(sample_group, split=',')[[1]][2]
+                  df_sample_group_tmp <- data.frame('Sample'=c(sample_tmp), 'Grounp'=c(group_tmp))
+                  df_sample_group <- rbind(df_sample_group, df_sample_group_tmp)
                 }
-                return(NULL)
+                if( anyDuplicated(df_sample_group$Sample)>0){
+                  show_alert(title='Error.',text='There are duplicated sample names.', type='error')
+                  output$Data_Overview_PCA_status <- renderText({"There are duplicated sample names."})
+                  PCA_table(NULL)
+                  return(NULL)
+                }
+                output$Data_Overview_PCA_plot_tmp <- renderDataTable({
+                  datatable(df_sample_group)
+                })
+                samples <- df_sample_group$Sample
+                samples_intersect <- intersect(samples, colnames(df_ex)) # colnames(df_ex)[1:3, 1:3]
+                if(length(samples_intersect)==0){
+                  show_alert(title='Error.',text='Please set the group description correctly.', type='error')
+                  output$Data_Overview_PCA_status <- renderText({"Non of the inputted sample names are in the dataset. \nPlease check the sample names are correct and do not contain unnecessary spaces."})
+                  PCA_table(NULL)
+                  return()
+                }
+                df_ex <- df_ex[,samples_intersect]
               }
-            }else if(input$Two_gene_corr_corr_Input == 'B'){
-              output$Two_gene_corr_statusA <- renderText({NULL}) 
-              gene1 <- input$Two_gene_corr_gene1
-              if(is.null(df_Two_gene_corr_inputB())){
-                return(NULL)
-              }
-              if(length(input$Two_gene_corr_table_rows_selected)==0){
-                return(NULL)
-              }
-              gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
-            }
-            # prepare the table
-            output$Two_gene_corr_statusA <- renderText({NULL}) 
-            output$Two_gene_corr_statusB <- renderText({NULL}) 
-            df_tmp <- df()[df()$id %in% c(gene1, gene2),] # df_tmp <- df[df$id %in% c(gene2, gene1),]
-            rownames(df_tmp) <- df_tmp$id
-            df_tmp <- df_tmp[,-which(colnames(df_tmp) == 'id')]
-            df_tmp <- t(df_tmp)
-            if(input$Two_gene_corr_choose_sample){ # when focusing on some samples
-              if(nchar(input$Two_gene_corr_choose_sample_input) == 0){
-                output$Two_gene_corr_status_selectsample <- renderText({'You are selecting "Select samples" below. Please enter the sample names there.'})
-                return(NULL)
-              }
-              samples <- intersect(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp)) 
-              samples_not_found <- setdiff(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp))
-              if(length(samples_not_found) > 0){
-                samples_not_found_tmp <- paste(samples_not_found, collappse=', ')
-                output$Two_gene_corr_status_selectsample <- renderText({paste0('The following sample names are not found. Please enter the correct names: \n', samples_not_found_tmp)})
+              df2 <- df_ex[(rowSums(df_ex) > 5*dim(df_ex)[2]),] # dim(df2)
+              df3 <- data.frame(t(df2)) # df3[1:3, 1:3]
+              df3$sample <- rownames(df3)
+              df3 <- df3[order(df3$sample),] 
+              pca_res <- prcomp(df3[, colnames(df3) != 'sample'], scale. = TRUE) 
+              pca_df <- data.frame(pca_res[5]$x[, 1:2]) # head(pca_df)
+              pca_df$sample <- rownames(pca_df)
+              if(input$Data_Overview_PCA_Setting=='B'){
+                Group <- c()
+                for (i in rownames(pca_df)){
+                  tmp <- df_sample_group[df_sample_group$Sample == i, ]$Grounp
+                  Group <- c(Group, tmp)
+                }
+                pca_df$Group <- Group
               }else{
-                output$Two_gene_corr_status_selectsample <- renderText({NULL})
-              }
-              if(length(samples)==0){
-                return(NULL)
-              }
-              df_tmp <- df_tmp[samples,]
-            }else{
-              output$Two_gene_corr_status_selectsample <- renderText({NULL})
-            }
-            # when taking log2
-            if(input$Two_gene_corr_corr_Input == 'A'){
-              if(input$Two_gene_corr_log){
-                df_tmp <- log2(df_tmp+1)
-              }
-            }else if(input$Two_gene_corr_corr_Input == 'B'){
-              if(df_Two_gene_corr_inputB()$log[1] == 1){
-                df_tmp <- log2(df_tmp+1)
-              }
-            }
-
-            # when using groups for colouring
-            if(input$Two_gene_corr_colour_grorp){
-              Group <- c()
-              for (i in strsplit(rownames(df_tmp), '_')){
-                tmp <- ''
-                for(j in 1:(length(i)-1)){
-                  tmp <- paste0(tmp, i[j],'_')
+                Group <- c()
+                for (i in strsplit(rownames(pca_df), '_')){
+                  tmp <- ''
+                  for(j in 1:(length(i)-1)){
+                    tmp <- paste0(tmp, i[j],'_')
+                  }
+                  tmp <- substr(tmp, 1, nchar(tmp)-1)
+                  Group <- c(Group, tmp)
                 }
-                tmp <- substr(tmp, 1, nchar(tmp)-1)
-                Group <- c(Group, tmp)
+                pca_df$Group <- Group
               }
-              df_tmp <- data.frame(df_tmp)
-              df_tmp$Group <- Group
-            }
-            return(df_tmp)
-          })
-          output$Two_gene_corr_choose_sample_input_list <- renderText({
-            tmp <- colnames(df())[which(colnames(df()) != 'id')]
-            tmp <- tmp[order(tmp)]
-            paste(tmp, collapse='\n')
-          })
+              PCA_table(pca_df)
+            })
 
-          # gene2 from custome genesets
-          output$Two_gene_corr_gene2_Input_from_custom_geneset_select <- renderUI({
-                gene_sets_names <- c()
-                gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-                selectInput('Two_gene_corr_gene2_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
-              })
-          outputOptions(output, "Two_gene_corr_gene2_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
-        
-          # when exploring correlation
-          df_Two_gene_corr_inputB <- reactiveVal({NULL})
-          observeEvent(input$Two_gene_corr_start,{ #df_Two_gene_corr_inputB <- 
-            if(input$Two_gene_corr_corr_Input == 'B'){
-              ## set up the gene1
-              gene1 <- input$Two_gene_corr_gene1
-              if(gene1 == ''){
-                output$Two_gene_corr_corr_score <- renderText({NULL})
-                output$Two_gene_corr_statusB <- renderText({"Please enter Gene1 first."}) 
-                df_Two_gene_corr_inputB(NULL)
-                return(NULL)
-              }else if(!gene1 %in% df()$id){
-                output$Two_gene_corr_corr_score <- renderText({NULL})
-                output$Two_gene_corr_statusB <- renderText({paste0("Gene1: '", gene1, "' not found in the dataset.")}) 
-                df_Two_gene_corr_inputB(NULL)
-                return(NULL)
+          # show the PCA plot
+            output$Data_Overview_PCA_plot <- renderPlot({
+              pca_df <- PCA_table()
+              if(is.null(pca_df)){
+                return(ggplot())
               }
-              gene1_score <- as.numeric(df()[df()$id == gene1,-which(colnames(df()) == 'id')])
-              ## set up the gene2
-              if(input$Two_gene_corr_gene2_list_Input == 'A'){
-                if(nchar(input$Two_gene_corr_gene2_list) == 0){
+              if(input$Data_Overview_PCA_change_colour_by_group){
+                p <- ggplot(pca_df, aes(x=PC1, y=PC2, label=sample, color=Group)) + geom_point(size=input$Data_Overview_PCA_point_size) 
+                p <- p + theme(legend.text = element_text(size=input$Data_Overview_PCA_legend_size), legend.title=element_blank())
+              }else{
+                p <- ggplot(pca_df, aes(x=PC1, y=PC2, label=sample)) + geom_point(size=input$Data_Overview_PCA_point_size) 
+              }
+              if(!input$Data_Overview_PCA_label_hide){
+                p <- p + geom_text_repel(data = pca_df,  color = 'black', aes(label = sample), size = input$Data_Overview_PCA_label_size, max.overlaps = Inf, segment.size=0.2)
+              }
+              p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
+              p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(legend.key.size = unit(2, "mm"))
+              if(input$Data_Overview_PCA_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
+            }, width=reactive(input$Data_Overview_PCA_fig.width), height = reactive(input$Data_Overview_PCA_fig.height), res=300)
+        
+          # Sample name list
+            output$Data_Overview_PCA_Sample_list <- renderText({
+              df_ex <- df()
+              samples <- colnames(df_ex)[2:dim(df_ex)[2]]
+              samples <- samples[order(samples)]
+              paste(unlist(samples), collapse='\n')
+            })
+          # 
+
+        ###### two genes correlation #######    
+          # when exploring correlation
+            df_Two_gene_corr_inputB <- reactiveVal({NULL})
+            df_Two_gene_corr_inputB_gene1 <- reactiveVal({NULL})
+            observeEvent(input$Two_gene_corr_start,{ #df_Two_gene_corr_inputB <- 
+              if(input$Two_gene_corr_corr_Input == 'B'){
+                ## set up the gene1
+                gene1 <- input$Two_gene_corr_gene1
+                if(gene1 == ''){
                   output$Two_gene_corr_corr_score <- renderText({NULL})
-                  output$Two_gene_corr_statusB <- renderText({"Please enter Gene2s (line by line)."}) 
+                  show_alert(title='Error.',text='Please enter Gene1 first.', type='error')
+                  output$Two_gene_corr_statusB <- renderText({"Please enter Gene1 first."}) 
+                  df_Two_gene_corr_inputB(NULL)
+                  return(NULL)
+                }else if(!gene1 %in% df()$id){
+                  output$Two_gene_corr_corr_score <- renderText({NULL})
+                  show_alert(title='Error.',text='Gene1 not found in the dataset.', type='error')
+                  output$Two_gene_corr_statusB <- renderText({paste0("Gene1: '", gene1, "' not found in the dataset.")}) 
                   df_Two_gene_corr_inputB(NULL)
                   return(NULL)
                 }
-                gene2s <- unlist(strsplit(input$Two_gene_corr_gene2_list, split = "\n"))
-              }else if(input$Two_gene_corr_gene2_list_Input == 'B'){
-                if(input$Two_gene_corr_gene2_Input_from_custom_geneset_select == 'None'){
-                  output$Two_gene_corr_statusB <- renderText({"Please select a custom gene set."}) 
-                  return(NULL)
-                }
-                gene2s <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Two_gene_corr_gene2_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-              }
-              gene2_not_in_data <- c() # gene2_not_in_data <- c('hoge', 'fuga')
-              df_out <- data.frame(Gene=c(), Correlation=c(), Pvalue=c(), log=c())
-              for (gene2 in gene2s){
-                if(!gene2 %in% df()$id){
-                  gene2_not_in_data <- c(gene2_not_in_data, gene2)
-                }else{
-                  gene2_score <- as.numeric(df()[df()$id == gene2,-which(colnames(df()) == 'id')])
-                  if(input$Two_gene_corr_log){
-                    cor_res <- cor.test(log2(gene1_score + 1), log2(gene2_score+1), method=input$Two_gene_corr_corr_method)  
-                  }else{
-                    cor_res <- cor.test(gene1_score, gene2_score, method=input$Two_gene_corr_corr_method)
-                  }
-                  r <- cor_res$estimate; pval <- cor_res$p.value
-                  df_tmp <- data.frame(Gene=c(gene2), Correlation=c(r), Pvalue=c(pval))
-                  if(input$Two_gene_corr_log){
-                    df_tmp$log <- 1
-                  }else{
-                    df_tmp$log <- 0
-                  }
-                  df_out <- rbind(df_out, df_tmp)
-                }
-              }
-              if(length(gene2_not_in_data) > 0){
-                output$Two_gene_corr_statusB <- renderText({paste0("Gene2: The following genes are not in the dataset \n", paste(gene2_not_in_data, collapse=','))}) 
-              }
-              df_out <- df_out[order(df_out$Pvalue),]
-              rownames(df_out) <- NULL
-              df_Two_gene_corr_inputB(df_out)
-              return(NULL)
-            }else{
-              df_Two_gene_corr_inputB(NULL)
-              return(NULL)
-            }
-          })
-
-          output$Two_gene_corr_table_status <- renderText({
-            if(is.null(df_Two_gene_corr_inputB())){
-              "Please calculate the correlations first"
-            }else{
-              return(NULL)
-            }
-          })
-
-          # display a table
-          output$Two_gene_corr_table <- renderDataTable({
-            datatable( data.frame(df_Two_gene_corr_inputB()[, c('Gene', 'Correlation', 'Pvalue')]), selection = list(mode='single'),  options = list(scrollX = TRUE, scrollY = TRUE)) 
-          })
-
-          # plot
-          output$Two_gene_corr_plot <- renderPlot({
-            if(is.null(df_Two_gene_corr())){
-              if(input$Two_gene_corr_corr_Input == 'B'){
-                if(is.null(df_Two_gene_corr_inputB())){
-                  output$Two_gene_corr_corr_score <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
-                }else{
-                  if(length(input$Two_gene_corr_table_rows_selected) == 0){
-                    output$Two_gene_corr_corr_score <- renderText({"Please select a row from the table."})
-                  }else{
+                gene1_score <- as.numeric(df()[df()$id == gene1,-which(colnames(df()) == 'id')])
+                ## set up the gene2
+                if(input$Two_gene_corr_gene2_list_Input == 'A'){
+                  if(nchar(input$Two_gene_corr_gene2_list) == 0){
                     output$Two_gene_corr_corr_score <- renderText({NULL})
+                    show_alert(title='Error.',text='Please enter Gene2s.', type='error')
+                    output$Two_gene_corr_statusB <- renderText({"Please enter Gene2s (line by line)."}) 
+                    df_Two_gene_corr_inputB(NULL)
+                    return(NULL)
+                  }
+                  gene2s <- unlist(strsplit(input$Two_gene_corr_gene2_list, split = "\n"))
+                }else if(input$Two_gene_corr_gene2_list_Input == 'B'){
+                  if(input$Two_gene_corr_gene2_Input_from_custom_geneset_select == 'None'){
+                    show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+                    output$Two_gene_corr_statusB <- renderText({"Please select a custom gene set."}) 
+                    return(NULL)
+                  }
+                  gene2s <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Two_gene_corr_gene2_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                }
+                gene2_not_in_data <- c() # gene2_not_in_data <- c('hoge', 'fuga')
+                df_out <- data.frame(Gene=c(), Correlation=c(), Pvalue=c(), log=c())
+                for (gene2 in gene2s){
+                  if(!gene2 %in% df()$id){
+                    gene2_not_in_data <- c(gene2_not_in_data, gene2)
+                  }else{
+                    gene2_score <- as.numeric(df()[df()$id == gene2,-which(colnames(df()) == 'id')])
+                    if(input$Two_gene_corr_log){
+                      cor_res <- cor.test(log2(gene1_score + 1), log2(gene2_score+1), method=input$Two_gene_corr_corr_method)  
+                    }else{
+                      cor_res <- cor.test(gene1_score, gene2_score, method=input$Two_gene_corr_corr_method)
+                    }
+                    r <- cor_res$estimate; pval <- cor_res$p.value
+                    df_tmp <- data.frame(Gene=c(gene2), Correlation=c(r), Pvalue=c(pval))
+                    if(input$Two_gene_corr_log){
+                      df_tmp$log <- 1
+                    }else{
+                      df_tmp$log <- 0
+                    }
+                    df_Two_gene_corr_inputB_gene1(gene1)
+                    df_out <- rbind(df_out, df_tmp)
                   }
                 }
+                if(length(gene2_not_in_data) > 0){
+                  output$Two_gene_corr_statusB <- renderText({paste0("Gene2: The following genes are not in the dataset \n", paste(gene2_not_in_data, collapse=','))}) 
+                }
+                df_out <- df_out[order(df_out$Pvalue),]
+                rownames(df_out) <- NULL
+                df_Two_gene_corr_inputB(df_out)
+                return(NULL)
               }else{
-                output$Two_gene_corr_corr_score <- renderText({NULL})
+                df_Two_gene_corr_inputB(NULL)
+                return(NULL)
               }
-              return(ggplot())
-            }else{
+            })
+
+
+          # specify gene1 and gene2 (typeA)
+            df_Two_gene_corr <- reactive({
               if(input$Two_gene_corr_corr_Input == 'A'){
+                output$Two_gene_corr_statusB <- renderText({NULL}) 
                 gene1 <- input$Two_gene_corr_gene1
                 gene2 <- input$Two_gene_corr_gene2
-                df_tmp <- df_Two_gene_corr()
-              }else{
-                gene1 <- input$Two_gene_corr_gene1
+                # when no input
+                if(nchar(input$Two_gene_corr_gene1) == 0 | nchar(input$Two_gene_corr_gene2) == 0 ){
+                  output$Two_gene_corr_statusA <- renderText({"Please enter gene1 and gene2"}) 
+                  return(NULL)
+                }
+                # when input genes are not in the dataset
+                tmp1=''; tmp2=''
+                if(!gene1 %in% df()$id){
+                  tmp1 <- paste0("Error in Gene1: '", gene1, "' is not included in the dataset.")
+                }
+                if(!gene2 %in% df()$id){
+                  tmp2 <- paste0("Error in Gene2: '", gene2, "' is not included in the dataset.")
+                }
+                if(tmp1!='' | tmp2!=''){
+                  if(tmp1 == ''){ 
+                    output$Two_gene_corr_statusA <- renderText({tmp2}) 
+                  }else if(tmp2 == ''){
+                    output$Two_gene_corr_statusA <- renderText({tmp1}) 
+                  }else{
+                    output$Two_gene_corr_statusA <- renderText({paste(tmp1, tmp2, sep='\n')}) 
+                  }
+                  return(NULL)
+                }
+              }else if(input$Two_gene_corr_corr_Input == 'B'){
+                output$Two_gene_corr_statusA <- renderText({NULL}) 
+                gene1 <- df_Two_gene_corr_inputB_gene1()
+                if(is.null(df_Two_gene_corr_inputB())){
+                  return(NULL)
+                }
+                if(length(input$Two_gene_corr_table_rows_selected)==0){
+                  return(NULL)
+                }
                 gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
-                df_tmp <- df_Two_gene_corr()
               }
-              if(!is.null(df_tmp)){
-                if(input$Two_gene_corr_colour_grorp){
-                  p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1, color='Group')) + geom_point(size=input$Two_gene_corr_pt.size)
+              # prepare the table
+              output$Two_gene_corr_statusA <- renderText({NULL}) 
+              output$Two_gene_corr_statusB <- renderText({NULL}) 
+              df_tmp <- df()[df()$id %in% c(gene1, gene2),] # df_tmp <- df[df$id %in% c(gene2, gene1),]
+              rownames(df_tmp) <- df_tmp$id
+              df_tmp <- df_tmp[,-which(colnames(df_tmp) == 'id')]
+              df_tmp <- t(df_tmp)
+              if(input$Two_gene_corr_choose_sample){ # when focusing on some samples
+                if(nchar(input$Two_gene_corr_choose_sample_input) == 0){
+                  output$Two_gene_corr_status_selectsample <- renderText({'You are selecting "Select samples" below. Please enter the sample names there.'})
+                  return(NULL)
+                }
+                samples <- intersect(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp)) 
+                samples_not_found <- setdiff(unlist(strsplit(input$Two_gene_corr_choose_sample_input, split = "\n")), rownames(df_tmp))
+                if(length(samples_not_found) > 0){
+                  samples_not_found_tmp <- paste(samples_not_found, collappse=', ')
+                  output$Two_gene_corr_status_selectsample <- renderText({paste0('The following sample names are not found. Please enter the correct names: \n', samples_not_found_tmp)})
                 }else{
-                  p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1)) + geom_point(size=input$Two_gene_corr_pt.size)
+                  output$Two_gene_corr_status_selectsample <- renderText({NULL})
                 }
-                if(input$Two_gene_corr_plot_line){
-                  p <- p + geom_smooth(method='lm', se=TRUE, size=0.2, color='black')
+                if(length(samples)==0){
+                  return(NULL)
                 }
-                if(input$Two_gene_corr_corr_Input == 'A' & input$Two_gene_corr_log){
-                  p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
+                df_tmp <- df_tmp[samples,]
+              }else{
+                output$Two_gene_corr_status_selectsample <- renderText({NULL})
+              }
+              # when taking log2
+              if(input$Two_gene_corr_corr_Input == 'A'){
+                if(input$Two_gene_corr_log){
+                  df_tmp <- log2(df_tmp+1)
                 }
+              }else if(input$Two_gene_corr_corr_Input == 'B'){
+                if(df_Two_gene_corr_inputB()$log[1] == 1){
+                  df_tmp <- log2(df_tmp+1)
+                }
+              }
+
+              # when using groups for colouring
+              if(input$Two_gene_corr_colour_grorp){
+                Group <- c()
+                for (i in strsplit(rownames(df_tmp), '_')){
+                  tmp <- ''
+                  for(j in 1:(length(i)-1)){
+                    tmp <- paste0(tmp, i[j],'_')
+                  }
+                  tmp <- substr(tmp, 1, nchar(tmp)-1)
+                  Group <- c(Group, tmp)
+                }
+                df_tmp <- data.frame(df_tmp)
+                df_tmp$Group <- Group
+              }
+              return(df_tmp)
+            })
+          
+          # when selecting the smaples to use
+            output$Two_gene_corr_choose_sample_input_list <- renderText({
+              tmp <- colnames(df())[which(colnames(df()) != 'id')]
+              tmp <- tmp[order(tmp)]
+              paste(tmp, collapse='\n')
+            })
+
+          # gene2 from custome genesets
+            output$Two_gene_corr_gene2_Input_from_custom_geneset_select <- renderUI({
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              selectInput('Two_gene_corr_gene2_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+            })
+            outputOptions(output, "Two_gene_corr_gene2_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+          
+          # table status
+            output$Two_gene_corr_table_status <- renderText({
+              if(is.null(df_Two_gene_corr_inputB())){
+                "Please calculate the correlations first"
+              }else{
+                return(NULL)
+              }
+            })
+
+          # display a table
+            output$Two_gene_corr_table <- renderDataTable({
+              if(is.null(df_Two_gene_corr_inputB())){
+                tmp <- data.frame(list('Gene'=character(0), 'Correlation'=character(0),'Pvalue'=character(0)), stringsAsFactors = FALSE)
+                datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+              }else{
+                datatable( data.frame(df_Two_gene_corr_inputB()[, c('Gene', 'Correlation', 'Pvalue')]), selection = list(mode='single'),  options = list(scrollX = TRUE, scrollY = TRUE)) 
+              }
+            })
+
+          # plot
+            output$Two_gene_corr_plot <- renderPlot({
+              if(is.null(df_Two_gene_corr())){
                 if(input$Two_gene_corr_corr_Input == 'B'){
-                  if(df_Two_gene_corr_inputB()$log[1] == 1){
+                  if(is.null(df_Two_gene_corr_inputB())){
+                    output$Two_gene_corr_corr_score <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
+                  }else{
+                    if(length(input$Two_gene_corr_table_rows_selected) == 0){
+                      output$Two_gene_corr_corr_score <- renderText({"Please select a row from the table."})
+                    }else{
+                      output$Two_gene_corr_corr_score <- renderText({NULL})
+                    }
+                  }
+                }else{
+                  output$Two_gene_corr_corr_score <- renderText({NULL})
+                }
+                return(ggplot())
+              }else{
+                if(input$Two_gene_corr_corr_Input == 'A'){
+                  gene1 <- input$Two_gene_corr_gene1
+                  gene2 <- input$Two_gene_corr_gene2
+                  df_tmp <- df_Two_gene_corr()
+                }else{
+                  gene1 <- df_Two_gene_corr_inputB_gene1()
+                  gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
+                  df_tmp <- df_Two_gene_corr()
+                }
+                if(!is.null(df_tmp)){
+                  if(input$Two_gene_corr_colour_grorp){
+                    p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1, color='Group')) + geom_point(size=input$Two_gene_corr_pt.size)
+                  }else{
+                    p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1)) + geom_point(size=input$Two_gene_corr_pt.size)
+                  }
+                  if(input$Two_gene_corr_plot_line){
+                    p <- p + geom_smooth(method='lm', se=TRUE, size=0.2, color='black')
+                  }
+                  if(input$Two_gene_corr_corr_Input == 'A' & input$Two_gene_corr_log){
                     p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
                   }
+                  if(input$Two_gene_corr_corr_Input == 'B'){
+                    if(df_Two_gene_corr_inputB()$log[1] == 1){
+                      p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
+                    }
+                  }
+                  # calculate R and p
+                  res <- cor.test(df_tmp[, gene1], df_tmp[, gene2], method=input$Two_gene_corr_corr_method)
+                  r <- res$estimate
+                  pval <- res$p.value
+                  output$Two_gene_corr_corr_score <- renderText({
+                    paste0('Correlation: ', r, '\n', 'P-value: ', pval)
+                  })
+                  p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                }else{
+                  return(ggplot())
                 }
-                # calculate R and p
-                res <- cor.test(df_tmp[, gene1], df_tmp[, gene2], method=input$Two_gene_corr_corr_method)
-                r <- res$estimate
-                pval <- res$p.value
-                output$Two_gene_corr_corr_score <- renderText({
-                  paste0('Correlation: ', r, '\n', 'P-value: ', pval)
-                })
-                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              }else{
-                return(ggplot())
               }
-            }
-            p <- p + theme(axis.title = element_text(size=input$Two_gene_corr_title.font.size), axis.text = element_text(size=input$Two_gene_corr_label.font.size))
-            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p <- p + theme(legend.key.size = unit(2, "mm"))
-            p <- p + theme(legend.title = element_blank(), legend.text = element_text(size=input$Two_gene_corr_legend.font.size))
-            if(input$Two_gene_corr_while_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p
-          }, width=reactive(input$Two_gene_corr_fig.width), height=reactive(input$Two_gene_corr_fig.height), res=300)
-
+              p <- p + theme(axis.title = element_text(size=input$Two_gene_corr_title.font.size), axis.text = element_text(size=input$Two_gene_corr_label.font.size))
+              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(legend.key.size = unit(2, "mm"))
+              p <- p + theme(legend.title = element_blank(), legend.text = element_text(size=input$Two_gene_corr_legend.font.size))
+              if(input$Two_gene_corr_while_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
+            }, width=reactive(input$Two_gene_corr_fig.width), height=reactive(input$Two_gene_corr_fig.height), res=300)
+          #
         ######
       #####
     ####
