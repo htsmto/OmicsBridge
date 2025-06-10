@@ -30,6 +30,7 @@
   suppressMessages(library(igvShiny))
   suppressMessages(library(shinyWidgets))
   suppressMessages(library(shinycssloaders))
+  suppressMessages(library(ggraph))
   
 
   options(shiny.maxRequestSize = 10000*1024^2)
@@ -38,7 +39,7 @@
   set.seed(123)
   options(scipen = 10)
   set.seed(123)
-  # net <- readRDS('data/OmnipathR_net.rds')
+  net <- readRDS('data/OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = TRUE)
@@ -1018,64 +1019,124 @@ ui <- fluidPage(
                                 box( title='Downstream analysis', collapsible=TRUE, status='primary',  width=12, collapsed=TRUE, solidHeader = TRUE, 
                                   tabsetPanel(
                                     ## GO
-                                      tabPanel('GO/KEGG analysis',
+                                      tabPanel(strong('GO/KEGG analysis'),
                                         fluidRow(column(12, h4(''))),
-                                        box(title='Settings', collapsible=TRUE, width=4,status='primary', 
+                                        box(title=strong('Settings'), collapsible=TRUE, width=4,status='primary', 
                                           fluidRow(
                                             column(12, radioButtons("GO_input_type", "Input genes for GO analysis", choices = c("Text input"='A', "Use filtered genes (Results from 'Show outliers' above)"='B', "Use selected genes (Selected area in the Main plot)"='C'), selected="A")),
-                                            conditionalPanel( condition = "input.GO_input_type == 'A'", column(8, textAreaInput("GO_input_geneList", "Enter gene list (one gene per line, Gene symbol)")) )
+                                            conditionalPanel( 
+                                              condition = "input.GO_input_type == 'A'", 
+                                              column(12, textAreaInput("GO_input_geneList", "Enter gene list (one gene per line, Gene symbol)")) 
+                                            ),
+                                            column(12, h4(''))
                                           ),
                                           fluidRow(
                                             column(6, radioButtons("GO_species", "Select Species", choices = c("Human", "Mouse")),selecetd="Human"),
                                             column(6, radioButtons("GO_database", "Select Database", choices = c("GO", "KEGG")), selecetd='GO'),
                                             conditionalPanel( condition = "input.GO_database == 'GO'", column(6, radioButtons("GO_ontology", "Select Ontology", choices = c("BP", "MF", "CC")), selected="BP") )
                                           ),
-                                          fluidRow( column(4, actionButton("GO_start", "Start GO/KEGG Analysis")) ),
+                                          fluidRow( column(4, actionButton("GO_start", "Start GO/KEGG Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")) ),
                                           fluidRow( 
                                             column(12, h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: red;"))) ,
                                             column(12, h5('')) 
-                                          ),
-                                          box(title='Plot options',collapsible=TRUE, width=12, collapsed = T, status='success', 
-                                            fluidRow(
-                                              column(6, sliderInput('GO_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
-                                              column(6, sliderInput('GO_fig.height','Fig height', min=300, max=3000, value=1000, step=10)),
-                                            ),
-                                            fluidRow(
-                                              column(6, sliderInput('GO_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
-                                              column(6, sliderInput('GO_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1))
-                                            ),
-                                            fluidRow(
-                                              column(6, sliderInput('GO_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
-                                              column(6, sliderInput('GO_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1)),
-                                              column(6, sliderInput('GO_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1))
-                                            )
                                           )
                                         ),
-                                        box(title='Results & Plots', collapsible=TRUE, width=8, status='danger', 
-                                          fluidRow(column(12, h4(''))),
-                                          fluidRow(column(12, verbatimTextOutput('GO_go_status') )),
-                                          fluidRow(column(12, h4(''))),
-                                          tabsetPanel(
-                                            tabPanel("Table", 
-                                              fluidRow(column(12, h4(''))),
-                                              fluidRow(column(12, verbatimTextOutput('GO_goTable_status') )),
-                                              fluidRow(column(12, DT::dataTableOutput("GO_goTable", width="100%", height="100%") )) ,  
-                                              fluidRow(column(12, downloadButton('GO_goTable_download',"Download this table") ))
-                                            ),
-                                            tabPanel("Bar Plot", 
-                                              fluidRow(column(12, h4(''))),
-                                              fluidRow(column(12, verbatimTextOutput('GO_goPlot_status') )),
-                                              fluidRow(column(12, plotOutput("GO_goPlot", width="100%", height="100%") ))
-                                            ),
-                                            tabPanel("Bubble Plot", 
-                                              fluidRow(column(12, h4(''))),
-                                              fluidRow(column(12, verbatimTextOutput('GO_goBubblePlot_status') )),
-                                              fluidRow(column(12, plotOutput("GO_goBubblePlot", width="100%", height="100%") ))
-                                            ),
-                                            tabPanel("Network plot", 
-                                              fluidRow(column(12, h4(''))),
-                                              fluidRow(column(12, verbatimTextOutput('GO_netPlot_status') )),
-                                              fluidRow(column(12, plotOutput("GO_netPlot", width="100%", height="100%") ))
+                                        box(title=strong('Results & Plots'), collapsible=TRUE, width=8, status='danger', 
+                                          fluidRow(
+                                            column(12, h4('')),
+                                            column(12, verbatimTextOutput('GO_go_status') ),
+                                            column(12, h4(''))
+                                          ),
+                                          fluidRow(
+                                            column(12, 
+                                              tabsetPanel(
+                                                tabPanel(strong("Table"), 
+                                                  fluidRow(
+                                                    column(12, h4('')),
+                                                    column(12, verbatimTextOutput('GO_goTable_status') ),
+                                                    column(12, withSpinner(DT::dataTableOutput("GO_goTable", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                                    column(12, downloadButton('GO_goTable_download',"Download this table") )
+                                                  )
+                                                ),
+                                                tabPanel(strong("Bar Plot"), 
+                                                  fluidRow(
+                                                    column(12, h4('')),
+                                                    column(10, verbatimTextOutput('GO_goPlot_status') ),
+                                                    column(2, 
+                                                      dropdownButton( h4(strong("Plot Options")),
+                                                        fluidRow(
+                                                          column(6, sliderInput('GO_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                                          column(6, sliderInput('GO_fig.height','Fig height', min=300, max=3000, value=1000, step=10)),
+                                                          column(6, sliderInput('GO_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
+                                                          column(6, sliderInput('GO_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1))
+                                                        ),
+                                                        fluidRow(
+                                                          column(6, colourpicker::colourInput('GO_bar_colour_max', 'Max colour:', value='#ffffff')),
+                                                          column(6, colourpicker::colourInput('GO_bar_colour_min', 'Min colour:', value='#00c310')),
+                                                          column(6, materialSwitch('GO_bar_white_background', 'Use white background', value=FALSE, status='success')),
+                                                        ),
+                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                                      ),
+                                                    ),
+                                                    column(12, withSpinner(plotOutput("GO_goPlot", width="100%", height="100%"), type=5, color='#0dc5c1'))
+                                                  )
+                                                ),
+                                                tabPanel(strong("Bubble Plot"), 
+                                                  fluidRow(
+                                                    column(12, h4('')),
+                                                    column(10, verbatimTextOutput('GO_goBubblePlot_status') ),
+                                                    column(2, 
+                                                      dropdownButton( h4(strong("Plot Options")),
+                                                        fluidRow(
+                                                          column(6, sliderInput('GO_Bubble_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                                          column(6, sliderInput('GO_Bubble_fig.height','Fig height', min=300, max=3000, value=1000, step=10)),
+                                                          column(6, sliderInput('GO_Bubble_fig.category_show_number','Number of categories to show', min=5, max=50, value=10, step=1)),
+                                                          column(6, sliderInput('GO_Bubble_xtitle.font.size', 'X title font size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_Bubble_ylab.font.size', 'Y labels size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_Bubble_xlab.font.size', 'X label font size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_Bubble_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1))
+                                                        ),
+                                                        fluidRow(
+                                                          column(6, colourpicker::colourInput('GO_Bubble_colour_max', 'Max colour:', value='#ffffff')),
+                                                          column(6, colourpicker::colourInput('GO_Bubble_colour_min', 'Min colour:', value='#c45f00')),
+                                                          column(6, materialSwitch('GO_Bubble_white_background', 'Use white background', value=FALSE, status='success')),
+                                                        ),
+                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                                      ),
+                                                    ),
+                                                    column(12, withSpinner(plotOutput("GO_goBubblePlot", width="100%", height="100%"), type=5, color='#0dc5c1'))
+                                                  )
+                                                ),
+                                                tabPanel(strong("Network plot"), 
+                                                  fluidRow(
+                                                    column(12, h4('')),
+                                                    column(10, verbatimTextOutput('GO_netPlot_status_status') ),
+                                                    column(2, 
+                                                      dropdownButton( h4(strong("Plot Options")),
+                                                        fluidRow(
+                                                          column(6, sliderInput('GO_netPlot_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
+                                                          column(6, sliderInput('GO_netPlot_fig.height','Fig height', min=300, max=3000, value=700, step=10)),
+                                                          column(6, sliderInput('GO_netPlot_category_show_number', 'Number of categories to show', min=1, max=20, value=5, step=1)),
+                                                          column(6, sliderInput('GO_netPlot_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_edge_size_term', 'Edge line width', min=0.01, max=2, value=0.2, step=0.01)),
+                                                          column(6, sliderInput('GO_netPlot_label_size_term', 'Node label size', min=0.1, max=5, value=2, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_node_size_term', 'Node size (Term)', min=0.1, max=10, value=2, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_node_size_gene', 'Node size (Gene)', min=0.1, max=10, value=1, step=0.1))
+                                                        ),
+                                                        fluidRow(
+                                                          column(6, materialSwitch('GO_netPlot_change_edge_colour', 'Change edge colour by terms', value=FALSE, status='success')),
+                                                          column(6, materialSwitch('GO_netPlot_circle_plot', 'Circle plot', value=FALSE, status='success')),
+                                                        ),
+                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                                      ),
+                                                    ),
+                                                    column(12, withSpinner(plotOutput("GO_netPlot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                                  )
+                                                )
+                                              ) 
                                             )
                                           )
                                         )
@@ -3518,7 +3579,7 @@ server <- function(input, output, session) {
       }else if(input$sidebar == 'Data_Overview'){
         suppressMessages(library(decoupleR))
         # suppressMessages(library(visNetwork))
-        net <- readRDS('data/OmnipathR_net.rds')
+        # net <- readRDS('data/OmnipathR_net.rds')
         suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
         suppressMessages(library(GSVA)) #
         suppressMessages(library(fgsea))
@@ -4699,197 +4760,316 @@ server <- function(input, output, session) {
 
         ###### GO analysis ######
           # Choose the genes used in GO analysis
-          GO_analysis_genes <- reactive({
-            if(input$GO_input_type == 'A'){
-              if(nchar(input$GO_input_geneList) > 0){
-                unlist(strsplit(input$GO_input_geneList, split = "\n"))
-              }else{
-                return(NULL)
+            GO_analysis_genes <- reactive({
+              if(input$GO_input_type == 'A'){
+                if(nchar(input$GO_input_geneList) > 0){
+                  unlist(strsplit(input$GO_input_geneList, split = "\n"))
+                }else{
+                  return(NULL)
+                }
               }
-            }
-            else if(input$show_filterin_input_option=='B' & input$GO_input_type == 'B'){df_outliers()$id}
-            else if(!is.null(input$plot_brush) & input$GO_input_type == 'C'){brushedPoints(df(), input$plot_brush)$id}
-            else {return(NULL)}
-          })
+              else if(input$show_filterin_input_option=='B' & input$GO_input_type == 'B'){df_outliers()$id}
+              else if(!is.null(input$plot_brush) & input$GO_input_type == 'C'){brushedPoints(df(), input$plot_brush)$id}
+              else {return(NULL)}
+            })
 
           # Do GO analysis
-          output$GO_go_status <- renderText({'Please enter inputs and select other settings, and click "Start GO/KEGG Analysis"'})
-          goResult <- eventReactive(input$GO_start, {
-            if(is.null(GO_analysis_genes()) || length(GO_analysis_genes()) == 0){
-              if(input$GO_input_type == 'B'){
-                if(!input$show_filterin_input_option=='B'){
-                  output$GO_go_status <- renderText({'Please filter the genes in the plot first. (Go to "Highlight filterd genes or gene sets in the plot" > "Filtered genes".) '})
-                  return(NULL)    
+            output$GO_go_status <- renderText({'Please enter inputs and select other settings, and click "Start GO/KEGG Analysis"'})
+            goResult <- reactiveVal({NULL})
+            isCalculating <- reactiveVal(FALSE) 
+            triggered <- reactiveVal(FALSE)
+            observeEvent(input$GO_start, {  
+              isCalculating(TRUE)   # 計算中フラグを立てる
+              triggered(TRUE) 
+              goResult(NULL) 
+              if(is.null(GO_analysis_genes()) || length(GO_analysis_genes()) == 0){
+                if(input$GO_input_type == 'Use filtered genes'){
+                  if(!input$show_filterin_input_option=='B'){
+                    show_alert(title='Error.',text='Please filter the genes in the plot first.', type='error')
+                    output$GO_go_status <- renderText({'Please filter the genes in the plot first. (Go to "Highlight filterd genes or gene sets in the plot" > "Filtered genes".)'})
+                    goResult(NULL)  
+                    isCalculating(FALSE)
+                    return(NULL) 
+                  }
+                }else if(input$GO_input_type == 'Text input'){
+                  show_alert(title='Error.',text='Please enter genes names.', type='error')
+                  output$GO_go_status <- renderText({'Please enter genes names. (Make sure that names are gene symbols and do not contain unnecessary spaces.)'})
+                  goResult(NULL)
+                  isCalculating(FALSE)
+                  return(NULL) 
                 }
-              }else if(input$GO_input_type == 'A'){
-                output$GO_go_status <- renderText({'Please enter genes names. (line by line) (Make sure that names are gene symbols and do not contain unnecessary spaces.)'})
+                show_alert(title='Error.',text='Please input the genes correctly.', type='error')
+                output$GO_go_status <- renderText({'Please input the genes correctly.'})
+                goResult(NULL)
+                isCalculating(FALSE)
+                return(NULL) 
               }
-              output$GO_go_status <- renderText({'Please input the genes correctly.'})
-              return(NULL)
-            }
-            genes <- GO_analysis_genes()
-            genes <- genes[genes!='']
-            if(length(genes) == 0){
-              output$GO_go_status <- renderText({'Please input the genes correctly. \nPlease make sure the gene names are correct and do not contain unnecessary spaces.'})
-              return(NULL)
-            }
-            geneList_ENTREZID <- tryCatch(
-                bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb=ifelse(input$GO_species == "Human", "org.Hs.eg.db", "org.Mm.eg.db"))$ENTREZID,
-                # bitr(c('FCRL1'), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Hs.eg.db")$ENTREZID,
-                error=function(e){
-                  output$GO_go_status <- renderText({'Cannot do the GO/KEGG analysis using the inputted genes.\n None of the keys entered are valid keys.\nPlease change the input.'})
-                  return(NULL)
-                }
-              )
-            if(is.null(geneList_ENTREZID)==TRUE){
-              output$GO_go_status <- renderText({'Cannot do the GO/KEGG analysis using the inputted genes.\n None of the keys entered are valid keys.\nPlease change the input.'})
-              return(NULL)
-            }
-            output$GO_go_status <- renderText({NULL})
-            if(input$GO_database == 'GO'){
-              if(input$GO_species == 'Human'){ df_GO_base = as.data.frame(org.Hs.egGO)}
-              else if(input$GO_species == 'Mouse'){ df_GO_base = as.data.frame(org.Mm.egGO) }
-              go_gene_universe_list = unique(sort(df_GO_base$gene_id))
+              genes <- GO_analysis_genes()
+              genes <- genes[genes!='']
+              if(length(genes) == 0){
+                show_alert(title='Error.',text='Please input the genes correctly.', type='error')
+                output$GO_go_status <- renderText({'Please input the genes correctly. \nPlease make sure the gene names are correct and do not contain unnecessary spaces.'})
+                goResult(NULL)
+                isCalculating(FALSE)
+                return(NULL) 
+              }
+              geneList_ENTREZID <- tryCatch(
+                  bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb=ifelse(input$GO_species == "Human", "org.Hs.eg.db", "org.Mm.eg.db"))$ENTREZID,
+                  # bitr(c('FCRL1'), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Hs.eg.db")$ENTREZID,
+                  error=function(e){
+                    output$GO_go_status <- renderText({'Cannot do the GO/KEGG analysis using the inputted genes.\n None of the keys entered are valid keys.\nPlease change the input.'})
+                    show_alert(title='Error.',text='None of the keys entered are valid keys.\nPlease change the input.', type='error')
+                    goResult(NULL)
+                    isCalculating(FALSE)
+                    return(NULL) 
+                  }
+                )
+              if(is.null(geneList_ENTREZID)==TRUE){
+                show_alert(title='Error.',text='None of the keys entered are valid keys.\nPlease change the input.', type='error')
+                output$GO_go_status <- renderText({'Cannot do the GO/KEGG analysis using the inputted genes.\n None of the keys entered are valid keys.\nPlease change the input.'})
+                goResult(NULL)
+                isCalculating(FALSE)
+                return(NULL) 
+              }
               output$GO_go_status <- renderText({NULL})
-              out <- enrichGO(gene = geneList_ENTREZID, universe = go_gene_universe_list, OrgDb = ifelse(input$GO_species == "Human", "org.Hs.eg.db", "org.Mm.eg.db"), ont = input$GO_ontology, pAdjustMethod = "BH", pvalueCutoff = 1, qvalueCutoff = 1, readable = TRUE)
-              if(is.null(out)){
-                output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
-                return(NULL)
+              if(input$GO_database == 'GO'){
+                if(input$GO_species == 'Human'){ df_GO_base = as.data.frame(org.Hs.egGO)}
+                else if(input$GO_species == 'Mouse'){ df_GO_base = as.data.frame(org.Mm.egGO) }
+                go_gene_universe_list = unique(sort(df_GO_base$gene_id))
+                output$GO_go_status <- renderText({NULL})
+                out <- enrichGO(gene = geneList_ENTREZID, universe = go_gene_universe_list, OrgDb = ifelse(input$GO_species == "Human", "org.Hs.eg.db", "org.Mm.eg.db"), ont = input$GO_ontology, pAdjustMethod = "BH", pvalueCutoff = 1, qvalueCutoff = 1, readable = TRUE)
+                if(is.null(out)){
+                  show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
+                  output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
+                  goResult(NULL)
+                  isCalculating(FALSE)
+                  return(NULL) 
+                }else{
+                  goResult(out)
+                  isCalculating(FALSE)
+                  return(NULL) 
+                }
+              }else if(input$GO_database == 'KEGG'){
+                if(input$GO_species == 'Human'){
+                  kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'hsa', pvalueCutoff = 1, qvalueCutoff = 1)
+                  if(is.null(kk_ORA)){
+                    show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
+                    output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
+                    isCalculating(FALSE)
+                    return(NULL)
+                  }else{
+                    output$GO_go_status <- renderText({NULL})
+                    kk_ORA <- setReadable(kk_ORA, 'org.Hs.eg.db', 'ENTREZID')
+                    goResult(kk_ORA)
+                  }
+                }else if(input$GO_species == 'Mouse'){
+                  kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'mmu', pvalueCutoff = 1, qvalueCutoff = 1)
+                  if(is.null(kk_ORA)){
+                    show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
+                    output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
+                    return(NULL)
+                    return(NULL) 
+                  }else{
+                    output$GO_go_status <- renderText({NULL})
+                    kk_ORA <- setReadable(kk_ORA, 'org.Mm.eg.db', 'ENTREZID')
+                    goResult(kk_ORA)
+                    isCalculating(FALSE)
+                    return(NULL)
+                  }
+                }
               }else{
-                out
+                show_alert(title='Error.',text='Please select the database correctly..', type='error')
+                output$GO_go_status <- renderText({'Please select the database (and the ontology) correctly.'})
+                goResult(NULL)
+                isCalculating(FALSE)
+                return(NULL) 
               }
-            }else if(input$GO_database == 'KEGG'){
-              if(input$GO_species == 'Human'){
-                kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'hsa', pvalueCutoff = 1, qvalueCutoff = 1)
-                if(is.null(kk_ORA)){
-                  output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
-                  return(NULL)
-                }else{
-                  output$GO_go_status <- renderText({NULL})
-                  kk_ORA <- setReadable(kk_ORA, 'org.Hs.eg.db', 'ENTREZID')
-                  kk_ORA
-                }
-              }else if(input$GO_species == 'Mouse'){
-                kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'mmu', pvalueCutoff = 1, qvalueCutoff = 1)
-                if(is.null(kk_ORA)){
-                  output$GO_go_status <- renderText({'No significant GO/KEGG term was detected. Please change (or increase) the input.'})
-                  return(NULL)
-                }else{
-                  output$GO_go_status <- renderText({NULL})
-                  kk_ORA <- setReadable(kk_ORA, 'org.Mm.eg.db', 'ENTREZID')
-                  kk_ORA
-                }
-              }
-            }else{
-              output$GO_go_status <- renderText({'Please select the database (and the ontology) correctly.'})
-              return(NULL)
-            }
-          })  
+              isCalculating(FALSE)
+            })  
+
+
 
           # output$GO_go_status <- renderText({NULL})
-          outputOptions(output, "GO_go_status", suspendWhenHidden=FALSE)
+            outputOptions(output, "GO_go_status", suspendWhenHidden=FALSE)
 
           ## Plots and display the table ##
-                              # tabsetPanel(
-                              #   tabPanel("Table", 
-                              #     fluidRow(column(12, h4(''))),
-                              #     fluidRow(column(12, verbatimTextOutput('GO_goTable_status') )),
-                              #     fluidRow(column(12, DT::dataTableOutput("GO_goTable", width="100%", height="100%") )) ,  
-                              #     fluidRow(column(12, downloadButton('GO_goTable_download',"Download this table") ))
-                              #   ),
-                              #   tabPanel("Bar Plot", 
-                              #     fluidRow(column(12, h4(''))),
-                              #     fluidRow(column(12, verbatimTextOutput('GO_goPlot_status') )),
-                              #     fluidRow(column(12, plotOutput("GO_goPlot", width="100%", height="100%") ))
-                              #   ),
-                              #   tabPanel("Bubble Plot", 
-                              #     fluidRow(column(12, h4(''))),
-                              #     fluidRow(column(12, verbatimTextOutput('GO_goBubblePlot_status') )),
-                              #     fluidRow(column(12, plotOutput("GO_goBubblePlot", width="100%", height="100%") ))
-                              #   ),
-                              #   tabPanel("Network plot", 
-                              #     fluidRow(column(12, h4(''))),
-                              #     fluidRow(column(12, verbatimTextOutput('GO_netPlot_status') )),
-                              #     fluidRow(column(12, plotOutput("GO_netPlot", width="100%", height="100%") ))
-                              #   )
-          output$GO_goTable_status <- renderText({"The results table of GO/KEGG analysis will be shown here."})
-          output$GO_goPlot_status <- renderText({"A Bar plot of the GO/KEGG analysis results will be shown here."})
-          output$GO_goBubblePlot_status <- renderText({"A Bubble plot of the GO/KEGG analysis results will be shown here."})
-          output$GO_netPlot_status_status <- renderText({"A network plot of the top 5 terms from the GO/KEGG analysis results will be shown here."})
-          outputOptions(output, "GO_goTable_status", suspendWhenHidden=FALSE)
-          outputOptions(output, "GO_goPlot_status", suspendWhenHidden=FALSE) 
-          outputOptions(output, "GO_goBubblePlot_status", suspendWhenHidden=FALSE) 
-          outputOptions(output, "GO_netPlot_status_status", suspendWhenHidden=FALSE) 
-          # Goplot 
-          output$GO_goPlot <- renderPlot({
-            if(is.null(goResult())){
-              output$GO_goPlot_status <- renderText({"A Bar plot of the GO/KEGG analysis results will be shown here."})
-              return(NULL)
-            }
-            else{
-              output$GO_goPlot_status <- renderText({NULL})
-              p <- barplot(goResult(), showCategory=input$GO_fig.category_show_number)  
-              p <- p + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size))
-              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
-              p <- p + theme(panel.border = element_rect(size=0.1))
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              p <- p + theme(legend.key.size = unit(2, "mm"))
-              p
-            }
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=300)
-          # GoBubblePlot
-          output$GO_goBubblePlot <- renderPlot({
-            if(is.null(goResult())){
-              output$GO_goBubblePlot_status <- renderText({"A Bubble plot of the GO/KEGG analysis results will be shown here."})
-              return(NULL)
-            }
-            else{ 
-              output$GO_goBubblePlot_status <- renderText({NULL})
-              p <- dotplot(goResult(), showCategory=input$GO_fig.category_show_number) + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size)) 
-              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
-              p <- p + theme(panel.border = element_rect(size=0.1))
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              p <- p + theme(legend.key.size = unit(2, "mm"))
-              p
-            }
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=200)
-          # Show the table
-          output$GO_goTable <- DT::renderDataTable({
-            if(is.null(goResult())){ 
-              output$GO_goTable_status <- renderText({"The results table of GO/KEGG analysis will be shown here."})
-              datatable(NULL) 
-            }
-            else{ 
-              output$GO_goTable_status <- renderText({NULL})
-              datatable(as.data.frame(goResult()), option=list(scrollX=TRUE, pageLength = 10, scrollY=TRUE )) 
-            }
-          })
-          # table download button
-          output$GO_goTable_download <- downloadHandler(
-            filename = function(){"GO_table_results.csv"}, 
-            content = function(fname){ write.csv(as.data.frame(goResult()), fname) }
-          )
-          # network plot
-          output$GO_netPlot <- renderPlot({
-            if(is.null(goResult())){ 
-              output$GO_netPlot_status_status <- renderText({"A network plot of the top 5 terms from the GO/KEGG analysis results will be shown here."})
-              return(NULL)
-            }
-            else{ 
-              output$GO_netPlot_status_status <- renderText({NULL})
-              p <- cnetplot(goResult()) 
-              p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
-              p
-            }
-          }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=150)
+            output$GO_goTable_status <- renderText({"The results table of GO/KEGG analysis will be shown here."})
+            output$GO_goPlot_status <- renderText({"A Bar plot of the GO/KEGG analysis results will be shown here."})
+            output$GO_goBubblePlot_status <- renderText({"A Bubble plot of the GO/KEGG analysis results will be shown here."})
+            output$GO_netPlot_status_status <- renderText({"A network plot of the top 5 terms from the GO/KEGG analysis results will be shown here."})
+            outputOptions(output, "GO_goTable_status", suspendWhenHidden=FALSE)
+            outputOptions(output, "GO_goPlot_status", suspendWhenHidden=FALSE) 
+            outputOptions(output, "GO_goBubblePlot_status", suspendWhenHidden=FALSE) 
+            outputOptions(output, "GO_netPlot_status_status", suspendWhenHidden=FALSE) 
 
-          outputOptions(output, "GO_goPlot", suspendWhenHidden=FALSE)
-          outputOptions(output, "GO_goBubblePlot", suspendWhenHidden=FALSE) 
-          outputOptions(output, "GO_goTable", suspendWhenHidden=FALSE) 
-          outputOptions(output, "GO_netPlot", suspendWhenHidden=FALSE) 
-        
+          # Goplot 
+            output$GO_goPlot <- renderPlot({
+              if (!triggered()) {
+                return(ggplot())
+              }else if (isCalculating()) {
+                return(ggplot())
+              }else{
+                if(is.null(goResult())){
+                  output$GO_goPlot_status <- renderText({"A Bar plot of the GO/KEGG analysis results will be shown here."})
+                  return(ggplot())
+                }
+                else{
+                  output$GO_goPlot_status <- renderText({NULL})
+                  # use ggplot, not enrichplot:barplot
+                  df_goResults <- as.data.frame(goResult())
+                  showCategory <- input$GO_fig.category_show_number 
+                  df_goResults <- df_goResults[order(df_goResults$p.adjust), ][1:showCategory, ]  # Select top categories based on p.adjust
+                  df_goResults$Description <- str_wrap(df_goResults$Description, width=50)
+
+                  # Create barplot with custom colors
+                  p <- ggplot(df_goResults, aes(x = Count, y = reorder(Description, Count), fill = p.adjust)) + geom_bar(stat = "identity") + labs(x = "Count", y = NULL, fill = "P.adjust")
+                  p <- p + theme(axis.text.y = element_text(size = input$GO_ylab.font.size), axis.text.x = element_text(size = input$GO_xlab.font.size), axis.title.x = element_text(size=input$GO_xtitle.font.size))
+                  p <- p + theme(legend.text = element_text(size = input$GO_legend.size), legend.title = element_text(size = input$GO_legend.size) )
+                  p <- p + theme(legend.key.size = unit(1.5, "mm"))
+                  p <- p + scale_fill_gradient(low = input$GO_bar_colour_min, high = input$GO_bar_colour_max)
+                  p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                  p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+                  # white background
+                  if(input$GO_bar_white_background){
+                    p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                    p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                    p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                  }
+                  p
+                }
+              }
+            }, width=reactive(input$GO_fig.width), height=reactive(input$GO_fig.height), res=300)
+          
+          # GoBubblePlot;
+            output$GO_goBubblePlot <- renderPlot({
+              if (!triggered()) {
+                return(ggplot())
+              }else if (isCalculating()) {
+                return(ggplot())
+              }else{
+                if(is.null(goResult())){
+                  output$GO_goBubblePlot_status <- renderText({"A Bubble plot of the GO/KEGG analysis results will be shown here."})
+                  return(ggplot())
+                }
+                else{ 
+                  output$GO_goBubblePlot_status <- renderText({NULL})
+                  df_goResults <- as.data.frame(goResult())
+                  showCategory <- input$GO_Bubble_fig.category_show_number 
+                  df_goResults <- df_goResults[order(df_goResults$p.adjust), ][1:showCategory, ]  # Select top categories based on p.adjust
+                  df_goResults$GeneRatio <- sapply(df_goResults$GeneRatio, function(x) {
+                    parts <- strsplit(x, "/")[[1]]
+                    as.numeric(parts[1]) / as.numeric(parts[2])
+                  })
+                  df_goResults$Description <- str_wrap(df_goResults$Description, width=50)
+                                                  
+                  p <- ggplot(df_goResults, aes(x = GeneRatio, y = reorder(Description, Count), size =Count , color = p.adjust)) + geom_point() +  labs(x = "GeneRatio", y = NULL, color = "P.adjust", size = "Count")
+                  p <- p + theme(axis.text.y = element_text(size = input$GO_Bubble_ylab.font.size), axis.text.x = element_text(size = input$GO_Bubble_xlab.font.size), axis.title.x = element_text(size=input$GO_Bubble_xtitle.font.size))
+                  p <- p + theme(legend.text = element_text(size = input$GO_Bubble_legend.size), legend.title = element_text(size = input$GO_Bubble_legend.size) )
+                  p <- p + theme(legend.key.size = unit(1.5, "mm"))
+                  p <- p + scale_color_gradient(low = input$GO_Bubble_colour_min, high = input$GO_Bubble_colour_max) 
+                  p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                  p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+                  # white background
+                  if(input$GO_Bubble_white_background){
+                    p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                    p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                    p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                  }
+                  p
+                }
+              }
+            }, width=reactive(input$GO_Bubble_fig.width), height=reactive(input$GO_Bubble_fig.height), res=300)
+            
+          # Show the table
+            output$GO_goTable <- DT::renderDataTable({
+              if (!triggered()) {
+                tmp <- data.frame(Category = character(0), Generatio = character(0), pvalue = numeric(0), pvalue.adjust = numeric(0), Count = numeric(0))
+                return(datatable(tmp) )
+              }else if (isCalculating()) {
+                tmp <- data.frame(Category = character(0), Generatio = character(0), pvalue = numeric(0), pvalue.adjust = numeric(0), Count = numeric(0))
+                return(datatable(tmp) )
+              }else{
+                if(is.null(goResult())){ 
+                  output$GO_goTable_status <- renderText({"The results table of GO/KEGG analysis will be shown here."})
+                  tmp <- data.frame(Category = character(0), Generatio = character(0), pvalue = numeric(0), pvalue.adjust = numeric(0), Count = numeric(0))
+                  return(datatable(tmp))
+                }
+                else{ 
+                  output$GO_goTable_status <- renderText({NULL})
+                  return(datatable(as.data.frame(goResult()), option=list(scrollX=TRUE, pageLength = 10, scrollY=TRUE )) )
+                }
+              }
+            })
+            outputOptions(output, "GO_goTable", suspendWhenHidden=FALSE) 
+          
+          # table download button
+            output$GO_goTable_download <- downloadHandler(
+              filename = function(){"GO_table_results.csv"}, 
+              content = function(fname){ write.csv(as.data.frame(goResult()), fname) }
+            )
+          
+          # network plot
+            output$GO_netPlot <- renderPlot({
+              if (!triggered()) {
+                return(ggplot())
+              }else if (isCalculating()) {
+                return(ggplot())
+              }else{
+                if(is.null(goResult())){ 
+                  output$GO_netPlot_status_status <- renderText({"A network plot of the top 5 terms from the GO/KEGG analysis results will be shown here."})
+                  return(ggplot())
+                }
+                else{ 
+                  output$GO_netPlot_status_status <- renderText({NULL})
+
+                  df_goResults <- as.data.frame(goResult())
+                  showCategory <- input$GO_netPlot_category_show_number 
+                  df_goResults <- df_goResults[order(df_goResults$p.adjust), ][1:showCategory, ]  # Select top categories based on p.adjust
+                  gene_list <- strsplit(df_goResults$geneID, "/")  # Split gene lists
+                  edge_df <- data.frame(
+                    GO_Term = rep(df_goResults$Description, sapply(gene_list, length)),  # Repeat GO terms correctly
+                    Gene = unlist(gene_list)  # Flatten list into a single column
+                  )
+                  df_goResults$Description <- str_wrap(df_goResults$Description, width=50)
+
+                  # Generate igraph object
+                  graph <- graph_from_data_frame(edge_df, directed = FALSE)
+                  node_type <- ifelse(V(graph)$name %in% df_goResults$Description, "GO Term", "Gene")
+                  E(graph)$GO_Term <- edge_df$GO_Term  # Assign GO term category to edges
+                  node_size <- ifelse(V(graph)$name %in% df_goResults$Description, input$GO_netPlot_node_size_term, input$GO_netPlot_node_size_gene)  # GO terms larger than genes
+
+                  if(input$GO_netPlot_circle_plot){
+                    p <- ggraph(graph, layout = "circle")
+                  }else{
+                    p <- ggraph(graph, layout = "fr")  # Fruchterman-Reingold layout
+                  }
+                  if(input$GO_netPlot_change_edge_colour){
+                    p <- p + geom_edge_link(aes(color = GO_Term), alpha = 0.6, linewidth = input$GO_netPlot_edge_size_term)  
+                  }else{
+                    p <- p + geom_edge_link(alpha = 0.6, linewidth = input$GO_netPlot_edge_size_term)
+                  }
+                  p <- p + scale_edge_color_manual(values = setNames(rainbow(length(unique(edge_df$GO_Term))), unique(edge_df$GO_Term)))
+                  p <- p + geom_node_point(aes(size = node_size, color = node_type)) 
+                  p <- p + scale_color_manual(values = c("GO Term" = "#d3a200", "Gene" = "#292929"))
+                  p <- p + scale_size_continuous(range = c(input$GO_netPlot_node_size_gene, input$GO_netPlot_node_size_term)) 
+                  p <- p + geom_node_text(aes(label = name, color = node_type), repel = TRUE, size = input$GO_netPlot_label_size_term, segment.size=0.2)
+                  p <- p + guides(color = "none")
+                  p <- p + theme(legend.key.size = unit(1.5, "mm"))
+                  p <- p + theme(legend.text = element_text(size = input$GO_netPlot_legend.size), legend.title = element_text(size = input$GO_netPlot_legend.size) )
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                  p
+                }
+              }
+            }, width=reactive(input$GO_netPlot_fig.width), height=reactive(input$GO_netPlot_fig.height), res=300)
+
+            outputOptions(output, "GO_goPlot", suspendWhenHidden=FALSE)
+            outputOptions(output, "GO_goBubblePlot", suspendWhenHidden=FALSE) 
+            outputOptions(output, "GO_goTable", suspendWhenHidden=FALSE) 
+            outputOptions(output, "GO_netPlot", suspendWhenHidden=FALSE) 
+
+          # 
+
         ###### GSEA analysis ######
           # select gene set
             output$GSEA_goTable_status <- renderText({'Please select the input and click "Start GSEA Analysis".'})
