@@ -3233,298 +3233,344 @@ ui <- fluidPage(
               )
             ),
             box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
-              igvShinyOutput("igv", height = "1000px")
+              tabsetPanel(
+                tabPanel( 'Prifile plot',
+                  h4(''),
+                  fluidRow(
+                    column(4,
+                      box(title='Inputs and Settings', width=12, status='info',
+                        fluidRow(
+                          column(6, actionButton('Profile_Plot_start', 'Import data'))
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(title='Profile Plot', width=12, status='danger',
+                        fluidRow(
+                          column(10, verbatimTextOutput('Profile_Plot_status')),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput(inputId = 'Profile_Plot_fig.width', label='fig width', min=300, max=3000, value=600, step=10)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_fig.height', label='fig height', min=300, max=3000, value=1000, step=10)),
+                              ),  
+                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                            ),
+                          ),
+                          column(12, withSpinner(plotOutput("Profile_Plot_Plot", width="100%", height="100%"), type = 5, color = "#0dc5c1"))
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel( 'IGV',
+                  igvShinyOutput("igv", height = "1000px")
+                )
+              )
             )
           ),
         #### Tools ####
           tabItem( tabName='Tools',
             h2(' Tools'),
             tabsetPanel(
-              tabPanel('Human <=> Mouse',
-                box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
-                  # h3("Convert Huamns genes with Mouse genes."),
-                  fluidRow(
-                    column(5,
-                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
-                        fluidRow(
-                          column(12, radioButtons("human_mouse_convert_direction", "Human <=> Mouse direction", choices = c('Convert mouse genes to human genes' = 'A', 'Convert human genes to mouse genes' = 'B'), selected='A')),
-                          column(6, radioButtons("human_mouse_convert_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
-                          column(6, radioButtons("human_mouse_convert_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
-                          column(12, textAreaInput('human_mouse_convert_input_gene', 'Enter genes (line by line)')),
-                          column(12, h4('')),
-                          column(12, verbatimTextOutput('human_mouse_convert_status') ),
-                          column(12, h4('')),
-                          column(8, h4('')),
-                          column(4, actionButton('human_mouse_convert_start', 'Convert genes', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+              # Human <=> Mouse
+                tabPanel('Human <=> Mouse',
+                  box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
+                    # h3("Convert Huamns genes with Mouse genes."),
+                    fluidRow(
+                      column(5,
+                        box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                          fluidRow(
+                            column(12, radioButtons("human_mouse_convert_direction", "Human <=> Mouse direction", choices = c('Convert mouse genes to human genes' = 'A', 'Convert human genes to mouse genes' = 'B'), selected='A')),
+                            column(6, radioButtons("human_mouse_convert_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
+                            column(6, radioButtons("human_mouse_convert_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A')),
+                            column(12, textAreaInput('human_mouse_convert_input_gene', 'Enter genes (line by line)')),
+                            column(12, h4('')),
+                            column(12, verbatimTextOutput('human_mouse_convert_status') ),
+                            column(12, h4('')),
+                            column(4, actionButton('human_mouse_convert_start', 'Convert genes', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                          )
                         )
-                      )
-                    ),
-                    column(4,
-                      box(width=12, title='Conversion Table', status='danger', collapsible = TRUE,
-                        fluidRow(
-                          column(12, verbatimTextOutput('human_mouse_convert_table_status')),
-                          column(12, DT::dataTableOutput('human_mouse_convert_table') )
-                        )
-                      )
-                    ),
-                    column(3,
-                      box(width=12, title='List of converted genes', status='warning', collapsible = TRUE,
-                        fluidRow(column(12, verbatimTextOutput('human_mouse_convert_result') ))
-                      )
-                    )
-                  )
-                )
-              ),
-              tabPanel('Gene symbol <=> Ensembl',
-                box(width=12, status='primary',  solidHeader = TRUE, title='Convert Ensemble gene ids with Gene symbols',
-                # h3("Convert Ensemble gene ids with Gene symbols."),
-                  box(width=12,  title='Inputs and Settings', status='primary',collapsible = TRUE,
-                    fluidRow(
-                      column(2, radioButtons("Gene_Ensembl_spieces", "Species", choices=c("Human"='A', "Mouse"='B'), selected="A")),
-                      column(4, radioButtons("Gene_Ensembl_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='B')),
-                      column(4, radioButtons("Gene_Ensembl_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A'))
-                    ),
-                    fluidRow(
-                      column(5, textAreaInput('Gene_Ensembl_input_gene', 'Enter genes (line by line)')),
-                    ),
-                    h4(''),
-                    fluidRow(column(12, verbatimTextOutput('Gene_Ensembl_convert_status') )),
-                    fluidRow(column(12, actionButton('Gene_Ensembl_convert_start', 'Convert genes') ))
-                  ),
-                  box(width=12,  title='Results', status='primary',collapsible = TRUE,
-                    fluidRow(
-                      column(7, 
-                        fluidRow(column(12, h4('Conversion table') )),
-                        fluidRow(column(12, verbatimTextOutput('Gene_Ensembl_convert_table_status') )),
-                        fluidRow(column(12,  DT::dataTableOutput('Gene_Ensembl_convert_table') ))
                       ),
-                      column(5, 
-                        fluidRow(column(12, h4('List of converted genes') )),
-                        fluidRow(column(12, verbatimTextOutput('Gene_Ensembl_convert_result')))
-                      )
-                    )
-                  )
-                )
-              ),
-              tabPanel('Find gene loci',
-                box(width=12, status='primary',  solidHeader = TRUE, title='Find the genomic loci',
-                  # h3("Find the genomic loci"),
-                  box(width=12, title='Inputs and Settings', status= 'primary',collapsible = TRUE,
-                    fluidRow(
-                      column(6, radioButtons("Find_genome_loci_direction", "Choose the method", choices = c('Input genes and find the coordinates' = 'A', 'Input coordinates and find the genes' = 'B'), selected='A')),
-                    ),
-                    fluidRow(
-                      column(5, textAreaInput('Find_genome_loci_input', 'Enter gene names or coordinates (line by line)')),
-                    ),
-                    fluidRow(
-                      column(12, verbatimTextOutput('Find_genome_loci_status') ),
-                      column(4, actionButton('Find_genome_loci_start', 'Search'))
-                    ),
-                  ),
-                  box(width=12,title='Resluts', status= 'primary',collapsible = TRUE,
-                    fluidRow(
-                      column(7, 
-                        fluidRow(column(12, h4('Results table') )),
-                        fluidRow(column(12, verbatimTextOutput('Find_genome_loci_table_status') )),
-                        fluidRow(column(12, DT::dataTableOutput('Find_genome_loci_table') ))
+                      column(4,
+                        box(width=12, title='Conversion Table', status='danger', collapsible = TRUE,
+                          fluidRow(
+                            column(12, verbatimTextOutput('human_mouse_convert_table_status')),
+                            column(12, withSpinner(DT::dataTableOutput('human_mouse_convert_table'), type = 5, color = "#0dc5c1") )
+                          )
+                        )
                       ),
-                      column(5, 
-                        fluidRow(column(12, h4('List of genes/coordinates') )),
-                        fluidRow(column(12, verbatimTextOutput('Find_genome_loci_table_gene_names') ))
-                      )
-                    )
-                  )
-                )
-              ),
-              tabPanel('Cross-tabulation analysis',
-                box(width=12, status='primary',  solidHeader = TRUE, title='Cross-tabulation analysis',
-                  # h3('Cross-tabulation analysis'),
-                  fluidRow(
-                    column(5,
-                      fluidRow(
-                        column(12, 
-                          box(width=12, title='Table contents', status='info',collapsible = TRUE,
-                            fluidRow(
-                              column(12, h4('Group Names')),
-                              column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
-                              column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
-                              column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
-                              column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
-                              column(12, h4('Values')),
-                              column(6, numericInput("Cross_tabulation_val1", "Row-Group1 & Column-Group1", 0, min=0)),
-                              column(6, numericInput("Cross_tabulation_val2", "Row-Group1 & Column-Group2", 0, min=0)),
-                              column(6, numericInput("Cross_tabulation_val3", "Row-Group2 & Column-Group1", 0, min=0)),
-                              column(6, numericInput("Cross_tabulation_val4", "Row-Group2 & Column-Group2", 0, min=0)),
-                              column(12,h3("")),
-                              hr(),
-                            )
-                          )
-                        ),
-                        column(12,
-                          box(width=12,title='2x2 Table', status='warning',collapsible = TRUE,
-                            fluidRow(column(12, verbatimTextOutput("cross_table_status"))),
-                            fluidRow(column(12, dataTableOutput("Cross_tabulation_table")))
-                          )
-                        ),
-                        column(12,
-                          box(width=12, title='Statistic test', status='danger',collapsible = TRUE,
-                            fluidRow(
-                              column(12, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
-                              column(12, verbatimTextOutput("cross_table_Statistic")),
-                            )                          
-                          )
-                        )
-                      )
-                    ),
-                    column(7,
-                      box(width=12, title='Plot',status='danger',collapsible = TRUE,
-                        fluidRow(
-                          column(12, radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
-                              'Calculate the percentile (stack bar plot)'='A', 
-                              'Use the original count (stack bar plot)'='C',
-                              'Use the original count (dodge bar plot)'='D'
-                            ), selected='A')
-                          ),
-                          column(12, verbatimTextOutput("Cross_tabulation_plot_status")),
-                          column(12, plotOutput("Cross_tabulation_plot",  width="100%", height="100%")),
-                          column(2, 
-                            dropdownButton( h4(strong("Plot Options")),
-                              fluidRow(
-                                column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=1, max=15, value=5, step=1)),
-                                column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=1, max=15, value=5, step=1)),
-                                column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=1, max=15, value=5, step=1)),
-                              ),
-                              fluidRow(
-                                column(6, colourpicker::colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
-                                column(6, colourpicker::colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
-                              ),
-                              fluidRow(
-                                column(6, materialSwitch('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE, status = "success") )
-                              ),
-                              fluidRow(
-                                column(6, materialSwitch('Cross_tabulation_plot_rotate_x', 'Rotate X labels', value=FALSE, status = "success") ),
-                                column(6, 
-                                  conditionalPanel(
-                                    condition='input.Cross_tabulation_plot_rotate_x == true',
-                                    numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 45, min=0)
-                                  )
-                                )
-                              ),
-                              circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
-                            )
-                          )
-                        )
-                      )
-                    ),
-                  )
-                )
-              ),
-              tabPanel('Venn Diagram',
-                box(width=12, title='Venn Diagram', status='primary',  solidHeader = TRUE,
-                  fluidRow(
-                    column(4,
-                      box(width=12, title='Information of each group',collapsible = TRUE, status='info',
-                        fluidRow(
-                          column(12, radioButtons('Venn_Diagram_method', 'Choose a method', choices=c('2D Venn diagram'='A', '3D Venn diagram'='B'), selected='A')),
-                          column(12, textInput("Venn_Diagram_Group1_name", "Group 1 title")),
-                          column(12, textAreaInput("Venn_Diagram_Group1_element", "Group 1 element")),
-                          column(12, textInput("Venn_Diagram_Group2_name", "Group 2 title")),
-                          column(12, textAreaInput("Venn_Diagram_Group2_element", "Group 2 element")),
-                          conditionalPanel(
-                            condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',  
-                            column(12, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
-                            column(12, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element")),
-                          )
-                        ),
-                        h3(),
-                        fluidRow(
-                          column(12, h4('Show the overlapping elements')),
-                          conditionalPanel(
-                            condition = 'input.Venn_Diagram_method == "A"',  
-                            column(12, selectInput('Venn_Diagram_show_overlap_2D', 'Choose a category',  c('None'='None', 'in Group1 & Group2', 'only in Group1', 'only in Group2'), selected = 'None')),
-                            column(12, verbatimTextOutput("Venn_Diagram_show_overlap_2D_list")),
-                          ),
-                          conditionalPanel(
-                            condition = 'input.Venn_Diagram_method == "B"',  
-                            column(12, selectInput('Venn_Diagram_show_overlap_3D', 'Choose a category',  c('None'='None', 'in Group1 & Group2 & Group3', 'in Group1 & Group2', 
-                              'in Group2 & Group3', 'in Group3 and Group1', 'in Group1 & Group2 but not in Group3', 'in Group2 & Group3 but not in Group1',
-                              'in Group3 and Group1 but not in Group2', 'Only in Group1','Only in Group2','Only in Group3'), selected = 'None')),
-                            column(12, verbatimTextOutput("Venn_Diagram_show_overlap_3D_list")),
-                          ),
-                        )
-                      )
-                    ),
-                    column(8,
-                      box(width=12, title='Plot',collapsible = TRUE, status='danger',
-                        fluidRow(
-                          column(12, verbatimTextOutput("Venn_Diagram_status")),
-                          column(12, plotOutput("Venn_Diagram_plot", width="100%", height="100%")),
-                          column(2, 
-                            dropdownButton( h4(strong("Plot Options")),
-                              fluidRow(
-                                column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
-                                column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
-                                column(6, colourpicker::colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
-                                column(6, colourpicker::colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
-                                conditionalPanel(
-                                  condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
-                                  column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
-                                )
-                              ),
-                              circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
-                            )
-                          )
+                      column(3,
+                        box(width=12, title='List of converted genes', status='warning', collapsible = TRUE,
+                          fluidRow(column(12, verbatimTextOutput('human_mouse_convert_result') ))
                         )
                       )
                     )
                   )
-                )
-              ),
-              tabPanel('Network plot', 
-                box(width=12, status='primary',  solidHeader = TRUE, title='Network plot',
-                    # h3('Network plot'),
+                ),
+              # Gene symbol <=> Ensembl
+                tabPanel('Gene symbol <=> Ensembl',
+                  box(width=12, status='primary',  solidHeader = TRUE, title='Convert Ensemble gene ids with Gene symbols',
                     fluidRow(
-                    column(4,
-                      box(width=12, title='Input',collapsible = TRUE, status='info',
-                        fluidRow(
-                          column(12, fileInput("Network_input_file", "upload a tsv file", accept = c(".tsv")) ),
-                          column(12, materialSwitch('Network_input_example', 'Use an example data', value=FALSE,  status='info') )
-                        ),
-                        fluidRow(
-                          column(12, h4('The input data table')),
-                          column(12, dataTableOutput("Network_input_table")),
-                          column(12, h4(''))
+                      column(5, 
+                        box(width=12,  title='Inputs and Settings', status='info',collapsible = TRUE,
+                          fluidRow(
+                            column(2, radioButtons("Gene_Ensembl_spieces", "Species", choices=c("Human"='A', "Mouse"='B'), selected="A")),
+                            column(4, radioButtons("Gene_Ensembl_input_type", "Input type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='B')),
+                            column(4, radioButtons("Gene_Ensembl_output_type", "Output type", choices = c('Gene symbol' = 'A', 'Ensembl gene id' = 'B', 'Ensembl gene id (with version)' = 'C'), selected='A'))
+                          ),
+                          fluidRow(
+                            column(5, textAreaInput('Gene_Ensembl_input_gene', 'Enter genes (line by line)')),
+                          ),
+                          h4(''),
+                          fluidRow(column(12, verbatimTextOutput('Gene_Ensembl_convert_status') )),
+                          fluidRow(column(12, actionButton('Gene_Ensembl_convert_start', 'Convert genes', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ))
+                        )
+                      ),
+                      column(4, 
+                        box(width=12, title='Conversion Table', status='danger',collapsible = TRUE,
+                          fluidRow(
+                            column(12, verbatimTextOutput('Gene_Ensembl_convert_table_status') ),
+                            column(12, withSpinner(DT::dataTableOutput('Gene_Ensembl_convert_table'), type = 5, color = "#0dc5c1") )
+                          )
+                        )
+                      ),
+                      column(3, 
+                        box(width=12, title='List of converted genes', status='warning',collapsible = TRUE,
+                          fluidRow(
+                            column(12, verbatimTextOutput('Gene_Ensembl_convert_result') )
+                          )
                         )
                       )
-                    ),
-                    column(8,
-                      box(width=12, title='Plot',collapsible = TRUE,status='danger',
+                    )
+                  )
+                ),
+              # Find gene loci
+                tabPanel('Find gene loci',
+                  box(width=12, status='primary',  solidHeader = TRUE, title='Find the genomic loci',
+                    fluidRow(
+                      column(5, 
+                        box(width=12, title='Inputs and Settings', status= 'info',collapsible = TRUE,
+                          fluidRow(
+                            column(12, radioButtons("Find_genome_loci_direction", "Choose the method", choices = c('Input genes and find the coordinates' = 'A', 'Input coordinates and find the genes' = 'B'), selected='A')),
+                            column(12, textAreaInput('Find_genome_loci_input', 'Enter gene names or coordinates (line by line)')),
+                            column(12, h4('')),
+                            column(12, verbatimTextOutput('Find_genome_loci_status') ),
+                            column(4, actionButton('Find_genome_loci_start', 'Search', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                          )
+                        )
+                      ),
+                      column(4,
+                        box(width=12, title='Search results', status='danger',collapsible = TRUE,
+                          fluidRow(
+                            column(12, verbatimTextOutput('Find_genome_loci_table_status') ),
+                            column(12, withSpinner(DT::dataTableOutput('Find_genome_loci_table'), type = 5, color = "#0dc5c1") )
+                          )
+                        )
+                      ),
+                      column(3,
+                        box(width=12, title='List of genes/coordinates', status='warning',collapsible = TRUE,
+                          fluidRow(
+                            column(12, verbatimTextOutput('Find_genome_loci_input') )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+              # Cross-tabulation analysis
+                tabPanel('Cross-tabulation analysis',
+                  box(width=12, status='primary',  solidHeader = TRUE, title='Cross-tabulation analysis',
+                    # h3('Cross-tabulation analysis'),
+                    fluidRow(
+                      column(5,
                         fluidRow(
-                          column(12, verbatimTextOutput("Network_input_table_visNet_status") ),
-                          column(2, 
-                            dropdownButton( h4(strong("Graph Settings")),
-                                fluidRow(
-                                column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
-                                column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
-                                column(6, colourpicker::colourInput("Network_input_color_from", "The color of node (From)", value='#F7AFAF' )),
-                                column(6, colourpicker::colourInput("Network_input_color_to", "The color of node (To)", value='#B2E9FF' )),
-                                column(12, materialSwitch("Network_input_arrow", "Show direction", value=FALSE,  status='info' )),
-                              ),
-                              circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Graph Settings")
+                          column(12, 
+                            box(width=12, title='Table contents', status='info',collapsible = TRUE,
+                              fluidRow(
+                                column(12, h4('Group Names')),
+                                column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
+                                column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
+                                column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
+                                column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
+                                column(12, h4('Values')),
+                                column(6, numericInput("Cross_tabulation_val1", "Row-Group1 & Column-Group1", 0, min=0)),
+                                column(6, numericInput("Cross_tabulation_val2", "Row-Group1 & Column-Group2", 0, min=0)),
+                                column(6, numericInput("Cross_tabulation_val3", "Row-Group2 & Column-Group1", 0, min=0)),
+                                column(6, numericInput("Cross_tabulation_val4", "Row-Group2 & Column-Group2", 0, min=0)),
+                                column(12,h3("")),
+                                hr(),
+                              )
+                            )
+                          ),
+                          column(12,
+                            box(width=12,title='2x2 Table', status='warning',collapsible = TRUE,
+                              fluidRow(column(12, verbatimTextOutput("cross_table_status"))),
+                              fluidRow(column(12, dataTableOutput("Cross_tabulation_table")))
+                            )
+                          ),
+                          column(12,
+                            box(width=12, title='Statistic test', status='danger',collapsible = TRUE,
+                              fluidRow(
+                                column(12, radioButtons('cross_table_Statistic_method', "Choose a method", choices=c('Chi-squre test'='A', "Fisher's exact test" = 'B'), selected='A')),
+                                column(12, verbatimTextOutput("cross_table_Statistic")),
+                              )                          
+                            )
+                          )
+                        )
+                      ),
+                      column(7,
+                        box(width=12, title='Plot',status='danger',collapsible = TRUE,
+                          fluidRow(
+                            column(12, radioButtons('Cross_tabulation_plot_method', 'Choose the Plot method', choices=c(
+                                'Calculate the percentile (stack bar plot)'='A', 
+                                'Use the original count (stack bar plot)'='C',
+                                'Use the original count (dodge bar plot)'='D'
+                              ), selected='A')
                             ),
+                            column(12, verbatimTextOutput("Cross_tabulation_plot_status")),
+                            column(12, plotOutput("Cross_tabulation_plot",  width="100%", height="100%")),
+                            column(2, 
+                              dropdownButton( h4(strong("Plot Options")),
+                                fluidRow(
+                                  column(6, sliderInput('Cross_tabulation_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                  column(6, sliderInput('Cross_tabulation_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                  column(6, sliderInput('Cross_tabulation_plot_XY_label.font.size', 'X/Y label font size', min=1, max=15, value=5, step=1)),
+                                  column(6, sliderInput('Cross_tabulation_plot_XY_title.font.size', 'Y title font size', min=1, max=15, value=5, step=1)),
+                                  column(6, sliderInput('Cross_tabulation_plot_legend_size', 'Legend font size', min=1, max=15, value=5, step=1)),
+                                ),
+                                fluidRow(
+                                  column(6, colourpicker::colourInput('Cross_tabulation_plot_col1_colour', 'Colour for Column-Group 1', value='#0D00FF')),
+                                  column(6, colourpicker::colourInput('Cross_tabulation_plot_col2_colour', 'Colour for Column-Group 2', value='#92D113')),
+                                ),
+                                fluidRow(
+                                  column(6, materialSwitch('Cross_tabulation_plot_col2_colour_while_background', 'Use white background', value=FALSE, status = "success") )
+                                ),
+                                fluidRow(
+                                  column(6, materialSwitch('Cross_tabulation_plot_rotate_x', 'Rotate X labels', value=FALSE, status = "success") ),
+                                  column(6, 
+                                    conditionalPanel(
+                                      condition='input.Cross_tabulation_plot_rotate_x == true',
+                                      numericInput("Cross_tabulation_plot_rotate_x_angle", "Angle", 45, min=0)
+                                    )
+                                  )
+                                ),
+                                circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                              )
+                            )
+                          )
+                        )
+                      ),
+                    )
+                  )
+                ),
+              # Venn Diagram
+                tabPanel('Venn Diagram',
+                  box(width=12, title='Venn Diagram', status='primary',  solidHeader = TRUE,
+                    fluidRow(
+                      column(4,
+                        box(width=12, title='Information of each group',collapsible = TRUE, status='info',
+                          fluidRow(
+                            column(12, radioButtons('Venn_Diagram_method', 'Choose a method', choices=c('2D Venn diagram'='A', '3D Venn diagram'='B'), selected='A')),
+                            column(12, textInput("Venn_Diagram_Group1_name", "Group 1 title")),
+                            column(12, textAreaInput("Venn_Diagram_Group1_element", "Group 1 element")),
+                            column(12, textInput("Venn_Diagram_Group2_name", "Group 2 title")),
+                            column(12, textAreaInput("Venn_Diagram_Group2_element", "Group 2 element")),
+                            conditionalPanel(
+                              condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',  
+                              column(12, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
+                              column(12, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element")),
+                            )
                           ),
-                          column(12, h4('')),
-                          column(12, visNetworkOutput("Network_input_table_visNet" , width = "100%", height = "1000px") )
+                          h3(),
+                          fluidRow(
+                            column(12, h4('Show the overlapping elements')),
+                            conditionalPanel(
+                              condition = 'input.Venn_Diagram_method == "A"',  
+                              column(12, selectInput('Venn_Diagram_show_overlap_2D', 'Choose a category',  c('None'='None', 'in Group1 & Group2', 'only in Group1', 'only in Group2'), selected = 'None')),
+                              column(12, verbatimTextOutput("Venn_Diagram_show_overlap_2D_list")),
+                            ),
+                            conditionalPanel(
+                              condition = 'input.Venn_Diagram_method == "B"',  
+                              column(12, selectInput('Venn_Diagram_show_overlap_3D', 'Choose a category',  c('None'='None', 'in Group1 & Group2 & Group3', 'in Group1 & Group2', 
+                                'in Group2 & Group3', 'in Group3 and Group1', 'in Group1 & Group2 but not in Group3', 'in Group2 & Group3 but not in Group1',
+                                'in Group3 and Group1 but not in Group2', 'Only in Group1','Only in Group2','Only in Group3'), selected = 'None')),
+                              column(12, verbatimTextOutput("Venn_Diagram_show_overlap_3D_list")),
+                            ),
+                          )
+                        )
+                      ),
+                      column(8,
+                        box(width=12, title='Plot',collapsible = TRUE, status='danger',
+                          fluidRow(
+                            column(10, verbatimTextOutput("Venn_Diagram_status")),
+                            column(2, 
+                              dropdownButton( h4(strong("Plot Options")),
+                                fluidRow(
+                                  column(6, sliderInput('Venn_Diagram_plot.width', 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                  column(6, sliderInput('Venn_Diagram_plot.height', 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                  column(6, sliderInput('Venn_Diagram_plot_label.font.size', 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
+                                  column(6, sliderInput('Venn_Diagram_plot_legend_size', 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
+                                  column(6, colourpicker::colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
+                                  column(6, colourpicker::colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
+                                  conditionalPanel(
+                                    condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
+                                    column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
+                                  )
+                                ),
+                                circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                              )
+                            ),
+                            column(12, withSpinner(plotOutput("Venn_Diagram_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
+                          )
                         )
                       )
                     )
-                    )
+                  )
+                ),
+              # Network plot
+                tabPanel('Network plot', 
+                  box(width=12, status='primary',  solidHeader = TRUE, title='Network plot',
+                      # h3('Network plot'),
+                      fluidRow(
+                      column(4,
+                        box(width=12, title='Input',collapsible = TRUE, status='info',
+                          fluidRow(
+                            column(12, fileInput("Network_input_file", "upload a tsv file", accept = c(".tsv")) ),
+                            column(12, materialSwitch('Network_input_example', 'Use an example data', value=FALSE,  status='info') )
+                          ),
+                          fluidRow(
+                            column(12, h4('The input data table')),
+                            column(12, dataTableOutput("Network_input_table")),
+                            column(12, h4(''))
+                          )
+                        )
+                      ),
+                      column(8,
+                        box(width=12, title='Plot',collapsible = TRUE,status='danger',
+                          fluidRow(
+                            column(10, verbatimTextOutput("Network_input_table_visNet_status") ),
+                            column(2, 
+                              dropdownButton( h4(strong("Graph Settings")),
+                                  fluidRow(
+                                  column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
+                                  column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
+                                  column(6, colourpicker::colourInput("Network_input_color_from", "The color of node (From)", value='#F7AFAF' )),
+                                  column(6, colourpicker::colourInput("Network_input_color_to", "The color of node (To)", value='#B2E9FF' )),
+                                  column(12, materialSwitch("Network_input_arrow", "Show direction", value=FALSE,  status='info' )),
+                                ),
+                                circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Graph Settings")
+                              ),
+                            ),
+                            column(12, h4('')),
+                            column(12, withSpinner(visNetworkOutput("Network_input_table_visNet" , width = "100%", height = "1000px"), type = 5, color = "#0dc5c1") )
+                          )
+                        )
+                      )
+                      )
+                  )
                 )
-              )
+              #
             )
           ),
         #### wiki-document ####
@@ -7979,6 +8025,9 @@ server <- function(input, output, session) {
   ### igv ##########################################################################################
     # suppressMessages(library(igvShiny))
     # suppressMessages(library(GenomicAlignments))
+      suppressMessages(library(EnrichedHeatmap))
+      suppressMessages(library(rtracklayer))
+      suppressMessages(library(circlize))
 
     #### data selection
       # data from who
@@ -8029,21 +8078,118 @@ server <- function(input, output, session) {
       })
       
     #### start igv
-    
-    # igv initiation
-    output$igv <- renderIgvShiny({
-      options <- parseAndValidateGenomeSpec(genomeName="hg38")
-      igvShiny(options)  # Initialize IGV with hg38 genome
-    })
-
-    # add bed file to view
-    observeEvent(input$igv_data_add, {
-      # Track information for the BAM file
-      loadBedTrack(session, id="igv", trackName=input$igv_data_select, tbl=bed_data())
       
-      # Add the BAM track to the IGV viewer
-      # session$sendCustomMessage(type = "addTrack", track)
-    })
+      # igv initiation
+      output$igv <- renderIgvShiny({
+        options <- parseAndValidateGenomeSpec(genomeName="hg38")
+        igvShiny(options)  # Initialize IGV with hg38 genome
+      })
+
+      # add bed file to view
+      observeEvent(input$igv_data_add, {
+        # Track information for the BAM file
+        loadBedTrack(session, id="igv", trackName=input$igv_data_select, tbl=bed_data())
+        
+        # Add the BAM track to the IGV viewer
+        # session$sendCustomMessage(type = "addTrack", track)
+      })
+    #### load bw file fpr Profile plots
+      # main calculation
+        bw_list <- reactiveVal(NULL)
+        col_fun <- reactiveVal(NULL)
+        heatmap_data_list <- reactiveVal(NULL)
+        isCalculating <- reactiveVal(FALSE) 
+        triggered <- reactiveVal(FALSE)
+        observeEvent(input$Profile_Plot_start, {
+          isCalculating(TRUE)
+          triggered(TRUE) 
+          target_bw_file <- c('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep1.bw', '/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep2.bw')
+          bw_list <- lapply(target_bw_file, import) # length(bw_list)
+          names(bw_list) <- basename(target_bw_file)
+
+          # bw_file(import())
+          # bw_file <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep1.bw')
+          # names(bw_list()) <- basename('THP1_LPS.IFNg.0.5h_Rep1')
+          
+
+          # positions to explore
+          df_DEG <- read.table('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/DESeq2_peak_THP1_UT_vs_LPS.IFNg.0.5h.tsv', sep='\t', header=T) # head(df_DEG)
+          genome_position <- rownames(df_DEG)[1:500]
+          chr_list <- sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[1]][1] )
+          Start_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][1] ))
+          End_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][2] ))
+          target_coordinates <- GRanges(seqnames=Rle(chr_list), ranges=IRanges(start=Start_list, end=End_list), Group='test')
+
+          # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
+          heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
+            normalizeToMatrix( bw_tmp, target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
+          })
+          heatmap_data_list(heatmap_data_list_tmp)
+
+          # the colour range
+          col_fun_tmp <- colorRamp2(breaks = c(0, max(unlist(lapply(heatmap_data_list_tmp, function(x) quantile(x,0.98))))), colors=c('white', 'red'))
+          col_fun(col_fun_tmp)
+
+          output$Profile_Plot_status <- renderText({'test'})
+          isCalculating(FALSE)
+        })
+
+      # plot
+        output$Profile_Plot_Plot <- renderPlot({
+          if (!triggered()) {
+            return(ggplot())
+          }else if (isCalculating()) {
+            return(ggplot())
+          }else{
+            output$Profile_Plot_status <- renderText({'test5'})
+            if(is.null(col_fun()) | is.null(heatmap_data_list())){
+              return(ggplot())
+            }else{
+              col_fun <- col_fun()
+              heatmap_data_list <- heatmap_data_list()
+
+              # grid の新規ページを作成（これがないと描画されない可能性あり）
+              grid.newpage()
+
+              # ヒートマップレジェンド
+              coverage_legend <- Legend(col_fun = col_fun, title = "Norm.Coverage")
+
+              # ヒートマップ作成
+              heatmaps <- lapply(seq_along(heatmap_data_list), function(i) {
+                EnrichedHeatmap(
+                  heatmap_data_list[[i]], column_title = names(heatmap_data_list)[i],
+                  col = col_fun, use_raster = TRUE,
+                  show_heatmap_legend = FALSE, 
+                  column_title_gp = grid::gpar(fontsize = 5)
+                )
+              })
+              output$Profile_Plot_status <- renderText({'test3'})
+
+              # heatmapsが空でないことを確認
+              if(length(heatmaps) == 0){
+                output$Profile_Plot_status <- renderText({'error'})
+                return(ggplot())
+              }else{
+                output$Profile_Plot_status <- renderText({NULL})
+
+                # 複数のヒートマップを組み合わせる
+                p <- Reduce("+", heatmaps)
+
+                # grid.draw() を使って描画
+                draw(
+                  p,  annotation_legend_side = "top",  
+                  heatmap_legend_list = list(coverage_legend), heatmap_legend_side = "right"
+                )
+              }
+            }
+          }
+        }, width = reactive(input$Profile_Plot_fig.width), height = reactive(input$Profile_Plot_fig.height), res=300)
+
+                                # column(6, sliderInput(inputId = 'Profile_Plot_fig.width', label='fig width', min=300, max=3000, value=600, step=10)),
+                                # column(6, sliderInput(inputId = 'Profile_Plot_fig.height', label='fig height', min=300, max=3000, value=1000, step=10)),
+      #
+    ####
+
   ###
 
   ### Clinical_data ################################################################################
@@ -10545,211 +10691,259 @@ server <- function(input, output, session) {
 
   ### Tools 
     #### human to mouse, mouse to human
-      output$human_mouse_convert_status <- renderText({'Please enter gene names and set the input/output types, and click "Convert genes".'})
-      output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
-      output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
-      outputOptions(output, "human_mouse_convert_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "human_mouse_convert_table_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "human_mouse_convert_result", suspendWhenHidden=FALSE)
+      # status messages
+        output$human_mouse_convert_status <- renderText({'Please enter gene names and set the input/output types, and click "Convert genes".'})
+        output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
+        output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
+        outputOptions(output, "human_mouse_convert_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "human_mouse_convert_table_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "human_mouse_convert_result", suspendWhenHidden=FALSE)
+      
       # conversion table
-        # human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T)
-      human_mouse_convert_data <- eventReactive(input$human_mouse_convert_start,{
-        if(nchar(input$human_mouse_convert_input_gene) == 0){
-          output$human_mouse_convert_status <- renderText({'Please enter genes (line by line).'})
-          output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
-          output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
-          return(NULL)
-        }
-        input_genes <- unlist(strsplit(input$human_mouse_convert_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge')
-        converted_df <- data.frame(input=input_genes)
-        if(is.null(input$human_mouse_convert_direction)){
-          output$human_mouse_convert_status <- renderText({'Please select the conversion direction.'})
-          output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
-          output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
-          return(NULL)
-        }
-        if(input$human_mouse_convert_direction == 'A'){
-          input_column <- switch(input$human_mouse_convert_input_type,
-            "A" = 'Mouse.gene.name',
-            "B" = 'Mouse.gene.stable.ID',
-            "C" = 'Mouse.gene.stable.ID.version'
-          )
-          output_column <- switch(input$human_mouse_convert_output_type,
-            "A" = 'Human.Gene.name',
-            "B" = 'Human.Gene.stable.ID',
-            "C" = 'Human.Gene.stable.ID.version'
-          )
-          colnames(converted_df) <- input_column
-          converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
-          converted <- distinct(converted) 
-        }else if(input$human_mouse_convert_direction == 'B'){
-          input_column <- switch(input$human_mouse_convert_input_type,
-            "A" = 'Human.Gene.name',
-            "B" = 'Human.Gene.stable.ID',
-            "C" = 'Human.Gene.stable.ID.version'
-          )
-          output_column <- switch(input$human_mouse_convert_output_type,
-            "A" = 'Mouse.gene.name',
-            "B" = 'Mouse.gene.stable.ID',
-            "C" = 'Mouse.gene.stable.ID.version'
-          )
-          colnames(converted_df) <- input_column
-          converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
-          converted <- distinct(converted) 
-        }
-        # show a gene names list
-        output$human_mouse_convert_result <- renderText({
-          converted_genes <- converted[,output_column]
-          if(length(converted_genes[!is.na(converted_genes)]) == 0){
-            "Non of the input genes were able to be converted. \nPlease check the gene names are correct and do not include unnecessary spaces."
+        human_mouse_convert_data <- reactiveVal(NULL)
+        observeEvent(input$human_mouse_convert_start,{
+          if(nchar(input$human_mouse_convert_input_gene) == 0){
+            show_alert(title='Error.',text='Please enter genes.', type='error')
+            output$human_mouse_convert_status <- renderText({'Please enter genes (line by line).'})
+            output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
+            output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
+            human_mouse_convert_data(NULL)
+            return(NULL)
+          }
+          input_genes <- unlist(strsplit(input$human_mouse_convert_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge')
+          converted_df <- data.frame(input=input_genes)
+          if(is.null(input$human_mouse_convert_direction)){
+            show_alert(title='Error.',text='Please select the conversion direction.', type='error')
+            output$human_mouse_convert_status <- renderText({'Please select the conversion direction.'})
+            output$human_mouse_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
+            output$human_mouse_convert_result <- renderText({'The converted genes will be listed up here'})
+            human_mouse_convert_data
+            return(NULL)
+          }
+          if(input$human_mouse_convert_direction == 'A'){
+            input_column <- switch(input$human_mouse_convert_input_type,
+              "A" = 'Mouse.gene.name',
+              "B" = 'Mouse.gene.stable.ID',
+              "C" = 'Mouse.gene.stable.ID.version'
+            )
+            output_column <- switch(input$human_mouse_convert_output_type,
+              "A" = 'Human.Gene.name',
+              "B" = 'Human.Gene.stable.ID',
+              "C" = 'Human.Gene.stable.ID.version'
+            )
+            colnames(converted_df) <- input_column
+            converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+            converted <- distinct(converted) 
+          }else if(input$human_mouse_convert_direction == 'B'){
+            input_column <- switch(input$human_mouse_convert_input_type,
+              "A" = 'Human.Gene.name',
+              "B" = 'Human.Gene.stable.ID',
+              "C" = 'Human.Gene.stable.ID.version'
+            )
+            output_column <- switch(input$human_mouse_convert_output_type,
+              "A" = 'Mouse.gene.name',
+              "B" = 'Mouse.gene.stable.ID',
+              "C" = 'Mouse.gene.stable.ID.version'
+            )
+            colnames(converted_df) <- input_column
+            converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+            converted <- distinct(converted) 
+          }
+          # show a gene names list
+          output$human_mouse_convert_result <- renderText({
+            converted_genes <- converted[,output_column]
+            if(length(converted_genes[!is.na(converted_genes)]) == 0){
+              "Non of the input genes were able to be converted. \nPlease check the gene names are correct and do not include unnecessary spaces."
+            }else{
+              paste(na.omit(converted[,output_column]), collapse = "\n")
+            }
+          })
+          output$human_mouse_convert_status <- renderText({NULL})
+          output$human_mouse_convert_table_status <- renderText({NULL})
+          human_mouse_convert_data(converted)
+          return(converted)
+        })
+      
+      # show the conversion table
+        output$human_mouse_convert_table <- renderDataTable({
+          if(is.null(human_mouse_convert_data())){
+            tmp <- data.frame(list('Human.Gene'=character(0), 'Mouse.Gene'=character(0)), stringsAsFactors = FALSE )
+            datatable( tmp, options = list(scrollX = TRUE, pageLength = 10 )) 
           }else{
-            paste(na.omit(converted[,output_column]), collapse = "\n")
+            datatable( human_mouse_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
           }
         })
-        output$human_mouse_convert_status <- renderText({NULL})
-        output$human_mouse_convert_table_status <- renderText({NULL})
-        return(converted)
-      })
-      
-      output$human_mouse_convert_table <- renderDataTable({
-        datatable( human_mouse_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
-      })
+      # 
 
 
     ### convert Ensembl to Gene symbol
-      output$Gene_Ensembl_convert_status <- renderText({'Please enter gene names and set the input/output types, and click "Convert genes".'})
-      output$Gene_Ensembl_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
-      output$Gene_Ensembl_convert_result <- renderText({'The converted genes will be listed up here'})
-      outputOptions(output, "Gene_Ensembl_convert_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "Gene_Ensembl_convert_table_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "Gene_Ensembl_convert_result", suspendWhenHidden=FALSE)
-      # conversion table
-      Gene_Ensemble_convert_data <- eventReactive(input$Gene_Ensembl_convert_start,{
-        if(nchar(input$Gene_Ensembl_input_gene) == 0){
-          output$Gene_Ensembl_convert_status <- renderText({'Please enter genes (line by line).'})
-          output$Gene_Ensembl_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
-          output$Gene_Ensembl_convert_result <- renderText({'The converted genes will be listed up here'})
-          return(NULL)
-        }
-        input_genes <- unlist(strsplit(input$Gene_Ensembl_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge', 'MYC')
-        converted_df <- data.frame(input=input_genes)
-        if(input$Gene_Ensembl_spieces == 'A'){
-          input_column <- switch(input$Gene_Ensembl_input_type,
-            "A" = 'Human.Gene.name',
-            "B" = 'Human.Gene.stable.ID',
-            "C" = 'Human.Gene.stable.ID.version'
-          )
-          output_column <- switch(input$Gene_Ensembl_output_type,
-            "A" = 'Human.Gene.name',
-            "B" = 'Human.Gene.stable.ID',
-            "C" = 'Human.Gene.stable.ID.version'
-          )
-          colnames(converted_df) <- input_column
-          converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
-          converted <- distinct(converted) # library(dplyr)
-        }else{
-          input_column <- switch(input$Gene_Ensembl_input_type,
-            "A" = 'Mouse.gene.name',
-            "B" = 'Mouse.gene.stable.ID',
-            "C" = 'Mouse.gene.stable.ID.version'
-          )
-          output_column <- switch(input$Gene_Ensembl_output_type,
-            "A" = 'Mouse.gene.name',
-            "B" = 'Mouse.gene.stable.ID',
-            "C" = 'Mouse.gene.stable.ID.version'
-          )
-          colnames(converted_df) <- input_column
-          converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
-          converted <- distinct(converted) # library(dplyr)
-        }
-        # show a gene names list
-        output$Gene_Ensembl_convert_result <- renderText({
-          converted_genes <- converted[,output_column]
-          if(length(converted_genes[!is.na(converted_genes)]) == 0){
-            "Non of the input genes were able to be converted. \nPlease check the gene names are correct and do not include unnecessary spaces."
-          }else{
-            paste(na.omit(converted[,output_column]), collapse = "\n")
-          }
-        })
-        output$Gene_Ensembl_convert_table_status <- renderText({NULL})
-        output$Gene_Ensembl_convert_status <- renderText({NULL})
-        return(converted)
-      })
+      # status messages
+        output$Gene_Ensembl_convert_status <- renderText({'Please enter gene names and set the input/output types, and click "Convert genes".'})
+        output$Gene_Ensembl_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
+        output$Gene_Ensembl_convert_result <- renderText({'The converted genes will be listed up here'})
+        outputOptions(output, "Gene_Ensembl_convert_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "Gene_Ensembl_convert_table_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "Gene_Ensembl_convert_result", suspendWhenHidden=FALSE)
       
-      output$Gene_Ensembl_convert_table <- renderDataTable({
-        datatable( Gene_Ensemble_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
-      })
-    
-    ### Find the genomic loci
-
-      Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T,check.names = TRUE) # head(Gene_coords_GRch38)
-      output$Find_genome_loci_status <- renderText({'Please enter the inputs, set the method and click "Search". '})
-      output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
-      output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
-      outputOptions(output, "Find_genome_loci_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "Find_genome_loci_table_status", suspendWhenHidden=FALSE)
-      outputOptions(output, "Find_genome_loci_table_gene_names", suspendWhenHidden=FALSE)
-      observeEvent(input$Find_genome_loci_start,{
-        if(length(input$Find_genome_loci_direction) == 0){
-          output$Find_genome_loci_status <- renderText({'Please choose the method.'})
-          output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
-          output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
-          output$Find_genome_loci_table <- renderDataTable({NULL})
-          return(NULL)
-        }
-        if(input$Find_genome_loci_direction == 'A'){
-          if(nchar(input$Find_genome_loci_input) == 0){
-            output$Find_genome_loci_status <- renderText({'Please enter gene names'})
-            output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
-            output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
-            output$Find_genome_loci_table <- renderDataTable({NULL})
+      # conversion table
+        Gene_Ensemble_convert_data <- reactiveVal(NULL)
+        observeEvent(input$Gene_Ensembl_convert_start,{
+          if(nchar(input$Gene_Ensembl_input_gene) == 0){
+            show_alert(title='Error.',text='Please enter genes.', type='error')
+            output$Gene_Ensembl_convert_status <- renderText({'Please enter genes (line by line).'})
+            output$Gene_Ensembl_convert_table_status <- renderText({ 'A conversion table will be shown here.' })
+            output$Gene_Ensembl_convert_result <- renderText({'The converted genes will be listed up here'})
+            Gene_Ensemble_convert_data(NULL)
             return(NULL)
           }
-          genes <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # genes <- c('CXCL10', 'CXCL9')
-          genes <- intersect(genes, Gene_coords_GRch38$gene_name)
-          if(length(genes)==0){
-            output$Find_genome_loci_status <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
+          input_genes <- unlist(strsplit(input$Gene_Ensembl_input_gene, '\n')) # input_genes <- c('CXCL10', 'CXCL9', 'hoge', 'MYC')
+          converted_df <- data.frame(input=input_genes)
+          if(input$Gene_Ensembl_spieces == 'A'){
+            input_column <- switch(input$Gene_Ensembl_input_type,
+              "A" = 'Human.Gene.name',
+              "B" = 'Human.Gene.stable.ID',
+              "C" = 'Human.Gene.stable.ID.version'
+            )
+            output_column <- switch(input$Gene_Ensembl_output_type,
+              "A" = 'Human.Gene.name',
+              "B" = 'Human.Gene.stable.ID',
+              "C" = 'Human.Gene.stable.ID.version'
+            )
+            colnames(converted_df) <- input_column
+            converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+            converted <- distinct(converted) # library(dplyr)
+          }else{
+            input_column <- switch(input$Gene_Ensembl_input_type,
+              "A" = 'Mouse.gene.name',
+              "B" = 'Mouse.gene.stable.ID',
+              "C" = 'Mouse.gene.stable.ID.version'
+            )
+            output_column <- switch(input$Gene_Ensembl_output_type,
+              "A" = 'Mouse.gene.name',
+              "B" = 'Mouse.gene.stable.ID',
+              "C" = 'Mouse.gene.stable.ID.version'
+            )
+            colnames(converted_df) <- input_column
+            converted <- merge(converted_df, human_mouse_biomart_data[, c(input_column, output_column)], by=input_column, all.x =TRUE)
+            converted <- distinct(converted) # library(dplyr)
+          }
+          # show a gene names list
+          output$Gene_Ensembl_convert_result <- renderText({
+            converted_genes <- converted[,output_column]
+            if(length(converted_genes[!is.na(converted_genes)]) == 0){
+              "Non of the input genes were able to be converted. \nPlease check the gene names are correct and do not include unnecessary spaces."
+            }else{
+              paste(na.omit(converted[,output_column]), collapse = "\n")
+            }
+          })
+          output$Gene_Ensembl_convert_table_status <- renderText({NULL})
+          output$Gene_Ensembl_convert_status <- renderText({NULL})
+          Gene_Ensemble_convert_data(converted)
+          return(converted)
+        })
+        
+      
+      # show the conversion table
+        output$Gene_Ensembl_convert_table <- renderDataTable({
+          if(is.null(Gene_Ensemble_convert_data())){
+            tmp <- data.frame(list('Gene.Symbol'=character(0), 'Ensembl.ID'=character(0)), stringsAsFactors = FALSE )
+            datatable( tmp, options = list(scrollX = TRUE, pageLength = 10 )) 
+          }else{
+            datatable( Gene_Ensemble_convert_data(), options = list(scrollX = TRUE, pageLength = 10 )) 
+          }
+        })
+      # 
+    
+    ### Find the genomic loci
+      # status messages
+        Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T,check.names = TRUE) # head(Gene_coords_GRch38)
+        output$Find_genome_loci_status <- renderText({'Please enter the inputs, set the method and click "Search". '})
+        output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
+        output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
+        outputOptions(output, "Find_genome_loci_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "Find_genome_loci_table_status", suspendWhenHidden=FALSE)
+        outputOptions(output, "Find_genome_loci_table_gene_names", suspendWhenHidden=FALSE)
+
+      # the main calculation
+        output$Find_genome_loci_table <- renderDataTable({
+          tmp <- data.frame(list('chr'=character(0), 'start'=character(0), 'end'=character(0), 'strand'=character(0), 'gene_id'=character(0), 'gene_name'=character(0)), stringsAsFactors = FALSE )
+          datatable(tmp, options = list(scrollX = TRUE, pageLength = 10 ))
+        })
+        observeEvent(input$Find_genome_loci_start,{
+          if(length(input$Find_genome_loci_direction) == 0){
+            show_alert(title='Error.',text='Please select the method.', type='error')
+            output$Find_genome_loci_status <- renderText({'Please choose the method.'})
+            output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
             output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
-            output$Find_genome_loci_table_status <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
-            output$Find_genome_loci_table <- renderDataTable({NULL})
-            return(NULL) 
+            output$Find_genome_loci_table <- renderDataTable({
+              tmp <- data.frame(list('chr'=character(0), 'start'=character(0), 'end'=character(0), 'strand'=character(0), 'gene_id'=character(0), 'gene_name'=character(0)), stringsAsFactors = FALSE )
+              datatable(tmp, options = list(scrollX = TRUE, pageLength = 10 ))
+            })
+            return(NULL)
           }
-          Gene_coords_GRch38_focus <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name %in% genes,]
-          coord <- paste0(Gene_coords_GRch38_focus$chr, ':', Gene_coords_GRch38_focus$start, '-',  Gene_coords_GRch38_focus$end)
-          output$Find_genome_loci_table_gene_names <- renderText({ paste(coord, collapse='\n') })
-          output$Find_genome_loci_table <- renderDataTable({
-            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
-          })
-          output$Find_genome_loci_status <- renderText({NULL})
-          output$Find_genome_loci_table_status <- renderText({NULL})
-        }
-        if(input$Find_genome_loci_direction == 'B'){
-          coords <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # coords <- c('chr4:76021118-76023497', 'chr10:8045378-8075198')
-          Gene_coords_GRch38_focus <- data.frame('chr'=c(), 'start'=c(), 'end'=c(), 'strand'=c(), 'gene_id'=c(), 'gene_name'=c())
-          for (coord in coords){
-            # coord = 'chr4:76021118-76023497'
-            chr <- strsplit(coord, split=':')[[1]][1]
-            start_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][1])
-            end_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][2])
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38[Gene_coords_GRch38$chr == chr,]
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[as.numeric(Gene_coords_GRch38_focus_tmp$end) >= as.numeric(start_pos),]
-            Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[Gene_coords_GRch38_focus_tmp$start <= end_pos,]
-            Gene_coords_GRch38_focus <- rbind(Gene_coords_GRch38_focus, Gene_coords_GRch38_focus_tmp)
+          if(input$Find_genome_loci_direction == 'A'){
+            if(nchar(input$Find_genome_loci_input) == 0){
+              show_alert(title='Error.',text='Please enter gene names.', type='error')
+              output$Find_genome_loci_status <- renderText({'Please enter gene names'})
+              output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
+              output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
+              output$Find_genome_loci_table <- renderDataTable({
+                tmp <- data.frame(list('chr'=character(0), 'start'=character(0), 'end'=character(0), 'strand'=character(0), 'gene_id'=character(0), 'gene_name'=character(0)), stringsAsFactors = FALSE )
+                datatable(tmp, options = list(scrollX = TRUE, pageLength = 10 ))
+              })
+              return(NULL)
+            }
+            genes <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # genes <- c('CXCL10', 'CXCL9')
+            genes <- intersect(genes, Gene_coords_GRch38$gene_name)
+            if(length(genes)==0){
+              show_alert(title='Error.',text='None of the inputted genes are found.', type='error')
+              output$Find_genome_loci_status <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
+              output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
+              output$Find_genome_loci_table_status <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
+              output$Find_genome_loci_table <- renderDataTable({
+                tmp <- data.frame(list('chr'=character(0), 'start'=character(0), 'end'=character(0), 'strand'=character(0), 'gene_id'=character(0), 'gene_name'=character(0)), stringsAsFactors = FALSE )
+                datatable(tmp, options = list(scrollX = TRUE, pageLength = 10 ))
+              })
+              return(NULL) 
+            }
+            Gene_coords_GRch38_focus <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name %in% genes,]
+            coord <- paste0(Gene_coords_GRch38_focus$chr, ':', Gene_coords_GRch38_focus$start, '-',  Gene_coords_GRch38_focus$end)
+            output$Find_genome_loci_table_gene_names <- renderText({ paste(coord, collapse='\n') })
+            output$Find_genome_loci_table <- renderDataTable({
+              datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
+            })
+            output$Find_genome_loci_status <- renderText({NULL})
+            output$Find_genome_loci_table_status <- renderText({NULL})
           }
-          if(dim(Gene_coords_GRch38_focus)[1]==0){
-            output$Find_genome_loci_status <- renderText({'No genes were found in the specified location. \nPlease make sure the formats are correct and do not include unnecessary spaces. \n(Ex. chr1:76021118-76023497)'})
-            output$Find_genome_loci_table_gene_names <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
-            return(NULL) 
+          if(input$Find_genome_loci_direction == 'B'){
+            coords <- unlist(strsplit(input$Find_genome_loci_input, '\n')) # coords <- c('chr4:76021118-76023497', 'chr10:8045378-8075198')
+            Gene_coords_GRch38_focus <- data.frame('chr'=c(), 'start'=c(), 'end'=c(), 'strand'=c(), 'gene_id'=c(), 'gene_name'=c())
+            for (coord in coords){
+              # coord = 'chr4:76021118-76023497'
+              chr <- strsplit(coord, split=':')[[1]][1]
+              start_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][1])
+              end_pos <- as.numeric(strsplit(strsplit(coord, split=':')[[1]][2], split='-')[[1]][2])
+              Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38[Gene_coords_GRch38$chr == chr,]
+              Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[as.numeric(Gene_coords_GRch38_focus_tmp$end) >= as.numeric(start_pos),]
+              Gene_coords_GRch38_focus_tmp <- Gene_coords_GRch38_focus_tmp[Gene_coords_GRch38_focus_tmp$start <= end_pos,]
+              Gene_coords_GRch38_focus <- rbind(Gene_coords_GRch38_focus, Gene_coords_GRch38_focus_tmp)
+            }
+            if(dim(Gene_coords_GRch38_focus)[1]==0){
+              show_alert(title='Error.',text='No genes were found in the specified location.', type='error')
+              output$Find_genome_loci_status <- renderText({'No genes were found in the specified location. \nPlease make sure the formats are correct and do not include unnecessary spaces. \n(Ex. chr1:76021118-76023497)'})
+              output$Find_genome_loci_table_gene_names <- renderText({'None of the inputted genes are found. \nPlease make sure that the gene names are correct and do not have unnecessary spaces.'})
+              return(NULL) 
+            }
+            genes <- Gene_coords_GRch38_focus$gene_name
+            output$Find_genome_loci_table_gene_names <- renderText({ paste(genes, collapse='\n') })
+            output$Find_genome_loci_table <- renderDataTable({
+              datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
+            })
+            output$Find_genome_loci_status <- renderText({NULL})
+            output$Find_genome_loci_table_status <- renderText({NULL})
           }
-          genes <- Gene_coords_GRch38_focus$gene_name
-          output$Find_genome_loci_table_gene_names <- renderText({ paste(genes, collapse='\n') })
-          output$Find_genome_loci_table <- renderDataTable({
-            datatable( Gene_coords_GRch38_focus, options = list(scrollX = TRUE, pageLength = 10 )) 
-          })
-          output$Find_genome_loci_status <- renderText({NULL})
-          output$Find_genome_loci_table_status <- renderText({NULL})
-        }
-      })
+        })
+      #
     
     ### Cross_tabulation analysis
       # input the parameter for the contingency table
@@ -10953,68 +11147,67 @@ server <- function(input, output, session) {
       })
 
     ### Netwrok plot
-
-      Network_input_data <- reactive({
-        if(input$Network_input_example){
-          edges <- data.frame(
-            from = c("STAT1", "STAT1", "STAT1", "STAT1", "STAT2", "STAT2", "STAT2", "STAT3", "STAT3", "STAT3", "STAT3", "STAT5", "STAT5", "STAT5", "STAT3", "STAT5", "STAT1", "STAT2", "STAT2", "STAT3", "STAT1", "STAT2", "STAT3", "STAT5"),
-            to = c("IRF1", "GBP1", "ISG15", "MX1", "ISG15",  "IRF9", "OAS1", "SAA1", "CRP", "VEGF", "MYC", "CSN2", "WAP", "BCL2L1",  "BCL2L1", "CISH", "IL6", "MX1", "IL6", "IL6", "SOCS1", "SOCS1", "SOCS1", "SOCS1"),
-            weight = c(10.0, 5.8, 2.9, 1.7, 10.9,  0.5, 12.0, 5.8, 1.9, 3.7, 1.0, 2.8, 7.9, 1.7, 5.0, 8.8, 6.0, 1.9, 2.9,10.9, 10.0, 5.0, 6.0, 8.0)
-          )
-          return(edges)
-        }else{
-          req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
-          edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = TRUE)
-          return(edges)
-        }
-      })
+      # load data
+        Network_input_data <- reactiveVal(NULL)
+        observe({
+          if(input$Network_input_example){
+            edges <- data.frame(
+              from = c("STAT1", "STAT1", "STAT1", "STAT1", "STAT2", "STAT2", "STAT2", "STAT3", "STAT3", "STAT3", "STAT3", "STAT5", "STAT5", "STAT5", "STAT3", "STAT5", "STAT1", "STAT2", "STAT2", "STAT3", "STAT1", "STAT2", "STAT3", "STAT5"),
+              to = c("IRF1", "GBP1", "ISG15", "MX1", "ISG15",  "IRF9", "OAS1", "SAA1", "CRP", "VEGF", "MYC", "CSN2", "WAP", "BCL2L1",  "BCL2L1", "CISH", "IL6", "MX1", "IL6", "IL6", "SOCS1", "SOCS1", "SOCS1", "SOCS1"),
+              weight = c(10.0, 5.8, 2.9, 1.7, 10.9,  0.5, 12.0, 5.8, 1.9, 3.7, 1.0, 2.8, 7.9, 1.7, 5.0, 8.8, 6.0, 1.9, 2.9,10.9, 10.0, 5.0, 6.0, 8.0)
+            )
+            Network_input_data(edges)
+          }else{
+            req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
+            edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = TRUE)
+            Network_input_data(edges)
+          }
+        })
 
       # show the data as a table
-      output$Network_input_table <- DT::renderDataTable({ 
+        output$Network_input_table <- DT::renderDataTable({ 
           if(!is.null(Network_input_data())){
             datatable(Network_input_data(), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10)) 
+          }else{
+            tmp <- data.frame(list(from=character(0), to=character(0), weight=numeric(0)), stringsAsFactors = FALSE )
+            datatable(tmp, options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10)) 
           }
         })
 
       # show plot
-      library(igraph)
-      output$Network_input_table_visNet_status <- renderText({'Please input the data'})
-      output$Network_input_table_visNet <- renderVisNetwork({
-        if(is.null(Network_input_data())){
-          output$Network_input_table_visNet_status <- renderText({'Please input the data'})
-          return(NULL)
-        }
-        if(length(Network_input_data())== 0 ){
-          output$Network_input_table_visNet_status <- renderText({'Please input the data'})
-          return(NULL)
-        }
-        output$Network_input_table_visNet_status <- renderText({NULL})
-        graph <- graph_from_data_frame(Network_input_data(), directed = TRUE)
-        V(graph)$size <- igraph::degree(graph)
-        V(graph)$size <- 5 + (V(graph)$size - min(V(graph)$size)) / (max(V(graph)$size) - min(V(graph)$size)) * 25
-        nodes <- data.frame(id = V(graph)$name, 
-                            label = V(graph)$name, 
-                            size = V(graph)$size)
-                          # column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
-                          # column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
-                          # column(6, colourpicker::colourInput("Network_input_color_from", "The color of node (From)", value='#AEECF5' )),
-                          # column(6, colourpicker::colourInput("Network_input_color_to", "The color of node (To)", value='#AEECF5' )),
-        nodes$shape <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_shape_from, input$Network_input_shape_to)
-        nodes$color <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_color_from, input$Network_input_color_to)
-        edges <- data.frame(from = Network_input_data()$from, 
-                            to = Network_input_data()$to,
-                            width = Network_input_data()$weight)
-        if(input$Network_input_arrow){
-          edges$arrows <- 'to'
-        }
-              
-        network <- visNetwork(nodes, edges, height = "1000px", width = "100%")
-        # network <- visEdges(arrows = 'to')
-        network <- visOptions(network, highlightNearest = TRUE, nodesIdSelection=TRUE)
-        network
-            # visNetwork::visIgraphOptions(width='500px', height='500px')
+        library(igraph)
+        output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+        output$Network_input_table_visNet <- renderVisNetwork({
+          if(is.null(Network_input_data())){
+            output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+            return(ggplot())
+          }
+          if(length(Network_input_data())== 0 ){
+            output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+            return(ggplot())
+          }
+          output$Network_input_table_visNet_status <- renderText({NULL})
+          graph <- graph_from_data_frame(Network_input_data(), directed = TRUE)
+          V(graph)$size <- igraph::degree(graph)
+          V(graph)$size <- 5 + (V(graph)$size - min(V(graph)$size)) / (max(V(graph)$size) - min(V(graph)$size)) * 25
+          nodes <- data.frame(id = V(graph)$name, 
+                              label = V(graph)$name, 
+                              size = V(graph)$size)
+          nodes$shape <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_shape_from, input$Network_input_shape_to)
+          nodes$color <- ifelse(nodes$label %in% unique(Network_input_data()$from), input$Network_input_color_from, input$Network_input_color_to)
+          edges <- data.frame(from = Network_input_data()$from, 
+                              to = Network_input_data()$to,
+                              width = Network_input_data()$weight)
+          if(input$Network_input_arrow){
+            edges$arrows <- 'to'
+          }
+                
+          network <- visNetwork(nodes, edges, height = "1000px", width = "100%")
+          network <- visOptions(network, highlightNearest = TRUE, nodesIdSelection=TRUE)
+          network
 
-      })
+        })
+      #
 
     ###
 
