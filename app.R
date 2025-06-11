@@ -3240,6 +3240,11 @@ ui <- fluidPage(
                     column(4,
                       box(title='Inputs and Settings', width=12, status='info',
                         fluidRow(
+                          column(12, htmlOutput('Profile_Plot_sample_selection')),
+                          column(12, numericInput('Profile_Plot_extend_length', 'Extend length', value=2000, min=0, max=10000, step=10)),
+                          column(12, textAreaInput("Profile_Plot_input_coord", "Enter positions"))
+                        ),
+                        fluidRow(
                           column(6, actionButton('Profile_Plot_start', 'Import data'))
                         )
                       )
@@ -3251,9 +3256,20 @@ ui <- fluidPage(
                           column(2, 
                             dropdownButton( h4(strong("Plot Options")),
                               fluidRow(
-                                column(6, sliderInput(inputId = 'Profile_Plot_fig.width', label='fig width', min=300, max=3000, value=600, step=10)),
-                                column(6, sliderInput(inputId = 'Profile_Plot_fig.height', label='fig height', min=300, max=3000, value=1000, step=10)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_fig.width', label='Fig width', min=300, max=3000, value=600, step=10)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_fig.height', label='Fig height (heatmap part)', min=300, max=3000, value=1000, step=10)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_column_font_size', label='Sample name font size', min=0.1, max=10, value=3, step=0.1)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_legend_font_size', label='Legend size', min=0.1, max=10, value=3, step=0.1)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_label_size_up', label='Y label size (upper part)', min=0.1, max=10, value=3, step=0.1)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_label_size_main', label='X label size (heatmap part)', min=0.1, max=10, value=3, step=0.1)),
+                                column(6, sliderInput(inputId = 'Profile_Plot_top_annot_height', label='Fig height (upper part)', min=0.1, max=5, value=1, step=0.1))
+                                
                               ),  
+                              fluidRow(
+                                column(6, colourpicker::colourInput('Profile_Plot_max_col', 'Max colour', value='red')),
+                                column(6, colourpicker::colourInput('Profile_Plot_min_col', 'Min colour', value='white')),
+                                column(6, colourpicker::colourInput('Profile_Plot_line_col', 'Line colour', value='red'))                               
+                              ),
                               circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                             ),
                           ),
@@ -3371,7 +3387,7 @@ ui <- fluidPage(
                       column(3,
                         box(width=12, title='List of genes/coordinates', status='warning',collapsible = TRUE,
                           fluidRow(
-                            column(12, verbatimTextOutput('Find_genome_loci_input') )
+                            column(12, verbatimTextOutput('Find_genome_loci_table_gene_names') )
                           )
                         )
                       )
@@ -8107,14 +8123,10 @@ server <- function(input, output, session) {
           bw_list <- lapply(target_bw_file, import) # length(bw_list)
           names(bw_list) <- basename(target_bw_file)
 
-          # bw_file(import())
-          # bw_file <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep1.bw')
-          # names(bw_list()) <- basename('THP1_LPS.IFNg.0.5h_Rep1')
-          
-
           # positions to explore
-          df_DEG <- read.table('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/DESeq2_peak_THP1_UT_vs_LPS.IFNg.0.5h.tsv', sep='\t', header=T) # head(df_DEG)
-          genome_position <- rownames(df_DEG)[1:500]
+          genome_position <- unlist(strsplit(input$Profile_Plot_input_coord, split = "\n"))
+          # df_DEG <- read.table('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/DESeq2_peak_THP1_UT_vs_LPS.IFNg.0.5h.tsv', sep='\t', header=T) # head(df_DEG)
+          # genome_position <- rownames(df_DEG)[1:500]
           chr_list <- sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[1]][1] )
           Start_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][1] ))
           End_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][2] ))
@@ -8122,13 +8134,13 @@ server <- function(input, output, session) {
 
           # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
           heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
-            normalizeToMatrix( bw_tmp, target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
+            normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
           })
           heatmap_data_list(heatmap_data_list_tmp)
 
           # the colour range
-          col_fun_tmp <- colorRamp2(breaks = c(0, max(unlist(lapply(heatmap_data_list_tmp, function(x) quantile(x,0.98))))), colors=c('white', 'red'))
-          col_fun(col_fun_tmp)
+          # col_fun_tmp <- colorRamp2(breaks = c(0, max(unlist(lapply(heatmap_data_list_tmp, function(x) quantile(x,0.98))))), colors=c('white', 'red'))
+          # col_fun(col_fun_tmp)
 
           output$Profile_Plot_status <- renderText({'test'})
           isCalculating(FALSE)
@@ -8142,25 +8154,48 @@ server <- function(input, output, session) {
             return(ggplot())
           }else{
             output$Profile_Plot_status <- renderText({'test5'})
-            if(is.null(col_fun()) | is.null(heatmap_data_list())){
+            if(is.null(heatmap_data_list())){
               return(ggplot())
             }else{
-              col_fun <- col_fun()
               heatmap_data_list <- heatmap_data_list()
+
+              col_fun <- colorRamp2(breaks = c(0, max(unlist(lapply(heatmap_data_list, function(x) quantile(x,0.98))))), colors=c(input$Profile_Plot_min_col, input$Profile_Plot_max_col))
 
               # grid の新規ページを作成（これがないと描画されない可能性あり）
               grid.newpage()
 
-              # ヒートマップレジェンド
-              coverage_legend <- Legend(col_fun = col_fun, title = "Norm.Coverage")
+              # Main heatmap legend (The one on the right)
+              coverage_legend <- Legend(
+                col_fun = col_fun, title = "Norm.Coverage",
+                title_gp = grid::gpar(fontsize=input$Profile_Plot_legend_font_size ),
+                labels_gp = grid::gpar(fontsize=input$Profile_Plot_legend_font_size ) ,
+                legend_height = grid::unit( (5 + 0.1 * input$Profile_Plot_legend_font_size) , "mm"),
+                legend_width = grid::unit(input$Profile_Plot_legend_font_size, 'mm')
+              )
 
               # ヒートマップ作成
+              top_anno <- HeatmapAnnotation( 
+                enriched = anno_enriched(
+                  gp = gpar(col = input$Profile_Plot_line_col),
+                  pos_line_gp = gpar(lwd=0.5,lty = 2),
+                  axis_param = list(
+                    gp = grid::gpar(fontsize = input$Profile_Plot_label_size_up)
+                  )
+                ),
+                show_annotation_name = FALSE,
+                height=unit(input$Profile_Plot_top_annot_height , 'cm')
+              )
               heatmaps <- lapply(seq_along(heatmap_data_list), function(i) {
                 EnrichedHeatmap(
-                  heatmap_data_list[[i]], column_title = names(heatmap_data_list)[i],
+                  heatmap_data_list[[i]], 
+                  column_title = names(heatmap_data_list)[i],
+                  pos_line_gp = gpar(lwd = 0.5,lty = 2),
                   col = col_fun, use_raster = TRUE,
                   show_heatmap_legend = FALSE, 
-                  column_title_gp = grid::gpar(fontsize = 5)
+                  column_title_gp = grid::gpar(fontsize = input$Profile_Plot_column_font_size),
+                  axis_name_gp = grid::gpar(fontsize = input$Profile_Plot_label_size_main),
+                  top_annotation = top_anno
+                  # border_gp = gpar(lwd=20)
                 )
               })
               output$Profile_Plot_status <- renderText({'test3'})
@@ -8185,8 +8220,6 @@ server <- function(input, output, session) {
           }
         }, width = reactive(input$Profile_Plot_fig.width), height = reactive(input$Profile_Plot_fig.height), res=300)
 
-                                # column(6, sliderInput(inputId = 'Profile_Plot_fig.width', label='fig width', min=300, max=3000, value=600, step=10)),
-                                # column(6, sliderInput(inputId = 'Profile_Plot_fig.height', label='fig height', min=300, max=3000, value=1000, step=10)),
       #
     ####
 
