@@ -311,7 +311,7 @@ ui <- fluidPage(
                     column(4, textInput("upload_cell_line", HTML("Cell line, Data source <br/> Ex.) THP1, PBMC"))), 
                     column(4, textInput("upload_when", HTML("When <br/> Ex.) 2025-01"))) 
                   ),
-                  fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D' ), selected='B')), 
+                  fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D', 'E: bigwig file'='E' ), selected='B')), 
                     conditionalPanel(
                       condition = 'input.upload_Data_Class=="B"',
                       column(3, textInput("upload_Control_group", HTML("Control group name <br/> Ex.) Untreated, WT"))), 
@@ -743,7 +743,8 @@ ui <- fluidPage(
                                               column(3, numericInput('main_plot_ylim_2', 'Max Y-axis:', value=NA, step=0.1)),
                                             ),
                                             fluidRow(
-                                              column(12, materialSwitch('while_background', 'Use white background', value=FALSE, status='success'))
+                                              column(5, materialSwitch('while_background', 'Use white background', value=FALSE, status='success')),
+                                              column(5, materialSwitch('main_plot_white_back_label', 'Use white background for labels', value=TRUE, status='success'))
                                             ),
                                             circle = FALSE,
                                             status = "success", 
@@ -776,18 +777,42 @@ ui <- fluidPage(
                                   # when highlighting specific genes
                                   fluidRow(
                                     column(12, h4('Highlight the genes of interest')),
-                                    column(8, textAreaInput("target_gene", "Enter genes (line by line)")),
+                                    column(6, textAreaInput("target_gene", "Enter genes (line by line)")),
+                                    column(6,
+                                      fluidRow(
+                                        column(12, h2('')),
+                                        column(12, materialSwitch("show_label", "show gene names", value=FALSE, status='info')),
+                                        column(12, materialSwitch("interesting_gene_colour", "change the highlight colour", value=FALSE, status='info')),
+                                        conditionalPanel(
+                                          condition = "input.interesting_gene_colour == true",
+                                            column(8, colourpicker::colourInput('interesting_gene_colour_id', 'select colour:', value='red'))
+                                        )
+                                      )
+                                    ),
                                     column(12, verbatimTextOutput('Scatter_interesting_gene_status') ),
                                   ),
                                   fluidRow(
-                                    column(6, materialSwitch("show_label", "show gene names", value=FALSE, status='info')),
-                                    column(6, materialSwitch("show_entered_gene_info", "show information as a table", value=FALSE, status='info')),
-                                    column(6, materialSwitch("interesting_gene_colour", "change the highlight colour", value=FALSE, status='info')),
+                                    column(12, materialSwitch("main_plot_target_genes_2", "Highlight other genes with a different colour", value=FALSE, status='info')),
                                     conditionalPanel(
-                                      condition = "input.interesting_gene_colour == true",
-                                        column(6, colourpicker::colourInput('interesting_gene_colour_id', 'select colour:', value='red'))
+                                      condition = "input.main_plot_target_genes_2 == true",
+                                      column(12, 
+                                        fluidRow(
+                                          column(6, textAreaInput("main_plot_target_genes_2_input", "Enter genes (line by line)")),
+                                          column(6,
+                                            fluidRow(
+                                              column(12, h2('')),
+                                              column(8, colourpicker::colourInput('main_plot_target_genes_2_colour', 'select colour:', value='#0066ff'))
+                                            )
+                                          ),
+                                          column(12,  verbatimTextOutput('Scatter_interesting_gene_status2') )
+                                        )
+                                      )
                                     )
-                                  ),
+                                  ), 
+                                  fluidRow(
+                                    column(12, h3('')),
+                                    column(12, materialSwitch("show_entered_gene_info", "show the highlighted genes information as a table", value=FALSE, status='info'))
+                                  )
                                 ), 
                                 ## filtering options
                                 box(width=12, collapsible=TRUE, status='info', title=strong('Highlight filterd genes or gene sets in the plot'),
@@ -3212,25 +3237,7 @@ ui <- fluidPage(
           tabItem( tabName='igv',
             h2(' Genome Browser (IGV)'),
             box( width=12, title='Data selection', status='info', solidHeader = TRUE,
-              fluidRow( 
-                column(2, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
-                column(4, htmlOutput("igv_data_select")),
-                column(6, 
-                  fluidRow(
-                    column(12, h5('Dataset detail:')),
-                    column(12, verbatimTextOutput('igv_Dataset_detail')),
-                  ),
-                  fluidRow(
-                    h3(''),
-                    column(12, actionButton("igv_data_add", "View in IGV"))
-                  )
-                )
-              ),
-              h4('Dataset filter'),
-              fluidRow(
-                column(4, htmlOutput("igv_data_DataFrom")),
-                column(4, htmlOutput("igv_data_Experiment"))
-              )
+
             ),
             box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
               tabsetPanel(
@@ -3241,11 +3248,19 @@ ui <- fluidPage(
                       box(title='Inputs and Settings', width=12, status='info',
                         fluidRow(
                           column(12, htmlOutput('Profile_Plot_sample_selection')),
+                          column(12, verbatimTextOutput('Profile_Plot_sample_selection_status')),
+                          column(6, actionButton('Profile_Plot_sample_import', 'Import the selected sample',style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
+                          column(12, h2('')),
+                          column(12, h5('List of imported dataset:')),
+                          column(12, helpText('The following samples are used for the profile plot.')),
+                          column(12, withSpinner(DT::dataTableOutput("Profile_Plot_imported_sample_table"), type=5, color='#0dc5c1')),
+                          column(6, actionButton('Profile_Plot_sample_remove', 'Remove the selected sample',style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
+                          column(12, h2('')),
                           column(12, numericInput('Profile_Plot_extend_length', 'Extend length', value=2000, min=0, max=10000, step=10)),
                           column(12, textAreaInput("Profile_Plot_input_coord", "Enter positions"))
                         ),
                         fluidRow(
-                          column(6, actionButton('Profile_Plot_start', 'Import data'))
+                          column(6, actionButton('Profile_Plot_start', 'Import data',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                         )
                       )
                     ),
@@ -3280,7 +3295,82 @@ ui <- fluidPage(
                   )
                 ),
                 tabPanel( 'IGV',
-                  igvShinyOutput("igv", height = "1000px")
+                  h4(''),
+                  fluidRow(
+                    column(4, 
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow( 
+                          column(12, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
+                          column(12, htmlOutput("igv_data_select")),
+                          column(12, 
+                            div(id='filterin_dropdown',
+                              dropdownButton( 
+                                fluidRow(
+                                  column(4, htmlOutput("igv_data_DataFrom")),
+                                  column(4, htmlOutput("igv_data_Experiment"))
+                                ),
+                                label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "1000px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                              )
+                            ) 
+                          ),
+                          column(12, h2('')),
+                          column(12, 
+                            fluidRow(
+                              column(12, h5('Selected dataset detail:')),
+                              column(12, verbatimTextOutput('igv_Dataset_detail')),
+                            ),
+                            fluidRow(
+                              h3(''),
+                              column(12, actionButton("igv_data_add", "View in IGV"))
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                        fluidRow(
+                          column(4, selectInput('igv_gneome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
+                          column(12, withSpinner(igvShinyOutput("igv", height = "1000px"), type = 5, color = "#0dc5c1") )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel('Genome visualisation',
+                  h4(''),
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12, htmlOutput('Gviz_data_select')),
+                          column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                        fluidRow(
+                          column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
+                          column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                          column(10, verbatimTextOutput('Gviz_plot_status') ),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                                column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                              ),
+                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                            )
+                          ),
+                          column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
+                        )
+                      )
+                    )
+                  )
                 )
               )
             )
@@ -4114,17 +4204,6 @@ server <- function(input, output, session) {
           df_genes_interest <- reactive({
             df_main_plot <- df()
             df_tmp <- df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),] 
-            # undetected_genes <- setdiff(unlist(strsplit(input$target_gene, split = "\n")), df_main_plot$id)
-            # undetected_genes <- undetected_genes[undetected_genes!= '']
-            # if(length(undetected_genes) > 0){
-            #   output$Scatter_interesting_gene_status <- renderText({
-            #     tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
-            #     genes_tmp <- paste(undetected_genes, collapse=', ')
-            #     paste0(tmp, genes_tmp)
-            #   })
-            # }else{
-            #   output$Scatter_interesting_gene_status <- renderText({NULL})
-            # }
             return(df_tmp)
           })
 
@@ -4620,17 +4699,25 @@ server <- function(input, output, session) {
               else{ 
                 output$Gene_ex_status <- renderText({NULL})
                 p <- ggplot(df_main_plot, aes_string(x = input$scat.x, y = input$scat.y)) + geom_point(size = input$pt.size) 
-
               }
               # show outliers or show pathway genes # column(3, colourpicker::colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
+              if(length(input$show_filterin_input_option) == 0){
+                output$Gene_ex_status <- renderText({'Please choose one method in the "Highlight filterd genes or gene sets in the plot" section.'})
+                return(ggplot())
+              }
               if(input$show_filterin_input_option=='B'){
                 outliers <- df_outliers()
                 if(!is.null(outliers)){
                   p <- p + geom_point(data = outliers[outliers[input$scat.x]>=0,], color=input$outlier_gene_colour_id , size = input$high.pt.size)
                   p <- p + geom_point(data = outliers[outliers[input$scat.x]<=0,], color=input$outlier_gene_colour_id_negative , size = input$high.pt.size)
                   if(input$hide_gene_label == FALSE){
-                    p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                    p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                    if(input$main_plot_white_back_label){
+                      p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                      p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                    }else{
+                      p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                      p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                    }
                   }
                   if(input$show_threhold_lines){
                     switch(input$Main_scatter_thr_X_method,
@@ -4652,10 +4739,14 @@ server <- function(input, output, session) {
                   if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
                     outliers_pathway <- df_outliers_pathway()
                     p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$hide_gene_label_pathway==FALSE){ p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) }
+                    if(input$hide_gene_label_pathway==FALSE){ 
+                      if(input$main_plot_white_back_label){
+                        p <- p + geom_label_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                      }else{
+                        p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                      }
+                    }
                     if(input$Main_scatter_pathway_filter){
-                      # if(input$Direction == 'A' || input$Direction == 'B'){p <- p + geom_vline(xintercept=input$x_threshold, linetype='dotted', size=0.2)}
-                      # if(input$Direction == 'A' || input$Direction == 'C'){p <- p + geom_vline(xintercept=-input$x_threshold_neg, linetype='dotted', size=0.2)}
                       switch(input$Main_scatter_pathway_thr_X_method,
                         'B' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2),
                         'C' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
@@ -4677,7 +4768,13 @@ server <- function(input, output, session) {
                   if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
                     custom_geneset <- df_genes_custom_geneset()
                     p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$Plot_Gene_sethide_gene_label==FALSE){ p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) }
+                    if(input$Plot_Gene_sethide_gene_label==FALSE){ 
+                      if(input$main_plot_white_back_label){
+                        p <- p + geom_label_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                      }else{
+                        p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                      }
+                    }
                     if(input$Main_scatter_geneset_filter){
                       switch(input$Main_scatter_geneset_thr_X_method,
                         'B' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2),
@@ -4709,14 +4806,48 @@ server <- function(input, output, session) {
                 }else{
                   output$Scatter_interesting_gene_status <- renderText({NULL})
                 }
-                if(input$show_label){ p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) }
+                if(input$show_label){ 
+                  if(input$main_plot_white_back_label){
+                    p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                  }else{
+                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                  }
+                }
+              }
+              # different colour
+              if(input$main_plot_target_genes_2){
+                if(nchar(input$main_plot_target_genes_2_input) > 0){
+                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),], color=input$main_plot_target_genes_2_colour , size = input$high.pt.size)
+                  undetected_genes <- setdiff(unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")), df_main_plot$id)
+                  undetected_genes <- undetected_genes[undetected_genes!= '']
+                  if(length(undetected_genes) > 0){
+                    output$Scatter_interesting_gene_status2 <- renderText({
+                      tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
+                      genes_tmp <- paste(undetected_genes, collapse=', ')
+                      paste0(tmp, genes_tmp)
+                    })
+                  }else{
+                    output$Scatter_interesting_gene_status2 <- renderText({NULL})
+                  }
+                  if(input$show_label){ 
+                    if(input$main_plot_white_back_label){
+                      p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                    }else{
+                      p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                    }
+                  }
+                }
               }
             }
             tryCatch(
               expr = {
                 res <- brushedPoints(df(), input$plot_brush)
                 if(length(res$id)<500){
-                  p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                  if(input$main_plot_white_back_label){
+                    p <- p + geom_label_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                  }else{
+                    p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                  }
                 }
               },
               error = function(e){NULL}
@@ -8097,8 +8228,8 @@ server <- function(input, output, session) {
       
       # igv initiation
       output$igv <- renderIgvShiny({
-        options <- parseAndValidateGenomeSpec(genomeName="hg38")
-        igvShiny(options)  # Initialize IGV with hg38 genome
+        options <- parseAndValidateGenomeSpec(genomeName=input$igv_gneome_selection)
+        igvShiny(options)  # Initialize IGV
       })
 
       # add bed file to view
@@ -8109,40 +8240,105 @@ server <- function(input, output, session) {
         # Add the BAM track to the IGV viewer
         # session$sendCustomMessage(type = "addTrack", track)
       })
-    #### load bw file fpr Profile plots
+    #### Profile plots
+      # dataset selection
+        output$Profile_Plot_sample_selection <- renderUI({ 
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          # if(!is.null(input$Data_type)) { if(input$Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == input$Data_type,]}}
+          # if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]}}
+          # if(!is.null(input$Experiments)) { if(input$Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == input$Experiments,]}}
+          selectInput('Profile_Plot_sample_selection', 'Dataset select', c('None'='None', unique(df_tmp$Dataset)) )
+        })
+
+      # Imported samples
+        imported_sample <- reactiveVal(NULL)
+        imported_bw_data <- reactiveVal(NULL)
+        isCalculating_import <- reactiveVal(FALSE) 
+        triggered_import <- reactiveVal(FALSE)
+        observeEvent(input$Profile_Plot_sample_import, {
+          isCalculating_import(TRUE)
+          triggered_import(TRUE) 
+          if(input$Profile_Plot_sample_selection == 'None'){
+            show_alert(title='Error.',text='Please select a dataset.', type='error')
+            output$Profile_Plot_sample_selection_status <- renderText({"Please select a dataset."})
+            isCalculating_import(FALSE)
+            return()
+          }
+          if(input$Profile_Plot_sample_selection %in% imported_sample()){
+            show_alert(title='Error.',text='The selected dataset is already imported.', type='error')
+            output$Profile_Plot_sample_selection_status <- renderText({"The selected dataset is already imported."})
+            isCalculating_import(FALSE)
+            return()
+          }
+          path <- Dataset()[Dataset()$Dataset == input$Profile_Plot_sample_selection, ]$Path
+          if(!file.exists(path)){
+            show_alert(title='Error.',text='The file does not exist.', type='error')
+            output$Profile_Plot_sample_selection_status <- renderText({"The file does not exist. Please upload the dataset again."})
+            isCalculating_import(FALSE)
+            return()
+          }
+          bw_list <- imported_bw_data()
+          bw_list <- append(bw_list, list(import(path))) # 
+          names(bw_list[[length(bw_list)]]) <- input$Profile_Plot_sample_selection
+
+
+          tmp <- imported_sample()
+          tmp <- c(tmp , input$Profile_Plot_sample_selection)
+          imported_sample(tmp)
+          imported_bw_data(bw_list)
+          isCalculating_import(FALSE)
+          output$Profile_Plot_sample_selection_status <- renderText({print(length(imported_bw_data()))})
+          return()
+        })
+
+      # Table of imported sample
+        output$Profile_Plot_imported_sample_table  <- renderDataTable({
+          if (!triggered_import()) {
+            tmp <- data.frame(list('Sample.Name'=character(0)), stringsAsFactors = FALSE)
+            return(datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) )
+          }else if (isCalculating_import()) {
+            tmp <- data.frame(list('Sample.Name'=character(0)), stringsAsFactors = FALSE)
+            return(datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) )
+          }else{
+            if(is.null(imported_bw_data())){
+              tmp <- data.frame(list('SampleName'=character(0)), stringsAsFactors = FALSE)
+              datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+            }else{
+              tmp <- data.frame(list('SampleName'=imported_sample()), stringsAsFactors = FALSE)
+              datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+            }
+          }
+        })
+
       # main calculation
-        bw_list <- reactiveVal(NULL)
-        col_fun <- reactiveVal(NULL)
         heatmap_data_list <- reactiveVal(NULL)
         isCalculating <- reactiveVal(FALSE) 
         triggered <- reactiveVal(FALSE)
         observeEvent(input$Profile_Plot_start, {
           isCalculating(TRUE)
           triggered(TRUE) 
-          target_bw_file <- c('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep1.bw', '/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/THP1_LPS.IFNg.0.5h_Rep2.bw')
-          bw_list <- lapply(target_bw_file, import) # length(bw_list)
-          names(bw_list) <- basename(target_bw_file)
-
+          bw_list <- imported_bw_data()
+          names(bw_list) <- imported_sample()
+          output$Profile_Plot_status <- renderText({print(names(bw_list))})
+          if(is.null(bw_list)){
+            col_fun(NULL)
+            heatmap_data_list(NULL)
+            isCalculating(FALSE)
+          }
           # positions to explore
           genome_position <- unlist(strsplit(input$Profile_Plot_input_coord, split = "\n"))
-          # df_DEG <- read.table('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.10/DESeq2_peak_THP1_UT_vs_LPS.IFNg.0.5h.tsv', sep='\t', header=T) # head(df_DEG)
-          # genome_position <- rownames(df_DEG)[1:500]
           chr_list <- sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[1]][1] )
           Start_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][1] ))
           End_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][2] ))
           target_coordinates <- GRanges(seqnames=Rle(chr_list), ranges=IRanges(start=Start_list, end=End_list), Group='test')
 
-          # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
-          heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
-            normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
-          })
-          heatmap_data_list(heatmap_data_list_tmp)
-
-          # the colour range
-          # col_fun_tmp <- colorRamp2(breaks = c(0, max(unlist(lapply(heatmap_data_list_tmp, function(x) quantile(x,0.98))))), colors=c('white', 'red'))
-          # col_fun(col_fun_tmp)
-
-          output$Profile_Plot_status <- renderText({'test'})
+          # # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
+          # heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
+          #   normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
+          # })
+          # heatmap_data_list(heatmap_data_list_tmp)
+          # output$Profile_Plot_status <- renderText({'test'})
           isCalculating(FALSE)
         })
 
@@ -8153,7 +8349,7 @@ server <- function(input, output, session) {
           }else if (isCalculating()) {
             return(ggplot())
           }else{
-            output$Profile_Plot_status <- renderText({'test5'})
+            # output$Profile_Plot_status <- renderText({'test5'})
             if(is.null(heatmap_data_list())){
               return(ggplot())
             }else{
@@ -8198,14 +8394,14 @@ server <- function(input, output, session) {
                   # border_gp = gpar(lwd=20)
                 )
               })
-              output$Profile_Plot_status <- renderText({'test3'})
+              # output$Profile_Plot_status <- renderText({'test3'})
 
               # heatmapsが空でないことを確認
               if(length(heatmaps) == 0){
                 output$Profile_Plot_status <- renderText({'error'})
                 return(ggplot())
               }else{
-                output$Profile_Plot_status <- renderText({NULL})
+                # output$Profile_Plot_status <- renderText({NULL})
 
                 # 複数のヒートマップを組み合わせる
                 p <- Reduce("+", heatmaps)
@@ -8221,7 +8417,41 @@ server <- function(input, output, session) {
         }, width = reactive(input$Profile_Plot_fig.width), height = reactive(input$Profile_Plot_fig.height), res=300)
 
       #
-    ####
+    #### Gviz plot
+    library(Gviz)
+    library(GenomicRanges)
+      # dataset select
+        output$Gviz_data_select <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
+        })
+        outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
+
+        # positions
+        # Gvis_chr <- reactiveVal({'chr1'})
+        # Gvis_start  <- reactiveVal({100000})
+        # Gvis_end  <- reactiveVal({200000})
+        # observe({
+        #   req(input$Gviz_chromosome_pos)
+        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
+        #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
+        #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
+        #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
+        # })
+
+
+      # Plot
+        output$Gviz_plot <- renderPlot({
+          # Datatrak1 <- AlignmentsTrack('data/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome='hg38')
+          gen='hg38'
+          names(gen) <- 'chr1'
+          chr='chr1'
+          itrack <- IdeogramTrack(genome = gen, chromosome = chr)
+          gtrack <- GenomeAxisTrack()
+          plotTracks(list(itrack, gtrack ), from = 100000, to = 200000, chromosome='chr1')
+        }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
+      #
 
   ###
 
