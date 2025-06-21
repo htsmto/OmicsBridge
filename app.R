@@ -1,3 +1,4 @@
+options(error = recover)
 #### Load packages and setting ####
   suppressMessages(library(htmlwidgets))
   suppressMessages(library(shiny))
@@ -42,7 +43,7 @@
   net <- readRDS('data/OmnipathR_net.rds')
   # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
-  human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = TRUE)
+  human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = FALSE)
 ####
 
 
@@ -450,13 +451,35 @@ ui <- fluidPage(
                                   column(12, withSpinner(plotOutput("Gene_ex_swarm", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                   column(12, h4('') ),
                                   column(12, materialSwitch("Gene_ex_logsclae", "Use a log scale (log2)", value=FALSE, status='danger')),
-                                  column(12, materialSwitch("order_group", "Re-order the X axis (group names)", value=FALSE, status='danger')),
-                                  conditionalPanel( 
-                                    condition = "input.order_group == true",  
-                                    column(12, verbatimTextOutput('Gene_ex_swarm_status2') ),
-                                    column(12, textAreaInput("group_order", "Enter the group name line by line") ),
-                                    column(12, h5('List of the available group names')),
-                                    column(12, verbatimTextOutput("Data_Overview_Swarm_group_name_list") ) 
+                                  column(6,
+                                    fluidRow(
+                                      column(12, materialSwitch("order_group", "Re-order the X axis (group names)", value=FALSE, status='danger')),
+                                      conditionalPanel( 
+                                        condition = "input.order_group == true",  
+                                        column(12, textAreaInput("group_order", "Enter the group name line by line") ),
+                                        column(12, verbatimTextOutput('Gene_ex_swarm_status2') ), 
+                                        column(12, h5('List of the available group names')),
+                                        column(12, verbatimTextOutput("Data_Overview_Swarm_group_name_list") ) 
+                                      )
+                                    )
+                                  ),
+                                  column(6,
+                                    fluidRow(
+                                      column(12, materialSwitch("Gene_ex_swarm_exclude_sample", "Want to exclude specific samples?", value = FALSE, status='danger')),
+                                      conditionalPanel(
+                                        condition = "input.Gene_ex_swarm_exclude_sample == true",
+                                        column(12, textAreaInput("Gene_ex_swarm_exclude_sample_input", "Enter sample names to be excluded (line by line)")),
+                                        column(12, verbatimTextOutput('Gene_ex_swarm_status3') ),
+                                        column(12,
+                                          tags$details(
+                                            tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
+                                            div(
+                                              verbatimTextOutput('Gene_ex_swarm_exclude_sample_input_list')
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
                                   )
                                 )
                               )
@@ -1243,34 +1266,41 @@ ui <- fluidPage(
                                           ),
                                           column(8, 
                                             box(title='Plots & Resutls', collapsible=TRUE, width=12, status='danger',
-                                              fluidRow(column(12, verbatimTextOutput('DecoupeR_plot_status') )),
+                                              fluidRow(
+                                                column(12, helpText("Note: This is only applicable to the RANseq DEG data processed by DESeq2. Please see the wiki for more details.")),
+                                                column(12, verbatimTextOutput('DecoupeR_plot_status') )
+                                              ),
                                               tabsetPanel(
                                                 tabPanel("DecoupeR Plot",
-                                                  fluidRow(column(12, verbatimTextOutput('DecoupeR_plot_status2') )),
-                                                  fluidRow(column(12, plotOutput("DecoupeR_plot", width="100%", height="100%") )),
-                                                  fluidRow(column(2, 
-                                                    dropdownButton( h4(strong("Plot Options")),
-                                                      fluidRow(
-                                                        column(6, sliderInput('DecoupeR_fig.width', 'Fig width', min=500, max=4000, value=1000, step=10)),
-                                                        column(6, sliderInput('DecoupeR_fig.height','Fig height', min=300, max=3000, value=500, step=10))
-                                                      ),
-                                                      fluidRow(
-                                                        column(4, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=10, value=3, step=0.1)),
-                                                        column(4, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=10, value=3, step=0.1)),
-                                                        column(4, sliderInput('DecoupeR_legend.size', 'Legend size', min=1, max=10, value=3, step=0.1)),
-                                                      ),
-                                                      fluidRow(
-                                                        column(4, colourpicker::colourInput('DecoupeR_colour_high', 'High activity colour:', value='indianred')),
-                                                        column(4, colourpicker::colourInput('DecoupeR_colour_low', 'Low activity colour:', value='darkblue')),
-                                                        column(4, colourpicker::colourInput('DecoupeR_colour_mid', 'Zero activity colour:', value='whitesmoke')),
-                                                        column(12, materialSwitch('DecoupeR_white_background', 'Use white background', value=FALSE, status='success'))
-                                                      ),
-                                                      circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options")
+                                                  fluidRow(
+                                                    column(12, h2('')),
+                                                    column(10, verbatimTextOutput('DecoupeR_plot_status2') ),
+                                                    column(2, 
+                                                      dropdownButton( h4(strong("Plot Options")),
+                                                        fluidRow(
+                                                          column(6, sliderInput('DecoupeR_fig.width', 'Fig width', min=500, max=4000, value=1000, step=10)),
+                                                          column(6, sliderInput('DecoupeR_fig.height','Fig height', min=300, max=3000, value=500, step=10))
+                                                        ),
+                                                        fluidRow(
+                                                          column(4, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=10, value=3, step=0.1)),
+                                                          column(4, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=10, value=3, step=0.1)),
+                                                          column(4, sliderInput('DecoupeR_legend.size', 'Legend size', min=1, max=10, value=3, step=0.1)),
+                                                        ),
+                                                        fluidRow(
+                                                          column(4, colourpicker::colourInput('DecoupeR_colour_high', 'High activity colour:', value='indianred')),
+                                                          column(4, colourpicker::colourInput('DecoupeR_colour_low', 'Low activity colour:', value='darkblue')),
+                                                          column(4, colourpicker::colourInput('DecoupeR_colour_mid', 'Zero activity colour:', value='whitesmoke')),
+                                                          column(12, materialSwitch('DecoupeR_white_background', 'Use white background', value=FALSE, status='success'))
+                                                        ),
+                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options")
+                                                      )
                                                     ),
-                                                  ))
+                                                    column(12, withSpinner(plotOutput("DecoupeR_plot", width="100%", height="100%"), type=5, color='#0dc5c1' )  )
+                                                  )
                                                 ),
                                                 tabPanel("Results Table", 
                                                   fluidRow(
+                                                    column(12, h2('')),
                                                     column(12, verbatimTextOutput('DecoupeR_Table_status') ),
                                                     column(12, DT::dataTableOutput("DecoupeR_Table", width="100%", height="100%") )
                                                   ),
@@ -1531,300 +1561,308 @@ ui <- fluidPage(
                     radioButtons("Integrate_data_map_direction", "", choices = c('See the selected genes from Data1 onto Data2'='A', 'See the selected genes from Data2 onto Data1'='B'), selected='A')
                   ),
                 ## Data1
-                box(width=6, title='Data1', collapsible=TRUE, status='primary',
-                  ## data1 selection and setting
-                    fluidRow( 
-                      column(8, htmlOutput("Integrate_data1_select")),
-                      column(2, 
-                        fluidRow(
-                          column(12, h5('')),
-                          column(12, h5('')),
-                          column(12, 
+                  box(width=6, title='Data1', collapsible=TRUE, status='primary',
+                    ## data1 selection and setting
+                      fluidRow( # data selection and filtering button
+                        column(8, htmlOutput("Integrate_data1_select")),
+                        column(2, 
+                          fluidRow(
+                            column(12, h5('')),
+                            column(12, h5('')),
+                            column(12, 
+                              div(id='filterin_dropdown',
+                                dropdownButton( 
+                                  fluidRow(
+                                    column(12, h4(strong("Dataset filtering"))),
+                                    column(12, htmlOutput("Integrate_data1_Seuqenced_by")), 
+                                    column(12, htmlOutput("Integrate_data1_Experiments")), 
+                                    column(12, htmlOutput("Integrate_data1_Data_type"))   
+                                  ),label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "400px",  tooltip = tooltipOptions(title = "Dataset filtering"), right=TRUE
+                                )
+                              ) 
+                            )
+                          )
+                        )
+                      ),                    
+                      fluidRow( column(12, h5(strong('Please select x/y axis:')) )),
+                      fluidRow(  # X/Y axis selection
+                        column(4, htmlOutput("Integrate_data1_Scat.X")), 
+                        column(4, htmlOutput("Integrate_data1_Scat.Y")),
+                        column(4, 
+                          fluidRow(
+                            column(12, h4('')),
+                            column(12, h4('')),
+                            column(12, materialSwitch('Integrate_data1_hide_labels', 'Hide labels', value=TRUE, status='primary')),
+                          )
+                        )
+                      ),
+                    ## data1 plot
+                      fluidRow( 
+                        column(10, verbatimTextOutput('Integrate_data1_plot_status') ),
+                        column(2,
+                          dropdownButton( h4(strong("Plot Options")),
+                            fluidRow(
+                              column(6,sliderInput('Integrate_data1_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                              column(6,sliderInput('Integrate_data1_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                              column(6, sliderInput('Integrate_data1_pt.size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
+                              column(6, sliderInput('Integrate_data1_high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
+                              column(6, sliderInput('Integrate_data1_high.label.size', 'Highlighted labels size', min=0.1, max=5, value=1.5, step=0.1)),
+                              column(6, sliderInput('Integrate_data1_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=0.1)),
+                              column(6, sliderInput('Integrate_data1_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1))
+                            ),
+                            fluidRow(
+                              column(6, materialSwitch('Integrate_data1_while_background', 'Use white background', value=TRUE, status = "success")),
+                              column(6, colourpicker::colourInput('Integrate_data1_colour_id', 'highlighted dots colour:', value='red'))
+                            ),
+                            circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                          )
+                        ),
+                        column(12, withSpinner(plotOutput("Integrate_data1_plot", brush = "Integrate_data1_plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                        column(10,
+                          conditionalPanel(
+                            condition = "input.Integrate_data_map_direction == 'A' ",
                             div(id='filterin_dropdown',
-                              dropdownButton( 
+                              dropdownButton( h4(strong("Gene selection")),
                                 fluidRow(
-                                  column(12, h4(strong("Dataset filtering"))),
-                                  column(12, htmlOutput("Integrate_data1_Seuqenced_by")), 
-                                  column(12, htmlOutput("Integrate_data1_Experiments")), 
-                                  column(12, htmlOutput("Integrate_data1_Data_type"))   
-                                ),label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "400px",  tooltip = tooltipOptions(title = "Dataset filtering"), right=TRUE
+                                  column(4, 
+                                    fluidRow(
+                                      column(12, radioButtons("Integrate_data1_Gene_selection", "Method", choices = c('Use a threshold for filtering'='A', 'Manual selection'='B'), selected='A')),
+                                    )
+                                  ),
+                                  conditionalPanel(
+                                    condition= "input.Integrate_data1_Gene_selection == 'A' ",
+                                    column(8,
+                                      fluidRow(
+                                        column(6, fluidRow( column(12, numericInput('Integrate_data1_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data1_thr_X2', 'X2',  value=-1, step=0.1) ) )),
+                                        column(6, fluidRow( column(12, numericInput('Integrate_data1_thr_Y1', 'Y1', value=1.3, step=0.1) ), column(12, numericInput('Integrate_data1_thr_Y2', 'Y2', value=0, step=0.1) ) )),
+                                        column(6, radioButtons("Integrate_data1_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B')),
+                                        column(6, radioButtons("Integrate_data1_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B')),
+                                        column(6, materialSwitch('Integrate_data1_hide_threshold', 'Hide threshold line', value=FALSE, status='primary')),
+                                      )
+                                    )
+                                  ),
+                                  column(10, verbatimTextOutput('Integrate_data1_selected_gene_num'))
+                                ),
+                                label='Gene selection', circle = FALSE, status = "primary", icon = icon("sliders"), width = "800px",  tooltip = tooltipOptions(title = "Gene selection")
                               )
                             ) 
                           )
                         )
                       )
-                    ),                    
-                    fluidRow( column(12, h5(strong('Please select x/y axis:')) )),
-                    fluidRow( 
-                      column(4, htmlOutput("Integrate_data1_Scat.X")), 
-                      column(4, htmlOutput("Integrate_data1_Scat.Y")),
-                      column(4, 
-                        fluidRow(
-                          column(12, h4('')),
-                          column(12, h4('')),
-                          column(12, materialSwitch('Integrate_data1_hide_labels', 'Hide labels', value=TRUE, status='primary')),
-                        )
-                      )
-                    ),
-                  ## data1 plot
-                    fluidRow( 
-                      column(12, verbatimTextOutput('Integrate_data1_plot_status') ),
-                      column(12, plotOutput("Integrate_data1_plot", brush = "Integrate_data1_plot_brush", width="100%", height="100%") ),
-                      column(10,
-                        conditionalPanel(
-                          condition = "input.Integrate_data_map_direction == 'A' ",
-                          div(id='filterin_dropdown',
-                            dropdownButton( h4(strong("Gene selection")),
-                              fluidRow(
-                                column(4, 
-                                  fluidRow(
-                                    column(12, radioButtons("Integrate_data1_Gene_selection", "Method", choices = c('Use a threshold for filtering'='A', 'Manual selection'='B'), selected='A')),
-                                  )
-                                ),
-                                conditionalPanel(
-                                  condition= "input.Integrate_data1_Gene_selection == 'A' ",
-                                  column(8,
-                                    fluidRow(
-                                      column(6, fluidRow( column(12, numericInput('Integrate_data1_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data1_thr_X2', 'X2',  value=-1, step=0.1) ) )),
-                                      column(6, fluidRow( column(12, numericInput('Integrate_data1_thr_Y1', 'Y1', value=1.3, step=0.1) ), column(12, numericInput('Integrate_data1_thr_Y2', 'Y2', value=0, step=0.1) ) )),
-                                      column(6, radioButtons("Integrate_data1_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B')),
-                                      column(6, radioButtons("Integrate_data1_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B')),
-                                      column(6, materialSwitch('Integrate_data1_hide_threshold', 'Hide threshold line', value=FALSE, status='primary')),
-                                    )
-                                  )
-                                ),
-                                column(10, verbatimTextOutput('Integrate_data1_selected_gene_num'))
-                              ),
-                              label='Gene selection', circle = FALSE, status = "primary", icon = icon("sliders"), width = "600px",  tooltip = tooltipOptions(title = "Gene selection")
-                            )
-                          ) 
-                        )
-                      ),
-                      column(2,
-                        dropdownButton( h4(strong("Plot Options")),
-                          fluidRow(
-                            column(6,sliderInput('Integrate_data1_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                            column(6,sliderInput('Integrate_data1_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Integrate_data1_pt.size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
-                            column(6, sliderInput('Integrate_data1_high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
-                            column(6, sliderInput('Integrate_data1_high.label.size', 'Highlighted labels size', min=0.1, max=5, value=1.5, step=0.1)),
-                            column(6, sliderInput('Integrate_data1_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=0.1)),
-                            column(6, sliderInput('Integrate_data1_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1))
-                          ),
-                          fluidRow(
-                            column(6, materialSwitch('Integrate_data1_while_background', 'Use white background', value=TRUE, status = "success")),
-                            column(6, colourpicker::colourInput('Integrate_data1_colour_id', 'highlighted dots colour:', value='red'))
-                          ),
-                          circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
-                        )
-                      )
-                    )
-                  ##
-                ),
+                    ##
+                  ),
                 ## Data2
-                box(width=6, title='Data2', collapsible=TRUE, status='primary',
-                  ## data2 selection and setting
-                    fluidRow( 
-                      column(8, htmlOutput("Integrate_data2_select")),
-                      column(2, 
-                        fluidRow(
-                          column(12, h5('')),
-                          column(12, h5('')),
-                          column(12, 
-                            div(id='filterin_dropdown',
-                              dropdownButton( 
-                                fluidRow(
-                                  column(12, h4(strong("Dataset filtering"))),
-                                  column(12, htmlOutput("Integrate_data2_Seuqenced_by")), 
-                                  column(12, htmlOutput("Integrate_data2_Experiments")), 
-                                  column(12, htmlOutput("Integrate_data2_Data_type"))   
-                                ),label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "400px",  tooltip = tooltipOptions(title = "Dataset filtering"), right=TRUE
-                              )
-                            ) 
-                          ),
-                        )
-                      )
-                    ),
-                    fluidRow( column(12, h5(strong('Please select x/y axis:')))),
-                    fluidRow( 
-                      column(4, htmlOutput("Integrate_data2_Scat.X")), 
-                      column(4, htmlOutput("Integrate_data2_Scat.Y")),
-                      column(4,
-                        fluidRow(
-                          column(12, h4('')),
-                          column(12, h4('')),
-                          column(12, materialSwitch('Integrate_data2_hide_labels', 'Hide labels', value=TRUE, status='primary')),
-                        )
-                      )
-                    ),
-                  ## data2 plot
-                    fluidRow( 
-                      column(12, verbatimTextOutput('Integrate_data2_plot_status') ),
-                      column(12, plotOutput("Integrate_data2_plot", brush = "Integrate_data2_plot_brush", width="100%", height="100%") ),
-                      column(10,
-                        conditionalPanel(
-                          condition = "input.Integrate_data_map_direction == 'B' ",
-                          div(id='filterin_dropdown',
-                            dropdownButton( h4(strong("Gene selection")),
-                              fluidRow(
-                                column(4, 
+                  box(width=6, title='Data2', collapsible=TRUE, status='primary',
+                    ## data2 selection and setting
+                      fluidRow(  # data selection and filtering button
+                        column(8, htmlOutput("Integrate_data2_select")),
+                        column(2, 
+                          fluidRow(
+                            column(12, h5('')),
+                            column(12, h5('')),
+                            column(12, 
+                              div(id='filterin_dropdown',
+                                dropdownButton( 
                                   fluidRow(
-                                    column(12, radioButtons("Integrate_data2_Gene_selection", "Method", choices = c('Use a threshold for filtering'='A', 'Manual selection'='B'), selected='A')),
-                                  ),
-                                ),
-                                conditionalPanel(
-                                  condition= "input.Integrate_data2_Gene_selection == 'A' ",
-                                  column(8,
-                                    fluidRow(
-                                      column(6, fluidRow( column(12, numericInput('Integrate_data2_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data2_thr_X2', 'X2',  value=-1, step=0.1) ) )),
-                                      column(6, fluidRow( column(12, numericInput('Integrate_data2_thr_Y1', 'Y1', value=1.3, step=0.1) ), column(12, numericInput('Integrate_data2_thr_Y2', 'Y2', value=0, step=0.1) ) )),
-                                      column(6, radioButtons("Integrate_data2_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B')),
-                                      column(6, radioButtons("Integrate_data2_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B')),
-                                      column(6, checkboxInput('Integrate_data2_hide_threshold', 'Hide threshold line', value=FALSE)),
-                                    )
-                                  )
-                                ),
-                                column(10, verbatimTextOutput('Integrate_data2_selected_gene_num'))
-                              ),
-                              label='Gene selection', circle = FALSE, status = "primary", icon = icon("sliders"), width = "600px",  tooltip = tooltipOptions(title = "Gene selection")
-                            )
-                          )   
+                                    column(12, h4(strong("Dataset filtering"))),
+                                    column(12, htmlOutput("Integrate_data2_Seuqenced_by")), 
+                                    column(12, htmlOutput("Integrate_data2_Experiments")), 
+                                    column(12, htmlOutput("Integrate_data2_Data_type"))   
+                                  ),label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "400px",  tooltip = tooltipOptions(title = "Dataset filtering"), right=TRUE
+                                )
+                              ) 
+                            ),
+                          )
                         )
                       ),
-                      column(2,
-                        dropdownButton( h4(strong("Plot Options")),
+                      fluidRow( column(12, h5(strong('Please select x/y axis:')))),
+                      fluidRow( # X/Y axis selection
+                        column(4, htmlOutput("Integrate_data2_Scat.X")), 
+                        column(4, htmlOutput("Integrate_data2_Scat.Y")),
+                        column(4,
                           fluidRow(
-                            column(6,sliderInput('Integrate_data2_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                            column(6,sliderInput('Integrate_data2_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                            column(6, sliderInput('Integrate_data2_pt.size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
-                            column(6, sliderInput('Integrate_data2_high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
-                            column(6, sliderInput('Integrate_data2_high.label.size', 'Highlighted labels size', min=0.1, max=5, value=1.5, step=0.1)),
-                            column(6, sliderInput('Integrate_data2_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=0.1)),
-                            column(6, sliderInput('Integrate_data2_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1)),
-                          ),
-                          fluidRow(
-                            column(6, materialSwitch('Integrate_data2_while_background', 'Use white background', value=TRUE, status = "success")),
-                            column(6, colourpicker::colourInput('Integrate_data2_colour_id', 'highlighted dots colour:', value='red'))
-                          ),
-                          circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                            column(12, h4('')),
+                            column(12, h4('')),
+                            column(12, materialSwitch('Integrate_data2_hide_labels', 'Hide labels', value=TRUE, status='primary')),
+                          )
                         )
-                      )
+                      ),
+                    ## data2 plot
+                      fluidRow( 
+                        column(10, verbatimTextOutput('Integrate_data2_plot_status') ),
+                        column(2,
+                          dropdownButton( h4(strong("Plot Options")),
+                            fluidRow(
+                              column(6,sliderInput('Integrate_data2_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                              column(6,sliderInput('Integrate_data2_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                              column(6, sliderInput('Integrate_data2_pt.size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
+                              column(6, sliderInput('Integrate_data2_high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
+                              column(6, sliderInput('Integrate_data2_high.label.size', 'Highlighted labels size', min=0.1, max=5, value=1.5, step=0.1)),
+                              column(6, sliderInput('Integrate_data2_label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=0.1)),
+                              column(6, sliderInput('Integrate_data2_title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1)),
+                            ),
+                            fluidRow(
+                              column(6, materialSwitch('Integrate_data2_while_background', 'Use white background', value=TRUE, status = "success")),
+                              column(6, colourpicker::colourInput('Integrate_data2_colour_id', 'highlighted dots colour:', value='red'))
+                            ),
+                            circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                          )
+                        ),
+                        column(12, withSpinner(plotOutput("Integrate_data2_plot", brush = "Integrate_data2_plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                        column(10,
+                          conditionalPanel(
+                            condition = "input.Integrate_data_map_direction == 'B' ",
+                            div(id='filterin_dropdown',
+                              dropdownButton( h4(strong("Gene selection")),
+                                fluidRow(
+                                  column(4, 
+                                    fluidRow(
+                                      column(12, radioButtons("Integrate_data2_Gene_selection", "Method", choices = c('Use a threshold for filtering'='A', 'Manual selection'='B'), selected='A')),
+                                    ),
+                                  ),
+                                  conditionalPanel(
+                                    condition= "input.Integrate_data2_Gene_selection == 'A' ",
+                                    column(8,
+                                      fluidRow(
+                                        column(6, fluidRow( column(12, numericInput('Integrate_data2_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data2_thr_X2', 'X2',  value=-1, step=0.1) ) )),
+                                        column(6, fluidRow( column(12, numericInput('Integrate_data2_thr_Y1', 'Y1', value=1.3, step=0.1) ), column(12, numericInput('Integrate_data2_thr_Y2', 'Y2', value=0, step=0.1) ) )),
+                                        column(6, radioButtons("Integrate_data2_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B')),
+                                        column(6, radioButtons("Integrate_data2_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B')),
+                                        column(6, checkboxInput('Integrate_data2_hide_threshold', 'Hide threshold line', value=FALSE)),
+                                      )
+                                    )
+                                  ),
+                                  column(10, verbatimTextOutput('Integrate_data2_selected_gene_num'))
+                                ),
+                                label='Gene selection', circle = FALSE, status = "primary", icon = icon("sliders"), width = "800px",  tooltip = tooltipOptions(title = "Gene selection")
+                              )
+                            )   
+                          )
+                        )
+                    ),
+                    ##
                   ),
-                  ##
-                ),
                 ## display overlap genes
-                box(width=12, title='Overlap genes', collapsible=TRUE, status='warning', collapsed = TRUE,
-                  fluidRow(
-                    column(12, 
-                      helpText(HTML('A list of genes that meet the filter settings in both datasets is displayed here.
-                        <br>Please set the threshoolds for the data to which the selected genes are mapped.'))
+                  box(width=12, title='Overlap genes', collapsible=TRUE, status='warning', collapsed = TRUE,
+                    fluidRow(
+                      column(12, 
+                        helpText(HTML('A list of genes that meet the filter settings in both datasets is displayed here.
+                          <br>Please set the threshoolds for the data to which the selected genes are mapped.'))
+                      )
+                    ),
+                    fluidRow(
+                      column(12, 
+                        div(id='filterin_dropdown',
+                          dropdownButton( 
+                            fluidRow( column(12, h4(strong('Set the filtering for the mapped side'))),
+                              column(3, fluidRow( column(12, numericInput('Integrate_data_mapped_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data_mapped_thr_X2', 'X2',  value=-1, step=0.1) ) ) ), 
+                              column(3, fluidRow( column(12, numericInput('Integrate_data_mapped_thr_Y1', 'Y1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data_mapped_thr_Y2', 'Y2',  value=-1, step=0.1) ) )  ),
+                              column(3, radioButtons("Integrate_data_mapped_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='A')),
+                              column(3, radioButtons("Integrate_data_mapped_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='A')),
+                              column(6, materialSwitch('Integrate_data_mapped_hide_threshold', 'Hide threshold line', value=FALSE, status='primary'))
+                            ),label='The filtering for the mapped side', circle = FALSE, status = "primary", icon = icon("sliders"), width = "900px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                          )
+                        ) 
+                      )
+                    ),
+                    fluidRow(column(12, h5(''))),
+                    fluidRow(
+                      column(12, h4('Overlap genes table') ),
+                      column(12, verbatimTextOutput('Integrate_Overlapped_gene_table_status') ),
+                      column(12, dataTableOutput("Integrate_Overlapped_gene_table") ),
+                    ),
+                    fluidRow(
+                      column(3, downloadButton('Integrate_Overlapped_gene_table_download',"Download this table")),
+                      column(5, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_Overlapped_gene_list') ))
                     )
-                  ),
-                  fluidRow(
-                    column(12, 
-                      div(id='filterin_dropdown',
-                        dropdownButton( 
-                          fluidRow( column(12, h4(strong('Set the filtering for the mapped side'))),
-                            column(3, fluidRow( column(12, numericInput('Integrate_data_mapped_thr_X1', 'X1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data_mapped_thr_X2', 'X2',  value=-1, step=0.1) ) ) ), 
-                            column(3, fluidRow( column(12, numericInput('Integrate_data_mapped_thr_Y1', 'Y1',  value=1, step=0.1) ), column(12, numericInput('Integrate_data_mapped_thr_Y2', 'Y2',  value=-1, step=0.1) ) )  ),
-                            column(3, radioButtons("Integrate_data_mapped_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='A')),
-                            column(3, radioButtons("Integrate_data_mapped_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='A')),
-                            column(6, materialSwitch('Integrate_data_mapped_hide_threshold', 'Hide threshold line', value=FALSE, status='primary'))
-                          ),label='The filtering for the mapped side', circle = FALSE, status = "primary", icon = icon("sliders"), width = "900px",  tooltip = tooltipOptions(title = "Dataset filtering")
-                        )
-                      ) 
-                    )
-                  ),
-                  fluidRow(column(12, h5(''))),
-                  fluidRow(
-                    column(12, h4('Overlap genes table') ),
-                    column(12, verbatimTextOutput('Integrate_Overlapped_gene_table_status') ),
-                    column(12, dataTableOutput("Integrate_Overlapped_gene_table") ),
-                  ),
-                  fluidRow(
-                    column(3, downloadButton('Integrate_Overlapped_gene_table_download',"Download this table")),
-                    column(5, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_Overlapped_gene_list') ))
                   )
-                )
+                ##
               ),
             ## integration plot
               box(width=12, title='Integration Plot', collapsible=TRUE, status='primary', solidHeader = TRUE,
-                box(width=6, title='Plot', status='danger', 
-                  fluidRow( 
-                    column(6, htmlOutput("Integrate_data1_plus_2_Scat.X")), 
-                    column(6, htmlOutput("Integrate_data1_plus_2_Scat.Y")),
-                  ),
-                  fluidRow(
-                    column(6, htmlOutput("Integrate_data1_plus_2_Scat.colour"))
-                  ),
-                  fluidRow(
-                    column(12, verbatimTextOutput('Integrate_data1_plus_2_plot_status')),
-                    column(12, plotOutput("Integrate_data1_plus_2_plot", brush = "Integrate_data1_plus_2_plot_brush", width="100%", height="100%"))
-                  ),
-                  fluidRow(
-                    column(2,
-                      dropdownButton( h4(strong("Plot Options")),
-                        fluidRow(
-                          column(6,sliderInput('Integrate_data1_plus_2_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
-                          column(6,sliderInput('Integrate_data1_plus_2_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                          column(6,sliderInput('Integrate_data1_plus_2_XY_label_size', 'X/Y label size', min=1, max=10, value=5, step=0.1)),
-                          column(6,sliderInput('Integrate_data1_plus_2_XY_title_size', 'X/Y title size', min=1, max=10, value=5, step=0.1)),
-                          column(6,sliderInput('Integrate_data1_plus_2_dot_label_size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
-                          column(6,sliderInput('Integrate_data1_plus_2_highlight_dot_size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
-                          column(6,sliderInput('Integrate_data1_plus_2_id_size', 'Label size', min=0.1, max=5, value=1, step=0.1)),
+                fluidRow(
+                  column(6, # Plot
+                    box(width=12, title='Plot', status='danger', 
+                      fluidRow( 
+                        column(6, htmlOutput("Integrate_data1_plus_2_Scat.X")), 
+                        column(6, htmlOutput("Integrate_data1_plus_2_Scat.Y")),
+                        column(6, htmlOutput("Integrate_data1_plus_2_Scat.colour"))
+                      ),
+                      fluidRow(
+                        column(10, verbatimTextOutput('Integrate_data1_plus_2_plot_status')),
+                        column(2,
+                          dropdownButton( h4(strong("Plot Options")),
+                            fluidRow(
+                              column(6,sliderInput('Integrate_data1_plus_2_fig.width', 'Fig width', min=300, max=3000, value=500, step=10)),
+                              column(6,sliderInput('Integrate_data1_plus_2_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                              column(6,sliderInput('Integrate_data1_plus_2_XY_label_size', 'X/Y label size', min=1, max=10, value=5, step=0.1)),
+                              column(6,sliderInput('Integrate_data1_plus_2_XY_title_size', 'X/Y title size', min=1, max=10, value=5, step=0.1)),
+                              column(6,sliderInput('Integrate_data1_plus_2_dot_label_size', 'Point size', min=0.01, max=5, value=0.1, step=0.01)),
+                              column(6,sliderInput('Integrate_data1_plus_2_highlight_dot_size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
+                              column(6,sliderInput('Integrate_data1_plus_2_id_size', 'Label size', min=0.1, max=5, value=1, step=0.1)),
+                            ),
+                            fluidRow(
+                              column(6, materialSwitch('Integrate_data1_plus_2_white_background', 'Use white background', value=FALSE, status='success'))
+                            ),
+                            circle = FALSE, status = "success", icon = icon("gear"), width = "600px",   tooltip = tooltipOptions(title = "Plot Options")
+                          )
                         ),
-                        fluidRow(
-                          column(6, materialSwitch('Integrate_data1_plus_2_white_background', 'Use white background', value=FALSE, status='success'))
-                        ),
-                        circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                        column(12, withSpinner(plotOutput("Integrate_data1_plus_2_plot", brush = "Integrate_data1_plus_2_plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1'))
                       )
                     )
                   ),
-
-                ),
-                box(width=6, title='Display options', collapsible=TRUE,status='info',
-                  fluidRow(
-                    column(9, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
+                  column(6,  # Display options
+                    box(width=12, title='Display options', collapsible=TRUE,status='info',
+                      fluidRow(
+                        column(9, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
+                      ),
+                      fluidRow(
+                        column(12, h4('Filtering')),
+                        column(6, 
+                          fluidRow(
+                            column(12, numericInput('Integrate_data1_plus_2_plot_xthr1', 'X threshold 1 (X1)', value=1, step=0.1 ) ),
+                            column(12, numericInput('Integrate_data1_plus_2_plot_xthr2', 'X threshold 2 (X2)', value=-1, step=0.1 ) )
+                          ),
+                          fluidRow(
+                            column(12, radioButtons('Integrate_data1_plus_2_plot_xselect', 'Select how to filter X', choices=c("None"= "E", "X > X1" = "A", "X < X2"= "B", "X2 < X < X1"="C", "X < X2 or X > X1"="D"), selected="E"))
+                          )
+                        ),
+                        column(6, 
+                          fluidRow(
+                            column(12, numericInput('Integrate_data1_plus_2_plot_ythr1', 'Y threshold 1 (Y1)', value=1, step=0.1 ) ),
+                            column(12, numericInput('Integrate_data1_plus_2_plot_ythr2', 'Y threshold 2 (Y2)', value=-1, step=0.1 ) )
+                          ),
+                          fluidRow(
+                            column(12, radioButtons('Integrate_data1_plus_2_plot_yselect', 'Select how to filter Y', choices=c("None"= "E", "Y > Y1" = "A", "Y < Y2"="B", "Y2 < Y < Y1"="C", "Y < Y2 or Y > Y1"="D"), selected="E"))
+                          )
+                        ),
+                        column(12, materialSwitch('Integrate_data1_plus_2_plot_filter_label', 'Hide labels', value=FALSE, status='info') )
+                      )
+                    )
                   ),
-                  fluidRow(
-                    column(12, h4('Filtering')),
-                    column(6, 
+                  column(12, # Filtered area
+                    box(width=12, title='Filtered area', collapsible=TRUE, collapsed=TRUE,status='warning',
+                      fluidRow(column(12, verbatimTextOutput('Integrate_data1_plus_2_filtered_status'))),
+                      fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_filtered"))),
+                      fluidRow(column(12, h4(''))),
                       fluidRow(
-                        column(12, numericInput('Integrate_data1_plus_2_plot_xthr1', 'X threshold 1 (X1)', value=1, step=0.1 ) ),
-                        column(12, numericInput('Integrate_data1_plus_2_plot_xthr2', 'X threshold 2 (X2)', value=-1, step=0.1 ) )
-                      ),
-                      fluidRow(
-                        column(12, radioButtons('Integrate_data1_plus_2_plot_xselect', 'Select how to filter X', choices=c("None"= "E", "X > X1" = "A", "X < X2"= "B", "X2 < X < X1"="C", "X < X2 or X > X1"="D"), selected="E"))
+                        column(4, downloadButton('Integrate_data1_plus_2_filtered_download',"Download this table")),
+                        column(4, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
                       )
-                    ),
-                    column(6, 
+                    )
+                  ),
+                  column(12, #Selected area
+                    box(width=12, title='Selected area', collapsible=TRUE,status='warning',
+                      fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
                       fluidRow(
-                        column(12, numericInput('Integrate_data1_plus_2_plot_ythr1', 'Y threshold 1 (Y1)', value=1, step=0.1 ) ),
-                        column(12, numericInput('Integrate_data1_plus_2_plot_ythr2', 'Y threshold 2 (Y2)', value=-1, step=0.1 ) )
-                      ),
-                      fluidRow(
-                        column(12, radioButtons('Integrate_data1_plus_2_plot_yselect', 'Select how to filter Y', choices=c("None"= "E", "Y > Y1" = "A", "Y < Y2"="B", "Y2 < Y < Y1"="C", "Y < Y2 or Y > Y1"="D"), selected="E"))
+                        column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
+                        column(4, 
+                          box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') )
+                        )
                       )
-                    ),
-                    column(12, checkboxInput('Integrate_data1_plus_2_plot_filter_label', 'Hide labels', value=FALSE) )
+                    )
                   )
-                ),
-                box(width=6, title='Filtered area', collapsible=TRUE, collapsed=TRUE,status='warning',
-                  fluidRow(column(12, verbatimTextOutput('Integrate_data1_plus_2_filtered_status'))),
-                  fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_filtered"))),
-                  fluidRow(column(12, h4(''))),
-                  fluidRow(
-                    column(4, downloadButton('Integrate_data1_plus_2_filtered_download',"Download this table")),
-                    column(7, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_filtered_gene_list') ))
-                  )
-                ),
-                box(width=6, title='Selected area', collapsible=TRUE,status='warning',
-                  fluidRow(column(12, dataTableOutput("Integrate_data1_plus_2_selected"))),
-                  fluidRow(
-                    column(4, downloadButton('Integrate_data1_plus_2_selected_download',"Download this table")),
-                    column(8, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Integrate_data1_plus_2_selected_gene_list') ))
-                  )
-                ),
+                )
               )
             ##
           ),
@@ -3236,9 +3274,6 @@ ui <- fluidPage(
         #### IGV ####
           tabItem( tabName='igv',
             h2(' Genome Browser (IGV)'),
-            box( width=12, title='Data selection', status='info', solidHeader = TRUE,
-
-            ),
             box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
               tabsetPanel(
                 tabPanel( 'Prifile plot',
@@ -3336,42 +3371,42 @@ ui <- fluidPage(
                       )
                     )
                   )
-                ),
-                tabPanel('Genome visualisation',
-                  h4(''),
-                  fluidRow(
-                    column(4,
-                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
-                        fluidRow(
-                          column(12, htmlOutput('Gviz_data_select')),
-                          column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
-                        )
-                      )
-                    ),
-                    column(8,
-                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
-                        fluidRow(
-                          column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
-                          column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
-                          column(10, verbatimTextOutput('Gviz_plot_status') ),
-                          column(2, 
-                            dropdownButton( h4(strong("Plot Options")),
-                              fluidRow(
-                                column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
-                                column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                                column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                                column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
-                                column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
-                              ),
-                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
-                            )
-                          ),
-                          column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
-                        )
-                      )
-                    )
-                  )
                 )
+                # tabPanel('Genome visualisation',
+                #   h4(''),
+                #   fluidRow(
+                #     column(4,
+                #       box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                #         fluidRow(
+                #           column(12, htmlOutput('Gviz_data_select')),
+                #           column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                #         )
+                #       )
+                #     ),
+                #     column(8,
+                #       box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                #         fluidRow(
+                #           column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
+                #           column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                #           column(10, verbatimTextOutput('Gviz_plot_status') ),
+                #           column(2, 
+                #             dropdownButton( h4(strong("Plot Options")),
+                #               fluidRow(
+                #                 column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                #                 column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                #                 column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                #                 column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                #                 column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                #               ),
+                #               circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                #             )
+                #           ),
+                #           column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
+                #         )
+                #       )
+                #     )
+                #   )
+                # )
               )
             )
           ),
@@ -3713,7 +3748,7 @@ ui <- fluidPage(
 )
 
 
-
+rm(tags, envir = .GlobalEnv)
 
 ##############################################################################
 server <- function(input, output, session) {
@@ -3747,7 +3782,7 @@ server <- function(input, output, session) {
   
     #### Show the data list ####
       Dataset <- reactiveVal({
-        tmp <- read.delim('data/Database.tsv', sep='\t', header=T,check.names = TRUE)
+        tmp <- read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE)
         data.frame(tmp)
       })
       output$Data_type_filter <- renderUI({ 
@@ -3779,8 +3814,14 @@ server <- function(input, output, session) {
         # output$status <- renderText(paste(as.character(info$row), as.character(info$col), as.character(info$value)))
         tmp <- Dataset()
         a <- tmp[info$row, info$col]
-        tmp[info$row, info$col] <- info$value
-        output$status <- renderText(paste0("'",a, "'", ' -> ', "'", info$value ,"'" ))
+        if (!is.null(info$row) && !is.null(info$col) && !is.null(info$value) &&
+            info$row > 0 && info$row <= nrow(tmp) &&
+            info$col > 0 && info$col <= ncol(tmp)) {
+          tmp[info$row, info$col] <- info$value
+        } else {
+          output$status <- renderText("Invalid cell edit detected.")
+        }
+        output$status <- renderText(paste0("'", a, "'", ' -> ', "'", info$value ,"'" ))
         tmp <- tmp[order(tmp$Added.When,decreasing =T),]
         Dataset(tmp)
         replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
@@ -3788,7 +3829,7 @@ server <- function(input, output, session) {
 
     #### save changes when you push the button ####
       observeEvent(input$save_dt,{
-        write.table(Dataset(), 'Database.tsv', row.names=F, sep='\t', quote=F)
+        write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
         output$status <- renderText('saved!')
       })
 
@@ -3808,7 +3849,7 @@ server <- function(input, output, session) {
           }
           Dataset(tmp)
           replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
-          write.table(Dataset(), 'Database.tsv', row.names=F, sep='\t', quote=F)
+          write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
           output$status <- renderText('Deleted!')
         }else{
           output$status <- renderText('No row selecetd!')
@@ -3816,128 +3857,132 @@ server <- function(input, output, session) {
       })
 
     #### data upload ####
-      output$upload_data_preview_status <- renderText({"Please upload the file. The top 10 lines of the file (header) will be displayed here."})
-      output$upload_data_preview <- renderDataTable({ 
-        req(input$upload_file)
-        extension <- strsplit(input$upload_file$datapath, '\\.')[[1]][ length(strsplit(input$upload_file$datapath, '\\.')[[1]]) ]
-        if(extension == 'tsv' | extension == 'txt'){
-          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = TRUE)
-          if(!'id' %in% colnames(gx_table)){
-            output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+      # show a preview
+        output$upload_data_preview_status <- renderText({"Please upload the file. The top 10 lines of the file (header) will be displayed here."})
+        output$upload_data_preview <- renderDataTable({ 
+          req(input$upload_file)
+          extension <- strsplit(input$upload_file$datapath, '\\.')[[1]][ length(strsplit(input$upload_file$datapath, '\\.')[[1]]) ]
+          if(extension == 'tsv' | extension == 'txt'){
+            gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
+            if(!'id' %in% colnames(gx_table)){
+              output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+            }else{
+              output$status_upload <- renderText({NULL})
+            }
+            output$upload_data_preview_status <- renderText({NULL})
+            return(datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )))
           }else{
-            output$status_upload <- renderText({NULL})
+            output$upload_data_preview_status <- renderText({"Cannot show the preview of the uploaded file due to the file type. \nEither a TSV or TXT file can be previewed."})
+            return(NULL)
           }
-          output$upload_data_preview_status <- renderText({NULL})
-          datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-        }else{
-          output$upload_data_preview_status <- renderText({"Cannot show the preview of the uploaded file due to the file type."})
-          return(NULL)
-        }
-      })
+        })
 
-      output$upload_data_type_select <- renderUI({
-        selectInput("upload_data_type_select_select", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA"), choices=c('--Select from the below--', unique(Dataset()$Data.type), 'Other'), selected='None')
-      })
+      # data type selection
+        output$upload_data_type_select <- renderUI({
+          selectInput("upload_data_type_select_select", HTML("Data type * <br/> Ex.) Count data, DEG data, scRNA"), choices=c('--Select from the below--', unique(Dataset()$Data.type), 'Other'), selected='None')
+        })
 
-      output$upload_data_type <- renderUI({
-        if(length(input$upload_data_type_select_select) > 0){
+        output$upload_data_type <- renderUI({
+          if(length(input$upload_data_type_select_select) > 0){
+            if(input$upload_data_type_select_select == 'Other'){
+              textInput("upload_data_type_manual", "Write the data type here")
+            }
+          }
+        })
+
+      # upload data upon clicking the button
+        observeEvent(input$upload_data,{
+          if(is.null(input$upload_file)){
+            output$status_upload <- renderText('Please upload a file!')
+            show_alert(title='Error.',text='Please upload a file!', type='error')
+            return()
+          }
+          req(input$upload_file)
+          uploaded_file <- input$upload_file
+          # detail
+          dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
           if(input$upload_data_type_select_select == 'Other'){
-            textInput("upload_data_type_manual", "Write the data type here")
+            data.type.upload <- unlist(strsplit(input$upload_data_type_manual, split = "\n"))[1]
+          }else{
+            data.type.upload <- input$upload_data_type_select_select
           }
-        }
-      })
-
-
-      observeEvent(input$upload_data,{
-        if(is.null(input$upload_file)){
-          output$status_upload <- renderText('Please upload a file!')
-          show_alert(title='Error.',text='Please upload a file!', type='error')
-          return()
-        }
-        req(input$upload_file)
-        uploaded_file <- input$upload_file
-        # detail
-        dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
-        if(input$upload_data_type_select_select == 'Other'){
-          data.type.upload <- unlist(strsplit(input$upload_data_type_manual, split = "\n"))[1]
-        }else{
-          data.type.upload <- input$upload_data_type_select_select
-        }
-        cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
-        Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
-        When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
-        Description <- unlist(strsplit(input$upload_description, split = "\n"))[1]
-        Experiment.upload <- unlist(strsplit(input$upload_Experiment, split = "\n"))[1]
-        Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
-        Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
-        Data.Class.upload <- input$upload_Data_Class
-        if(Data.Class.upload != 'B'){
-          Control.group.upload <- ''
-          Treatment.group.upload <- ''
-        }
-        if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 |  input$upload_data_type_select_select == '--Select from the below--' ){
-          output$status_upload <- renderText('* is a mandatory filed!')
-          show_alert(title='Error.',text='* is a mandatory filed!', type='error')
-          return()
-        }else if(dataset.name.upload %in% Dataset()$Dataset){
-          output$status_upload <- renderText('The Dataset name is duplicated!')
-          show_alert(title='Error.',text='The Dataset name is duplicated!', type='error')
-          return()
-        }else if (str_detect(dataset.name.upload, "[;/,!@#$%]")) {
-          output$status_upload <- renderText('The Dataset name cannot contain "/ , ! # @ $ % " !')
-          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
-          return()
-        }else if (str_detect(Experiment.upload, "[;/,!@#$%]")) {
-          output$status_upload <- renderText('The Experiment name cannot contain "/ , ! # @ $ % " !')
-          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
-          return()
-        }else if (str_detect(Data.from.upload, "[;/,!@#$%]")) {
-          output$status_upload <- renderText('The Data.from cannot contain "/ , ! # @ $ % " !')
-          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
-          return()
-        }else if (str_detect(data.type.upload, "[;/,!@#$%]")) {
-          output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
-          show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
-          return()
-        }else if(input$upload_data_type_select_select == 'Other'){
-          if(nchar(input$upload_data_type_manual)==0){
+          cellline.upload <- unlist(strsplit(input$upload_cell_line, split = "\n"))[1]
+          Data.from.upload <- unlist(strsplit(input$upload_data_from, split = "\n"))[1]
+          When.upload <- unlist(strsplit(input$upload_when, split = "\n"))[1]
+          Description <- unlist(strsplit(input$upload_description, split = "\n"))[1]
+          Experiment.upload <- unlist(strsplit(input$upload_Experiment, split = "\n"))[1]
+          Control.group.upload <- unlist(strsplit(input$upload_Control_group, split = "\n"))[1]
+          Treatment.group.upload <- unlist(strsplit(input$upload_Treatment_group, split = "\n"))[1]
+          Data.Class.upload <- input$upload_Data_Class
+          if(Data.Class.upload != 'B'){
+            Control.group.upload <- ''
+            Treatment.group.upload <- ''
+          }
+          if(nchar(input$upload_dataset_name)==0 | nchar(input$upload_data_from)==0 | nchar(input$upload_Experiment)==0 |  input$upload_data_type_select_select == '--Select from the below--' ){
             output$status_upload <- renderText('* is a mandatory filed!')
             show_alert(title='Error.',text='* is a mandatory filed!', type='error')
             return()
-          }
-        }else{
-          gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = TRUE)
-          if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
-            if(!'id' %in% colnames(gx_table)){
-              output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
-              show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
+          }else if(dataset.name.upload %in% Dataset()$Dataset){
+            output$status_upload <- renderText('The Dataset name is duplicated!')
+            show_alert(title='Error.',text='The Dataset name is duplicated!', type='error')
+            return()
+          }else if (str_detect(dataset.name.upload, "[;/,!@#$%]")) {
+            output$status_upload <- renderText('The Dataset name cannot contain "/ , ! # @ $ % " !')
+            show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+            return()
+          }else if (str_detect(Experiment.upload, "[;/,!@#$%]")) {
+            output$status_upload <- renderText('The Experiment name cannot contain "/ , ! # @ $ % " !')
+            show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+            return()
+          }else if (str_detect(Data.from.upload, "[;/,!@#$%]")) {
+            output$status_upload <- renderText('The Data.from cannot contain "/ , ! # @ $ % " !')
+            show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+            return()
+          }else if (str_detect(data.type.upload, "[;/,!@#$%]")) {
+            output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
+            show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
+            return()
+          }else if(input$upload_data_type_select_select == 'Other'){
+            if(nchar(input$upload_data_type_manual)==0){
+              output$status_upload <- renderText('* is a mandatory filed!')
+              show_alert(title='Error.',text='* is a mandatory filed!', type='error')
               return()
             }
-          }
-          time_stamp <- as.character(Sys.time())  
-          Year <- format(Sys.time(), "%Y")
-          date <- format(Sys.time(), "%m.%d")
-          # path
-          # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
-          filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
-          save_path <- file.path('00_Expression_data_all', Year, date, filname)
-          dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
-          # save
-          file.copy(uploaded_file$datapath, save_path)
+          }else{
+            gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
+            if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
+              if(!'id' %in% colnames(gx_table)){
+                output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
+                show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
+                return()
+              }
+            }
+            time_stamp <- as.character(Sys.time())  
+            Year <- format(Sys.time(), "%Y")
+            date <- format(Sys.time(), "%m.%d")
+            # path
+            # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
+            filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
+            save_path <- file.path('00_Expression_data_all', Year, date, filname)
+            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
+            # save
+            file.copy(uploaded_file$datapath, save_path)
 
-          tmp <- Dataset()
-          tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
-          tmp <- tmp[order(tmp$Added.When, decreasing =T),]
-          Dataset(tmp)
-          replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
-          write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
-          output$status_upload <- renderText('uploaded!')
-          }
-          show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
-          return()
+            tmp <- Dataset()
+            tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
+            tmp <- tmp[order(tmp$Added.When, decreasing =T),]
+            Dataset(tmp)
+            replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
+            write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+            output$status_upload <- renderText('uploaded!')
+            }
+            show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
+            return()
+        
+
+        })
       
-
-      })
+      #
   ###
 
   ### Gene sets Tab ################################################################################
@@ -4116,10 +4161,10 @@ server <- function(input, output, session) {
     #### Data Table ####
       ##### expression table #####
         # some files (DEG files) have Inf value. This is a function for replacing a Inf value with a biggest finite value
-        replace_inf_with_largest_values <- function(values){ 
-            values[is.infinite(values)] <- max(values[values != Inf]) * 1.1 
-            return(values)
-        }
+          replace_inf_with_largest_values <- function(values){ 
+              values[is.infinite(values)] <- max(values[values != Inf]) * 1.1 
+              return(values)
+          }
         # load data
         df <- reactive({
           if(length(input$Dataset_select)!=0){
@@ -4134,10 +4179,10 @@ server <- function(input, output, session) {
                 return(NULL)
               }
               output$Count_data_DataTable_status <- renderText({NULL})
-              df_tmp <- read.table(path, sep='\t', header=T,check.names = TRUE)
+              df_tmp <- read.table(path, sep='\t', header=T,check.names = FALSE)
               if(colnames(df_tmp)[1] == 'X'){ colnames(df_tmp)[1] <- 'id'}
-              if("X.log10.pvalue." %in% colnames(df_tmp)){ df_tmp$X.log10.pvalue. <- replace_inf_with_largest_values(df_tmp$X.log10.pvalue.) }
-              if("X.log10.padj." %in% colnames(df_tmp)){ df_tmp$X.log10.padj. <- replace_inf_with_largest_values(df_tmp$X.log10.padj.) }
+              if("-log10.pvalue" %in% colnames(df_tmp)){ df_tmp[,"-log10.pvalue"] <- replace_inf_with_largest_values(df_tmp[,"-log10.pvalue"]) }
+              if("-log10.padj" %in% colnames(df_tmp)){ df_tmp[,"-log10.padj"] <- replace_inf_with_largest_values(df_tmp[,"-log10.padj"]) }
               numeric_cols <- names(df_tmp)[!(names(df_tmp) %in% 'id')]
               df_tmp[numeric_cols] <- lapply(df_tmp[numeric_cols], as.numeric)
               df_tmp[is.na(df_tmp)]<-0
@@ -4153,8 +4198,8 @@ server <- function(input, output, session) {
         output$Data_Overview_plot <- renderText({"Please select a dataset above"})  
 
         # display expression data
-        output$DataTable <- DT::renderDataTable({ datatable( data.frame(df()), options = list(scrollX = TRUE, pageLength = 20 )) })
-        output$Count_data_DataTable <- DT::renderDataTable({ datatable( data.frame(df()), options = list(scrollX = TRUE, pageLength = 20 )) })
+        output$DataTable <- DT::renderDataTable({ datatable( df(), options = list(scrollX = TRUE, pageLength = 20 )) })
+        output$Count_data_DataTable <- DT::renderDataTable({ datatable(df(), options = list(scrollX = TRUE, pageLength = 20 )) })
 
 
       ##### Plot #####
@@ -4477,6 +4522,28 @@ server <- function(input, output, session) {
                   if(Gene %in% df()$id){ # If the gene is really in the dataset
                     gene_num <- which(df()$id==Gene)
                     target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
+                    
+                    # when you want to exclude some samples
+                    if(input$Gene_ex_swarm_exclude_sample){ 
+                      if(nchar(input$Gene_ex_swarm_exclude_sample_input) == 0){ # when nothing is written in the text area yet.
+                        output$Gene_ex_swarm_status3 <- renderText({'Please write the sample names that you want to exclude.'})
+                      }else{
+                        exclude_samples <- intersect(unlist(strsplit(input$Gene_ex_swarm_exclude_sample_input, split = "\n")), target_samples) 
+                        not_found_exclude_samples <- setdiff(unlist(strsplit(input$Gene_ex_swarm_exclude_sample_input, split = "\n")), target_samples)
+
+                        # when excluded samples are not in the dataset
+                        if(length(not_found_exclude_samples) > 0){ # when entered group names does not exsist
+                          output$Gene_ex_swarm_status3 <- renderText({
+                            tmp <- paste(not_found_exclude_samples, collapse=', ')
+                            paste0('The following samples are not in the dataset. \nPlease enter the right sample names. \n', tmp)
+                          })
+                        }else{
+                          output$Gene_ex_swarm_status3 <- renderText({NULL})
+                        }
+                        target_samples <- setdiff(target_samples, exclude_samples) # exclude the samples
+                      }
+                    }
+
                     df_gene <- data.frame(t(df()[gene_num,target_samples])) 
                     colnames(df_gene) <- c('Expression')
                     Group <- c()
@@ -4504,10 +4571,32 @@ server <- function(input, output, session) {
                 }else{ # when selecting multiple gene
                   genes_not_included = c()
                   df_gene <- data.frame('Expression' = c(), 'Group'=c(), 'Gene'= c())
+                  target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
+                  # when you want to exclude some samples
+                  if(input$Gene_ex_swarm_exclude_sample){ 
+                    if(nchar(input$Gene_ex_swarm_exclude_sample_input) == 0){ # when nothing is written in the text area yet.
+                      output$Gene_ex_swarm_status3 <- renderText({'Please write the sample names that you want to exclude.'})
+                    }else{
+                      exclude_samples <- intersect(unlist(strsplit(input$Gene_ex_swarm_exclude_sample_input, split = "\n")), target_samples) 
+                      not_found_exclude_samples <- setdiff(unlist(strsplit(input$Gene_ex_swarm_exclude_sample_input, split = "\n")), target_samples)
+
+                      # when excluded samples are not in the dataset
+                      if(length(not_found_exclude_samples) > 0){ # when entered group names does not exsist
+                        output$Gene_ex_swarm_status3 <- renderText({
+                          tmp <- paste(not_found_exclude_samples, collapse=', ')
+                          paste0('The following samples are not in the dataset. \nPlease enter the right sample names. \n', tmp)
+                        })
+                      }else{
+                        output$Gene_ex_swarm_status3 <- renderText({NULL})
+                      }
+                      target_samples <- setdiff(target_samples, exclude_samples) # exclude the samples
+                    }
+                  }
+                  
+                  # for each gene in the inputted genes
                   for (each_gene in Gene){
                     if(each_gene %in% df()$id){
                       gene_num <- which(df()$id==each_gene)
-                      target_samples <- grep("_(R|r)ep.+$", colnames(df()), value=TRUE)
                       df_gene_tmp <- data.frame(t(df()[gene_num,target_samples])) 
                       colnames(df_gene_tmp) <- c('Expression')
                       Group <- c()
@@ -4567,6 +4656,28 @@ server <- function(input, output, session) {
                 paste(groups, collapse='\n')
               }
             })
+
+          # list of sample (in case you wnat to exclude some samples)
+                                    # fluidRow(
+                                    #   column(12, materialSwitch("Gene_ex_swarm_exclude_sample", "Want to exclude specific samples?", value = FALSE, status='danger')),
+                                    #   conditionalPanel(
+                                    #     condition = "input.Gene_ex_swarm_exclude_sample == true",
+                                    #     column(12, verbatimTextOutput('Gene_ex_swarm_status3') ),
+                                    #     column(12, textAreaInput("Gene_ex_swarm_exclude_sample_input", "Enter sample names (line by line)")),
+                                    #     column(12, h5('List of the sample names')),
+                                    #     column(12, verbatimTextOutput('Gene_ex_swarm_exclude_sample_input_list') )
+                                    #   )
+                                    # )
+            output$Gene_ex_swarm_exclude_sample_input_list <- renderText({
+              df_ex <- df()
+              # sample names in the columns are XXX_Rep1, XXX_Rep2, etc. Choose these.
+              samples <- grep("_(R|r)ep.+$", colnames(df_ex), value=TRUE)
+              # sort
+              samples <- sort(samples)
+              paste(unlist(samples), collapse='\n')
+            })
+            output$Gene_ex_swarm_status3 <- renderText({'Hoge'})
+
 
           # colour option are mutually exclusive (use pallete or use a single colour)
             observeEvent(input$Data_Overview_Swarm_change_colour_pallete, { 
@@ -4670,286 +4781,286 @@ server <- function(input, output, session) {
 
         ###### Scatter plot ######
           # main plot for overvirw
-          output$Gene_ex <- renderPlot({
-            # No data is selected
-            if(length(input$Dataset_select)==0){
-              output$Gene_ex_status <- renderText({'Please select a dataset'})
-              return(NULL)              
-            }
-            if(is.null(input$Dataset_select) || input$Dataset_select=='None'){
-              output$Gene_ex_status <- renderText({'Please select a dataset'})
-              return(NULL)
-            }
-            if(is.null(df())){
-              output$Gene_ex_status <- renderText({"The file is not found. Please upload the data again."})
-              return(NULL)
-            }
-            # scatter plot
-            else{
-              # create a ggplot object
-              df_main_plot <- df()
-              if( is.null(input$scat.x) || is.null(input$scat.y) ){ 
-                output$Gene_ex_status <- renderText({'Please select a dataset, X and Y.'})
-                return(ggplot())
+            output$Gene_ex <- renderPlot({
+              # No data is selected
+              if(length(input$Dataset_select)==0){
+                output$Gene_ex_status <- renderText({'Please select a dataset'})
+                return(NULL)              
               }
-              else if( input$scat.x == 'None' ||input$scat.y == 'None'){ 
-                output$Gene_ex_status <- renderText({'Please select a dataset, X and Y.'})
-                return(ggplot())
+              if(is.null(input$Dataset_select) || input$Dataset_select=='None'){
+                output$Gene_ex_status <- renderText({'Please select a dataset'})
+                return(NULL)
               }
-              else{ 
-                output$Gene_ex_status <- renderText({NULL})
-                p <- ggplot(df_main_plot, aes_string(x = input$scat.x, y = input$scat.y)) + geom_point(size = input$pt.size) 
+              if(is.null(df())){
+                output$Gene_ex_status <- renderText({"The file is not found. Please upload the data again."})
+                return(NULL)
               }
-              # show outliers or show pathway genes # column(3, colourpicker::colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
-              if(length(input$show_filterin_input_option) == 0){
-                output$Gene_ex_status <- renderText({'Please choose one method in the "Highlight filterd genes or gene sets in the plot" section.'})
-                return(ggplot())
-              }
-              if(input$show_filterin_input_option=='B'){
-                outliers <- df_outliers()
-                if(!is.null(outliers)){
-                  p <- p + geom_point(data = outliers[outliers[input$scat.x]>=0,], color=input$outlier_gene_colour_id , size = input$high.pt.size)
-                  p <- p + geom_point(data = outliers[outliers[input$scat.x]<=0,], color=input$outlier_gene_colour_id_negative , size = input$high.pt.size)
-                  if(input$hide_gene_label == FALSE){
-                    if(input$main_plot_white_back_label){
-                      p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                      p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                    }else{
-                      p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                      p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                    }
-                  }
-                  if(input$show_threhold_lines){
-                    switch(input$Main_scatter_thr_X_method,
-                      'B' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2),
-                      'C' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
-                      'D' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
-                      'E' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
-                    ) 
-                    switch(input$Main_scatter_thr_Y_method,
-                      'B' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2),
-                      'C' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
-                      'D' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
-                      'E' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
-                    ) 
-                  } 
+              # scatter plot
+              else{
+                # create a ggplot object
+                df_main_plot <- df()
+                if( is.null(input$scat.x) || is.null(input$scat.y) ){ 
+                  output$Gene_ex_status <- renderText({'Please select a dataset, X and Y.'})
+                  return(ggplot())
                 }
-              }else if(input$show_filterin_input_option=='C'){
-                if(length(input$select_pathway)!= 0){
-                  if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
-                    outliers_pathway <- df_outliers_pathway()
-                    p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$hide_gene_label_pathway==FALSE){ 
+                else if( input$scat.x == 'None' ||input$scat.y == 'None'){ 
+                  output$Gene_ex_status <- renderText({'Please select a dataset, X and Y.'})
+                  return(ggplot())
+                }
+                else{ 
+                  output$Gene_ex_status <- renderText({NULL})
+                  p <- ggplot(df_main_plot, aes(x = .data[[input$scat.x]], y = .data[[input$scat.y]])) + geom_point(size = input$pt.size) 
+                }
+                # show outliers or show pathway genes # column(3, colourpicker::colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
+                if(length(input$show_filterin_input_option) == 0){
+                  output$Gene_ex_status <- renderText({'Please choose one method in the "Highlight filterd genes or gene sets in the plot" section.'})
+                  return(ggplot())
+                }
+                if(input$show_filterin_input_option=='B'){
+                  outliers <- df_outliers()
+                  if(!is.null(outliers)){
+                    p <- p + geom_point(data = outliers[outliers[input$scat.x]>=0,], color=input$outlier_gene_colour_id , size = input$high.pt.size)
+                    p <- p + geom_point(data = outliers[outliers[input$scat.x]<=0,], color=input$outlier_gene_colour_id_negative , size = input$high.pt.size)
+                    if(input$hide_gene_label == FALSE){
                       if(input$main_plot_white_back_label){
-                        p <- p + geom_label_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
                       }else{
-                        p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
                       }
                     }
-                    if(input$Main_scatter_pathway_filter){
-                      switch(input$Main_scatter_pathway_thr_X_method,
-                        'B' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2),
-                        'C' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
-                        'D' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
-                        'E' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
+                    if(input$show_threhold_lines){
+                      switch(input$Main_scatter_thr_X_method,
+                        'B' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2),
+                        'C' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
+                        'D' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
+                        'E' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
                       ) 
-                      switch(input$Main_scatter_pathway_thr_Y_method,
-                        'B' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2),
-                        'C' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
-                        'D' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
-                        'E' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
-                      ) 
-                      # p <- p + geom_hline(yintercept=input$y_threshold, linetype='dotted')
-                    } 
-                  }
-                }
-              }else if(input$show_filterin_input_option=='D'){
-                if(length(input$Plot_Gene_set_select_geneset)!= 0){
-                  if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
-                    custom_geneset <- df_genes_custom_geneset()
-                    p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
-                    if(input$Plot_Gene_sethide_gene_label==FALSE){ 
-                      if(input$main_plot_white_back_label){
-                        p <- p + geom_label_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
-                      }else{
-                        p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
-                      }
-                    }
-                    if(input$Main_scatter_geneset_filter){
-                      switch(input$Main_scatter_geneset_thr_X_method,
-                        'B' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2),
-                        'C' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
-                        'D' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
-                        'E' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
-                      ) 
-                      switch(input$Main_scatter_geneset_thr_Y_method,
-                        'B' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2),
-                        'C' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
-                        'D' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
-                        'E' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
+                      switch(input$Main_scatter_thr_Y_method,
+                        'B' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2),
+                        'C' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
+                        'D' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
+                        'E' = p <- p + geom_hline(yintercept=input$Main_scatter_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_thr_Y2, linetype='dotted', size=0.2),
                       ) 
                     } 
                   }
-                }
-              }
-              # highlight some genes of interest
-              if(nchar(input$target_gene) > 0){
-                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),], color=input$interesting_gene_colour_id , size = input$high.pt.size)
-                undetected_genes <- setdiff(unlist(strsplit(input$target_gene, split = "\n")), df_main_plot$id)
-                undetected_genes <- undetected_genes[undetected_genes!= '']
-                if(length(undetected_genes) > 0){
-                  output$Scatter_interesting_gene_status <- renderText({
-                    tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
-                    genes_tmp <- paste(undetected_genes, collapse=', ')
-                    paste0(tmp, genes_tmp)
-                  })
-                }else{
-                  output$Scatter_interesting_gene_status <- renderText({NULL})
-                }
-                if(input$show_label){ 
-                  if(input$main_plot_white_back_label){
-                    p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
-                  }else{
-                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                }else if(input$show_filterin_input_option=='C'){
+                  if(length(input$select_pathway)!= 0){
+                    if(!is.null(input$select_pathway) & input$select_pathway != 'None'){
+                      outliers_pathway <- df_outliers_pathway()
+                      p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
+                      if(input$hide_gene_label_pathway==FALSE){ 
+                        if(input$main_plot_white_back_label){
+                          p <- p + geom_label_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                        }else{
+                          p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                        }
+                      }
+                      if(input$Main_scatter_pathway_filter){
+                        switch(input$Main_scatter_pathway_thr_X_method,
+                          'B' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2),
+                          'C' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
+                          'D' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
+                          'E' = p <- p + geom_vline(xintercept=input$Main_scatter_pathway_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_pathway_thr_X2, linetype='dotted', size=0.2),
+                        ) 
+                        switch(input$Main_scatter_pathway_thr_Y_method,
+                          'B' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2),
+                          'C' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
+                          'D' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
+                          'E' = p <- p + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_pathway_thr_Y2, linetype='dotted', size=0.2),
+                        ) 
+                        # p <- p + geom_hline(yintercept=input$y_threshold, linetype='dotted')
+                      } 
+                    }
+                  }
+                }else if(input$show_filterin_input_option=='D'){
+                  if(length(input$Plot_Gene_set_select_geneset)!= 0){
+                    if(!is.null(input$Plot_Gene_set_select_geneset) & input$Plot_Gene_set_select_geneset != 'None'){
+                      custom_geneset <- df_genes_custom_geneset()
+                      p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
+                      if(input$Plot_Gene_sethide_gene_label==FALSE){ 
+                        if(input$main_plot_white_back_label){
+                          p <- p + geom_label_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                        }else{
+                          p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                        }
+                      }
+                      if(input$Main_scatter_geneset_filter){
+                        switch(input$Main_scatter_geneset_thr_X_method,
+                          'B' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2),
+                          'C' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
+                          'D' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
+                          'E' = p <- p + geom_vline(xintercept=input$Main_scatter_geneset_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Main_scatter_geneset_thr_X2, linetype='dotted', size=0.2),
+                        ) 
+                        switch(input$Main_scatter_geneset_thr_Y_method,
+                          'B' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2),
+                          'C' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
+                          'D' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
+                          'E' = p <- p + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Main_scatter_geneset_thr_Y2, linetype='dotted', size=0.2),
+                        ) 
+                      } 
+                    }
                   }
                 }
-              }
-              # different colour
-              if(input$main_plot_target_genes_2){
-                if(nchar(input$main_plot_target_genes_2_input) > 0){
-                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),], color=input$main_plot_target_genes_2_colour , size = input$high.pt.size)
-                  undetected_genes <- setdiff(unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")), df_main_plot$id)
+                # highlight some genes of interest
+                if(nchar(input$target_gene) > 0){
+                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),], color=input$interesting_gene_colour_id , size = input$high.pt.size)
+                  undetected_genes <- setdiff(unlist(strsplit(input$target_gene, split = "\n")), df_main_plot$id)
                   undetected_genes <- undetected_genes[undetected_genes!= '']
                   if(length(undetected_genes) > 0){
-                    output$Scatter_interesting_gene_status2 <- renderText({
+                    output$Scatter_interesting_gene_status <- renderText({
                       tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
                       genes_tmp <- paste(undetected_genes, collapse=', ')
                       paste0(tmp, genes_tmp)
                     })
                   }else{
-                    output$Scatter_interesting_gene_status2 <- renderText({NULL})
+                    output$Scatter_interesting_gene_status <- renderText({NULL})
                   }
                   if(input$show_label){ 
                     if(input$main_plot_white_back_label){
-                      p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                      p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
                     }else{
-                      p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                      p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$target_gene, split = "\n")),],  color = input$interesting_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                    }
+                  }
+                }
+                # different colour
+                if(input$main_plot_target_genes_2){
+                  if(nchar(input$main_plot_target_genes_2_input) > 0){
+                    p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),], color=input$main_plot_target_genes_2_colour , size = input$high.pt.size)
+                    undetected_genes <- setdiff(unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")), df_main_plot$id)
+                    undetected_genes <- undetected_genes[undetected_genes!= '']
+                    if(length(undetected_genes) > 0){
+                      output$Scatter_interesting_gene_status2 <- renderText({
+                        tmp <- 'The followings are not detected in this dataset. \nPlease check if the names are correct and do not include unnecessary spaces. \n'
+                        genes_tmp <- paste(undetected_genes, collapse=', ')
+                        paste0(tmp, genes_tmp)
+                      })
+                    }else{
+                      output$Scatter_interesting_gene_status2 <- renderText({NULL})
+                    }
+                    if(input$show_label){ 
+                      if(input$main_plot_white_back_label){
+                        p <- p + geom_label_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                      }else{
+                        p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$main_plot_target_genes_2_input, split = "\n")),],  color = input$main_plot_target_genes_2_colour, aes(label = id), size = input$high.label.size, max.overlaps=50, segment.size=0.2) 
+                      }
                     }
                   }
                 }
               }
-            }
-            tryCatch(
-              expr = {
-                res <- brushedPoints(df(), input$plot_brush)
-                if(length(res$id)<500){
-                  if(input$main_plot_white_back_label){
-                    p <- p + geom_label_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
-                  }else{
-                    p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+              tryCatch(
+                expr = {
+                  res <- brushedPoints(df(), input$plot_brush, xvar = input$scat.x, yvar = input$scat.y)
+                  if(length(res$id)<500){
+                    if(input$main_plot_white_back_label){
+                      p <- p + geom_label_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                    }else{
+                      p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size = input$high.label.size, max.overlaps=60, segment.size=0.2)
+                    }
                   }
-                }
-              },
-              error = function(e){NULL}
-            )
-            p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
-            p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            if(input$while_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p
-          }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
+                },
+                error = function(e){NULL}
+              )
+              p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
+              p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              if(input$while_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p
+            }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
 
           # the selected genes' information
-          Overview_selected_table <- reactive({
-            # req(input$plot_brush)
-            if(Dataset()[Dataset()$Dataset == input$Dataset_select, 'Data.Class'] == 'B'){ 
-              res <- brushedPoints(df(), input$plot_brush) 
-              if(dim(res)[1] == 0){
-                output$outFile2_status <- renderText({"The selected area in the plot will be shown here."})
+            Overview_selected_table <- reactive({
+              # req(input$plot_brush)
+              if(Dataset()[Dataset()$Dataset == input$Dataset_select, 'Data.Class'] == 'B'){ 
+                res <- brushedPoints(df(), input$plot_brush, xvar = input$scat.x, yvar = input$scat.y) 
+                if(dim(res)[1] == 0){
+                  output$outFile2_status <- renderText({"The selected area in the plot will be shown here."})
+                }else{
+                  output$outFile2_status <- renderText({NULL})
+                }
+                return(res)
               }else{
-                output$outFile2_status <- renderText({NULL})
+                return(NULL)
               }
-              return(res)
-            }else{
-              return(NULL)
-            }
-          })
+            })
 
           # display the selected genes info as a table
-          output$outFile2 <- renderDataTable({
-            datatable( data.frame(Overview_selected_table()), options = list(scrollX = TRUE, pageLength = 10))
-          })         
+            output$outFile2 <- renderDataTable({
+              datatable( Overview_selected_table(), options = list(scrollX = TRUE, pageLength = 10))
+            })         
 
           # download the selected genes' info
-          output$selected_download <- downloadHandler(
-            filename = function(){"selected_gene_table.tsv"},   
-            content = function(fname){ write.table(Overview_selected_table(), fname, sep='\t', quote=F, row.names=F) }
-          )
+            output$selected_download <- downloadHandler(
+              filename = function(){"selected_gene_table.tsv"},   
+              content = function(fname){ write.table(Overview_selected_table(), fname, sep='\t', quote=F, row.names=F) }
+            )
 
           # show the list of the gene names
-          output$selected_gene_list <- renderText({
-            if(is.null(Overview_selected_table())){return(NULL)}
-            else{
-              paste(na.omit(Overview_selected_table()$id), collapse = "\n")
-            }
-          })
+            output$selected_gene_list <- renderText({
+              if(is.null(Overview_selected_table())){return(NULL)}
+              else{
+                paste(na.omit(Overview_selected_table()$id), collapse = "\n")
+              }
+            })
 
           ## show a bar plot for the filtered genes
-          output$Gene_ex_barplot <- renderPlot({
-            req(input$show_outliers_bar_plot)
-            outliers <- df_outliers()
-            outliers <- outliers[order(outliers[, input$scat.x], decreasing=T), ]
-            outliers[,'id'] <- factor(outliers[,'id'], levels = c(outliers[,'id']))
-            switch(input$show_outliers_bar_colour, 
-              "X" = fill_option <- input$scat.x,
-              "Y" = fill_option <- input$scat.y,
-              "None" = fill_option <- NA)
-            if(!is.null(input$target_gene) && input$target_gene!= "" ){
-              highligh_category <- unlist(strsplit(input$target_gene, split = "\n"))
-              outliers <- outliers %>% mutate(fill_colour = ifelse(id %in% highligh_category, 'red', 'gray'))
-              p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill= 'fill_colour')) + scale_fill_identity()
-            }else{
-              if(is.na(fill_option)){
-                p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x))
+            output$Gene_ex_barplot <- renderPlot({
+              req(input$show_outliers_bar_plot)
+              outliers <- df_outliers()
+              outliers <- outliers[order(outliers[, input$scat.x], decreasing=T), ]
+              outliers[,'id'] <- factor(outliers[,'id'], levels = c(outliers[,'id']))
+              switch(input$show_outliers_bar_colour, 
+                "X" = fill_option <- input$scat.x,
+                "Y" = fill_option <- input$scat.y,
+                "None" = fill_option <- NA)
+              if(!is.null(input$target_gene) && input$target_gene!= "" ){
+                highligh_category <- unlist(strsplit(input$target_gene, split = "\n"))
+                outliers <- outliers %>% mutate(fill_colour = ifelse(id %in% highligh_category, 'red', 'gray'))
+                p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill= 'fill_colour')) + scale_fill_identity()
               }else{
-                p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill=fill_option))
-              }
-              if(!is.na(fill_option)){
-                values_for_colours <- outliers[,fill_option][!is.na(outliers[,fill_option])]
-                if( min(values_for_colours)<0 ){
-                  if( max(values_for_colours)>=0 ){
-                    tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                    p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
-                    p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
-                  }else{
-                    p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
-                    p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
-                  }
+                if(is.na(fill_option)){
+                  p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x))
                 }else{
-                  p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
-                  p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
+                  p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill=fill_option))
+                }
+                if(!is.na(fill_option)){
+                  values_for_colours <- outliers[,fill_option][!is.na(outliers[,fill_option])]
+                  if( min(values_for_colours)<0 ){
+                    if( max(values_for_colours)>=0 ){
+                      tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                      p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
+                      p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
+                    }else{
+                      p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
+                      p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
+                    }
+                  }else{
+                    p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
+                    p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
+                  }
                 }
               }
-            }
-            if(input$show_outliers_rotate_x){
-              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-            }
-            p <- p + geom_bar(stat='identity')
-            p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
-            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-            p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
-            p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p 
-            p 
-          }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
-
+              if(input$show_outliers_rotate_x){
+                p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+              }
+              p <- p + geom_bar(stat='identity')
+              p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
+              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+              p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
+              p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p 
+              p 
+            }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
+          # 
 
         ###### GO analysis ######
           # Choose the genes used in GO analysis
@@ -4962,7 +5073,7 @@ server <- function(input, output, session) {
                 }
               }
               else if(input$show_filterin_input_option=='B' & input$GO_input_type == 'B'){df_outliers()$id}
-              else if(!is.null(input$plot_brush) & input$GO_input_type == 'C'){brushedPoints(df(), input$plot_brush)$id}
+              else if(!is.null(input$plot_brush) & input$GO_input_type == 'C'){brushedPoints(df(), input$plot_brush, xvar = input$scat.x, yvar = input$scat.y)$id}
               else {return(NULL)}
             })
 
@@ -5433,71 +5544,86 @@ server <- function(input, output, session) {
 
 
         ###### TF activity inference (DecoupleR) ######
-          output$DecoupeR_plot_status <- renderText({'Please note that this is only applicable to the RANseq DEG data processed by DESeq2.'})
-          output$DecoupeR_plot_status2 <- renderText({'Please click "Start DecoupleR Analysis". A bar plot showing the activity level of transcription factors will be shown here.'})
+          output$DecoupeR_plot_status <- renderText({NULL})
+          output$DecoupeR_plot_status2 <- renderText({'Please click "Start DecoupleR Analysis". \nA bar plot showing the activity level of transcription factors will be shown here.'})
           output$DecoupeR_Table_status <- renderText({'The result of the DecoupleR analysis (the activity level of transcription factors) will be shown here.'})
           outputOptions(output, "DecoupeR_plot_status", suspendWhenHidden=FALSE)
           outputOptions(output, "DecoupeR_plot_status2", suspendWhenHidden=FALSE)
           outputOptions(output, "DecoupeR_Table_status", suspendWhenHidden=FALSE)
 
           # Run decoupeR
-          DecoupeR_TF_table_all <- eventReactive(input$DecoupeR_start, {
-            df_LFC <- df()
-            rownames(df_LFC) <- df_LFC$id
-            if(!'stat' %in% colnames(df_LFC)){
-              output$DecoupeR_plot_status <- renderText({'The input data is not the RANseq DEG data processed by DESeq2, and cannot applicable to this function.'})
-              return(NULL)
-            }
-            output$DecoupeR_plot_status <- renderText({NULL})
-            contrast_acts <- run_ulm(mat=df_LFC[, 'stat', drop=FALSE], net=net, .source='source', .target='target', .mor='mor', minsize = 5)
-            
-            return(contrast_acts)
-          })
+            DecoupeR_TF_table_all <- reactiveVal(NULL)
+            observeEvent(input$DecoupeR_start, {
+              df_LFC <- df()
+              rownames(df_LFC) <- df_LFC$id
+              if(!'stat' %in% colnames(df_LFC)){
+                output$DecoupeR_plot_status <- renderText({'The input data is not the RANseq DEG data processed by DESeq2, and cannot applicable to this function.'})
+                DecoupeR_TF_table_all(NULL)
+                return()
+              }
+              output$DecoupeR_plot_status <- renderText({NULL})
+              contrast_acts <- run_ulm(mat=df_LFC[, 'stat', drop=FALSE], net=net, .source='source', .target='target', .mor='mor', minsize = 5)
+              
+              DecoupeR_TF_table_all(contrast_acts)
+              return()
+            })
 
           # output table
-          DecoupeR_TF_table <- reactive({
-            f_contrast_acts <- DecoupeR_TF_table_all() %>% mutate(rnk = NA)
-            msk <- f_contrast_acts$score > 0
-            f_contrast_acts[msk, 'rnk'] <- rank(-f_contrast_acts[msk, 'score'])
-            f_contrast_acts[!msk, 'rnk'] <- rank(-abs(f_contrast_acts[!msk, 'score']))
-            tfs <- f_contrast_acts %>% arrange(rnk) %>% head(input$DecoupeR_TF_number) %>% pull(source)
-            f_contrast_acts <- f_contrast_acts %>% filter(source %in% tfs)
-            return(f_contrast_acts)
-          })
+            DecoupeR_TF_table <- reactive({
+                if(is.null(DecoupeR_TF_table_all())){
+                  return(NULL)
+                }else{
+                  f_contrast_acts <- DecoupeR_TF_table_all() %>% mutate(rnk = NA)
+                  msk <- f_contrast_acts$score > 0
+                  f_contrast_acts[msk, 'rnk'] <- rank(-f_contrast_acts[msk, 'score'])
+                  f_contrast_acts[!msk, 'rnk'] <- rank(-abs(f_contrast_acts[!msk, 'score']))
+                  tfs <- f_contrast_acts %>% arrange(rnk) %>% head(input$DecoupeR_TF_number) %>% pull(source)
+                  f_contrast_acts <- f_contrast_acts %>% filter(source %in% tfs)
+                  return(f_contrast_acts)
+                }
+              })
 
           # table display
-          output$DecoupeR_Table <- DT::renderDataTable({
-            if(is.null(DecoupeR_TF_table_all())){ data.frame() }
-            else{ datatable(as.data.frame(DecoupeR_TF_table_all()), options = list(scrollX = TRUE)) }
-          })
-          outputOptions(output, "DecoupeR_Table", suspendWhenHidden=FALSE)
+            output$DecoupeR_Table <- DT::renderDataTable({
+              if(is.null(DecoupeR_TF_table_all())){ 
+                tmp <- as.data.frame(list('statistic'=character(0), 'source'=character(0), 'condition'=character(0), 'score'=character(0), 'p.value'=character(0)))
+                datatable(tmp,  options = list(scrollX = TRUE, pageLength = 10))
+              }else{ 
+                datatable(as.data.frame(DecoupeR_TF_table_all()), options = list(scrollX = TRUE)) 
+              }
+            })
+            outputOptions(output, "DecoupeR_Table", suspendWhenHidden=FALSE)
 
           # download the table
-          output$DecoupeR_Table_download <- downloadHandler(
-          filename = function(){"decoupleR.tsv"}, 
-          content = function(fname){ write.table(DecoupeR_TF_table_all(), fname, sep='\t', row.names=F, quote=F) }
-          )
+            output$DecoupeR_Table_download <- downloadHandler(
+            filename = function(){"decoupleR.tsv"}, 
+            content = function(fname){ write.table(DecoupeR_TF_table_all(), fname, sep='\t', row.names=F, quote=F) }
+            )
 
           # plot DecoupeR results
-          output$DecoupeR_plot <- renderPlot({
-            p <- ggplot(DecoupeR_TF_table(), aes(x = reorder(source, score), y = score)) + geom_bar(aes(fill = score), stat = "identity")
-            p <- p + scale_fill_gradient2(low = input$DecoupeR_colour_low, high = input$DecoupeR_colour_high, mid = input$DecoupeR_colour_mid, midpoint = 0)
-            p <- p + theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust = 1)) + xlab("TFs")
-            p <- p + theme(axis.text=element_text(size=input$DecoupeR_lab.font.size), axis.title=element_text(size=input$DecoupeR_title.font.size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p <- p + theme(legend.text = element_text(size = input$DecoupeR_legend.size), legend.title = element_text(size = input$DecoupeR_legend.size) )
-            p <- p + theme(legend.key.size = unit(3, "mm"))
-            p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-            if(input$DecoupeR_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p
-          }, width=reactive(input$DecoupeR_fig.width), height=reactive(input$DecoupeR_fig.height),res=300)
-          outputOptions(output, "DecoupeR_plot", suspendWhenHidden=FALSE)
-          
+            output$DecoupeR_plot <- renderPlot({
+              if(is.null(DecoupeR_TF_table())){
+                return(ggplot())
+              }else{
+                p <- ggplot(DecoupeR_TF_table(), aes(x = reorder(source, score), y = score)) + geom_bar(aes(fill = score), stat = "identity")
+                p <- p + scale_fill_gradient2(low = input$DecoupeR_colour_low, high = input$DecoupeR_colour_high, mid = input$DecoupeR_colour_mid, midpoint = 0)
+                p <- p + theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust = 1)) + xlab("TFs")
+                p <- p + theme(axis.text=element_text(size=input$DecoupeR_lab.font.size), axis.title=element_text(size=input$DecoupeR_title.font.size))
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p <- p + theme(legend.text = element_text(size = input$DecoupeR_legend.size), legend.title = element_text(size = input$DecoupeR_legend.size) )
+                p <- p + theme(legend.key.size = unit(3, "mm"))
+                p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+                if(input$DecoupeR_white_background){
+                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                }
+                p
+              }
+            }, width=reactive(input$DecoupeR_fig.width), height=reactive(input$DecoupeR_fig.height),res=300)
+            outputOptions(output, "DecoupeR_plot", suspendWhenHidden=FALSE)
+          #
 
         ###### heatmap for the count table ######
           # verbatimTextOutput('Data_Overview_heatmap_status'),
@@ -6197,7 +6323,7 @@ server <- function(input, output, session) {
       output$Choose_datasets_y <- renderUI({ 
         if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
             y_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None', y_names))
@@ -6213,7 +6339,7 @@ server <- function(input, output, session) {
       output$Choose_datasets_colour <- renderUI({ 
         if(length(input$choose_data_type)!=0){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
             col_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None', col_names))
@@ -6259,7 +6385,7 @@ server <- function(input, output, session) {
         if(input$Choose_datasets_colour == 'None'){
           df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
             colnames(df_tmp_tmp_Y)[2] <- dataset 
@@ -6274,7 +6400,7 @@ server <- function(input, output, session) {
           df_col_tmp <- data.frame(id = Genes_to_be_shown_list)
           col <- input$Choose_datasets_colour
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
             df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
@@ -6441,7 +6567,7 @@ server <- function(input, output, session) {
       output$Compare_dataset_get_overview_select_score <- renderUI({ 
         if(!is.null(input$choose_data_type)){
           if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = TRUE)
+            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
             y_names <- unique(colnames(data_ex_tmp))
             rm(data_ex_tmp)
             if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='logFC') }
@@ -6482,7 +6608,7 @@ server <- function(input, output, session) {
           df_tmp <- data.frame()    
           i=0
           for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = TRUE)
+            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
             if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
             df_tmp_tmp_sorted <- df_tmp_tmp[,c('id', sorted_score)][order(df_tmp_tmp[,sorted_score], decreasing = T),] # head(df_tmp_tmp_sorted)
             # get the threshold score
@@ -6671,7 +6797,7 @@ server <- function(input, output, session) {
       data_load <- function(selected_data){
         if(!is.null(selected_data) && selected_data!= 'None'){
           path <- Dataset()[Dataset()$Dataset == selected_data, ]$Path
-          df_tmp <- read.table(path, sep='\t', header=T,check.names = TRUE)
+          df_tmp <- read.table(path, sep='\t', header=T,check.names = FALSE)
           if(colnames(df_tmp)[1] == 'X'){ colnames(df_tmp)[1] <- 'id'}
           if("X.log10.pvalue." %in% colnames(df_tmp)){ df_tmp$X.log10.pvalue. <- replace_inf_with_largest_values(df_tmp$X.log10.pvalue.) }
           if("X.log10.padj." %in% colnames(df_tmp)){ df_tmp$X.log10.padj. <- replace_inf_with_largest_values(df_tmp$X.log10.padj.) }
@@ -6733,7 +6859,7 @@ server <- function(input, output, session) {
               return(df_main_plot_thre)
             }
           }else{
-            brushedPoints(df_main_plot, brush_point)
+            brushedPoints(df_main_plot, brush_point, xvar = selected_x, yvar = selected_y)
           }
         }
         data1_outliers <- reactive({ get_outliers(df_data1(), input$Integrate_data1_thr_X_method, input$Integrate_data1_thr_Y_method, input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, input$Integrate_data1_thr_X1, input$Integrate_data1_thr_X2, input$Integrate_data1_thr_Y1, input$Integrate_data1_thr_Y2, input$Integrate_data1_Gene_selection, input$Integrate_data1_plot_brush) })
@@ -6754,487 +6880,496 @@ server <- function(input, output, session) {
 
       ##### plot
         # function for the scatter plot
-        plot_scatter_plot <- function(df_main_plot, Selected_x, Selected_y, outliers, mapped_thr_X, mapped_thr_Y, highligh_colour, show_label, plot_size, highlight_plot_size, highlight_label_size  ){
-          if((Selected_x == 'None') ||(Selected_y == 'None')){ return(NULL) }
-          else{ 
-            p <- ggplot(df_main_plot, aes_string(x = Selected_x, y = Selected_y)) + geom_point(size = plot_size) 
-            if(!is.null(outliers)){
-              if(!'id' %in% rownames(outliers)){
-                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% outliers$id,], color=highligh_colour , size = highlight_plot_size)
-                if(show_label==1){
-                  p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = highligh_colour, aes(label = id), size = highlight_label_size, segment.size=0.2, max.overlaps=50)
+          plot_scatter_plot <- function(df_main_plot, Selected_x, Selected_y, outliers, mapped_thr_X, mapped_thr_Y, highligh_colour, show_label, plot_size, highlight_plot_size, highlight_label_size  ){
+            if((Selected_x == 'None') ||(Selected_y == 'None')){ return(ggplot()) }
+            else{ 
+              p <- ggplot(df_main_plot, aes(x = .data[[Selected_x]], y = .data[[Selected_y]])) + geom_point(size = plot_size)
+              if(!is.null(outliers)){
+                if(!'id' %in% rownames(outliers)){
+                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% outliers$id,], color=highligh_colour , size = highlight_plot_size)
+                  if(show_label==1){
+                    p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = highligh_colour, aes(label = id), size = highlight_label_size, segment.size=0.2, max.overlaps=50)
+                  }
                 }
               }
             }
-          }
-          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-          p
-        }    
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p
+          }    
 
 
         # plot1
-        output$Integrate_data1_plot <- renderPlot({
-          if(length(input$Integrate_data1_Scat.X) ==0 | length(input$Integrate_data1_Scat.Y)==0 ){
-            return(NULL)
-          }
-          if(input$Integrate_data1_Scat.X == 'None' | input$Integrate_data1_Scat.Y == 'None'){
-            output$Integrate_data1_plot_status <- renderText({"Please select a dataset, X and Y."})
-            return(NULL)
-          }else{
-            output$Integrate_data1_plot_status <- renderText({NULL})
-            if(input$Integrate_data_map_direction == 'A'){ 
-              if(input$Integrate_data1_hide_labels){
-                p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
-              }else{
-                p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
-              }
-              if(input$Integrate_data1_Gene_selection == 'A' & !input$Integrate_data1_hide_threshold){
-                if(length(input$Integrate_data1_thr_X_method)==0 | length(input$Integrate_data1_thr_Y_method)==0){
-                  output$Integrate_data1_plot_status <- renderText({"Please check the filtering method is correctly set. Choose one from 'X,Y filter'."})
-                  return(NULL)
-                }
-                switch(input$Integrate_data1_thr_X_method,
-                  'A' = p <- p,
-                  'B' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2),
-                  'C' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
-                  'D' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
-                  'E' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
-                ) 
-                switch(input$Integrate_data1_thr_Y_method,
-                  'A' = p <- p,
-                  'B' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2),
-                  'C' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
-                  'D' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
-                  'E' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
-                ) 
-              }
-            }else { 
-              if(input$Integrate_data2_Scat.X == 'None' | input$Integrate_data2_Scat.Y == 'None'){
+          output$Integrate_data1_plot <- renderPlot({
+            if(length(input$Integrate_data1_Scat.X) ==0 | length(input$Integrate_data1_Scat.Y)==0 ){
+              return(ggplot())
+            }
+            if(input$Integrate_data1_Scat.X == 'None' | input$Integrate_data1_Scat.Y == 'None'){
+              output$Integrate_data1_plot_status <- renderText({"Please select a dataset, X and Y."})
+              return(ggplot())
+            }else{
+              output$Integrate_data1_plot_status <- renderText({NULL})
+              if(input$Integrate_data_map_direction == 'A'){ 
                 if(input$Integrate_data1_hide_labels){
-                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
+                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
                 }else{
-                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
+                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
                 }
-                
-              }else{
-                if(input$Integrate_data1_hide_labels){
-                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
-                }else{
-                  p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
-                }
-                if(!input$Integrate_data_mapped_hide_threshold){
-                  switch(input$Integrate_data_mapped_thr_X_method,
+                if(input$Integrate_data1_Gene_selection == 'A' & !input$Integrate_data1_hide_threshold){
+                  if(length(input$Integrate_data1_thr_X_method)==0 | length(input$Integrate_data1_thr_Y_method)==0){
+                    output$Integrate_data1_plot_status <- renderText({"Please check the filtering method is correctly set. Choose one from 'X,Y filter'."})
+                    return(ggplot())
+                  }
+                  switch(input$Integrate_data1_thr_X_method,
                     'A' = p <- p,
-                    'B' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2),
-                    'C' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
-                    'D' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
-                    'E' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                    'B' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_vline(xintercept=input$Integrate_data1_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data1_thr_X2, linetype='dotted', size=0.2),
                   ) 
-                  switch(input$Integrate_data_mapped_thr_Y_method,
+                  switch(input$Integrate_data1_thr_Y_method,
                     'A' = p <- p,
-                    'B' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2),
-                    'C' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
-                    'D' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
-                    'E' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                    'B' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_hline(yintercept=input$Integrate_data1_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data1_thr_Y2, linetype='dotted', size=0.2),
                   ) 
                 }
+              }else { 
+                if(input$Integrate_data2_Scat.X == 'None' | input$Integrate_data2_Scat.Y == 'None'){
+                  if(input$Integrate_data1_hide_labels){
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
+                  }else{
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size) 
+                  }
+                  
+                }else{
+                  if(input$Integrate_data1_hide_labels){
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
+                  }else{
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
+                  }
+                  if(!input$Integrate_data_mapped_hide_threshold){
+                    switch(input$Integrate_data_mapped_thr_X_method,
+                      'A' = p <- p,
+                      'B' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2),
+                      'C' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                      'D' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                      'E' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                    ) 
+                    switch(input$Integrate_data_mapped_thr_Y_method,
+                      'A' = p <- p,
+                      'B' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2),
+                      'C' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                      'D' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                      'E' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                    ) 
+                  }
+                }
               }
+              p <- p + theme(axis.text = element_text(size = input$Integrate_data1_label.font.size), axis.title = element_text(size = input$Integrate_data1_title.font.size))
+              if(input$Integrate_data1_while_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
             }
-            p <- p + theme(axis.text = element_text(size = input$Integrate_data1_label.font.size), axis.title = element_text(size = input$Integrate_data1_title.font.size))
-            if(input$Integrate_data1_while_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p
-          }
-        }, width=reactive(input$Integrate_data1_fig.width), height=reactive(input$Integrate_data1_fig.height), res=300)
+          }, width=reactive(input$Integrate_data1_fig.width), height=reactive(input$Integrate_data1_fig.height), res=300)
 
         # plot2
-        output$Integrate_data2_plot <- renderPlot({
-          if(length(input$Integrate_data2_Scat.X) == 0 |  length(input$Integrate_data2_Scat.Y)== 0){
-            return(NULL)
-          }
-          if(input$Integrate_data2_Scat.X == 'None' |  input$Integrate_data2_Scat.Y== 'None'){
-            output$Integrate_data2_plot_status <- renderText({"Please select a dataset, X and Y."})
-            return(NULL)
-          }else{
-            output$Integrate_data2_plot_status <- renderText({NULL})
-            if(input$Integrate_data_map_direction == 'A'){ 
-              if(input$Integrate_data1_Scat.X == 'None' | input$Integrate_data1_Scat.Y == 'None'){
-                if(input$Integrate_data2_hide_labels){
-                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-                }else{
-                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-                }
-                
-              }else{
-                if(input$Integrate_data2_hide_labels){
-                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-                }else{
-                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-                }
-                if(!input$Integrate_data_mapped_hide_threshold){
-                  switch(input$Integrate_data_mapped_thr_X_method,
-                    'A' = p <- p,
-                    'B' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2),
-                    'C' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
-                    'D' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
-                    'E' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
-                  ) 
-                  switch(input$Integrate_data_mapped_thr_Y_method,
-                    'A' = p <- p,
-                    'B' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2),
-                    'C' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
-                    'D' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
-                    'E' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
-                  ) 
-                }
-              }
-            }   
-            else { 
-              if(input$Integrate_data2_hide_labels){
-                p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-              }else{
-                p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
-              }
-              if(input$Integrate_data2_Gene_selection == 'A' & !input$Integrate_data2_hide_threshold){
-                if(length(input$Integrate_data2_thr_X_method)==0 | length(input$Integrate_data2_thr_Y_method)==0 ){
-                  output$Integrate_data1_plot_status <- renderText({"Please select one from 'X/Y filter'."})
-                  return(NULL)
-                }
-                switch(input$Integrate_data2_thr_X_method,
-                  'A' = p <- p,
-                  'B' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2),
-                  'C' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
-                  'D' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
-                  'E' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
-                ) 
-                switch(input$Integrate_data2_thr_Y_method,
-                  'A' = p <- p,
-                  'B' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2),
-                  'C' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
-                  'D' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
-                  'E' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
-                ) 
-              }
+          output$Integrate_data2_plot <- renderPlot({
+            if(length(input$Integrate_data2_Scat.X) == 0 |  length(input$Integrate_data2_Scat.Y)== 0){
+              return(ggplot())
             }
-            p <- p + theme(axis.text = element_text(size = input$Integrate_data2_label.font.size), axis.title = element_text(size = input$Integrate_data2_title.font.size))
-            if(input$Integrate_data2_while_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            if(input$Integrate_data2_Scat.X == 'None' |  input$Integrate_data2_Scat.Y== 'None'){
+              output$Integrate_data2_plot_status <- renderText({"Please select a dataset, X and Y."})
+              return(ggplot())
+            }else{
+              output$Integrate_data2_plot_status <- renderText({NULL})
+              if(input$Integrate_data_map_direction == 'A'){ 
+                if(input$Integrate_data1_Scat.X == 'None' | input$Integrate_data1_Scat.Y == 'None'){
+                  if(input$Integrate_data2_hide_labels){
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                  }else{
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, NULL, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                  }
+                  
+                }else{
+                  if(input$Integrate_data2_hide_labels){
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                  }else{
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                  }
+                  if(!input$Integrate_data_mapped_hide_threshold){
+                    switch(input$Integrate_data_mapped_thr_X_method,
+                      'A' = p <- p,
+                      'B' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2),
+                      'C' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                      'D' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                      'E' = p <- p + geom_vline(xintercept=input$Integrate_data_mapped_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data_mapped_thr_X2, linetype='dotted', size=0.2),
+                    ) 
+                    switch(input$Integrate_data_mapped_thr_Y_method,
+                      'A' = p <- p,
+                      'B' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2),
+                      'C' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                      'D' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                      'E' = p <- p + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data_mapped_thr_Y2, linetype='dotted', size=0.2),
+                    ) 
+                  }
+                }
+              }   
+              else { 
+                if(input$Integrate_data2_hide_labels){
+                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                }else{
+                  p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                }
+                if(input$Integrate_data2_Gene_selection == 'A' & !input$Integrate_data2_hide_threshold){
+                  if(length(input$Integrate_data2_thr_X_method)==0 | length(input$Integrate_data2_thr_Y_method)==0 ){
+                    output$Integrate_data1_plot_status <- renderText({"Please select one from 'X/Y filter'."})
+                    return(NULL)
+                  }
+                  switch(input$Integrate_data2_thr_X_method,
+                    'A' = p <- p,
+                    'B' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_vline(xintercept=input$Integrate_data2_thr_X1, linetype='dotted', size=0.2) + geom_vline(xintercept=input$Integrate_data2_thr_X2, linetype='dotted', size=0.2),
+                  ) 
+                  switch(input$Integrate_data2_thr_Y_method,
+                    'A' = p <- p,
+                    'B' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2),
+                    'C' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
+                    'D' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
+                    'E' = p <- p + geom_hline(yintercept=input$Integrate_data2_thr_Y1, linetype='dotted', size=0.2) + geom_hline(yintercept=input$Integrate_data2_thr_Y2, linetype='dotted', size=0.2),
+                  ) 
+                }
+              }
+              p <- p + theme(axis.text = element_text(size = input$Integrate_data2_label.font.size), axis.title = element_text(size = input$Integrate_data2_title.font.size))
+              if(input$Integrate_data2_while_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
             }
-            p
-          }
-        }, width=reactive(input$Integrate_data2_fig.width), height=reactive(input$Integrate_data2_fig.height), res=300)
+          }, width=reactive(input$Integrate_data2_fig.width), height=reactive(input$Integrate_data2_fig.height), res=300)
 
         # plot1 + plot2 table
-        data1_plus_data2 <- reactive({
-          if(!is.null(df_data1()) && !is.null(df_data2())){
-            df1 <- df_data1()
-            df2 <- df_data2()
-            colnames(df1) <- paste0('Data1_', colnames(df1))
-            colnames(df2) <- paste0('Data2_', colnames(df2))
-            colnames(df1) <- gsub('Data1_id', 'id', colnames(df1))
-            colnames(df2) <- gsub('Data2_id', 'id', colnames(df2))
-            df_tmp <- merge(df1, df2, by='id')
-            return(df_tmp)
-          }else{
-            return(NULL)
-          }
-        })
-
-        output$Integrate_Overlapped_gene_table_status1 <- renderText({
-          'A list of genes that meet the filter settings in both datasets is displayed here.\nPlease set the threshoolds for the data to which the selected genes are mapped.'
-        })
-        # show the overlapped gene table
-        Integrate_Overlapped_gene_table_tmp <- reactive({
-          tryCatch({
-            # genes from the mapping side
-            if(input$Integrate_data_map_direction == 'A'){
-              gene_from_mapping_side <- data1_outliers()$id
+          data1_plus_data2 <- reactive({
+            if(!is.null(df_data1()) && !is.null(df_data2())){
+              df1 <- df_data1()
+              df2 <- df_data2()
+              colnames(df1) <- paste0('Data1_', colnames(df1))
+              colnames(df2) <- paste0('Data2_', colnames(df2))
+              colnames(df1) <- gsub('Data1_id', 'id', colnames(df1))
+              colnames(df2) <- gsub('Data2_id', 'id', colnames(df2))
+              df_tmp <- merge(df1, df2, by='id')
+              return(df_tmp)
             }else{
-              gene_from_mapping_side <- data2_outliers()$id
+              return(NULL)
             }
-            # which genes pass the filtering in the mapped side
-            if(input$Integrate_data_map_direction == 'A'){
-              df_tmp <- df_data2()[df_data2()$id %in% gene_from_mapping_side,]
-              df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
-                  "A" = df_tmp,
-                  "B" = df_tmp[df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1, ],
-                  "C" = df_tmp[df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2, ],
-                  "D" = df_tmp[(df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X2) & (df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X1), ],
-                  "E" = df_tmp[(df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2) | (df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1), ],
-              )       
-              df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
-                  "A" = df_tmp,
-                  "B" = df_tmp[df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ],
-                  "C" = df_tmp[df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ],
-                  "D" = df_tmp[(df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y2) & (df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y1), ],
-                  "E" = df_tmp[(df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2) | (df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1), ],
-              )            
-              overlapped_gene <- df_tmp$id
-            }else{
-              df_tmp <- df_data1()[df_data1()$id %in% gene_from_mapping_side,]
-              df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
-                  "A" = df_tmp,
-                  "B" = df_tmp[df_tmp[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1, ],
-                  "C" = df_tmp[df_tmp[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2, ],
-                  "D" = df_tmp[(df_tmp[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X2) & (df_main_plot[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X1), ],
-                  "E" = df_tmp[(df_tmp[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2) | (df_main_plot[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1), ],
-              )       
-              df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
-                  "A" = df_tmp,
-                  "B" = df_tmp[df_tmp[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ],
-                  "C" = df_tmp[df_tmp[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ],
-                  "D" = df_tmp[(df_tmp[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y2) & (df_main_plot[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y1), ],
-                  "E" = df_tmp[(df_tmp[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2) | (df_main_plot[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1), ],
-              ) 
-              overlapped_gene <- df_tmp$id
-            }
-            df_overlapped_gene_tmp <- data1_plus_data2()[data1_plus_data2()$id %in% overlapped_gene,]
-            columns <- c('id', paste0('Data1_', input$Integrate_data1_Scat.X), paste0('Data1_', input$Integrate_data1_Scat.Y), paste0('Data2_', input$Integrate_data2_Scat.X), paste0('Data2_', input$Integrate_data2_Scat.Y))
-            df_overlapped_gene_tmp <- df_overlapped_gene_tmp[, columns]
-            # output$Integrate_Overlapped_gene_table_status <- renderText({NULL})
-            # datatable( data.frame(df_overlapped_gene_tmp),  options = list(scrollX = TRUE, pageLength = 10))  
-            return(df_overlapped_gene_tmp)
-          },
-          error=function(e){
-            # output$Integrate_Overlapped_gene_table_status <- renderText({'Please set up Data1 and Data2'})
-            return(NULL)
           })
-        })
+
+          output$Integrate_Overlapped_gene_table_status1 <- renderText({
+            'A list of genes that meet the filter settings in both datasets is displayed here.\nPlease set the threshoolds for the data to which the selected genes are mapped.'
+          })
+
+        # show the overlapped gene table
+          Integrate_Overlapped_gene_table_tmp <- reactive({
+            tryCatch({
+              # genes from the mapping side
+              if(input$Integrate_data_map_direction == 'A'){
+                gene_from_mapping_side <- data1_outliers()$id
+              }else{
+                gene_from_mapping_side <- data2_outliers()$id
+              }
+              # which genes pass the filtering in the mapped side
+              if(input$Integrate_data_map_direction == 'A'){
+                df_tmp <- df_data2()[df_data2()$id %in% gene_from_mapping_side,]
+                df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
+                    "A" = df_tmp,
+                    "B" = df_tmp[df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1, ],
+                    "C" = df_tmp[df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2, ],
+                    "D" = df_tmp[(df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X2) & (df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X1), ],
+                    "E" = df_tmp[(df_tmp[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2) | (df_tmp[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1), ],
+                )       
+                df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
+                    "A" = df_tmp,
+                    "B" = df_tmp[df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ],
+                    "C" = df_tmp[df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ],
+                    "D" = df_tmp[(df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y2) & (df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y1), ],
+                    "E" = df_tmp[(df_tmp[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2) | (df_tmp[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1), ],
+                )            
+                overlapped_gene <- df_tmp$id
+              }else{
+                df_tmp <- df_data1()[df_data1()$id %in% gene_from_mapping_side,]
+                df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
+                    "A" = df_tmp,
+                    "B" = df_tmp[df_tmp[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1, ],
+                    "C" = df_tmp[df_tmp[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2, ],
+                    "D" = df_tmp[(df_tmp[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X2) & (df_main_plot[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X1), ],
+                    "E" = df_tmp[(df_tmp[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2) | (df_main_plot[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1), ],
+                )       
+                df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
+                    "A" = df_tmp,
+                    "B" = df_tmp[df_tmp[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ],
+                    "C" = df_tmp[df_tmp[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ],
+                    "D" = df_tmp[(df_tmp[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y2) & (df_main_plot[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y1), ],
+                    "E" = df_tmp[(df_tmp[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2) | (df_main_plot[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1), ],
+                ) 
+                overlapped_gene <- df_tmp$id
+              }
+              df_overlapped_gene_tmp <- data1_plus_data2()[data1_plus_data2()$id %in% overlapped_gene,]
+              columns <- c('id', paste0('Data1_', input$Integrate_data1_Scat.X), paste0('Data1_', input$Integrate_data1_Scat.Y), paste0('Data2_', input$Integrate_data2_Scat.X), paste0('Data2_', input$Integrate_data2_Scat.Y))
+              df_overlapped_gene_tmp <- df_overlapped_gene_tmp[, columns]
+              # output$Integrate_Overlapped_gene_table_status <- renderText({NULL})
+              # datatable( data.frame(df_overlapped_gene_tmp),  options = list(scrollX = TRUE, pageLength = 10))  
+              return(df_overlapped_gene_tmp)
+            },
+            error=function(e){
+              # output$Integrate_Overlapped_gene_table_status <- renderText({'Please set up Data1 and Data2'})
+              return(NULL)
+            })
+          })
 
         # display the table
-        output$Integrate_Overlapped_gene_table <- renderDataTable({
-          if(!is.null(Integrate_Overlapped_gene_table_tmp())){
-            if(dim(Integrate_Overlapped_gene_table_tmp())[1]==0){
-              output$Integrate_Overlapped_gene_table_status <- renderText({'No overlap genes. Please change the thrshold.'})
+          output$Integrate_Overlapped_gene_table <- renderDataTable({
+            if(!is.null(Integrate_Overlapped_gene_table_tmp())){
+              if(dim(Integrate_Overlapped_gene_table_tmp())[1]==0){
+                output$Integrate_Overlapped_gene_table_status <- renderText({'No overlap genes. Please change the thrshold.'})
+              }else{
+                output$Integrate_Overlapped_gene_table_status <- renderText({NULL})
+              }
+              datatable( data.frame(Integrate_Overlapped_gene_table_tmp()),  options = list(scrollX = TRUE, pageLength = 10))  
             }else{
-              output$Integrate_Overlapped_gene_table_status <- renderText({NULL})
+              output$Integrate_Overlapped_gene_table_status <- renderText({'Please set up the threshold of Data1 and Data2 above first.'})
+              return(NULL)
             }
-            datatable( data.frame(Integrate_Overlapped_gene_table_tmp()),  options = list(scrollX = TRUE, pageLength = 10))  
-          }else{
-            output$Integrate_Overlapped_gene_table_status <- renderText({'Please set up the threshold of Data1 and Data2 above first.'})
-            return(NULL)
-          }
-          
-        })
+            
+          })
 
         # Download the integrated table
-        output$Integrate_Overlapped_gene_table_download <- downloadHandler(
-          filename = function(){"Overlap_filtered_gene_data1_and_data2.tsv"}, 
-          content = function(fname){ write.table(Integrate_Overlapped_gene_table_tmp(), fname, sep='\t', quote=F) }
-        )
+          output$Integrate_Overlapped_gene_table_download <- downloadHandler(
+            filename = function(){"Overlap_filtered_gene_data1_and_data2.tsv"}, 
+            content = function(fname){ write.table(Integrate_Overlapped_gene_table_tmp(), fname, sep='\t', quote=F) }
+          )
 
         # list up the gene names
-        output$Integrate_Overlapped_gene_list <- renderText({
-          paste(na.omit(Integrate_Overlapped_gene_table_tmp()$id), collapse = "\n")
-        })
+          output$Integrate_Overlapped_gene_list <- renderText({
+            paste(na.omit(Integrate_Overlapped_gene_table_tmp()$id), collapse = "\n")
+          })
+        #
 
       ##### plot the integrated figure
         # X axis
-        output$Integrate_data1_plus_2_Scat.X <- renderUI({
-          if(!is.null(data1_plus_data2())){ X_axis_name <- colnames(data1_plus_data2()) }
-          else{ X_axis_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.X', 'X', c('None'='None', X_axis_name), selected = "")
-        })
-        outputOptions(output, "Integrate_data1_plus_2_Scat.X", suspendWhenHidden=FALSE)
+          output$Integrate_data1_plus_2_Scat.X <- renderUI({
+            if(!is.null(data1_plus_data2())){ X_axis_name <- colnames(data1_plus_data2()) }
+            else{ X_axis_name <- c() }
+            selectInput('Integrate_data1_plus_2_Scat.X', 'X', c('None'='None', X_axis_name), selected = "")
+          })
+          outputOptions(output, "Integrate_data1_plus_2_Scat.X", suspendWhenHidden=FALSE)
 
         # Y axis
-        output$Integrate_data1_plus_2_Scat.Y <- renderUI({
-          if(!is.null(data1_plus_data2())){ Y_axis_name <- colnames(data1_plus_data2()) }
-          else{ Y_axis_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.Y', 'Y', c('None'='None', Y_axis_name))
-        })
-        outputOptions(output, "Integrate_data1_plus_2_Scat.Y", suspendWhenHidden=FALSE)
+          output$Integrate_data1_plus_2_Scat.Y <- renderUI({
+            if(!is.null(data1_plus_data2())){ Y_axis_name <- colnames(data1_plus_data2()) }
+            else{ Y_axis_name <- c() }
+            selectInput('Integrate_data1_plus_2_Scat.Y', 'Y', c('None'='None', Y_axis_name))
+          })
+          outputOptions(output, "Integrate_data1_plus_2_Scat.Y", suspendWhenHidden=FALSE)
 
 
         # colour
-        output$Integrate_data1_plus_2_Scat.colour <- renderUI({
-          if(!is.null(data1_plus_data2())){ col_name <- colnames(data1_plus_data2()) }
-          else{ col_name <- c() }
-          selectInput('Integrate_data1_plus_2_Scat.colour', 'Colour', c('None'='None', col_name))
-        })
-        outputOptions(output, "Integrate_data1_plus_2_Scat.colour", suspendWhenHidden=FALSE)
+          output$Integrate_data1_plus_2_Scat.colour <- renderUI({
+            if(!is.null(data1_plus_data2())){ col_name <- colnames(data1_plus_data2()) }
+            else{ col_name <- c() }
+            selectInput('Integrate_data1_plus_2_Scat.colour', 'Colour', c('None'='None', col_name))
+          })
+          outputOptions(output, "Integrate_data1_plus_2_Scat.colour", suspendWhenHidden=FALSE)
 
         # get the filtered genes
-        Integrate_data1_plus_2_plot_filtered <- reactive({
-          df_main_plot <- data1_plus_data2()
-          if(is.null(df_main_plot)){ 
-            return(NULL)
-          }
-          if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
-            return(NULL)  
-          }
-          if(input$Integrate_data1_plus_2_plot_xselect =='E' & input$Integrate_data1_plus_2_plot_yselect =='E'){
-            return(NULL)  
-          }
-          x_select <- input$Integrate_data1_plus_2_plot_xselect
-          y_select <- input$Integrate_data1_plus_2_plot_yselect
-          if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr1) & (x_select == 'A' | x_select == 'C' | x_select == 'D')){
-            return(NULL)
-          }
-          if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr2) & (x_select == 'B' | x_select == 'C' | x_select == 'D')){
-            return(NULL)
-          }
-          if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr1) & (y_select == 'A' | y_select == 'C' | y_select == 'D')){
-            return(NULL)
-          }
-          if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr2) & (y_select == 'B' | y_select == 'C' | y_select == 'D')){
-            return(NULL)
-          }
-          switch(x_select,
-            "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1, ] },
-            "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2, ] },
-            "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr2), ] },
-            "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2), ] }
-          )
-          switch(y_select,
-            "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1, ] },
-            "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2, ] },
-            "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr2), ] },
-            "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2), ] }
-          )
-          return(df_main_plot)
-        })
+          Integrate_data1_plus_2_plot_filtered <- reactive({
+            df_main_plot <- data1_plus_data2()
+            if(is.null(df_main_plot)){ 
+              return(NULL)
+            }
+            if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
+              return(NULL)  
+            }
+            if(input$Integrate_data1_plus_2_plot_xselect =='E' & input$Integrate_data1_plus_2_plot_yselect =='E'){
+              return(NULL)  
+            }
+            x_select <- input$Integrate_data1_plus_2_plot_xselect
+            y_select <- input$Integrate_data1_plus_2_plot_yselect
+            if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr1) & (x_select == 'A' | x_select == 'C' | x_select == 'D')){
+              return(NULL)
+            }
+            if(!is.numeric(input$Integrate_data1_plus_2_plot_xthr2) & (x_select == 'B' | x_select == 'C' | x_select == 'D')){
+              return(NULL)
+            }
+            if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr1) & (y_select == 'A' | y_select == 'C' | y_select == 'D')){
+              return(NULL)
+            }
+            if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr2) & (y_select == 'B' | y_select == 'C' | y_select == 'D')){
+              return(NULL)
+            }
+            switch(x_select,
+              "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1, ] },
+              "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2, ] },
+              "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr2), ] },
+              "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2), ] }
+            )
+            switch(y_select,
+              "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1, ] },
+              "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2, ] },
+              "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr2), ] },
+              "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2), ] }
+            )
+            return(df_main_plot)
+          })
 
         # plot
-        output$Integrate_data1_plus_2_plot <- renderPlot({
-          df_main_plot <- data1_plus_data2()
-          if(is.null(df_main_plot)){ 
-            output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the Data1 and the Data2."})
-            return(NULL) 
-          }
-          if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
-            output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the X and the Y."})
-            return(NULL)  
-          }
-          else{ 
-            output$Integrate_data1_plus_2_plot_status <- renderText({NULL})
-            if(is.null(input$Integrate_data1_plus_2_Scat.colour) || input$Integrate_data1_plus_2_Scat.colour == 'None'){
-              p <- ggplot(df_main_plot, aes_string(x = input$Integrate_data1_plus_2_Scat.X, y = input$Integrate_data1_plus_2_Scat.Y))
-            }else{
-              p <- ggplot(df_main_plot, aes_string(x = input$Integrate_data1_plus_2_Scat.X, y = input$Integrate_data1_plus_2_Scat.Y, color = input$Integrate_data1_plus_2_Scat.colour))
-
-              values_for_colours <- df_main_plot[,input$Integrate_data1_plus_2_Scat.colour][!is.na(df_main_plot[,input$Integrate_data1_plus_2_Scat.colour])]
-              if( min(values_for_colours)<0 ){
-                if( max(values_for_colours)>=0 ){
-                  tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                  p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
-                  p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
-                }else{
-                  p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
-                  p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
-                }
+          output$Integrate_data1_plus_2_plot <- renderPlot({
+            df_main_plot <- data1_plus_data2()
+            if(is.null(df_main_plot)){ 
+              output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the Data1 and the Data2."})
+              return(ggplot()) 
+            }
+            if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
+              output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the X and the Y."})
+              return(ggplot())  
+            }
+            else{ 
+              output$Integrate_data1_plus_2_plot_status <- renderText({NULL})
+              if(is.null(input$Integrate_data1_plus_2_Scat.colour) || input$Integrate_data1_plus_2_Scat.colour == 'None'){
+                p <- ggplot(df_main_plot, 
+                  aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]]))
               }else{
-                p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
-                p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
-              }
-            }
-            p <- p + geom_point(size = input$Integrate_data1_plus_2_dot_label_size) 
-          }
-          tryCatch(
-            expr = {
-              res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush)
-              p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
-            },
-            error = function(e){NULL}
-          )
-          if(!is.null(Integrate_data1_plus_2_plot_filtered())){
-            Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
-            if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2) 
-            }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
-            }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2)  
-              p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
-            }
+                p <- ggplot(df_main_plot, 
+                  aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]], color = .data[[input$Integrate_data1_plus_2_Scat.colour]]))
 
-            if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
-            }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
-            }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
-              p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
+                values_for_colours <- df_main_plot[,input$Integrate_data1_plus_2_Scat.colour][!is.na(df_main_plot[,input$Integrate_data1_plus_2_Scat.colour])]
+                if( min(values_for_colours)<0 ){
+                  if( max(values_for_colours)>=0 ){
+                    tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                    p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
+                    p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
+                  }else{
+                    p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
+                    p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
+                  }
+                }else{
+                  p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
+                  p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
+                }
+              }
+              p <- p + geom_point(size = input$Integrate_data1_plus_2_dot_label_size) 
             }
-            
-            p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-            if(!input$Integrate_data1_plus_2_plot_filter_label){
-              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
+            tryCatch(
+              expr = {
+                res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush,
+                  xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y)
+                p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
+              },
+              error = function(e){NULL}
+            )
+            if(!is.null(Integrate_data1_plus_2_plot_filtered())){
+              Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
+              if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
+                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2) 
+              }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
+                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
+              }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
+                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2)  
+                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
+              }
+
+              if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
+                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
+              }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
+                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
+              }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
+                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
+                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
+              }
+              
+              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
+              if(!input$Integrate_data1_plus_2_plot_filter_label){
+                p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
+              }
+            }          
+            if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
+              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
+              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
             }
-          }          
-          if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
-            p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-            p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
-          }
-          p <- p + theme(axis.text.y = element_text(size = input$Integrate_data1_plus_2_XY_label_size), axis.text.x = element_text(size = input$Integrate_data1_plus_2_XY_label_size))
-          p <- p + theme(axis.title.y = element_text(size = input$Integrate_data1_plus_2_XY_title_size), axis.title.x = element_text(size = input$Integrate_data1_plus_2_XY_title_size))
-          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-          if(input$Integrate_data1_plus_2_white_background){
-            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-            p <- p + theme(panel.background = element_rect(fill="white", size=0))
-            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-          }
-          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-          p
-        }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height), res=300)
+            p <- p + theme(axis.text.y = element_text(size = input$Integrate_data1_plus_2_XY_label_size), axis.text.x = element_text(size = input$Integrate_data1_plus_2_XY_label_size))
+            p <- p + theme(axis.title.y = element_text(size = input$Integrate_data1_plus_2_XY_title_size), axis.title.x = element_text(size = input$Integrate_data1_plus_2_XY_title_size))
+            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            if(input$Integrate_data1_plus_2_white_background){
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p
+          }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height), res=300)
 
         # display the filtered genes
-        output$Integrate_data1_plus_2_filtered_status <- renderText({
-          "Please set the Data1 and Data2, and set X and Y on the left."
-        })
-        output$Integrate_data1_plus_2_filtered <- renderDataTable({
-          if(length(Integrate_data1_plus_2_plot_filtered())==0){
-            output$Integrate_data1_plus_2_filtered_status <- renderText({ "The genes passed the filtering will be shown here."})
-          }else if(is.null(Integrate_data1_plus_2_plot_filtered()) | dim(Integrate_data1_plus_2_plot_filtered())[1] == 0){
-            output$Integrate_data1_plus_2_filtered_status <- renderText({ "The genes passed the filtering will be shown here."})
-          }else{
-            output$Integrate_data1_plus_2_filtered_status <- renderText({NULL})
-          }
-          datatable( data.frame(Integrate_data1_plus_2_plot_filtered()), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10))
-        })
+          output$Integrate_data1_plus_2_filtered_status <- renderText({
+            "Please set the Data1 and Data2, and set X and Y on the left."
+          })
+          output$Integrate_data1_plus_2_filtered <- renderDataTable({
+            if(length(Integrate_data1_plus_2_plot_filtered())==0){
+              output$Integrate_data1_plus_2_filtered_status <- renderText({ "The genes passed the filtering will be shown here."})
+            }else if(is.null(Integrate_data1_plus_2_plot_filtered()) | dim(Integrate_data1_plus_2_plot_filtered())[1] == 0){
+              output$Integrate_data1_plus_2_filtered_status <- renderText({ "The genes passed the filtering will be shown here."})
+            }else{
+              output$Integrate_data1_plus_2_filtered_status <- renderText({NULL})
+            }
+            datatable( data.frame(Integrate_data1_plus_2_plot_filtered()), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10))
+          })
 
         # download the table
-        output$Integrate_data1_plus_2_filtered_download <- downloadHandler(
-          filename = function(){"Integrate_data1_data2_filtered.tsv"}, 
-          content = function(fname){ write.table(Integrate_data1_plus_2_plot_filtered(), fname, sep='\t', row.names=F, quote=F) }
-        )
+          output$Integrate_data1_plus_2_filtered_download <- downloadHandler(
+            filename = function(){"Integrate_data1_data2_filtered.tsv"}, 
+            content = function(fname){ write.table(Integrate_data1_plus_2_plot_filtered(), fname, sep='\t', row.names=F, quote=F) }
+          )
 
         # list up the gene names
-        output$Integrate_data1_plus_2_filtered_gene_list <- renderText({
-          if(is.null(Integrate_data1_plus_2_plot_filtered())){
-            return(NULL)
-          }
-          paste(na.omit(Integrate_data1_plus_2_plot_filtered()$id), collapse = "\n")
-        })
+          output$Integrate_data1_plus_2_filtered_gene_list <- renderText({
+            if(is.null(Integrate_data1_plus_2_plot_filtered())){
+              return(NULL)
+            }
+            paste(na.omit(Integrate_data1_plus_2_plot_filtered()$id), collapse = "\n")
+          })
 
         # display the selected area
-        output$Integrate_data1_plus_2_selected <- renderDataTable({
-          res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush) 
-          datatable( data.frame(res), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10))
-        })
+          output$Integrate_data1_plus_2_selected <- renderDataTable({
+            res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush, 
+              xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y) 
+            datatable( data.frame(res), options = list(scrollX = TRUE, scrollY = TRUE, pageLength = 10))
+          })
 
         # download the table
-        output$Integrate_data1_plus_2_selected_download <- downloadHandler(
-          filename = function(){"Integrate_data1_data2.tsv"}, 
-          content = function(fname){ write.table(brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush), fname, sep='\t', row.names=F, quote=F) }
-        )
+          output$Integrate_data1_plus_2_selected_download <- downloadHandler(
+            filename = function(){"Integrate_data1_data2.tsv"}, 
+            content = function(fname){ write.table(brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush, 
+              xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y), fname, sep='\t', row.names=F, quote=F) }
+          )
 
         # list up the gene names
-        output$Integrate_data1_plus_2_selected_gene_list <- renderText({
-          if(is.null(data1_plus_data2())){
-            return(NULL)
-          }
-          res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush) 
-          paste(na.omit(res$id), collapse = "\n")
-        })
-
-
+          output$Integrate_data1_plus_2_selected_gene_list <- renderText({
+            if(is.null(data1_plus_data2())){
+              return(NULL)
+            }
+            res <- brushedPoints(data1_plus_data2(), input$Integrate_data1_plus_2_plot_brush ,
+              xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y) 
+            paste(na.omit(res$id), collapse = "\n")
+          })
+        
+        #
+      #####
   ###
 
   ### scRNA ########################################################################################
@@ -8170,8 +8305,8 @@ server <- function(input, output, session) {
   ###
 
   ### igv ##########################################################################################
-    # suppressMessages(library(igvShiny))
-    # suppressMessages(library(GenomicAlignments))
+      suppressMessages(library(igvShiny))
+      suppressMessages(library(GenomicAlignments))
       suppressMessages(library(EnrichedHeatmap))
       suppressMessages(library(rtracklayer))
       suppressMessages(library(circlize))
@@ -8216,7 +8351,7 @@ server <- function(input, output, session) {
       # change the header of the bed file
       bed_data <- reactive({ 
         path <- Dataset()[Dataset()$Dataset == input$igv_data_select, ]$Path
-        tmp <- read.table(path, sep='\t',check.names = TRUE) # head(bed_data)
+        tmp <- read.table(path, sep='\t',check.names = FALSE) # head(bed_data)
         colnames(tmp)[1] <- 'chrom'
         colnames(tmp)[2] <- 'start'
         colnames(tmp)[3] <- 'end'
@@ -8418,40 +8553,40 @@ server <- function(input, output, session) {
 
       #
     #### Gviz plot
-    library(Gviz)
-    library(GenomicRanges)
-      # dataset select
-        output$Gviz_data_select <- renderUI({
-          df_tmp <- Dataset()
-          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
-          selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
-        })
-        outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
+      # library(Gviz)
+      # library(GenomicRanges)
+      # # dataset select
+      #   output$Gviz_data_select <- renderUI({
+      #     df_tmp <- Dataset()
+      #     df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+      #     selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
+      #   })
+      #   outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
 
-        # positions
-        # Gvis_chr <- reactiveVal({'chr1'})
-        # Gvis_start  <- reactiveVal({100000})
-        # Gvis_end  <- reactiveVal({200000})
-        # observe({
-        #   req(input$Gviz_chromosome_pos)
-        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
-        #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
-        #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
-        #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
-        # })
+      #   # positions
+      #   # Gvis_chr <- reactiveVal({'chr1'})
+      #   # Gvis_start  <- reactiveVal({100000})
+      #   # Gvis_end  <- reactiveVal({200000})
+      #   # observe({
+      #   #   req(input$Gviz_chromosome_pos)
+      #   #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
+      #   #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
+      #   #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
+      #   #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
+      #   # })
 
 
-      # Plot
-        output$Gviz_plot <- renderPlot({
-          # Datatrak1 <- AlignmentsTrack('data/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome='hg38')
-          gen='hg38'
-          names(gen) <- 'chr1'
-          chr='chr1'
-          itrack <- IdeogramTrack(genome = gen, chromosome = chr)
-          gtrack <- GenomeAxisTrack()
-          plotTracks(list(itrack, gtrack ), from = 100000, to = 200000, chromosome='chr1')
-        }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
-      #
+      # # Plot
+      #   output$Gviz_plot <- renderPlot({
+      #     # Datatrak1 <- AlignmentsTrack('data/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome='hg38')
+      #     gen='hg38'
+      #     names(gen) <- 'chr1'
+      #     chr='chr1'
+      #     itrack <- IdeogramTrack(genome = gen, chromosome = chr)
+      #     gtrack <- GenomeAxisTrack()
+      #     plotTracks(list(itrack, gtrack ), from = 100000, to = 200000, chromosome='chr1')
+      #   }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
+      # #
 
   ###
 
@@ -9356,25 +9491,25 @@ server <- function(input, output, session) {
         if(is.null(input$new_cohort_upload_GE)){
           gx_table(NULL)
         }else{
-          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T,check.names = TRUE)
+          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T,check.names = FALSE)
           gx_table(gx_table)
         }
         if(is.null(input$new_cohort_upload_sur)){
           suv_table(NULL)
         }else{
-          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T,check.names = TRUE)
+          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T,check.names = FALSE)
           suv_table(suv_table)
         }
         if(is.null(input$new_cohort_upload_meta)){
           meta_table(NULL)
         }else{
-          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T,check.names = TRUE)
+          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T,check.names = FALSE)
           meta_table(meta_table)
         }
         if(is.null(input$new_cohort_upload_mut)){
           mut_table(NULL)
         }else{
-          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T,check.names = TRUE)
+          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T,check.names = FALSE)
           mut_table(mut_table)
         }
       })
@@ -10658,7 +10793,7 @@ server <- function(input, output, session) {
       output$CGC_message <- renderText({
         'We are using the Cancer Gene Census from COSMIC. (For more details, visit https://cancer.sanger.ac.uk/census) \nPlease enter gene names below or select a gene set.\nIf the genes are associated with cancer predisposition, they will appear in the table. Otherwise, the entire database will be displayed.'
       })
-      CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = TRUE)
+      CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = FALSE)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
         gene_sets_names <- c()
         gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
@@ -10782,7 +10917,7 @@ server <- function(input, output, session) {
             df_out <- data.frame(Cohort=c(),Mutation.Patients=c(), Frequency=c())
             for (cohort in cohorts){
               if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path)){
-                mut <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path, header=T,check.names = TRUE))
+                mut <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Mutation_path, header=T,check.names = FALSE))
                 if(gene %in% mut$id){
                   mut_gene <- mut[mut$id == gene,] # df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
                   df_tmp <- data.frame(Cohort=c(cohort),Mutation.Patients=c(length(unique(mut_gene$sample))), Frequency=c( round(length(unique(mut_gene$sample))/length(unique(mut$sample))*100, 2) ) )
@@ -10889,7 +11024,7 @@ server <- function(input, output, session) {
             df_out <- data.frame(Cohort=c(), Expression=c())
             for (cohort in cohorts){
               if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path)){
-                gx <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path, header=T,check.names = TRUE))
+                gx <- data.frame(read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == cohort, ]$Expression_path, header=T,check.names = FALSE))
                 if(gene %in% gx$id){
                   gx_gene <- gx[gx$id == gene,] 
                   gx_gene <- gx_gene[!names(gx_gene) %in% 'id']
@@ -11119,7 +11254,7 @@ server <- function(input, output, session) {
     
     ### Find the genomic loci
       # status messages
-        Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T,check.names = TRUE) # head(Gene_coords_GRch38)
+        Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=T,check.names = FALSE) # head(Gene_coords_GRch38)
         output$Find_genome_loci_status <- renderText({'Please enter the inputs, set the method and click "Search". '})
         output$Find_genome_loci_table_status <- renderText({'A table containing gene names and their genomic locus (chromosome number, start and end) will be displayed here.'})
         output$Find_genome_loci_table_gene_names <- renderText({'The gene names/genomic coordinates will be listed up here.'})
@@ -11422,7 +11557,7 @@ server <- function(input, output, session) {
             Network_input_data(edges)
           }else{
             req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
-            edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = TRUE)
+            edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = FALSE)
             Network_input_data(edges)
           }
         })
