@@ -1252,7 +1252,7 @@ ui <- fluidPage(
                                         )
                                       ),
                                     ## TF
-                                      tabPanel('TF activity inference',
+                                      tabPanel(strong('TF activity inference'),
                                         h4(''),
                                         fluidRow(
                                           column(12, h4('(DecoupleR analysis. Available only for RNAseq DEG data processed from DESeq2)')),
@@ -1282,9 +1282,9 @@ ui <- fluidPage(
                                                           column(6, sliderInput('DecoupeR_fig.height','Fig height', min=300, max=3000, value=500, step=10))
                                                         ),
                                                         fluidRow(
-                                                          column(4, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=10, value=3, step=0.1)),
-                                                          column(4, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=10, value=3, step=0.1)),
-                                                          column(4, sliderInput('DecoupeR_legend.size', 'Legend size', min=1, max=10, value=3, step=0.1)),
+                                                          column(6, sliderInput('DecoupeR_lab.font.size', 'X/Y labels size', min=1, max=10, value=3, step=0.1)),
+                                                          column(6, sliderInput('DecoupeR_title.font.size', 'X/Y title font size', min=1, max=10, value=3, step=0.1)),
+                                                          column(6, sliderInput('DecoupeR_legend.size', 'Legend size', min=1, max=10, value=3, step=0.1)),
                                                         ),
                                                         fluidRow(
                                                           column(4, colourpicker::colourInput('DecoupeR_colour_high', 'High activity colour:', value='indianred')),
@@ -1292,7 +1292,7 @@ ui <- fluidPage(
                                                           column(4, colourpicker::colourInput('DecoupeR_colour_mid', 'Zero activity colour:', value='whitesmoke')),
                                                           column(12, materialSwitch('DecoupeR_white_background', 'Use white background', value=FALSE, status='success'))
                                                         ),
-                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options")
+                                                        circle = FALSE, status = "success", icon = icon("gear"), right=TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                                       )
                                                     ),
                                                     column(12, withSpinner(plotOutput("DecoupeR_plot", width="100%", height="100%"), type=5, color='#0dc5c1' )  )
@@ -1302,7 +1302,7 @@ ui <- fluidPage(
                                                   fluidRow(
                                                     column(12, h2('')),
                                                     column(12, verbatimTextOutput('DecoupeR_Table_status') ),
-                                                    column(12, DT::dataTableOutput("DecoupeR_Table", width="100%", height="100%") )
+                                                    column(12, withSpinner(DT::dataTableOutput("DecoupeR_Table", width="100%", height="100%"), type=5, color='#0dc5c1'))
                                                   ),
                                                   fluidRow(
                                                     column(12, h5('')) ,
@@ -1371,185 +1371,188 @@ ui <- fluidPage(
         #### Compare_across_datasets ####
           tabItem( tabName='Compare_across_datasets',
             h2(' Compare across datasets'),
-            #####
-            box(width=12, collapsible=TRUE, title='Dataset selection', status='info',solidHeader = TRUE,
-              fluidRow( 
-                column(8, htmlOutput("choose_data_type")),
-                column(1, h4('')),
-              ),
-              fluidRow(
-                column(12, h4('Dataset setection')),
-                column(12, verbatimTextOutput('Compare_dataset_selection_status')),
-                column(12, h4('')),
-                column(12, 
-                  div(id='filterin_dropdown',
-                    dropdownButton( 
-                      fluidRow(
-                        column(6,htmlOutput("Compare_dataset_filtering_Data_from")),
-                        column(6,htmlOutput("Compare_dataset_filtering_Experiment"))
-                      ),
-                      label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "1200px",  tooltip = tooltipOptions(title = "Filtering")
-                    )
-                  )
+            ##### Dataset selection ####
+              box(width=12, collapsible=TRUE, title=strong('Dataset selection'), status='info',solidHeader = TRUE,
+                fluidRow( 
+                  column(6, htmlOutput("choose_data_type")),
                 ),
-                column(12, h4('')),
-                column(12, fluidRow( column(12, dataTableOutput("all_dataset")))),
-              )
-            ),
-            box(width=12, title='Anlaysis', status='primary',solidHeader = TRUE,
-              h4(''),
-              tabsetPanel(
-                ## Overlap the hits
-                  tabPanel("Get the overlap",
-                    fluidRow(
-                      column(12, 
-                        box(width=12, title='Filtering criteria', collapsible = TRUE, status='info',
-                          fluidRow( 
-                            column(12, helpText(HTML("Please select the score for ranking (ex. LFC), choose the direction (either top or bottom), set the threshold, and click 'Investigate the Overlap'. <br>A table displaying how often each gene ranks in the top or bottom X% of the selected datasets will appear below."))) 
-                          ),
-                          fluidRow( column(12, h4('')) ),
-                          fluidRow(
-                            column(3, htmlOutput('Compare_dataset_get_overview_select_score')),
-                            column(2, radioButtons('Compare_dataset_get_overview_direction', 'Direction:', choices=c('Top X%', 'Bottom X%'))),
-                            column(5, 
-                              fluidRow(
-                                column(12, sliderInput('Compare_dataset_get_overview_threshold', 'Threshold X(%)=', min=0, max=100, value=5, step=1)),
-                                column(12, numericInput('Compare_dataset_get_overview_threshold_for_display', 'Show genes with Overlap_time more than:', value=0, min=0, max=1000, step=1))
-                              )
-                            ),
-                            column(3, actionButton('Compare_dataset_get_overview_start', 'Investigate the overlap',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
-                          )
-                        ),                      
-                      )
-                    ),
-                    fluidRow(
-                      column(4,
-                        box(width=12, title='Overlapped hits', collapsible = TRUE, status='warning',
-                          fluidRow( 
-                            column(12, verbatimTextOutput('Compare_dataset_get_overview_status')),
-                            column(12, dataTableOutput("Compare_dataset_get_overview_overlap")),
-                            column(12, 
-                              fluidRow(
-                                column(6, downloadButton('Compare_dataset_get_overview_download',"Download this table", style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")),
-                                column(6, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Compare_dataset_get_overview_list') ))
-                              )
-                            )
-                          )
+                fluidRow(
+                  column(12, h4('Setect the datasets to compare below:')),
+                  column(12, verbatimTextOutput('Compare_dataset_selection_status')),
+                  column(12, h4('')),
+                  column(12, h4('')),
+                  column(12, fluidRow( column(12, dataTableOutput("all_dataset")))),
+                  column(12, 
+                    div(id='filterin_dropdown',
+                      dropdownButton( 
+                        fluidRow(
+                          column(6,htmlOutput("Compare_dataset_filtering_Data_from")),
+                          column(6,htmlOutput("Compare_dataset_filtering_Experiment"))
                         ),
-                      ),
-                      column(8,
-                        box(width=12, title='barplot', collapsible = TRUE,status='danger',
-                          fluidRow(
-                            column(12, verbatimTextOutput('Compare_dataset_get_overview_barplot_status')),
-                            column(12,  plotOutput("Compare_dataset_get_overview_barplot", width="100%", height="100%")),
-                            column(2,
-                              dropdownButton( h4(strong("Plot Options")),
-                                fluidRow(
-                                  column(6,sliderInput('Compare_dataset_get_overview_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
-                                  column(6,sliderInput('Compare_dataset_get_overview_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
-                                ),
-                                fluidRow(
-                                  column(6, sliderInput('Compare_dataset_get_overview_label.font.size', 'X/Y label font size', min=1, max=10, value=4, step=0.1)),
-                                  column(6, sliderInput('Compare_dataset_get_overview_title.font.size', 'X/Y title font size', min=1, max=10, value=4, step=0.1)),
-                                  column(6, sliderInput('Compare_dataset_get_overview_graph.title.font.size', 'Graph title font size', min=1, max=10, value=4, step=0.1)),
-                                  column(6, sliderInput('Compare_dataset_get_overview_legend_size', 'Legend font size', min=1, max=10, value=4, step=0.1))
-                                ),
-                                fluidRow(
-                                  column(4, colourpicker::colourInput('Compare_dataset_get_overview_highest_colour', 'Colour for the highest value', value='red')),
-                                  column(4, colourpicker::colourInput('Compare_dataset_get_overview_lowest_colour', 'Colour for the lowest value', value='blue')),
-                                  column(4, colourpicker::colourInput('Compare_dataset_get_overview_zero_colour', 'Colour for zero', value='white')),
-                                  column(12, materialSwitch('Compare_dataset_get_overview_white_background', 'Use white background', value=FALSE, status = "success"))
-                                ),
-                                circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
-                              )
-                            )
-                          )
-                        )                      
+                        label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "1200px",  tooltip = tooltipOptions(title = "Filtering")
                       )
                     )
                   ),
-                ## Compare the one gene
-                  tabPanel("Compare one gene",
-                    fluidRow(
-                      column(12,
-                        box(width=12, collapsible=TRUE, title='Analysis options', status='info',
-                          fluidRow( column(12, verbatimTextOutput('target_gene_for_comparing_setting_status')) ),
-                          fluidRow( 
-                            column(5, 
-                              fluidRow(
-                                column(12, textAreaInput("target_gene_for_comparing", "Enter genes (line by line)")),
-                                column(12, checkboxInput('target_gene_for_comparing_Input_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
-                                conditionalPanel(
-                                  condition = "input.target_gene_for_comparing_Input_from_custom_geneset == true",
-                                  column(12, htmlOutput('target_gene_for_comparing_Input_from_custom_geneset_select'))
-                                )
-                              )
+                )
+              ),
+            ##### Analysis ####
+              box(width=12, title=strong('Anlaysis'), status='primary',solidHeader = TRUE,
+                h4(''),
+                tabsetPanel(
+                  ## Overlap the hits
+                    tabPanel(strong("Get the overlap"),
+                      fluidRow(
+                        column(12, # Settings and Inputs
+                          box(width=12, title=strong('Settings and Inputs'), collapsible = TRUE, status='info',
+                            fluidRow( 
+                              column(12, helpText(HTML("Please select the score for ranking (ex. LFC), choose the direction (either top or bottom), set the threshold, and click 'Investigate the Overlap'. <br>A table displaying how often each gene ranks in the top or bottom X% of the selected datasets will appear below."))) 
                             ),
-                            column(4, 
-                              fluidRow(
-                                column(12,htmlOutput("Choose_datasets_y")),
-                                column(12,htmlOutput("Choose_datasets_colour"))
+                            fluidRow( column(12, h4('')) ),
+                            fluidRow(
+                              column(3, htmlOutput('Compare_dataset_get_overview_select_score')),
+                              column(2, radioButtons('Compare_dataset_get_overview_direction', 'Direction:', choices=c('Top X%', 'Bottom X%'))),
+                              column(5, 
+                                fluidRow(
+                                  column(12, sliderInput('Compare_dataset_get_overview_threshold', 'Threshold X(%)=', min=0, max=100, value=5, step=1)),
+                                  column(7, numericInput('Compare_dataset_get_overview_threshold_for_display', 'Show genes with Overlap_time more than:', value=0, min=0, max=1000, step=1))
+                                )
+                              ),
+                              column(3, actionButton('Compare_dataset_get_overview_start', 'Investigate the overlap',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                            )
+                          ),                      
+                        ),
+                        column(4, # Overlapped hits
+                          box(width=12, title=strong('Overlapped hits'), collapsible = TRUE, status='warning',
+                            fluidRow( 
+                              column(12, verbatimTextOutput('Compare_dataset_get_overview_status')),
+                              column(12, withSpinner(dataTableOutput("Compare_dataset_get_overview_overlap"), type=5, color='#0dc5c1') ),
+                              column(12, h2('')),
+                              column(12, 
+                                fluidRow(
+                                  column(5, downloadButton('Compare_dataset_get_overview_download',"Download this table", style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")),
+                                  column(7, box(width=12, collapsible = TRUE, collapsed = TRUE, title='List of the genes', verbatimTextOutput('Compare_dataset_get_overview_list') ))
+                                )
                               )
                             )
                           ),
-                          fluidRow( column(4, actionButton("comparison_start", "Start Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
                         ),
+                        column(8, # barplot
+                          box(width=12, title=strong('barplot'), collapsible = TRUE,status='danger',
+                            fluidRow(
+                              column(10, verbatimTextOutput('Compare_dataset_get_overview_barplot_status')),
+                              column(2,
+                                dropdownButton( h4(strong("Plot Options")),
+                                  fluidRow(
+                                    column(6,sliderInput('Compare_dataset_get_overview_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
+                                    column(6,sliderInput('Compare_dataset_get_overview_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
+                                  ),
+                                  fluidRow(
+                                    column(6, sliderInput('Compare_dataset_get_overview_label.font.size', 'X/Y label font size', min=1, max=10, value=4, step=0.1)),
+                                    column(6, sliderInput('Compare_dataset_get_overview_title.font.size', 'X/Y title font size', min=1, max=10, value=4, step=0.1)),
+                                    column(6, sliderInput('Compare_dataset_get_overview_graph.title.font.size', 'Graph title font size', min=1, max=10, value=4, step=0.1)),
+                                    column(6, sliderInput('Compare_dataset_get_overview_legend_size', 'Legend font size', min=1, max=10, value=4, step=0.1))
+                                  ),
+                                  fluidRow(
+                                    column(4, colourpicker::colourInput('Compare_dataset_get_overview_highest_colour', 'Colour for the highest value', value='red')),
+                                    column(4, colourpicker::colourInput('Compare_dataset_get_overview_lowest_colour', 'Colour for the lowest value', value='blue')),
+                                    column(4, colourpicker::colourInput('Compare_dataset_get_overview_zero_colour', 'Colour for zero', value='white')),
+                                    column(12, materialSwitch('Compare_dataset_get_overview_white_background', 'Use white background', value=FALSE, status = "success"))
+                                  ),
+                                  circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                )
+                              ),
+                              column(12, withSpinner(plotOutput("Compare_dataset_get_overview_barplot", width="100%", height="100%"),  type=5, color='#0dc5c1') )
+                            )
+                          )                      
+                        )
                       )
                     ),
-                    fluidRow(
-                      column(4,
-                        box(width=12, collapsible=TRUE, title='Gene select table', status='primary',
-                          fluidRow(
-                            column(12, h4('Select a gene below:')),
-                            column(12, dataTableOutput("Gene_comparing_gene_list_table"))
-                          )
-                        ),
-                        box(width=12, collapsible=TRUE, title='Data information',  status='warning',
-                          fluidRow(
-                            column(12, dataTableOutput("dataframe_comparing_dataset")),
-                            column(12, downloadButton('comparing_dataset_download',"Download this table"))
-                          )
-                        ),
-                      ),
-                      column(8,
-                        box(width=12, collapsible=TRUE, title='Plot', status='danger',
-                          fluidRow(column(12, verbatimTextOutput('Gene_comparing_status'))),
-                          fluidRow(column(5, radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot')) ),
-                          fluidRow(
-                            column(12, verbatimTextOutput('Gene_comparing_plot_status') ),
-                            column(12, plotOutput("Gene_comparing_plot", width="100%", height="100%") )
-                          ),
-                          fluidRow(
-                            column(2,
-                              dropdownButton( h4(strong("Plot Options")),
+                  ## Compare the one gene
+                    tabPanel(strong("Compare one gene"),
+                      fluidRow(
+                        column(12, # Settings and Inputs
+                          box(width=12, collapsible=TRUE, title=strong('Settings and Inputs'), status='info',
+                            fluidRow( 
+                              column(12, helpText(HTML("Please enter genes here and choose which score you use for the y-axis and the colour of the plot. <br>A bar or scatter plot comparing the score (selected as Y-axis) of each gene across the selected datasets will be generated in the end."))),
+                              column(5, 
                                 fluidRow(
-                                  column(4,sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=850, step=10)),
-                                  column(4,sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
-                                  column(4, sliderInput('Compare_pt.size', 'Point size', min=0.1, max=10, value=3, step=0.1))
-                                ),
+                                  column(12, textAreaInput("target_gene_for_comparing", "Enter genes (line by line)")),
+                                  column(12, materialSwitch('target_gene_for_comparing_Input_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                  conditionalPanel(
+                                    condition = "input.target_gene_for_comparing_Input_from_custom_geneset == true",
+                                    column(12, htmlOutput('target_gene_for_comparing_Input_from_custom_geneset_select'))
+                                  )
+                                )
+                              ),
+                              column(4, 
                                 fluidRow(
-                                  column(4, sliderInput('Compare_label.font.size', 'X/Y label font size', min=1, max=10, value=4, step=1)),
-                                  column(4, sliderInput('Compare_title.font.size', 'X/Y title font size', min=1, max=10, value=4, step=1)),
-                                  column(4, sliderInput('Compare_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1)),
-                                  column(4, sliderInput('Compare_label_legend_size', 'Legend font size', min=1, max=15, value=4, step=1)),
-                                ),
-                                fluidRow(
-                                  column(4, colourpicker::colourInput('Compare_highest_colour', 'Colour for the highest value', value='red')),
-                                  column(4, colourpicker::colourInput('Compare_lowest_colour', 'Colour for the lowest value', value='blue')),
-                                  column(4, colourpicker::colourInput('Compare_zero_colour', 'Colour for zero', value='white')),
-                                  column(4, materialSwitch('Compare_white_background', 'Use white background', value=FALSE, status = "success"))
-                                ),
-                                circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                  column(12,htmlOutput("Choose_datasets_y")),
+                                  column(12,htmlOutput("Choose_datasets_colour"))
+                                )
+                              ),
+                              column(3, 
+                                actionButton("comparison_start", "Start Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")
                               )
+                            )
+                          )
+                        ),
+                        column(4,
+                          box(width=12, collapsible=TRUE, title=strong('Input genes'), status='primary',
+                            fluidRow(
+                              column(12, h5('Select a gene below:')),
+                              column(12, withSpinner(dataTableOutput("Gene_comparing_gene_list_table"), type = 5, color='#0dc5c1') )
+                            )
+                          ),
+                          box(width=12, collapsible=TRUE, title='Data information',  status='warning',
+                            fluidRow(
+                              column(12, withSpinner(dataTableOutput("dataframe_comparing_dataset"), type=5, color='#0dc5c1') ),
+                              column(12, downloadButton('comparing_dataset_download',"Download this table"))
+                            )
+                          ),
+                        ),
+                        column(8,
+                          box(width=12, collapsible=TRUE, title='Plot', status='danger',
+                            fluidRow(
+                              column(12, verbatimTextOutput('Gene_comparing_status')),
+                              column(10, radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot', inline=TRUE)),
+                              column(2,
+                                dropdownButton( h4(strong("Plot Options")),
+                                  fluidRow(
+                                    column(6, sliderInput('Compare_fig.width', 'Fig width', min=300, max=3000, value=850, step=10)),
+                                    column(6, sliderInput('Compare_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
+                                    conditionalPanel(
+                                      condition = "input.bar_or_scatter == 'Scatter plot'",
+                                      column(6, sliderInput('Compare_pt.size', 'Point size', min=0.1, max=10, value=3, step=0.1))
+                                    )
+                                  ),
+                                  fluidRow(
+                                    column(6, sliderInput('Compare_label.font.size', 'X/Y label font size', min=1, max=10, value=4, step=1)),
+                                    column(6, sliderInput('Compare_title.font.size', 'X/Y title font size', min=1, max=10, value=4, step=1)),
+                                    column(6, sliderInput('Compare_graph.title.font.size', 'Graph title font size', min=1, max=15, value=4, step=1)),
+                                    column(6, sliderInput('Compare_label_legend_size', 'Legend font size', min=1, max=15, value=4, step=1)),
+                                  ),
+                                  fluidRow(
+                                    column(4, colourpicker::colourInput('Compare_highest_colour', 'Colour for the highest value', value='red')),
+                                    column(4, colourpicker::colourInput('Compare_lowest_colour', 'Colour for the lowest value', value='blue')),
+                                    column(4, colourpicker::colourInput('Compare_zero_colour', 'Colour for the zero value', value='white')),
+                                  ),
+                                  fluidRow(
+                                    column(12, materialSwitch('Compare_white_background', 'Use white background', value=FALSE, status = "success"))
+                                  ),
+                                  circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                )
+                              ),
+                              column(12, verbatimTextOutput('Gene_comparing_plot_status') ),
+                              column(12, withSpinner(plotOutput("Gene_comparing_plot", width="100%", height="100%"), type=5, color='#0dc5c1'))
                             )
                           )
                         )
                       )
                     )
-                  )
-                ##
+                  ##
+                )
               )
-            )
+            #####
           ),  
         #### Integrate_two_dataset ####
           tabItem( tabName='Integrate_two_dataset', 
@@ -4203,7 +4206,6 @@ server <- function(input, output, session) {
 
 
       ##### Plot #####
-        # show_filterin_input_option
         ###### X and Y axis necessary parameters / option #####
           output$Scat.X <- renderUI({ 
             if(!is.null(df())){ X_axis_name <- names(df()) }
@@ -4229,20 +4231,6 @@ server <- function(input, output, session) {
           })
           outputOptions(output, "Scat.Y", suspendWhenHidden=FALSE)
 
-
-          # the outliers checkbox and the pathway genes checkbox are exclusive each other
-          # observeEvent(input$show_outliers, { 
-          #   if(input$show_outliers){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
-          #   if(input$show_outliers){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
-          # })
-          # observeEvent(input$show_pathway, { 
-          #   if(input$show_pathway){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
-          #   if(input$show_pathway){ updateCheckboxInput(session, "Plot_Gene_set", value=FALSE)}
-          # })
-          # observeEvent(input$Plot_Gene_set, { 
-          #   if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_outliers", value=FALSE)}
-          #   if(input$Plot_Gene_set){ updateCheckboxInput(session, "show_pathway", value=FALSE)}
-          # })
 
         ###### Interesting genes #####
           # Genes of interest
@@ -5553,18 +5541,25 @@ server <- function(input, output, session) {
 
           # Run decoupeR
             DecoupeR_TF_table_all <- reactiveVal(NULL)
+            isCalculating_DecoupeR <- reactiveVal(FALSE)
+            Triggered_DecoupeR <- reactiveVal(FALSE)
             observeEvent(input$DecoupeR_start, {
+              isCalculating_DecoupeR(TRUE)   # 計算中フラグを立てる
+              Triggered_DecoupeR(TRUE)
               df_LFC <- df()
               rownames(df_LFC) <- df_LFC$id
               if(!'stat' %in% colnames(df_LFC)){
                 output$DecoupeR_plot_status <- renderText({'The input data is not the RANseq DEG data processed by DESeq2, and cannot applicable to this function.'})
+                output$DecoupeR_plot_status2 <- renderText({NULL})
                 DecoupeR_TF_table_all(NULL)
+                isCalculating_DecoupeR(FALSE)
                 return()
               }
-              output$DecoupeR_plot_status <- renderText({NULL})
+              output$DecoupeR_plot_status2 <- renderText({NULL})
               contrast_acts <- run_ulm(mat=df_LFC[, 'stat', drop=FALSE], net=net, .source='source', .target='target', .mor='mor', minsize = 5)
               
               DecoupeR_TF_table_all(contrast_acts)
+              isCalculating_DecoupeR(FALSE)
               return()
             })
 
@@ -5585,11 +5580,21 @@ server <- function(input, output, session) {
 
           # table display
             output$DecoupeR_Table <- DT::renderDataTable({
-              if(is.null(DecoupeR_TF_table_all())){ 
+              if (!Triggered_DecoupeR()) {
+                output$DecoupeR_Table_status <- renderText({'The result of the DecoupleR analysis (the activity level of transcription factors) will be shown here.'})
+                tmp <- as.data.frame(list('statistic'=character(0), 'source'=character(0), 'condition'=character(0), 'score'=character(0), 'p.value'=character(0)))
+                datatable(tmp,  options = list(scrollX = TRUE, pageLength = 10))
+              }else if(isCalculating_DecoupeR()) {
+                output$DecoupeR_Table_status <- renderText({'The result of the DecoupleR analysis (the activity level of transcription factors) will be shown here.'})
+                tmp <- as.data.frame(list('statistic'=character(0), 'source'=character(0), 'condition'=character(0), 'score'=character(0), 'p.value'=character(0)))
+                datatable(tmp,  options = list(scrollX = TRUE, pageLength = 10))
+              }else if(is.null(DecoupeR_TF_table_all())){ 
+                output$DecoupeR_Table_status <- renderText({'The result of the DecoupleR analysis (the activity level of transcription factors) will be shown here.'})
                 tmp <- as.data.frame(list('statistic'=character(0), 'source'=character(0), 'condition'=character(0), 'score'=character(0), 'p.value'=character(0)))
                 datatable(tmp,  options = list(scrollX = TRUE, pageLength = 10))
               }else{ 
-                datatable(as.data.frame(DecoupeR_TF_table_all()), options = list(scrollX = TRUE)) 
+                output$DecoupeR_Table_status <- renderText({NULL})
+                datatable(DecoupeR_TF_table_all(), options = list(scrollX = TRUE)) 
               }
             })
             outputOptions(output, "DecoupeR_Table", suspendWhenHidden=FALSE)
@@ -5602,7 +5607,11 @@ server <- function(input, output, session) {
 
           # plot DecoupeR results
             output$DecoupeR_plot <- renderPlot({
-              if(is.null(DecoupeR_TF_table())){
+              if (!Triggered_DecoupeR()) {
+                return(ggplot())
+              }else if(isCalculating_DecoupeR()) {
+                return(ggplot())
+              }else if(is.null(DecoupeR_TF_table())){
                 return(ggplot())
               }else{
                 p <- ggplot(DecoupeR_TF_table(), aes(x = reorder(source, score), y = score)) + geom_bar(aes(fill = score), stat = "identity")
@@ -5612,7 +5621,7 @@ server <- function(input, output, session) {
                 p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
                 p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                 p <- p + theme(legend.text = element_text(size = input$DecoupeR_legend.size), legend.title = element_text(size = input$DecoupeR_legend.size) )
-                p <- p + theme(legend.key.size = unit(3, "mm"))
+                p <- p + theme(legend.key.size = unit(1, "mm"))
                 p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
                 if(input$DecoupeR_white_background){
                   p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
@@ -5836,8 +5845,12 @@ server <- function(input, output, session) {
 
           # display the standardised table
             output$Data_Overview_heatmap_expression <- DT::renderDataTable({
-              if(is.null(clustered_heatmap_ex())){ data.frame() }
-              else{ datatable(as.data.frame(clustered_heatmap_ex()), options = list(scrollX = TRUE)) }
+              if(is.null(clustered_heatmap_ex())){ 
+                data.frame() 
+              }else{ 
+                output$Data_Overview_heatmap_expression_status <- renderText(NULL)
+                datatable(clustered_heatmap_ex(), options = list(scrollX = TRUE)) 
+              }
             })
 
           # Download the standardised table
@@ -6271,14 +6284,7 @@ server <- function(input, output, session) {
       outputOptions(output, "choose_data_type", suspendWhenHidden=FALSE)
 
       output$Compare_dataset_selection_status <- renderText({"Please choose the data type first, and select the datasets that you want to compare from the 'Dataset select' table. "})
-      #   if(length(input$choose_data_type)==0){
-          
-      #   }else if(input$choose_data_type == 'None'){
-      #     "Please choose the data type first."
-      #   }else{
-      #     NULL
-      #   }
-      # })
+
 
       # selectinon filtering
       # data from who
@@ -6319,410 +6325,496 @@ server <- function(input, output, session) {
 
 
     #### Dataset comparison
+      # when using the custom geneset
+        output$target_gene_for_comparing_Input_from_custom_geneset_select <- renderUI({
+          gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+          selectInput('target_gene_for_comparing_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+        })
+        outputOptions(output, "target_gene_for_comparing_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
       # chosse the score for comparison
-      output$Choose_datasets_y <- renderUI({ 
-        if(length(input$choose_data_type)!=0){
-          if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
-            y_names <- unique(colnames(data_ex_tmp))
-            rm(data_ex_tmp)
-            selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None', y_names))
+        output$Choose_datasets_y <- renderUI({ 
+          if(length(input$choose_data_type)!=0){
+            if(input$choose_data_type != 'None'){
+              data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
+              y_names <- unique(colnames(data_ex_tmp))
+              rm(data_ex_tmp)
+              selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None', y_names))
+            }else{
+              selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None'))
+            }
           }else{
             selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None'))
           }
-        }else{
-          selectInput('Choose_datasets_y', 'Y axis', c('None'= 'None'))
-        }
-      })
-      outputOptions(output, "Choose_datasets_y", suspendWhenHidden=FALSE)
-
-      output$Choose_datasets_colour <- renderUI({ 
-        if(length(input$choose_data_type)!=0){
-          if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
-            col_names <- unique(colnames(data_ex_tmp))
-            rm(data_ex_tmp)
-            selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None', col_names))
+        })
+        outputOptions(output, "Choose_datasets_y", suspendWhenHidden=FALSE)
+        output$Choose_datasets_colour <- renderUI({ 
+          if(length(input$choose_data_type)!=0){
+            if(input$choose_data_type != 'None'){
+              data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
+              col_names <- unique(colnames(data_ex_tmp))
+              rm(data_ex_tmp)
+              selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None', col_names))
+            }else{
+              selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None'))
+            }
           }else{
             selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None'))
           }
-        }else{
-          selectInput('Choose_datasets_colour', 'Colour', c('None'= 'None'))
-        }
-      })
-      outputOptions(output, "Choose_datasets_colour", suspendWhenHidden=FALSE)
+        })
+        outputOptions(output, "Choose_datasets_colour", suspendWhenHidden=FALSE)
 
 
       # Start comparing the score
-      output$target_gene_for_comparing_setting_status <- renderText({
-        "Please enter genes here and choose which score you use for the y-axis and the colour of the plot.\nA bar or scatter plot comparing the score (selected as Y-axis) of each gene across the selected datasets will be generated in the end."
-      })
-      df_compare_prepare <- eventReactive(input$comparison_start,{
-        data_table_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
-        if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
-        if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
-        # when datasets are not selected
-        if(length(input$all_dataset_rows_selected) == 0){
-          output$Gene_comparing_status <- renderText({"Please select the datasets first."})
-          return(NULL)
-        }
-        datasets_for_compare <- data_table_tmp[input$all_dataset_rows_selected,]$Dataset
-        # when no genes are specified
-        if(nchar(input$target_gene_for_comparing) == 0){
-          output$Gene_comparing_status <- renderText({"Please enter the gene names."})
-          return(NULL)
-        }
-        Genes_to_be_shown_list <- unlist(strsplit(input$target_gene_for_comparing, split = "\n"))
-        # when Y is not selected
-        if(input$Choose_datasets_y == 'None'){
-          output$Gene_comparing_status <- renderText({"Please select the Y-axis."})
-          return(NULL)
-        }
-        output$Gene_comparing_status <- renderText({NULL})
-        Y_axis <- input$Choose_datasets_y
-        undetected_genes <- c()
-        # start extract the scores for each gene
-        if(input$Choose_datasets_colour == 'None'){
-          df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
-          for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
-            if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
-            df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
-            colnames(df_tmp_tmp_Y)[2] <- dataset 
-            df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
-            rm(df_tmp_tmp)
+        df_compare_prepare <- reactiveVal(NULL)
+        isCalculating_compare <- reactiveVal(FALSE)
+        isTriger_compare <- reactiveVal(FALSE)
+        observeEvent(input$comparison_start,{
+          isCalculating_compare(TRUE)
+          isTriger_compare(TRUE)
+          data_table_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
+          if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
+          if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
+          # when datasets are not selected
+          if(length(input$all_dataset_rows_selected) == 0){
+            show_alert(title='Error.',text='Please select the datasets first.', type='error')
+            output$Gene_comparing_status <- renderText({"Please select the datasets first."})
+            df_compare_prepare(NULL)
+            isCalculating_compare(FALSE)
+            return(NULL)
           }
-          df_Y_tmp$type <- 'Y'
-          df_Y_tmp$Y_axis_name <- Y_axis
-          return(df_Y_tmp)
-        }else{
-          df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
-          df_col_tmp <- data.frame(id = Genes_to_be_shown_list)
-          col <- input$Choose_datasets_colour
-          for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
-            if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
-            df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
-            df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
-            colnames(df_tmp_tmp_Y)[2] <- dataset 
-            colnames(df_tmp_tmp_col)[2] <- dataset 
-            df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
-            df_col_tmp <- merge(df_col_tmp, df_tmp_tmp_col, by='id', all.x=TRUE)
-            rm(df_tmp_tmp)
+          datasets_for_compare <- data_table_tmp[input$all_dataset_rows_selected,]$Dataset
+          # gene inputs
+          # from custome genes
+          if(input$target_gene_for_comparing_Input_from_custom_geneset){
+            if(input$target_gene_for_comparing_Input_from_custom_geneset_select == 'None'){
+              show_alert(title='Error.',text='Please select the custom geneset.', type='error')
+              output$Gene_comparing_status <- renderText({"Please select the custom geneset."})
+              df_compare_prepare(NULL)
+              isCalculating_compare(FALSE)
+              return(NULL)
+            }else{
+              Genes_to_be_shown_list <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$target_gene_for_comparing_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+            } 
+          }else{
+            if(nchar(input$target_gene_for_comparing) == 0){ # when no genes are specified
+              show_alert(title='Error.',text='Please enter the gene names.', type='error')
+              output$Gene_comparing_status <- renderText({"Please enter the gene names."})
+              df_compare_prepare(NULL)
+              isCalculating_compare(FALSE)
+              return(NULL)
+            }else{
+              Genes_to_be_shown_list <- unlist(strsplit(input$target_gene_for_comparing, split = "\n"))
+            }
           }
-          df_Y_tmp$type <- 'Y'
-          df_col_tmp$type <- 'col'
-          # df_Y_col_tmp <- merge(df_Y_tmp, df_col_tmp, by='id')
-          df_Y_col_tmp <- rbind(df_Y_tmp, df_col_tmp)
-          df_Y_col_tmp$Y_axis_name <- Y_axis
-          df_Y_col_tmp$col_name <- col
-          return(df_Y_col_tmp)
-        }        
-      })
+          # when Y is not selected
+          if(input$Choose_datasets_y == 'None'){
+            show_alert(title='Error.',text='Please select the Y-axis.', type='error')
+            output$Gene_comparing_status <- renderText({"Please select the Y-axis."})
+            df_compare_prepare(NULL)
+            isCalculating_compare(FALSE)
+            return(NULL)
+          }
+          output$Gene_comparing_status <- renderText({NULL})
+          Y_axis <- input$Choose_datasets_y
+          undetected_genes <- c()
+          # start extract the scores for each gene
+          if(input$Choose_datasets_colour == 'None'){
+            df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
+            for (dataset in datasets_for_compare){
+              df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
+              if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
+              df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
+              colnames(df_tmp_tmp_Y)[2] <- dataset 
+              df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
+              rm(df_tmp_tmp)
+            }
+            df_Y_tmp$type <- 'Y'
+            df_Y_tmp$Y_axis_name <- Y_axis
+            df_compare_prepare(df_Y_tmp)
+            isCalculating_compare(FALSE)
+            return(NULL)
+          }else{
+            df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
+            df_col_tmp <- data.frame(id = Genes_to_be_shown_list)
+            col <- input$Choose_datasets_colour
+            for (dataset in datasets_for_compare){
+              df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
+              if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
+              df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
+              df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
+              colnames(df_tmp_tmp_Y)[2] <- dataset 
+              colnames(df_tmp_tmp_col)[2] <- dataset 
+              df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
+              df_col_tmp <- merge(df_col_tmp, df_tmp_tmp_col, by='id', all.x=TRUE)
+              rm(df_tmp_tmp)
+            }
+            df_Y_tmp$type <- 'Y'
+            df_col_tmp$type <- 'col'
+            # df_Y_col_tmp <- merge(df_Y_tmp, df_col_tmp, by='id')
+            df_Y_col_tmp <- rbind(df_Y_tmp, df_col_tmp)
+            df_Y_col_tmp$Y_axis_name <- Y_axis
+            df_Y_col_tmp$col_name <- col
+            df_compare_prepare(df_Y_col_tmp)
+            isCalculating_compare(FALSE)
+            return(NULL)
+          }        
+        })
 
       # select a gene from a table
-      output$Gene_comparing_gene_list_table <- DT::renderDataTable({
-        if(is.null(df_compare_prepare())){
-          return(NULL)
-        }else{
-          tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
-          datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE))
-        }
-      })
+        output$Gene_comparing_gene_list_table <- DT::renderDataTable({
+          if(is.null(df_compare_prepare())){
+            tmp <- data.frame('Input'=character(0))
+            rownames(tmp) <- NULL
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE))
+          }else{
+            tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
+            rownames(tmp) <- NULL
+            datatable(tmp, selection = list(mode='single'), options = list(scrollY=TRUE, scroller=TRUE, pageLength = 5))
+          }
+        })
 
-      output$Gene_comparing_status <- renderText({
-        "Please select the datasets and set the filtering setting above, and click 'Start Analysis'."
-      })
       # table for the plot
-      df_compare <- reactive({
-        if(is.null(df_compare_prepare())){
-          return(NULL)
-        }
-        tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
-        if(length(input$Gene_comparing_gene_list_table_rows_selected) == 0){
-          output$Gene_comparing_plot_status <- renderText({"Please select a gene (row) from the table"})
-          return(NULL)
-        }
-        gene <- tmp[input$Gene_comparing_gene_list_table_rows_selected,]
-        output$Gene_comparing_plot_status <- renderText({NULL})
-        df_compare_tmp <- df_compare_prepare()[df_compare_prepare()$id==gene,2:dim(df_compare_prepare())[2]] # 
-        # df_compare_tmp <- df_Y_tmp[df_Y_tmp$id == 'CXCL10', 2:dim(df_Y_tmp)[2]]
-        df_compare_tmp_Y <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'Y',]))
-        Y_axis <- df_compare_tmp$Y_axis_name[1]
-        colnames(df_compare_tmp_Y) <- c(Y_axis)  # colnames(df_compare_tmp_Y) <- c(Y_axis)
-        df_compare_tmp_Y$dataset <- rownames(df_compare_tmp_Y)
-        if('col' %in% df_compare_tmp$type){
-          df_compare_tmp_col <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'col',]))
-          colnames(df_compare_tmp_col) <- c('Colour')
-          df_compare_tmp_col$dataset <- rownames(df_compare_tmp_col)
-          df_compare <- merge(df_compare_tmp_Y, df_compare_tmp_col, by='dataset')
-          df_compare[,'Colour'] <- as.numeric(df_compare[,'Colour'])
-          df_compare$col_name <- df_compare_tmp$col_name[1]
-        }else{
-          df_compare <- df_compare_tmp_Y
-          df_compare <- df_compare[,c('dataset', Y_axis)]
-          rownames(df_compare) <- NULL
-        }
-        df_compare$Y_axis_name <- Y_axis
-        df_compare <- df_compare[df_compare$dataset != 'Y_axis_name',]
-        df_compare <- df_compare[df_compare$dataset != 'col_name',]
-        df_compare <- df_compare[df_compare$dataset != 'type',]
-        df_compare[,Y_axis] <- as.numeric(df_compare[,Y_axis])
-        df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T), ]
-        # df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
-        return(df_compare)
-      })
+        # output$Gene_comparing_plot_status <- renderText({'Please set the inputs and start analysis first.'})
+        df_compare <- reactive({
+          if(is.null(df_compare_prepare())){
+            return(NULL)
+          }
+          tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
+          if(length(input$Gene_comparing_gene_list_table_rows_selected) == 0){
+            output$Gene_comparing_plot_status <- renderText({"Please select a gene (row) from the table"})
+            return(NULL)
+          }
+          gene <- tmp[input$Gene_comparing_gene_list_table_rows_selected,]
+          output$Gene_comparing_plot_status <- renderText({NULL})
+          df_compare_tmp <- df_compare_prepare()[df_compare_prepare()$id==gene,2:dim(df_compare_prepare())[2]] # 
+          # df_compare_tmp <- df_Y_tmp[df_Y_tmp$id == 'CXCL10', 2:dim(df_Y_tmp)[2]]
+          df_compare_tmp_Y <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'Y',]))
+          Y_axis <- df_compare_tmp$Y_axis_name[1]
+          colnames(df_compare_tmp_Y) <- c(Y_axis)  # colnames(df_compare_tmp_Y) <- c(Y_axis)
+          df_compare_tmp_Y$dataset <- rownames(df_compare_tmp_Y)
+          if('col' %in% df_compare_tmp$type){
+            df_compare_tmp_col <- data.frame(t(df_compare_tmp[df_compare_tmp$type == 'col',]))
+            colnames(df_compare_tmp_col) <- c('Colour')
+            df_compare_tmp_col$dataset <- rownames(df_compare_tmp_col)
+            df_compare <- merge(df_compare_tmp_Y, df_compare_tmp_col, by='dataset')
+            df_compare[,'Colour'] <- as.numeric(df_compare[,'Colour'])
+            df_compare$col_name <- df_compare_tmp$col_name[1]
+          }else{
+            df_compare <- df_compare_tmp_Y
+            df_compare <- df_compare[,c('dataset', Y_axis)]
+            rownames(df_compare) <- NULL
+          }
+          df_compare$Y_axis_name <- Y_axis
+          df_compare <- df_compare[df_compare$dataset != 'Y_axis_name',]
+          df_compare <- df_compare[df_compare$dataset != 'col_name',]
+          df_compare <- df_compare[df_compare$dataset != 'type',]
+          df_compare[,Y_axis] <- as.numeric(df_compare[,Y_axis])
+          df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T), ]
+          # df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
+          return(df_compare)
+        })
 
-      dataframe_comparing_dataset_display_table <- reactive({
-        if(is.null(df_compare())){
-          return(NULL)
-        }
-        if(dim(df_compare())[1] == 0){
-          return(NULL)
-        }
-        if(length(colnames(df_compare())) > 3){
-          return(df_compare()[, c(1,2,3)])
-        }
-        if(length(colnames(df_compare())) == 3){
-          return(df_compare()[, c(1,2)])
-        }
-      })
+      # show as a table
+        dataframe_comparing_dataset_display_table <- reactive({
+          if(is.null(df_compare())){
+            tmp <- data.frame('Dataset'=character(0), 'Y axis value'=character(0))
+            return(tmp)
+          }
+          if(dim(df_compare())[1] == 0){
+            tmp <- data.frame('Dataset'=character(0), 'Y axis value'=character(0))
+            return(tmp)
+          }
+          if(length(colnames(df_compare())) > 3){
+            return(df_compare()[, c(1,2,3)])
+          }
+          if(length(colnames(df_compare())) == 3){
+            return(df_compare()[, c(1,2)])
+          }
+        })
+
+      # status for the plot
+        output$Gene_comparing_status <- renderText({
+          "Please select the datasets and set the filtering setting above, and click 'Start Analysis'."
+        })
+
+
 
       # display the result table
-      output$dataframe_comparing_dataset <- renderDataTable({
-        datatable( dataframe_comparing_dataset_display_table(), options = list(scrollX = TRUE, pageLength = 5 ))
-      })
+        output$dataframe_comparing_dataset <- renderDataTable({
+          datatable( dataframe_comparing_dataset_display_table(), options = list(scrollX = TRUE, pageLength = 5 ))
+        })
 
       # download the table
-      output$comparing_dataset_download <- downloadHandler(
-        filename = function(){"comparing_score_across_dataset.tsv"}, 
-        content = function(fname){ write.table(dataframe_comparing_dataset_display_table(), fname, sep='\t', quote=F) }
-      )
+        output$comparing_dataset_download <- downloadHandler(
+          filename = function(){"comparing_score_across_dataset.tsv"}, 
+          content = function(fname){ write.table(dataframe_comparing_dataset_display_table(), fname, sep='\t', quote=F) }
+        )
 
       # main plot for comparison
-      output$Gene_comparing_plot <- renderPlot({
-        if(is.null(df_compare())){
-          return(NULL)
-        }
-        df_compare <- df_compare()
-        df_compare <- na.omit(df_compare)
-        if(dim(df_compare)[1]==0){
-          output$Gene_comparing_plot_status <- renderText({"Non of the dataests included the inputted gene. Pleas make sure the gene name is correct and does not contain unnecessary spaces."})
-          return(NULL)
-        }
-        output$Gene_comparing_plot_status <- renderText({NULL})
-        Y_axis <- df_compare$Y_axis_name[1]
-        if(dim(df_compare)[2] == 5){
-          col_name <- df_compare$col_name[1]
-        }
-        df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T),]
-        df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
-        if(is.null(df_compare()) || dim(df_compare)[1] == 0) { return(ggplot()) }
-        # # if the colour option is set, change the colour of the plot
-        # if(is.null(input$Choose_datasets_y) || input$Choose_datasets_y == 'None') { return(ggplot()) }
-        else if(dim(df_compare)[2] == 5){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis, fill='Colour', color = 'Colour')) }
-        else if(dim(df_compare)[2] == 3){ p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis)) }
-        # either a scatter plot or a bar plot
-        if(input$bar_or_scatter == "Scatter plot"){ p <- p + geom_point(size = input$Compare_pt.size) }
-        else if (input$bar_or_scatter == "Bar plot") { p <- p + geom_bar(stat = "identity") }
-        # change the color scale ( only when colour option is selected )
-        if(dim(df_compare)[2] == 5){
-          values_for_colours <- df_compare$Colour[!is.na(df_compare$Colour)]
-          if( min(values_for_colours)<0 ){
-            if( max(values_for_colours)>=0 ){
-              tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
-              p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
-            }else{
-              p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=col_name)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=col_name)
-            }
-          }else{
-            p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
-            p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+        output$Gene_comparing_plot <- renderPlot({
+          if(is.null(df_compare())){
+            return(ggplot())
           }
-        }
-        p <- p + ggtitle(colnames(df_compare)[1])
-        p <- p + labs(x= 'Datasets',  y = Y_axis)
-        p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
-        p <- p + theme(axis.text.y = element_text(size = input$Compare_label.font.size), axis.text.x = element_text(size = input$Compare_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_title.font.size), axis.title.x = element_text(size = input$Compare_title.font.size))
-        tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
-        gene <- tmp[input$Gene_comparing_gene_list_table_rows_selected,]
-        p <- p + ggtitle(gene)
-        p <- p + theme(legend.text = element_text(size=input$Compare_label_legend_size), legend.title= element_text(size=input$Compare_label_legend_size))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-        if(input$Compare_white_background){
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
-          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        }
-        p <- p + theme(legend.key.size = unit(2, "mm"))
-        p
-      }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
-
-    #### investigate the overlap
-      # chosse the score for comparison
-      output$Compare_dataset_get_overview_select_score <- renderUI({ 
-        if(!is.null(input$choose_data_type)){
-          if(input$choose_data_type != 'None'){
-            data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
-            y_names <- unique(colnames(data_ex_tmp))
-            rm(data_ex_tmp)
-            if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='logFC') }
-            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
-            else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
-            else {selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names))}
-          }else{
-            selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
+          df_compare <- df_compare()
+          df_compare <- na.omit(df_compare)
+          if(dim(df_compare)[1]==0){
+            output$Gene_comparing_status <- renderText(NULL)
+            output$Gene_comparing_plot_status <- renderText({"Non of the dataests included the inputted gene. Pleas make sure the gene name is correct and does not contain unnecessary spaces."})
+            return(ggplot())
           }
-        }else{
-          selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
-        }
-      })
-      outputOptions(output, "Compare_dataset_get_overview_select_score", suspendWhenHidden=FALSE)
-
-      output$Compare_dataset_get_overview_status <- renderText({
-        "Please select the datasets and set the filter setting above, and start 'Investigate the overlap'."
-      })
-      # check the overlap
-      overlap_barplot_legend_tilte <- reactiveVal({NULL})
-      df_compare_overlapped_hit <- eventReactive(input$Compare_dataset_get_overview_start, {
-        # datasets slection
-        data_table_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
-        if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] }
-        if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment != 'None'){ data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] }
-        datasets_for_compare <- data_table_tmp[input$all_dataset_rows_selected,]$Dataset
-        if(length(datasets_for_compare)==0){
-          output$Compare_dataset_get_overview_status <- renderText({"Please select the datasets"})
-          return(NULL)
-        }
-        # if a score for ranking is not set
-        else if(input$Compare_dataset_get_overview_select_score == 'None' || is.null(input$Compare_dataset_get_overview_select_score)){
-          output$Compare_dataset_get_overview_status <- renderText({"Please select the score for ranking"})
-          return(NULL)
-        }else{
-          output$Compare_dataset_get_overview_status <- renderText({NULL})
-          sorted_score <- input$Compare_dataset_get_overview_select_score
-          df_tmp <- data.frame()    
-          i=0
-          for (dataset in datasets_for_compare){
-            df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
-            if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
-            df_tmp_tmp_sorted <- df_tmp_tmp[,c('id', sorted_score)][order(df_tmp_tmp[,sorted_score], decreasing = T),] # head(df_tmp_tmp_sorted)
-            # get the threshold score
-            # and if the score does not meet the threshold, the score will be replaced by NA
-            if(input$Compare_dataset_get_overview_direction == 'Top X%'){
-              if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0])==0){
-                df_tmp_tmp_sorted[,sorted_score] <- NA  
-              }else{
-                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0], 1-(input$Compare_dataset_get_overview_threshold/100), na.rm = T)
-                df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] < thr] <- NA
-              }
-            }else{
-              if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0])==0){
-                df_tmp_tmp_sorted[,sorted_score] <- NA  
-              }else{
-                thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0], input$Compare_dataset_get_overview_threshold/100 , na.rm = T)
-                df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] > thr] <- NA
-              }
-            }
-            # merge into one dataframe
-            colnames(df_tmp_tmp_sorted) <- c('id', dataset)
-            if(i==0){
-              df_tmp <- df_tmp_tmp_sorted
-            }else{
-              df_tmp <- merge(df_tmp, df_tmp_tmp_sorted, by='id')
-            }
-            rm(df_tmp_tmp)
-            i = i+1
+          output$Gene_comparing_plot_status <- renderText({NULL})
+          Y_axis <- df_compare$Y_axis_name[1]
+          if(dim(df_compare)[2] == 5){
+            col_name <- df_compare$col_name[1]
           }
-          # count how many times it appeared accorss the selected datasets
-          df_tmp$Overlap_times <- dim(df_tmp)[2] - 1 - rowSums(is.na(df_tmp))        
-          df_tmp <- df_tmp[order(df_tmp$Overlap_times, decreasing = T),]
-          cols <- colnames(df_tmp)
-          df_tmp <- df_tmp[, c('id', 'Overlap_times', cols[3:length(cols)-1])]
-          thr <- input$Compare_dataset_get_overview_threshold_for_display
-          df_tmp <- df_tmp[df_tmp$Overlap_times >= thr,]
-          overlap_barplot_legend_tilte(sorted_score)
-          df_tmp # head(df_tmp)
-        }
-
-      })
-
-      # display the table
-      output$Compare_dataset_get_overview_overlap <- DT::renderDataTable({
-        if(!is.null(df_compare_overlapped_hit())){
-          tmp <- df_compare_overlapped_hit()
-          rownames(tmp) <- NULL
-        }else{
-          tmp <- data.frame()
-        }
-        datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-      })
-
-      # download the table
-      output$Compare_dataset_get_overview_download <- downloadHandler(
-        filename = function(){"Overlap_hit.tsv"}, 
-        content = function(fname){ write.table(df_compare_overlapped_hit(), fname, sep='\t', quote=F, row.names=F) }
-      )
-
-      # list up the gene names
-      output$Compare_dataset_get_overview_list <- renderText({
-        if(is.null(df_compare_overlapped_hit())){
-          return(NULL)
-        }
-        paste(na.omit(df_compare_overlapped_hit()$id), collapse = "\n")
-      })
-
-      # show the bar plot
-      output$Compare_dataset_get_overview_barplot <- renderPlot({
-        if(!is.null(df_compare_overlapped_hit())){
-          if(length(input$Compare_dataset_get_overview_overlap_rows_selected)>0){
-            output$Compare_dataset_get_overview_barplot_status <- NULL
-            data_to_show <- df_compare_overlapped_hit()[input$Compare_dataset_get_overview_overlap_rows_selected,]
-            gene <- data_to_show$id
-            df_plot <- na.omit(data.frame(t(data_to_show[,3:dim(data_to_show)[2]])))
-            colnames(df_plot) <- c('Score')
-            df_plot$sample <- rownames(df_plot)
-            df_plot <- df_plot[order(df_plot$Score, decreasing = T),]
-            df_plot$sample <- factor(df_plot$sample, levels=df_plot$sample)
-            p <- ggplot(df_plot, aes_string(x= "sample", y="Score", fill="Score")) + geom_bar(stat='identity')
-            values_for_colours <- df_plot[,'Score']           
+          df_compare <- df_compare[order(df_compare[,Y_axis], decreasing = T),]
+          df_compare$dataset <- factor(df_compare$dataset, levels=df_compare$dataset)
+          if(is.null(df_compare()) || dim(df_compare)[1] == 0) { 
+            return(ggplot()) 
+          }
+          # # if the colour option is set, change the colour of the plot
+          # if(is.null(input$Choose_datasets_y) || input$Choose_datasets_y == 'None') { return(ggplot()) }
+          else if(dim(df_compare)[2] == 5){ 
+            p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis, fill='Colour', color = 'Colour')) 
+          }else if(dim(df_compare)[2] == 3){ 
+            p <- ggplot(df_compare, aes_string(x = 'dataset', y = Y_axis)) 
+          }
+          # either a scatter plot or a bar plot
+          if(input$bar_or_scatter == "Scatter plot"){ 
+            p <- p + geom_point(size = input$Compare_pt.size) 
+          }else if (input$bar_or_scatter == "Bar plot") { 
+            p <- p + geom_bar(stat = "identity") 
+          }
+          # change the color scale ( only when colour option is selected )
+          if(dim(df_compare)[2] == 5){
+            values_for_colours <- df_compare$Colour[!is.na(df_compare$Colour)]
             if( min(values_for_colours)<0 ){
               if( max(values_for_colours)>=0 ){
                 tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=overlap_barplot_legend_tilte())
-                p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=overlap_barplot_legend_tilte())
+                p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+                p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
               }else{
-                p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=overlap_barplot_legend_tilte())
-                p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=overlap_barplot_legend_tilte())
+                p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=col_name)
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=col_name)
               }
             }else{
-              p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Compare_dataset_get_overview_select_score)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Compare_dataset_get_overview_select_score)
+              p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+              p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
             }
-            p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_dataset_get_overview_graph.title.font.size))
-            p <- p + theme(axis.text.y = element_text(size = input$Compare_dataset_get_overview_label.font.size), axis.text.x = element_text(size = input$Compare_dataset_get_overview_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_dataset_get_overview_title.font.size), axis.title.x = element_text(size = input$Compare_dataset_get_overview_title.font.size))
-            p <- p + ggtitle(gene)
-            p <- p + theme(legend.text = element_text(size=input$Compare_dataset_get_overview_legend_size), legend.title= element_text(size=input$Compare_dataset_get_overview_legend_size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p <- p + theme(legend.key.size = unit(2, "mm"))
-            if(input$Compare_dataset_get_overview_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          p <- p + ggtitle(colnames(df_compare)[1])
+          p <- p + labs(x= 'Datasets',  y = Y_axis)
+          p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
+          p <- p + theme(axis.text.y = element_text(size = input$Compare_label.font.size), axis.text.x = element_text(size = input$Compare_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_title.font.size), axis.title.x = element_text(size = input$Compare_title.font.size))
+          tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
+          gene <- tmp[input$Gene_comparing_gene_list_table_rows_selected,]
+          p <- p + ggtitle(gene)
+          p <- p + theme(legend.text = element_text(size=input$Compare_label_legend_size), legend.title= element_text(size=input$Compare_label_legend_size))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          if(input$Compare_white_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          p <- p + theme(legend.key.size = unit(1, "mm"))
+          p
+        }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
+
+      #
+
+    #### investigate the overlap
+      # chosse the score for comparison
+        output$Compare_dataset_get_overview_select_score <- renderUI({ 
+          if(!is.null(input$choose_data_type)){
+            if(input$choose_data_type != 'None'){
+              data_ex_tmp <- read.table(Dataset()[Dataset()$Data.type == input$choose_data_type,]$Path[1], sep='\t', header=T,check.names = FALSE)
+              y_names <- unique(colnames(data_ex_tmp))
+              rm(data_ex_tmp)
+              if(input$choose_data_type  == 'CRISPR screening'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='logFC') }
+              else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
+              else if(input$choose_data_type  == 'CRISPR screening (gRNA LFC, norm by NTgRNA)'){ selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names) , selected='LFC') }
+              else {selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None', y_names))}
+            }else{
+              selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
             }
-            p
           }else{
-            output$Compare_dataset_get_overview_barplot_status <- renderText({'Please select a row from the table'})
+            selectInput('Compare_dataset_get_overview_select_score', 'Select a score for ranking', c('None'= 'None'))
+          }
+        })
+        outputOptions(output, "Compare_dataset_get_overview_select_score", suspendWhenHidden=FALSE)
+
+      # default status  
+        output$Compare_dataset_get_overview_status <- renderText({
+          "Please select the datasets and set the filter setting above, and start 'Investigate the overlap'."
+        })
+
+      # Start calculation to check the overlap. 
+        overlap_barplot_legend_tilte <- reactiveVal({NULL})
+        df_compare_overlapped_hit <- reactiveVal({NULL})
+        isCalculating_ovelap_hit <- reactiveVal({FALSE})
+        isTriggered_ovelap_hit <- reactiveVal({FALSE})
+        observeEvent(input$Compare_dataset_get_overview_start, {
+          isCalculating_ovelap_hit(TRUE)
+          isTriggered_ovelap_hit(TRUE)
+          # datasets slection
+          data_table_tmp <- Dataset()[Dataset()$Data.type == input$choose_data_type, ] 
+          if(!is.null(input$Compare_dataset_filtering_Data_from) && input$Compare_dataset_filtering_Data_from != 'None'){ 
+            data_table_tmp <- data_table_tmp[data_table_tmp$Data.from == input$Compare_dataset_filtering_Data_from, ] 
+          }
+          if(!is.null(input$Compare_dataset_filtering_Experiment) && input$Compare_dataset_filtering_Experiment != 'None'){ 
+            data_table_tmp <- data_table_tmp[data_table_tmp$Experiment == input$Compare_dataset_filtering_Experiment, ] 
+          }
+          datasets_for_compare <- data_table_tmp[input$all_dataset_rows_selected,]$Dataset
+          if(length(datasets_for_compare)==0){
+            show_alert(title='Error.',text='Please select more than two datasets to compare.', type='error')
+            output$Compare_dataset_get_overview_status <- renderText({"Please select more than two datasets to compare."})
+            df_compare_overlapped_hit(NULL)
+            isCalculating_ovelap_hit(FALSE)
             return(NULL)
           }
-        }
-      }, width=reactive(input$Compare_dataset_get_overview_fig.width), height=reactive(input$Compare_dataset_get_overview_fig.height), res=300)
+          # if a score for ranking is not set
+          else if(input$Compare_dataset_get_overview_select_score == 'None' || is.null(input$Compare_dataset_get_overview_select_score)){
+            show_alert(title='Error.',text='Please select a score for ranking.', type='error')
+            output$Compare_dataset_get_overview_status <- renderText({"Please select the score for ranking"})
+            df_compare_overlapped_hit(NULL)
+            isCalculating_ovelap_hit(FALSE)
+            return(NULL)
+          }else{
+            output$Compare_dataset_get_overview_status <- renderText({NULL})
+            sorted_score <- input$Compare_dataset_get_overview_select_score
+            df_tmp <- data.frame()    
+            i=0
+            for (dataset in datasets_for_compare){
+              df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
+              if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
+              df_tmp_tmp_sorted <- df_tmp_tmp[,c('id', sorted_score)][order(df_tmp_tmp[,sorted_score], decreasing = T),] # head(df_tmp_tmp_sorted)
+              # get the threshold score
+              # and if the score does not meet the threshold, the score will be replaced by NA
+              if(input$Compare_dataset_get_overview_direction == 'Top X%'){
+                if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0])==0){
+                  df_tmp_tmp_sorted[,sorted_score] <- NA  
+                }else{
+                  thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]>0], 1-(input$Compare_dataset_get_overview_threshold/100), na.rm = T)
+                  df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] < thr] <- NA
+                }
+              }else{
+                if(length(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0])==0){
+                  df_tmp_tmp_sorted[,sorted_score] <- NA  
+                }else{
+                  thr <- quantile(df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score]<0], input$Compare_dataset_get_overview_threshold/100 , na.rm = T)
+                  df_tmp_tmp_sorted[,sorted_score][df_tmp_tmp_sorted[,sorted_score] > thr] <- NA
+                }
+              }
+              # merge into one dataframe
+              colnames(df_tmp_tmp_sorted) <- c('id', dataset)
+              if(i==0){
+                df_tmp <- df_tmp_tmp_sorted
+              }else{
+                df_tmp <- merge(df_tmp, df_tmp_tmp_sorted, by='id')
+              }
+              rm(df_tmp_tmp)
+              i = i+1
+            }
+            # count how many times it appeared accorss the selected datasets
+            df_tmp$Overlap_times <- dim(df_tmp)[2] - 1 - rowSums(is.na(df_tmp))        
+            df_tmp <- df_tmp[order(df_tmp$Overlap_times, decreasing = T),]
+            cols <- colnames(df_tmp)
+            df_tmp <- df_tmp[, c('id', 'Overlap_times', cols[3:length(cols)-1])]
+            thr <- input$Compare_dataset_get_overview_threshold_for_display
+            df_tmp <- df_tmp[df_tmp$Overlap_times >= thr,]
+            overlap_barplot_legend_tilte(sorted_score)
+            df_tmp # head(df_tmp)
+            df_compare_overlapped_hit(df_tmp)
+            isCalculating_ovelap_hit(FALSE)
+            return(NULL)
+          }
 
+        })
+
+      # display the overlapped genes as a table
+        output$Compare_dataset_get_overview_overlap <- DT::renderDataTable({
+          if(!isTriggered_ovelap_hit()){
+            output$Compare_dataset_get_overview_status <- renderText({"Please click 'Investigate the overlap' to start."})
+            tmp <- data.frame()
+          }else if(isCalculating_ovelap_hit()){
+            output$Compare_dataset_get_overview_status <- renderText({"Calculating the overlap. Please wait."})
+            tmp <- data.frame()
+          }else if(!is.null(df_compare_overlapped_hit())){
+            tmp <- df_compare_overlapped_hit()
+            rownames(tmp) <- NULL
+          }else{
+            tmp <- data.frame()
+          }
+          datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+        })
+
+      # download the table
+        output$Compare_dataset_get_overview_download <- downloadHandler(
+          filename = function(){"Overlap_hit.tsv"}, 
+          content = function(fname){ write.table(df_compare_overlapped_hit(), fname, sep='\t', quote=F, row.names=F) }
+        )
+
+      # list up the gene names
+        output$Compare_dataset_get_overview_list <- renderText({
+          if(is.null(df_compare_overlapped_hit())){
+            return(NULL)
+          }
+          paste(na.omit(df_compare_overlapped_hit()$id), collapse = "\n")
+        })
+
+      # show the bar plot
+        output$Compare_dataset_get_overview_barplot <- renderPlot({
+          if(!is.null(df_compare_overlapped_hit())){
+            if(length(input$Compare_dataset_get_overview_overlap_rows_selected)>0){
+              output$Compare_dataset_get_overview_barplot_status <- NULL
+              data_to_show <- df_compare_overlapped_hit()[input$Compare_dataset_get_overview_overlap_rows_selected,]
+              gene <- data_to_show$id
+              df_plot <- na.omit(data.frame(t(data_to_show[,3:dim(data_to_show)[2]])))
+              colnames(df_plot) <- c('Score')
+              df_plot$sample <- rownames(df_plot)
+              df_plot <- df_plot[order(df_plot$Score, decreasing = T),]
+              df_plot$sample <- factor(df_plot$sample, levels=df_plot$sample)
+              p <- ggplot(df_plot, aes_string(x= "sample", y="Score", fill="Score")) + geom_bar(stat='identity')
+              values_for_colours <- df_plot[,'Score']           
+              if( min(values_for_colours)<0 ){
+                if( max(values_for_colours)>=0 ){
+                  tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=overlap_barplot_legend_tilte())
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=overlap_barplot_legend_tilte())
+                }else{
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=overlap_barplot_legend_tilte())
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_lowest_colour, input$Compare_dataset_get_overview_zero_colour), values = scales::rescale(c(min(values_for_colours), 0) ) , limits = c(c(min(values_for_colours), 0)) , name=overlap_barplot_legend_tilte())
+                }
+              }else{
+                p <- p + scale_color_gradientn( colors = c(input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Compare_dataset_get_overview_select_score)
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_dataset_get_overview_zero_colour, input$Compare_dataset_get_overview_highest_colour), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Compare_dataset_get_overview_select_score)
+              }
+              p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_dataset_get_overview_graph.title.font.size))
+              p <- p + theme(axis.text.y = element_text(size = input$Compare_dataset_get_overview_label.font.size), axis.text.x = element_text(size = input$Compare_dataset_get_overview_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_dataset_get_overview_title.font.size), axis.title.x = element_text(size = input$Compare_dataset_get_overview_title.font.size))
+              p <- p + ggtitle(gene)
+              p <- p + theme(legend.text = element_text(size=input$Compare_dataset_get_overview_legend_size), legend.title= element_text(size=input$Compare_dataset_get_overview_legend_size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(legend.key.size = unit(2, "mm"))
+              if(input$Compare_dataset_get_overview_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
+            }else{
+              output$Compare_dataset_get_overview_barplot_status <- renderText({'Please select a row from the table'})
+              return(ggplot())
+            }
+          }else{
+            output$Compare_dataset_get_overview_barplot_status <- renderText({"Please set the input and start analysis first."})
+            return(ggplot())
+          }
+        }, width=reactive(input$Compare_dataset_get_overview_fig.width), height=reactive(input$Compare_dataset_get_overview_fig.height), res=300)
+      #
     ###
   ###
 
