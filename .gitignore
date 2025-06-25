@@ -1,5 +1,5 @@
-00_Clinical_dataset/
-00_Expression_data_all/
+00_Clinical_dataset/*
+00_Expression_data_all/*
 renv/
 .Rprofile
 www/00_Clinical_dataset.tar.gz
