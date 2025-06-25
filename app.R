@@ -12,8 +12,10 @@ options(error = recover)
   suppressMessages(library(dplyr))
   suppressMessages(library(DT))
   suppressMessages(library(ggrepel))
-  # suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
-  # suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
+  # suppressMessages(library(GSVA)) 
+  suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
+  suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
+  suppressMessages(library(fgsea))
   suppressMessages(library(tibble))
   # suppressMessages(library(fgsea))
   suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
@@ -1888,7 +1890,7 @@ ui <- fluidPage(
               box(width=12, status='primary', solidHeader = TRUE, title='Overview and Analysis', collapsible=TRUE,
                 tabsetPanel(
                   ###### view database ######
-                    tabPanel("View the data",
+                    tabPanel(strong("View the data"),
                       tabsetPanel(
                         tabPanel("Gene expression", 
                           box(width=12,
@@ -1924,7 +1926,7 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Survival analysis ######
-                    tabPanel("Survival analysis",
+                    tabPanel(strong("Survival analysis"),
                       fluidRow(
                         column(12,
                           box(width=12, status='info', title='Inputs and Settings',
@@ -1932,8 +1934,8 @@ ui <- fluidPage(
                               column(7, 
                                 fluidRow(
                                   column(8, textAreaInput('Clinical_Survival_genes', 'Enter genes (line by line)') ),
-                                  column(12, checkboxInput('Clinical_Survival_genes_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE) ),
-                                  column(12, 
+                                  column(12, materialSwitch('Clinical_Survival_genes_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                  column(11, 
                                     conditionalPanel(
                                       condition = "input.Clinical_Survival_genes_from_custom_geneset == true",
                                       htmlOutput('Clinical_Survival_genes_from_custom_geneset_select')
@@ -1982,6 +1984,7 @@ ui <- fluidPage(
                             fluidRow(
                               column(12, withSpinner(verbatimTextOutput('Clinical_Survial_table_status'), type = 5, color = "#0dc5c1" ) ),
                               column(12, withSpinner(dataTableOutput("Clinical_Survial_table"), type = 5, color = "#0dc5c1" ) ),
+                              column(12, h4('')),
                               column(12, downloadButton('Clinical_Survial_table_download',"Download this table") )
                             )
                           )
@@ -1992,9 +1995,7 @@ ui <- fluidPage(
                               tabPanel("Kaplan-Meier curve",
                                 fluidRow(
                                   column(12, h4('')),
-                                  column(12, verbatimTextOutput('Clinical_Survial_plot_error_catch') ),
-                                  column(12, withSpinner(plotOutput("Clinical_Survial_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) ),
-                                  column(12, h4('')),
+                                  column(10, verbatimTextOutput('Clinical_Survial_plot_error_catch') ),
                                   column(2,
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2010,18 +2011,17 @@ ui <- fluidPage(
                                         column(5, colourpicker::colourInput('Clinical_Survial_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
                                         column(5, colourpicker::colourInput('Clinical_Survial_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Clinical_Survial_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) )
                                 )
                                 
                               ),
                               tabPanel("Expression distribution (histogram)",
                                 fluidRow(
                                   column(12, h4('')),
-                                  column(12, verbatimTextOutput('Clinical_Survial_plot_distribution_status') ),
-                                  column(12, plotOutput("Clinical_Survial_distribution_plot", width="100%", height="100%") ),
-                                  column(12, h4('')),
+                                  column(10, verbatimTextOutput('Clinical_Survial_plot_distribution_status') ),
                                   column(2,
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2038,9 +2038,10 @@ ui <- fluidPage(
                                         column(4, sliderInput('Clinical_Survial_distribution_bin_num', 'Bin number', min=10, max=100, value=20, step=1)),
                                         column(4, materialSwitch('Clinical_Survial_distribution_white_background', 'Use white background', value=FALSE, status = "success"))
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                                     ),
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Clinical_Survial_distribution_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) ),
                                 )
                               )
                             )
@@ -2049,7 +2050,7 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Gene correlation ######
-                    tabPanel("Gene correlation",
+                    tabPanel(strong("Gene correlation"),
                       fluidRow(
                         column(12, 
                           box(width=12, status='info', title='Inputs and Settings',
@@ -2072,7 +2073,7 @@ ui <- fluidPage(
                                     conditionalPanel(
                                       condition="input.Gene_correlation_genes_comparison_type == 'B'",
                                       fluidRow(column(9, textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis) (line by line)'))),
-                                      fluidRow(column(12, checkboxInput('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE))),
+                                      fluidRow(column(12, materialSwitch('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') )),
                                       conditionalPanel(
                                         condition = "input.Gene_correlation_genes_y_from_custom_geneset == true",
                                         fluidRow(column(12, htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select')))
@@ -2092,20 +2093,27 @@ ui <- fluidPage(
                                   dropdownButton( 
                                     fluidRow(
                                       column(12, h4(strong("Quick guide"))),
-                                      column(12, helpText("0. Select a cohort.")),
-                                      column(12, helpText("1. Select 'Explore type'.")),
-                                      column(12, helpText("2. Enter ONE gene. This gene's expression will be on the Y-axis.")),
-                                      column(12, helpText("2-2. If you selected 'Explore one gene's correlation with specific genes', enter/set the genes for the X-axis.")),
-                                      column(12, helpText("3. Select the method for correlation.")),
-                                      column(12, helpText("4. Click the 'Calculate the correlation' button to run the analysis.")),
-                                      column(12, helpText("5. A table of the p-value and the correlation score for each gene will be displayed in the 'Correlation table' section below.")),
-                                      column(12, helpText("6. By selecting a gene in the table, a scatter plot will be displayed in the 'Scatter plot' section."))
+                                      column(12, 
+                                        helpText(
+                                          HTML("0. Select a cohort. <br>
+                                            1. Select 'Explore type'. <br>
+                                            2. Enter ONE gene. This gene's expression will be on the Y-axis. <br>
+                                            3. Select the method for correlation. <br>
+                                            4. Click the 'Calculate the correlation' button to run the analysis. <br>
+                                            5. A table of the p-value and the correlation score for each gene will be displayed in the 'Correlation table' section below. <br>
+                                            6. By selecting a gene in the table, a scatter plot will be displayed in the 'Scatter plot' section.
+                                            ")
+                                          )
+                                      ),
                                     ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
                                   ),
                                 )
+                              ),
+                              column(2, h4()),
+                              column(9, 
+                                verbatimTextOutput('Gene_correlation_all_status')
                               )
-                            ),
-                            fluidRow(column(9, verbatimTextOutput('Gene_correlation_all_status')))
+                            )
                           ),
                         )
                       ),
@@ -2116,6 +2124,7 @@ ui <- fluidPage(
                               column(12, h4('') ),
                               column(12, withSpinner(verbatimTextOutput('Gene_correlation_table_status'), type = 5, color = "#0dc5c1" )),
                               column(12, withSpinner(DT::dataTableOutput("Gene_correlation_table"), type = 5, color = "#0dc5c1" ) ),
+                              column(12, h4('') ),
                               column(12, downloadButton('Gene_correlation_table_download',"Download this table") )
                             )
                           )
@@ -2124,8 +2133,7 @@ ui <- fluidPage(
                           box(width=12, status='danger', title='Scatter plot',
                             fluidRow(
                               column(12, h4('') ),
-                              column(12, verbatimTextOutput('Gene_correlation_error_catch') ),
-                              column(12, withSpinner(plotOutput("Gene_correlation_scatter_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) ),
+                              column(10, verbatimTextOutput('Gene_correlation_error_catch') ),
                               column(2, 
                                 dropdownButton( h4(strong("Plot Options")),
                                   fluidRow(
@@ -2141,63 +2149,61 @@ ui <- fluidPage(
                                     column(4, materialSwitch('Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE, status = "success")),
                                     column(4, materialSwitch('Gene_correlation_white_background', 'Use white background', value=FALSE, status = "success"))
                                   ),
-                                  circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                  circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                                 )
-                              )
+                              ),
+                              column(12, withSpinner(plotOutput("Gene_correlation_scatter_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) )
                             )
                           )
                         )
                       )
                     ),
                   ###### Mutation analysis ###### 
-                    tabPanel("Mutation analysis",
+                    tabPanel(strong("Mutation analysis"),
                       fluidRow(
                         # Inputs
                         column(12, 
                           box(width=12,status='info', title='Inputs and Settings', collapsible=TRUE,
                             fluidRow(
-                              column(12,
-                                fluidRow(column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))),
-                                fluidRow(column(12, h5(''))),
+                              column(4,
                                 fluidRow(
-                                  column(4,
-                                    fluidRow(
-                                      column(12, radioButtons('Clinical_Mutation_gene_input', 'Genes input from:', choices=c("Text input" = 'A', "Use all genes"='B', "Select from custom genesets"='C'), selected='A') ),
-                                      column(12, 
-                                        conditionalPanel(
-                                          condition = 'input.Clinical_Mutation_gene_input == "A"',
-                                          textAreaInput('Clinical_Mutation_gene', 'Enter genes (line by line)')
-                                        ),
-                                      ),
-                                      column(12, 
-                                        conditionalPanel(
-                                          condition = 'input.Clinical_Mutation_gene_input == "C"',
-                                          htmlOutput('Clinical_Mutation_gene_from_custom')
-                                        )
-                                      )
-                                    )
+                                  column(12, radioButtons('Clinical_Mutation_gene_input', 'Genes input from:', choices=c("Text input" = 'A', "Use all genes"='B', "Select from custom genesets"='C'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_gene_input == "A"',
+                                      textAreaInput('Clinical_Mutation_gene', 'Enter genes (line by line)')
+                                    ),
                                   ),
-                                  column(4, 
-                                    fluidRow(
-                                      column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
-                                      column(12, 
-                                        conditionalPanel(
-                                          condition = 'input.Clinical_Mutation_frequency_filter == "B"',
-                                          fluidRow(
-                                            column(12, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
-                                            column(12, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
-                                            column(12, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
-                                          ),  
-                                        )
-                                      )
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_gene_input == "C"',
+                                      htmlOutput('Clinical_Mutation_gene_from_custom')
                                     )
-                                  ),
-                                  column(2, 
-                                    fluidRow(column(12, h3(''))),
-                                    fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Calculate the mutation frequency", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
                                   )
                                 )
-                              )
+                              ),
+                              column(4, 
+                                fluidRow(
+                                  column(12, radioButtons('Clinical_Mutation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Mutation_frequency_filter == "B"',
+                                      fluidRow(
+                                        column(12, htmlOutput('Clinical_Mutation_frequency_filter_selection')),
+                                        column(12, htmlOutput('Clinical_Mutation_frequency_filter_selection_category')),
+                                        column(12, verbatimTextOutput('Clinical_Mutation_frequency_filter_selection_number')),
+                                      ),  
+                                    )
+                                  )
+                                )
+                              ),
+                              column(2, 
+                                fluidRow(column(12, h3(''))),
+                                fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Calculate the mutation frequency", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
+                              ),
+                              column(2, h4('')),
+                              column(12, h4('')),
+                              column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))
                             )
                           ),
                         ),
@@ -2206,7 +2212,7 @@ ui <- fluidPage(
                           box(width=12, status='warning', title='Results (Mutation Frequency table)', collapsible=TRUE,
                             fluidRow(
                               column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_table') ),
-                              column(12, dataTableOutput("Clinical_Mutation_frequency_table") )
+                              column(12, withSpinner(dataTableOutput("Clinical_Mutation_frequency_table"), type = 5, color = "#0dc5c1" ))
                             )
                           )
                         ),
@@ -2218,9 +2224,9 @@ ui <- fluidPage(
                                 fluidRow(
                                   column(12, h3('')),
                                   column(6, radioButtons('Clinical_Mutation_frequency_plot_type', 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') ),
-                                  column(6, numericInput('Clinical_Mutation_frequency_plot_top_X', 'Show top X frequntly mutated genes:', min=1, value=15, step=1) ),
-                                  column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_plot') ),
-                                  column(12, plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%") ),
+                                  column(3, numericInput('Clinical_Mutation_frequency_plot_top_X', 'Show top X frequntly mutated genes:', min=1, value=15, step=1) ),
+                                  column(3, h4('') ),
+                                  column(10, verbatimTextOutput('Clinical_Mutation_frequency_plot_status_plot') ),
                                   column(2,
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2239,16 +2245,16 @@ ui <- fluidPage(
                                         column(6, materialSwitch('Clinical_Mutation_frequency_white_background', 'Use white background', value=FALSE, status = "success")),
                                         column(6, materialSwitch('Clinical_Mutation_frequency_hide_score', 'Hide the scores', value=FALSE, status = "success"))
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     ),
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput('Clinical_Mutation_frequency_plot', width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                 )
                               ),
                               tabPanel('Survival analysis (Kaplan-Meier Plot)',
                                 fluidRow(
                                   column(12, h3('') ),
-                                  column(12, verbatimTextOutput('Clinical_Mutation_Kaplan_plot_status') ),
-                                  column(12, plotOutput('Clinical_Mutation_Kaplan_plot', width="100%", height="100%") ),
+                                  column(10, verbatimTextOutput('Clinical_Mutation_Kaplan_plot_status') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2256,17 +2262,18 @@ ui <- fluidPage(
                                         column(6,sliderInput('Clinical_Mutation_Kaplan_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
                                       ),
                                       fluidRow(
-                                        column(4,sliderInput('Clinical_Mutation_Kaplan_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4,sliderInput('Clinical_Mutation_Kaplan_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4,sliderInput('Clinical_Mutation_Kaplan_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_Kaplan_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_Kaplan_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Clinical_Mutation_Kaplan_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
                                       ),
                                       fluidRow(
-                                        column(5, colourpicker::colourInput('Clinical_Mutation_Kaplan_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
-                                        column(5, colourpicker::colourInput('Clinical_Mutation_Kaplan_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
+                                        column(6, colourpicker::colourInput('Clinical_Mutation_Kaplan_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
+                                        column(6, colourpicker::colourInput('Clinical_Mutation_Kaplan_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput('Clinical_Mutation_Kaplan_plot', width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                 )
                               ),
                               tabPanel('Gene expression',
@@ -2277,7 +2284,7 @@ ui <- fluidPage(
                                         column(5, 
                                           fluidRow(
                                             column(12, textAreaInput('Clinical_Mutation_Gene_expression_geneInput', 'Enter genes (line by line)')),
-                                            column(12, checkboxInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE) ),
+                                            column(12, materialSwitch('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
                                             conditionalPanel(
                                               condition = "input.Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset == true",
                                               column(12, htmlOutput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select'))
@@ -2293,14 +2300,13 @@ ui <- fluidPage(
                                     box(width=12, title='Input genes table', status='primary', collapsible=TRUE,
                                       fluidRow(
                                         column(12, verbatimTextOutput("Clinical_Mutation_Gene_expression_geneInput_selecttable_status")),
-                                        column(12, dataTableOutput("Clinical_Mutation_Gene_expression_geneInput_selecttable")),
+                                        column(12, withSpinner(dataTableOutput("Clinical_Mutation_Gene_expression_geneInput_selecttable"), type = 5, color = "#0dc5c1" ) )
                                       )
                                     )
                                   ),
                                   column(9,
                                     box(width=12, title='Plot for Gene expression comaprison', status='danger', collapsible=TRUE,
-                                      column(12, verbatimTextOutput('Clinical_Mutation_Gene_expression_geneInput_plot_status')),
-                                      column(12, plotOutput('Clinical_Mutation_Gene_expression_geneInput_plot', width="100%", height="100%")),
+                                      column(10, verbatimTextOutput('Clinical_Mutation_Gene_expression_geneInput_plot_status')),
                                       column(2, 
                                         dropdownButton( h4(strong("Plot Options")),
                                           fluidRow(
@@ -2315,15 +2321,16 @@ ui <- fluidPage(
                                             column(6, sliderInput('Clinical_Mutation_Gene_expression_title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
                                           ),
                                           fluidRow(
-                                            column(6, materialSwitch('Clinical_Mutation_Gene_expression_white_background', 'Use white background', value=FALSE, status = "success"))
+                                            column(6, colourpicker::colourInput('Clinical_Mutation_Gene_expression_col_mut', 'Colour (mutation)', value='#cd0202')),
+                                            column(6, colourpicker::colourInput('Clinical_Mutation_Gene_expression_col_wt', 'Colour (wild type)', value='#3f48ee')),
                                           ),
                                           fluidRow(
-                                            column(4, colourpicker::colourInput('Clinical_Mutation_Gene_expression_col_mut', 'Colour (mutation)', value='#cd0202')),
-                                            column(4, colourpicker::colourInput('Clinical_Mutation_Gene_expression_col_wt', 'Colour (wild type)', value='#3f48ee')),
+                                            column(6, materialSwitch('Clinical_Mutation_Gene_expression_white_background', 'Use white background', value=FALSE, status = "success"))
                                           ),
-                                          circle = FALSE, status = "success", icon = icon("gear"), width = "500px",  tooltip = tooltipOptions(title = "Plot Options")
+                                          circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                         )
-                                      )
+                                      ),
+                                      column(12, withSpinner(plotOutput('Clinical_Mutation_Gene_expression_geneInput_plot', width="100%", height="100%"), type = 5, color = "#0dc5c1" ))                                      
                                     )
                                   )
                                 )
@@ -2334,17 +2341,16 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Gene expression compare ######
-                    tabPanel("Gene expression acrosss subtype",
+                    tabPanel(strong("Gene expression acrosss subtype"),
                       fluidRow(
                         column(12, 
                           # input
-                          box(width=12, title='Input and Settings', status='info',collapsible=TRUE,
-                            fluidRow(column(8, verbatimTextOutput('Expression_subtype_status'))),
+                          box(width=12, title='Input and Settings', status='info', collapsible=TRUE,
                             fluidRow(
-                              column(5, 
+                              column(4, 
                                 fluidRow(
                                   column(12, textAreaInput('Expression_subtype_genes', 'Enter genes (line by line)')),
-                                  column(12, checkboxInput('Expression_subtype_genes_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE)),
+                                  column(12, materialSwitch('Expression_subtype_genes_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
                                   column(12,
                                     conditionalPanel(
                                       condition = "input.Expression_subtype_genes_from_custom_geneset == true",
@@ -2353,17 +2359,22 @@ ui <- fluidPage(
                                   )
                                 )
                               ),
-                              column(5, 
+                              column(4, 
                                 fluidRow(
                                   column(12, htmlOutput('Expression_subtype_groupBy') ),
                                   column(12, verbatimTextOutput('Expression_subtype_subtype_number') ),
                                   column(12, h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: red;")))
                                 )
-                              )
-                            ),
-                            fluidRow(
-                              column(12, actionButton('Expression_subtype_start', 'Start comparing',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
-                            ),
+                              ),
+                              column(2, 
+                                fluidRow(
+                                  column(12, h3('') ),
+                                  column(12, actionButton('Expression_subtype_start', 'Start comparing',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                                )
+                              ),
+                              column(2, h4('')),
+                              column(12, verbatimTextOutput('Expression_subtype_status'))
+                            )
                           )
                         ),
                         # Results
@@ -2372,7 +2383,7 @@ ui <- fluidPage(
                             fluidRow(
                               column(12, h4('') ),
                               column(12, verbatimTextOutput('Expression_subtype_table_status') ),
-                              column(12, dataTableOutput("Expression_subtype_table") ),
+                              column(12, withSpinner(dataTableOutput("Expression_subtype_table"), type = 5, color = "#0dc5c1" )),
                               column(12, downloadButton('Expression_subtype_table_download',"Download this table") )
                             )
                           )
@@ -2381,21 +2392,22 @@ ui <- fluidPage(
                         column(8, 
                           box(width=12, title='Plot', status='danger', collapsible=TRUE,
                             fluidRow(
-                              column(12, radioButtons('Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A', inline=TRUE) ),
-                              column(12, verbatimTextOutput('Expression_subtype_error_catch')), 
-                              column(12, plotOutput("Expression_subtype_plot", width="100%", height="100%")),
                               column(12, verbatimTextOutput('Expression_subtype_note')), 
+                              column(10, radioButtons('Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A', inline=TRUE) ),
                               column(2,
                                 dropdownButton( h4(strong("Plot Options")),
                                   fluidRow(
-                                    column(4,sliderInput('Expression_subtype_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
-                                    column(4,sliderInput('Expression_subtype_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
-                                    column(4, sliderInput('Expression_subtype_dot.size', 'Dot size (swarm plot)', min=0.1, max=5, value=1, step=0.1))
+                                    column(6, sliderInput('Expression_subtype_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
+                                    column(6, sliderInput('Expression_subtype_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
+                                    conditionalPanel(
+                                      condition = "input.Expression_subtype_figtype == 'C' || input.Expression_subtype_figtype == 'D'",
+                                      column(6, sliderInput('Expression_subtype_dot.size', 'Dot size (swarm plot)', min=0.1, max=5, value=1, step=0.1))
+                                    )
                                   ),
                                   fluidRow(
-                                    column(4, sliderInput('Expression_subtype_XY_label.font.size', 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4, sliderInput('Expression_subtype_XY_title.font.size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4, sliderInput('Expression_subtype_title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
+                                    column(6, sliderInput('Expression_subtype_XY_label.font.size', 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
+                                    column(6, sliderInput('Expression_subtype_XY_title.font.size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                    column(6, sliderInput('Expression_subtype_title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
                                   ),
                                   fluidRow(
                                     column(6, materialSwitch('Expression_subtype_white_background', 'Use white background', value=FALSE, status = "success")),
@@ -2415,23 +2427,22 @@ ui <- fluidPage(
                                       column(6, colourpicker::colourInput('Expression_subtype_choose_single_colour', 'Choose a colour', value='#000000'))
                                     )
                                   ),
-                                  circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                  circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                 )
-                              )
+                              ),
+                              column(12, verbatimTextOutput('Expression_subtype_error_catch')), 
+                              column(12, withSpinner(plotOutput("Expression_subtype_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ) )
                             )
                           )
                         )
                       )
                     ),
                   ###### Signature analysis
-                    tabPanel("Signature analysis",
+                    tabPanel(strong("Signature analysis"),
                       fluidRow(
                         # inputs
                         column(12,
                           box(width=12, title='Inputs and Settings', collapsible = TRUE, status='info',
-                            fluidRow(
-                              column(8, verbatimTextOutput('Signature_input_selection_status'))
-                            ),
                             fluidRow(
                               column(2, radioButtons('Signature_input_selection', 'Input', choices = c('Choose from the custom gene sets'='A', 'Text input'='B'), selected='A') ),
                               column(4,
@@ -2453,10 +2464,13 @@ ui <- fluidPage(
                               column(2, radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA') ),
                               column(4, 
                                 fluidRow(
-                                  column(12, actionButton('Signature_start', 'Calculate the signature score')),
-                                  column(12, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) )
+                                  column(12, h2('')),
+                                  column(12, actionButton('Signature_start', 'Calculate the signature score', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                                  column(8, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) )
                                 )
-                              )
+                              ),
+                              column(12, h4('')),
+                              column(8, verbatimTextOutput('Signature_input_selection_status'))
                             )
                           )
                         ),
@@ -2465,7 +2479,8 @@ ui <- fluidPage(
                           box(width=12, title='Results (Signature scores)', status='warning',
                             fluidRow(
                               column(12, verbatimTextOutput('Signature_analysis_status') ),
-                              column(12, dataTableOutput("Signature_result_table") ),
+                              column(12, h2('')),
+                              column(12, withSpinner(dataTableOutput("Signature_result_table") , type = 5, color = "#0dc5c1" )),
                               column(12, downloadButton('Signature_result_table_download',"Download this table") )
                             )
                           )
@@ -2474,12 +2489,10 @@ ui <- fluidPage(
                           box(width=12, title='Plots', status='danger',
                             tabsetPanel(
                               tabPanel('Survival analysis (Kaplan-Meier Plot)',
+                                h4(''),
                                 fluidRow(
-                                  column(12, h4("")),
-                                  column(12, radioButtons('Signature_Survival_cutoff_method', 'Split the samples by:', choices = c('Median'='A', 'Top25% vs Bottom 25%'='B'), selected='A')),
-                                  column(12, verbatimTextOutput('Signature_Survival_detail')),
-                                  column(12, plotOutput("Signature_Survival_plot", width="100%", height="100%")),
-                                  column(12, h4("")),
+                                  column(12, h3("")),
+                                  column(10, radioButtons('Signature_Survival_cutoff_method', 'Split the samples by:', choices = c('Median'='A', 'Top25% vs Bottom 25%'='B'), selected='A')),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2487,29 +2500,35 @@ ui <- fluidPage(
                                         column(6,sliderInput('Signature_Survival_plot_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
                                       ),
                                       fluidRow(
-                                        column(4,sliderInput('Signature_Survival_plot_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4,sliderInput('Signature_Survival_plot_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4,sliderInput('Signature_Survival_plot_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Signature_Survival_plot_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Signature_Survival_plot_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput('Signature_Survival_plot_legend_size', 'legend size', min=0.1, max=10, value=4, step=0.1)),
                                       ),
                                       fluidRow(
-                                        column(5, colourpicker::colourInput('Signature_Survival_plot_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
-                                        column(5, colourpicker::colourInput('Signature_Survival_plot_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
+                                        column(6, colourpicker::colourInput('Signature_Survival_plot_High_colour', 'Colour for the "High" group:', value='#ec00ec')),
+                                        column(6, colourpicker::colourInput('Signature_Survival_plot_Low_colour', 'Colour for the "Low" group:', value='#00aaff')),
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, verbatimTextOutput('Signature_Survival_detail')),
+                                  column(12, withSpinner(plotOutput("Signature_Survival_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" )),
+                                  column(12, h4(""))
                                 )
                               ),
                               tabPanel('Score comparison',
+                                h4(''),
                                 fluidRow(
                                   column(6, 
                                     fluidRow(
+                                      column(12, h4('')),
                                       column(12, htmlOutput('Signature_subtype_groupBy') ),
                                       column(12, verbatimTextOutput('Signature_subtype_subtype_number') ),
                                       column(12, h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: red;")) )
                                     )
                                   ), 
-                                  column(6,
+                                  column(3, h3('')),
+                                  column(3,
                                     fluidRow(
                                       column(12, h3('')),
                                       column(12, h3('')),
@@ -2518,9 +2537,7 @@ ui <- fluidPage(
                                   )
                                 ),
                                 fluidRow(
-                                  column(12, radioButtons('Signature_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A', inline=TRUE) ),
-                                  column(12, plotOutput("Signature_subtype_plot", width="100%", height="100%")),
-                                  column(12, verbatimTextOutput('Signature_subtype_note')),
+                                  column(10, radioButtons('Signature_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A', inline=TRUE) ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2528,12 +2545,13 @@ ui <- fluidPage(
                                         column(6,sliderInput('Signature_subtype_fig.height', 'Fig height', min=300, max=3000, value=750, step=10)),
                                       ),
                                       fluidRow(
-                                        column(4, sliderInput('Signature_subtype_XY_label.font.size', 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput('Signature_subtype_XY_title.font.size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(4, sliderInput('Signature_subtype_title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
-                                      ),
-                                      fluidRow(
-                                        column(4, sliderInput('Signature_subtype_dot.size', 'Dot size (swarm plot)', min=0.01, max=2, value=0.2, step=0.01))
+                                        column(6, sliderInput('Signature_subtype_XY_label.font.size', 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput('Signature_subtype_XY_title.font.size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput('Signature_subtype_title.font.size', 'Graph title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        conditionalPanel(
+                                          condition = "input.Signature_subtype_figtype == 'C' || input.Signature_subtype_figtype == 'D'",
+                                          column(6, sliderInput('Signature_subtype_dot.size', 'Dot size (swarm plot)', min=0.01, max=2, value=0.2, step=0.01))
+                                        )
                                       ),
                                       fluidRow(
                                         column(6, materialSwitch('Signature_subtype_white_background', 'Use white background', value=FALSE, status = "success")),
@@ -2553,15 +2571,17 @@ ui <- fluidPage(
                                           column(6, colourpicker::colourInput('Signature_subtype_choose_single_colour', 'Choose a colour', value='#000000'))
                                         )
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Signature_subtype_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" )),
+                                  column(12, verbatimTextOutput('Signature_subtype_note'))
                                 )
                               ),
                               tabPanel('Distribution (histogram)',
                                 fluidRow(
-                                  column(12, verbatimTextOutput('Signature_score_distribution_status')), 
-                                  column(12, plotOutput("Signature_score_distribution_plot", width="100%", height="100%")),
+                                  h4(''),
+                                  column(10, verbatimTextOutput('Signature_score_distribution_status')), 
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2573,13 +2593,14 @@ ui <- fluidPage(
                                         column(6,sliderInput('Signature_score_distribution_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
                                       ),
                                       fluidRow(
-                                        column(4, colourpicker::colourInput('Signature_score_distribution_colour', 'Colour:', value='#006FED')),
-                                        column(4, sliderInput('Signature_score_distribution_bin_num', 'Bin number', min=10, max=100, value=50, step=1)),
-                                        column(4, materialSwitch('Signature_score_distribution_white_background', 'Use white background', value=FALSE, status = "success"))
+                                        column(6, colourpicker::colourInput('Signature_score_distribution_colour', 'Colour:', value='#006FED')),
+                                        column(6, sliderInput('Signature_score_distribution_bin_num', 'Bin number', min=10, max=100, value=50, step=1)),
+                                        column(6, materialSwitch('Signature_score_distribution_white_background', 'Use white background', value=FALSE, status = "success"))
                                       ),
-                                      circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Signature_score_distribution_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                 )
                               )
                             )
@@ -2664,7 +2685,7 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Compare cohorts
-                    tabPanel("Compare cohorts",
+                    tabPanel(strong("Compare cohorts"),
                       h4(''),
                       fluidRow(
                         column(5, 
@@ -2711,9 +2732,7 @@ ui <- fluidPage(
                                 fluidRow(
                                   column(12, h4(strong('Plot'))),
                                   column(12, verbatimTextOutput('Compare_across_cohorts_mut_freq_plot_status')),
-                                  column(12, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
-                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_mut_freq_plot', width="100%", height="100%"), type=5, color='#0dc5c1')),
-                                  column(10, h4('')),
+                                  column(10, radioButtons('Compare_across_cohorts_mut_freq_plot_type', "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2734,7 +2753,9 @@ ui <- fluidPage(
                                       ),
                                       circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_mut_freq_plot', width="100%", height="100%"), type=5, color='#0dc5c1'))
+
                                 ),
                                 fluidRow(
                                   column(12, h4('Table')),
@@ -2751,9 +2772,7 @@ ui <- fluidPage(
                                 ),
                                 fluidRow(
                                   column(12, h4(strong('Plot'))),
-                                  column(12, verbatimTextOutput('Compare_across_cohorts_gx_plot_status')),
-                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_gx_plot', width="100%", height="100%"), type=5, color='#0dc5c1')),
-                                  column(10, h4('')),
+                                  column(10, verbatimTextOutput('Compare_across_cohorts_gx_plot_status')),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
@@ -2769,7 +2788,8 @@ ui <- fluidPage(
                                       ),
                                       circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                     )
-                                  )
+                                  ),
+                                  column(12, withSpinner(plotOutput('Compare_across_cohorts_gx_plot', width="100%", height="100%"), type=5, color='#0dc5c1'))
                                 )
                               )
                             )
@@ -2778,29 +2798,38 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Cacner Gene Census (COSMIC)
-                    tabPanel("Cacner Gene Census (COSMIC)",
+                    tabPanel(strong("Cacner Gene Census (COSMIC)"),
                       box(width=12,title='Cacner Gene Census (COSMIC)', status='primary',
                         fluidRow(
-                          column(12, verbatimTextOutput('CGC_message')),
-                        ),
-                        fluidRow(
-                          column(3, 
-                            fluidRow(
-                              column(12, h4('Genes input')),
-                              column(12, textAreaInput('CGC_input_gene', 'Enter genes (line by line)')),
-                              column(12, checkboxInput('CGC_input_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE)),
-                              conditionalPanel(
-                                condition = "input.CGC_input_gene_from_custom_geneset == true",
-                                column(12, htmlOutput('CGC_input_gene_from_custom_geneset_select'))
+                          column(12, 
+                            helpText(HTML('We are using the <a href="https://cancer.sanger.ac.uk/census" target="_blank">Cancer Gene Census from COSMIC</a>. <br>
+                              Please enter gene names below or select a gene set.<br>
+                              If the genes are associated with cancer predisposition, they will appear in the table. Otherwise, the entire database will be displayed.')
+                            )
+                          ),
+                          column(12, h2('')),
+                          column(3,
+                            box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                              fluidRow(
+                                # column(12, h4('Genes input')),
+                                column(12, h4('')),
+                                column(12, textAreaInput('CGC_input_gene', 'Enter genes (line by line)')),
+                                column(12, materialSwitch('CGC_input_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                conditionalPanel(
+                                  condition = "input.CGC_input_gene_from_custom_geneset == true",
+                                  column(12, htmlOutput('CGC_input_gene_from_custom_geneset_select'))
+                                )
                               )
                             )
                           ),
                           column(9, 
-                            fluidRow(
-                              column(12, h4('Table')),
-                              column(12, verbatimTextOutput("CGC_table_status")),
-                              column(12, dataTableOutput("CGC_table")),
-                              column(12, downloadButton('CGC_table_download',"Download this table"))
+                            box(width=12, title='Result Table', status='warning', collapsible = TRUE,
+                              fluidRow(
+                                column(12, h4('')),
+                                column(12, verbatimTextOutput("CGC_table_status")),
+                                column(12, withSpinner(dataTableOutput("CGC_table"), type=5, color="#0dc5c1")),
+                                column(12, downloadButton('CGC_table_download',"Download this table"))
+                              )
                             )
                           ),
                         )
@@ -3298,7 +3327,7 @@ ui <- fluidPage(
                           column(12, textAreaInput("Profile_Plot_input_coord", "Enter positions"))
                         ),
                         fluidRow(
-                          column(6, actionButton('Profile_Plot_start', 'Import data',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                          column(6, actionButton('Profile_Plot_start', 'Generate a plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                         )
                       )
                     ),
@@ -3338,7 +3367,8 @@ ui <- fluidPage(
                     column(4, 
                       box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
                         fluidRow( 
-                          column(12, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
+                          # column(12, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
+                          column(12, selectInput('igv_gneome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
                           column(12, htmlOutput("igv_data_select")),
                           column(12, 
                             div(id='filterin_dropdown',
@@ -3368,7 +3398,6 @@ ui <- fluidPage(
                     column(8,
                       box(width=12, title='Plot', status='danger', collapsible = TRUE,
                         fluidRow(
-                          column(4, selectInput('igv_gneome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
                           column(12, withSpinner(igvShinyOutput("igv", height = "1000px"), type = 5, color = "#0dc5c1") )
                         )
                       )
@@ -3770,9 +3799,6 @@ server <- function(input, output, session) {
         suppressMessages(library(decoupleR))
         # suppressMessages(library(visNetwork))
         # net <- readRDS('data/OmnipathR_net.rds')
-        suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
-        suppressMessages(library(GSVA)) #
-        suppressMessages(library(fgsea))
         # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
       }else if(input$sidebar == 'Clinical_data'){
         suppressMessages(library(survival))
@@ -3833,6 +3859,7 @@ server <- function(input, output, session) {
     #### save changes when you push the button ####
       observeEvent(input$save_dt,{
         write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+        show_alert(title='Success!', text='The changes are saved.', type='success')
         output$status <- renderText('saved!')
       })
 
@@ -3853,8 +3880,10 @@ server <- function(input, output, session) {
           Dataset(tmp)
           replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
           write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
+          show_alert(title='Success!', text='The selected row(s) are deleted.', type='success')
           output$status <- renderText('Deleted!')
         }else{
+          show_alert(title='Error.',text='No row selected!', type='error')
           output$status <- renderText('No row selecetd!')
         }
       })
@@ -3888,7 +3917,7 @@ server <- function(input, output, session) {
         output$upload_data_type <- renderUI({
           if(length(input$upload_data_type_select_select) > 0){
             if(input$upload_data_type_select_select == 'Other'){
-              textInput("upload_data_type_manual", "Write the data type here")
+              textInput("upload_data_type_manual", "Write the data type here *")
             }
           }
         })
@@ -3905,7 +3934,13 @@ server <- function(input, output, session) {
           # detail
           dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
           if(input$upload_data_type_select_select == 'Other'){
-            data.type.upload <- unlist(strsplit(input$upload_data_type_manual, split = "\n"))[1]
+            if(nchar(input$upload_data_type_manual)==0){
+              output$status_upload <- renderText('* is a mandatory filed!')
+              show_alert(title='Error.',text='* is a mandatory filed!', type='error')
+              return()
+            }else{
+              data.type.upload <- unlist(strsplit(input$upload_data_type_manual, split = "\n"))[1]
+            }
           }else{
             data.type.upload <- input$upload_data_type_select_select
           }
@@ -3952,8 +3987,8 @@ server <- function(input, output, session) {
               return()
             }
           }else{
-            gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
             if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
+              gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
               if(!'id' %in% colnames(gx_table)){
                 output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
                 show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
@@ -3978,11 +4013,9 @@ server <- function(input, output, session) {
             replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
             write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
             output$status_upload <- renderText('uploaded!')
-            }
             show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
             return()
-        
-
+          }
         })
       
       #
@@ -8403,27 +8436,28 @@ server <- function(input, output, session) {
       suppressMessages(library(rtracklayer))
       suppressMessages(library(circlize))
 
-    #### data selection
+    #### data selection for IGV
       # data from who
-      output$igv_data_DataFrom <- renderUI({  selectInput('igv_data_DataFrom', 'Data from', c('None'='None', Dataset()[Dataset()$Data.Class == input$igv_data_type,]$Data.from)) })
-      outputOptions(output, "igv_data_DataFrom", suspendWhenHidden=FALSE)
+        output$igv_data_DataFrom <- renderUI({  selectInput('igv_data_DataFrom', 'Data from', c('None'='None', Dataset()[Dataset()$Data.Class == input$igv_data_type,]$Data.from)) })
+        outputOptions(output, "igv_data_DataFrom", suspendWhenHidden=FALSE)
 
       # data from which experiment
-      output$igv_data_Experiment <- renderUI({  
-        tmp <- Dataset()[Dataset()$Data.Class == input$igv_data_type,]
-        if(!is.null(input$igv_data_DataFrom) && input$igv_data_DataFrom != 'None'){ tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] }
-        selectInput('igv_data_Experiment', 'Experiment', c('None'='None', tmp$Experiment)) 
-      })
-      outputOptions(output, "igv_data_Experiment", suspendWhenHidden=FALSE)
+        output$igv_data_Experiment <- renderUI({  
+          tmp <- Dataset()[Dataset()$Data.Class == input$igv_data_type,]
+          if(!is.null(input$igv_data_DataFrom) && input$igv_data_DataFrom != 'None'){ tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] }
+          selectInput('igv_data_Experiment', 'Experiment', c('None'='None', tmp$Experiment)) 
+        })
+        outputOptions(output, "igv_data_Experiment", suspendWhenHidden=FALSE)
 
       # data selection
-      output$igv_data_select <- renderUI({ 
-        tmp <- Dataset()[Dataset()$Data.Class == input$igv_data_type,]
-        if(!is.null(input$igv_data_DataFrom) && input$igv_data_DataFrom != 'None'){ tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] }
-        if(!is.null(input$igv_data_Experiment) && input$igv_data_Experiment != 'None'){ tmp <-tmp[tmp$Experiment == input$igv_data_Experiment,] }
-        selectInput('igv_data_select', 'Select dataset to see in IGV', c('None'='None', tmp$Dataset)) 
-      })
-      outputOptions(output, "igv_data_select", suspendWhenHidden=FALSE)
+        # column(12, radioButtons("igv_data_type", "Data type", choices = c('BED' = 'D', 'BAM' = 'E'), selected='D')),
+        output$igv_data_select <- renderUI({ 
+          tmp <- Dataset()[Dataset()$Data.Class == 'D',]
+          if(!is.null(input$igv_data_DataFrom) && input$igv_data_DataFrom != 'None'){ tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] }
+          if(!is.null(input$igv_data_Experiment) && input$igv_data_Experiment != 'None'){ tmp <-tmp[tmp$Experiment == input$igv_data_Experiment,] }
+          selectInput('igv_data_select', 'Select dataset to see in IGV', c('None'='None', tmp$Dataset)) 
+        })
+        outputOptions(output, "igv_data_select", suspendWhenHidden=FALSE)
 
       # show the detail
       output$igv_Dataset_detail <- renderText({
@@ -8454,19 +8488,19 @@ server <- function(input, output, session) {
     #### start igv
       
       # igv initiation
-      output$igv <- renderIgvShiny({
-        options <- parseAndValidateGenomeSpec(genomeName=input$igv_gneome_selection)
-        igvShiny(options)  # Initialize IGV
-      })
+        output$igv <- renderIgvShiny({
+          options <- parseAndValidateGenomeSpec(genomeName=input$igv_gneome_selection)
+          igvShiny(options)  # Initialize IGV
+        })
 
       # add bed file to view
-      observeEvent(input$igv_data_add, {
-        # Track information for the BAM file
-        loadBedTrack(session, id="igv", trackName=input$igv_data_select, tbl=bed_data())
-        
-        # Add the BAM track to the IGV viewer
-        # session$sendCustomMessage(type = "addTrack", track)
-      })
+        observeEvent(input$igv_data_add, {
+          # Track information for the BAM file
+          loadBedTrack(session, id="igv", trackName=input$igv_data_select, tbl=bed_data())
+          
+          # Add the BAM track to the IGV viewer
+          # session$sendCustomMessage(type = "addTrack", track)
+        })
     #### Profile plots
       # dataset selection
         output$Profile_Plot_sample_selection <- renderUI({ 
@@ -8479,10 +8513,20 @@ server <- function(input, output, session) {
         })
 
       # Imported samples
-        imported_sample <- reactiveVal(NULL)
-        imported_bw_data <- reactiveVal(NULL)
+        imported_sample <- reactiveVal(NULL) # list of the imported sample names
+        imported_bw_data <- reactiveVal(list())
+        imported_bw_data1 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data2 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data3 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data4 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data5 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data6 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data7 <- reactiveVal(NULL) # Maximum is 8
+        imported_bw_data8 <- reactiveVal(NULL) # Maximum is 8
+
         isCalculating_import <- reactiveVal(FALSE) 
         triggered_import <- reactiveVal(FALSE)
+
         observeEvent(input$Profile_Plot_sample_import, {
           isCalculating_import(TRUE)
           triggered_import(TRUE) 
@@ -8507,9 +8551,9 @@ server <- function(input, output, session) {
           }
           bw_list <- imported_bw_data()
           bw_list <- append(bw_list, list(import(path))) # 
-          names(bw_list[[length(bw_list)]]) <- input$Profile_Plot_sample_selection
-
-
+          # names(bw_list[[length(bw_list)]]) <- input$Profile_Plot_sample_selection
+          # bw_list <- list(import(path)) # import the data
+          # names(bw_list) <- input$Profile_Plot_sample_selection
           tmp <- imported_sample()
           tmp <- c(tmp , input$Profile_Plot_sample_selection)
           imported_sample(tmp)
@@ -8560,11 +8604,11 @@ server <- function(input, output, session) {
           End_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][2] ))
           target_coordinates <- GRanges(seqnames=Rle(chr_list), ranges=IRanges(start=Start_list, end=End_list), Group='test')
 
-          # # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
-          # heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
-          #   normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
-          # })
-          # heatmap_data_list(heatmap_data_list_tmp)
+          # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
+          heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
+            normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
+          })
+          heatmap_data_list(heatmap_data_list_tmp)
           # output$Profile_Plot_status <- renderText({'test'})
           isCalculating(FALSE)
         })
@@ -8815,7 +8859,7 @@ server <- function(input, output, session) {
 
         # initial status of the error message
           output$Clinical_Survial_all_status <- renderText({"Please enter the input and choose the setting, and click 'Start the survival analysis'."})
-          output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+          output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for \nthe inputted genes will be shown here."})
           output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
           output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
 
@@ -9289,261 +9333,301 @@ server <- function(input, output, session) {
       
     #### Expression across subtypes ####
       # select "Groupby"
-      output$Expression_subtype_groupBy <- renderUI({ selectInput('Expression_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
-      outputOptions(output, "Expression_subtype_groupBy", suspendWhenHidden=FALSE)
+        output$Expression_subtype_groupBy <- renderUI({ selectInput('Expression_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
+        outputOptions(output, "Expression_subtype_groupBy", suspendWhenHidden=FALSE)
 
       # check how many subtypes there are
-      output$Expression_subtype_subtype_number <- renderText({
-        if(input$Expression_subtype_groupBy =='None'){
-          NULL
-        }else{
-          tmp <- unlist(unique(Clinical_meta()[input$Expression_subtype_groupBy]))
-          tmp <- tmp[tmp!='']
-          tmp <- na.omit(tmp) # length(Clinical_meta[group_by][is.na(Clinical_meta[group_by])])
-          num_blanck <- length(Clinical_meta()[input$Expression_subtype_groupBy][Clinical_meta()[input$Expression_subtype_groupBy]==''])
-          num_na <- length(Clinical_meta()[input$Expression_subtype_groupBy][is.na(Clinical_meta()[input$Expression_subtype_groupBy])])
-          num_nd <- num_blanck + num_na
-          paste0('Number of subtypes: ', length(tmp), '\nNumber of NA or no data: ', num_nd)
-        }
-      })
+        output$Expression_subtype_subtype_number <- renderText({
+          if(length(input$Expression_subtype_groupBy) == 0 || input$Expression_subtype_groupBy =='None'){
+            NULL
+          }else{
+            tmp <- unlist(unique(Clinical_meta()[input$Expression_subtype_groupBy]))
+            tmp <- tmp[tmp!='']
+            tmp <- na.omit(tmp) # length(Clinical_meta[group_by][is.na(Clinical_meta[group_by])])
+            num_blanck <- length(Clinical_meta()[input$Expression_subtype_groupBy][Clinical_meta()[input$Expression_subtype_groupBy]==''])
+            num_na <- length(Clinical_meta()[input$Expression_subtype_groupBy][is.na(Clinical_meta()[input$Expression_subtype_groupBy])])
+            num_nd <- num_blanck + num_na
+            paste0('Number of subtypes: ', length(tmp), '\nNumber of NA or no data: ', num_nd)
+          }
+        })
 
       # when selecting from custom genesets
-      output$Expression_subtype_genes_from_custom_geneset_select <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-            selectInput('Expression_subtype_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
-          })
-      outputOptions(output, "Expression_subtype_genes_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+        output$Expression_subtype_genes_from_custom_geneset_select <- renderUI({
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              selectInput('Expression_subtype_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+            })
+        outputOptions(output, "Expression_subtype_genes_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
       # pivot table for test
-      output$Expression_subtype_status <- renderText({ 'You can compare the genes expression across the selected subtypes.\nPlease enter the inputs, select the groups and click "Start comparing".' })
-      output$Expression_subtype_table_status <- renderText({ 'A table of the test results (statistic score and p-value) will be shown here.' })
-      output$Expression_subtype_error_catch <- renderText({ 'Please set the input and settings, and start "Start comparing".' })
-      selected_cohort_ex_sub <- reactiveVal(NULL)
-      Expression_subtype_for_test <- eventReactive(input$Expression_subtype_start,{
-        selected_cohort_ex_sub(input$Clinical_data_select)
-        if(input$Clinical_data_select == 'None'){ # when not selecting the cohort
-          output$Expression_subtype_status <- renderText({'Please select a dataset first.'})
-          output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
-          output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
-          return(NULL)
-        }
-        # expression
-        df_geneEx <- Clinical_gene_expression() 
-        if(nchar(input$Expression_subtype_genes)==0){ # when no entey in the gene input
-          output$Expression_subtype_status <- renderText({"Please enter genes (line by line)."})
-          output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
-          output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
-          return(NULL)
-        }  
-        if(input$Expression_subtype_genes_from_custom_geneset){
-          if(input$Expression_subtype_genes_from_custom_geneset_select == 'None'){
-            output$Expression_subtype_status <- renderText({"Please select a custom gene set."})
+        output$Expression_subtype_status <- renderText({ 'You can compare the genes expression across the selected subtypes.\nPlease enter the inputs, select the groups and click "Start comparing".' })
+        output$Expression_subtype_table_status <- renderText({ 'A table of the test results (statistic score and p-value) will be shown here.' })
+        output$Expression_subtype_error_catch <- renderText({ 'Please set the input and settings, and start "Start comparing".' })
+        selected_cohort_ex_sub <- reactiveVal(NULL)
+        Expression_subtype_for_test <- reactiveVal(NULL)
+        isCalculating_Expression_subtype <- reactiveVal(FALSE)
+        isTriggered_Expression_subtype <- reactiveVal(FALSE)
+        observeEvent(input$Expression_subtype_start,{
+          isTriggered_Expression_subtype(TRUE)
+          isCalculating_Expression_subtype(TRUE)
+          selected_cohort_ex_sub(input$Clinical_data_select)
+          if(input$Clinical_data_select == 'None'){ # when not selecting the cohort
+            show_alert(title='Error.',text='Please select a dataset', type='error')
+            output$Expression_subtype_status <- renderText({'Please select a dataset first.'})
             output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
             output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+            Expression_subtype_for_test(NULL)
+            isCalculating_Expression_subtype(FALSE)
             return(NULL)
           }
-          genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]] 
-        }else{
-          genes <- unlist(strsplit(input$Expression_subtype_genes, split = "\n")) # genes <- c('RERE', 'PHF7')
-        }
-        genes <- intersect(genes, rownames(df_geneEx))
-        if(length(genes)==0){ # when the entry genes are not in the cohort
-          output$Expression_subtype_status <- renderText({"None of the inputted genes are included in the dataset. \nPlease make sure the gene names are correct and do not include unnecessary spaces."})
-          output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
-          output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
-          return(NULL)
-        }
-        df_gene_EX_gene <- data.frame(t(df_geneEx[genes,])) # head(df_gene_EX_gene)genes='CXCL10'
-        df_gene_EX_gene$sample <- gsub('\\.', '-', rownames(df_gene_EX_gene)) 
-        colnames(df_gene_EX_gene) <- gsub('\\.', '-', colnames(df_gene_EX_gene)) 
-        # meta, subtype
-        df_meta <- Clinical_meta()
-        df_meta$sample <- gsub('\\.', '-', df_meta$sample)
-        group_by <- input$Expression_subtype_groupBy # group_by <- 'GRADE'
-        if(group_by == 'None'){
-          output$Expression_subtype_status <- renderText({"Please select a group to compare."})
-          output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
-          output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
-          return(NULL)
-        }
-        df_meta_subtype <- df_meta[, c('sample', group_by)] # head(df_meta_subtype)
-        df_meta_subtype <- df_meta_subtype[!is.na(df_meta_subtype[,group_by]),]
-        df_meta_subtype <- df_meta_subtype[df_meta_subtype[,group_by] != '',]
-        df_meta_subtype[,group_by] <- as.character(df_meta_subtype[,group_by])
-        # merge
-        df_tmp <- merge(df_gene_EX_gene, df_meta_subtype, by='sample') # head(df_tmp)
-        # df_out[,group_by] <- as.character(df_out[,group_by])
-        df_out <- df_tmp %>% pivot_longer(cols=all_of(genes), names_to='Genes', values_to='Expression') # head(df_out)
-        return(df_out)
+          # expression
+          df_geneEx <- Clinical_gene_expression() 
+          if(input$Expression_subtype_genes_from_custom_geneset){
+            if(input$Expression_subtype_genes_from_custom_geneset_select == 'None'){
+              show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+              output$Expression_subtype_status <- renderText({"Please select a custom gene set."})
+              output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
+              output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+              Expression_subtype_for_test(NULL)
+              isCalculating_Expression_subtype(FALSE)
+              return(NULL)
+            }
+            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]] 
+          }else{
+            if(nchar(input$Expression_subtype_genes)==0){ # when no entey in the gene input
+              show_alert(title='Error.',text='Please enter genes (line by line).', type='error')
+              output$Expression_subtype_status <- renderText({"Please enter genes (line by line)."})
+              output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
+              output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+              Expression_subtype_for_test(NULL)
+              isCalculating_Expression_subtype(FALSE)
+              return(NULL)
+            }  
+            genes <- unlist(strsplit(input$Expression_subtype_genes, split = "\n")) # genes <- c('RERE', 'PHF7')
+          }
+          genes <- intersect(genes, rownames(df_geneEx))
+          if(length(genes)==0){ # when the entry genes are not in the cohort
+            show_alert(title='Error.',text='None of the inputted genes are included in the dataset.', type='error')
+            output$Expression_subtype_status <- renderText({"None of the inputted genes are included in the dataset. \nPlease make sure the gene names are correct and do not include unnecessary spaces."})
+            output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
+            output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+            Expression_subtype_for_test(NULL)
+            isCalculating_Expression_subtype(FALSE)
+            return(NULL)
+          }
+          df_gene_EX_gene <- data.frame(t(df_geneEx[genes,])) # head(df_gene_EX_gene)genes='CXCL10'
+          df_gene_EX_gene$sample <- gsub('\\.', '-', rownames(df_gene_EX_gene)) 
+          colnames(df_gene_EX_gene) <- gsub('\\.', '-', colnames(df_gene_EX_gene)) 
+          # meta, subtype
+          df_meta <- Clinical_meta()
+          df_meta$sample <- gsub('\\.', '-', df_meta$sample)
+          group_by <- input$Expression_subtype_groupBy # group_by <- 'GRADE'
+          if(group_by == 'None'){
+            show_alert(title='Error.',text='Please select a group to compare.', type='error')
+            output$Expression_subtype_status <- renderText({"Please select a group to compare."})
+            output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
+            output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+            Expression_subtype_for_test(NULL)
+            isCalculating_Expression_subtype(FALSE)
+            return(NULL)
+          }
+          df_meta_subtype <- df_meta[, c('sample', group_by)] # head(df_meta_subtype)
+          df_meta_subtype <- df_meta_subtype[!is.na(df_meta_subtype[,group_by]),]
+          df_meta_subtype <- df_meta_subtype[df_meta_subtype[,group_by] != '',]
+          df_meta_subtype[,group_by] <- as.character(df_meta_subtype[,group_by])
+          # merge
+          df_tmp <- merge(df_gene_EX_gene, df_meta_subtype, by='sample') # head(df_tmp)
+          df_out <- df_tmp %>% pivot_longer(cols=all_of(genes), names_to='Genes', values_to='Expression') # head(df_out)
+          Expression_subtype_for_test(df_out)
+          isCalculating_Expression_subtype(FALSE)
+          return(df_out)
 
-      })
+        })
       
       # test results
-      Expression_subtype_test <- reactive({
-        if(is.null(Expression_subtype_for_test())){
-          return(NULL)
-        }else{
-          df_out <- Expression_subtype_for_test() # head(df_out)
-          # group_by <- input$Expression_subtype_groupBy
-          group_by <- colnames(df_out)[2]
-          if(length(unique(unlist(df_out[,group_by]))) >= 3){
-            df_test <- data.frame('Gene'=c(), 'Statistic (Kruskal-Wallis)'=c(), 'P.value'=c())
-            genes <- unique(unlist(df_out[,'Genes']))
-            for (gene in genes){
-              # kruskal.test
-              df_out_tmp <- df_out[df_out$Genes == gene,]
-              df_test_tmp <- kruskal.test(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp) # str(df_test)
-              p <- df_test_tmp$p.value
-              statistic <- df_test_tmp$statistic
-              tmp <- data.frame('Gene'=gene, 'Statistic (Kruskal-Wallis)'=statistic, 'P.value'=p)
-              df_test <- rbind(df_test, tmp)
-            }          
-            # # dunntest
-            # library(FSA) #install.packages('FSA')
-            # dunnTest(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp, method='bonferroni')
-          }else if(length(unique(unlist(df_out[,group_by]))) == 2){
-            df_test <- data.frame('Gene'=c(), 'Statistic (Wilcoxon)'=c(), 'P.value'=c())
-            genes <- unique(unlist(df_out[,'Genes']))
-            for (gene in genes){
-              # wilcox.test
-              df_out_tmp <- df_out[df_out$Genes == gene,]
-              group1 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[1],]$Expression
-              group2 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[2],]$Expression
-              df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
-              p <- df_test_tmp$p.value
-              statistic <- df_test_tmp$statistic
-              tmp <- data.frame('Gene'=gene, 'Statistic (Wilcoxon)'=statistic, 'P.value'=p)
-              df_test <- rbind(df_test, tmp)
-            }          
-          }else{
-            output$Expression_subtype_status <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
-            output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
-            output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+        Expression_subtype_test <- reactive({
+          if(is.null(Expression_subtype_for_test())){
             return(NULL)
+          }else{
+            df_out <- Expression_subtype_for_test() # head(df_out)
+            # group_by <- input$Expression_subtype_groupBy
+            group_by <- colnames(df_out)[2]
+            if(length(unique(unlist(df_out[,group_by]))) >= 3){
+              df_test <- data.frame('Gene'=c(), 'Statistic (Kruskal-Wallis)'=c(), 'P.value'=c())
+              genes <- unique(unlist(df_out[,'Genes']))
+              for (gene in genes){
+                # kruskal.test
+                df_out_tmp <- df_out[df_out$Genes == gene,]
+                df_test_tmp <- kruskal.test(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp) # str(df_test)
+                p <- df_test_tmp$p.value
+                statistic <- df_test_tmp$statistic
+                tmp <- data.frame('Gene'=gene, 'Statistic (Kruskal-Wallis)'=statistic, 'P.value'=p)
+                df_test <- rbind(df_test, tmp)
+              }          
+              # # dunntest
+              # library(FSA) #install.packages('FSA')
+              # dunnTest(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp, method='bonferroni')
+            }else if(length(unique(unlist(df_out[,group_by]))) == 2){
+              df_test <- data.frame('Gene'=c(), 'Statistic (Wilcoxon)'=c(), 'P.value'=c())
+              genes <- unique(unlist(df_out[,'Genes']))
+              for (gene in genes){
+                # wilcox.test
+                df_out_tmp <- df_out[df_out$Genes == gene,]
+                group1 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[1],]$Expression
+                group2 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[2],]$Expression
+                df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
+                p <- df_test_tmp$p.value
+                statistic <- df_test_tmp$statistic
+                tmp <- data.frame('Gene'=gene, 'Statistic (Wilcoxon)'=statistic, 'P.value'=p)
+                df_test <- rbind(df_test, tmp)
+              }          
+            }else{
+              output$Expression_subtype_status <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
+              output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
+              output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+              return(NULL)
+            }
+            rownames(df_test) <- NULL
+            df_test <- df_test[order(df_test$P.value),]
+            df_test$group_by <- group_by
+            return(df_test)
           }
-          rownames(df_test) <- NULL
-          df_test <- df_test[order(df_test$P.value),]
-          df_test$group_by <- group_by
-          return(df_test)
-        }
-      })
-      output$Expression_subtype_table <- DT::renderDataTable({
-        if(is.null(Expression_subtype_test())){
-          df_test <- data.frame()  
-        }else{
-          output$Expression_subtype_status <- renderText({NULL})
-          output$Expression_subtype_table_status <- renderText({NULL})
-          df_test <- Expression_subtype_test()[,1:3]
-        }
-        datatable(df_test, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-      })
+        })
+
+      # show as a table
+        output$Expression_subtype_table <- DT::renderDataTable({
+          if(!isTriggered_Expression_subtype()){
+            output$Expression_subtype_status <- renderText({'Please set the input and settings, and start "Start comparing".'})
+            df_test <- data.frame('Gene'=character(0), 'Statistic'=numeric(0), 'P.value'=numeric(0), stringsAsFactors = FALSE) 
+          }
+          if(isCalculating_Expression_subtype()){
+            output$Expression_subtype_status <- renderText({'Calculating...'})
+            df_test <- data.frame('Gene'=character(0), 'Statistic'=numeric(0), 'P.value'=numeric(0), stringsAsFactors = FALSE) 
+          }
+          if(is.null(Expression_subtype_test())){
+            df_test <- data.frame('Gene'=character(0), 'Statistic'=numeric(0), 'P.value'=numeric(0), stringsAsFactors = FALSE) 
+          }else{
+            output$Expression_subtype_status <- renderText({NULL})
+            output$Expression_subtype_table_status <- renderText({NULL})
+            df_test <- Expression_subtype_test()[,1:3]
+          }
+          datatable(df_test, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+        })
 
       # download the table
-      output$Expression_subtype_table_download <- downloadHandler(
-        filename = function(){"Expression_across_subtype.tsv"}, 
-        content = function(fname){ write.table(Expression_subtype_test()[,1:3], fname, sep='\t', row.names=F, quote=F) }
-      )
+        output$Expression_subtype_table_download <- downloadHandler(
+          filename = function(){"Expression_across_subtype.tsv"}, 
+          content = function(fname){ write.table(Expression_subtype_test()[,1:3], fname, sep='\t', row.names=F, quote=F) }
+        )
 
       # colour option are mutually exclusive (use pallete or use a single colour)
-      observeEvent(input$Expression_subtype_change_colour_pallete, { 
-        if(input$Expression_subtype_change_colour_pallete){ updateCheckboxInput(session, "Expression_subtype_use_single_colour", value=FALSE)}
-      })
-      observeEvent(input$Expression_subtype_use_single_colour, { 
-        if(input$Expression_subtype_use_single_colour){ updateCheckboxInput(session, "Expression_subtype_change_colour_pallete", value=FALSE)}
-      })
+        observeEvent(input$Expression_subtype_change_colour_pallete, { 
+          if(input$Expression_subtype_change_colour_pallete){ updateCheckboxInput(session, "Expression_subtype_use_single_colour", value=FALSE)}
+        })
+        observeEvent(input$Expression_subtype_use_single_colour, { 
+          if(input$Expression_subtype_use_single_colour){ updateCheckboxInput(session, "Expression_subtype_change_colour_pallete", value=FALSE)}
+        })
 
       # boxplot or swarm plt or vlnplot
-      output$Expression_subtype_plot <- renderPlot({
-        if(length(selected_cohort_ex_sub()) > 0){
-          if(selected_cohort_ex_sub() != input$Clinical_data_select){
-            output$Expression_subtype_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
+        output$Expression_subtype_plot <- renderPlot({
+          if(!isTriggered_Expression_subtype()){
+            output$Expression_subtype_status <- renderText({'Please set the input and settings, and start "Start comparing".'})
+            return(ggplot())
           }
-        }
-        if(is.null(Expression_subtype_test())){
-          return(NULL)
-        }
-        if(length(input$Expression_subtype_table_rows_selected)==0){
-          output$Expression_subtype_error_catch <- renderText({'Please select a gene (row) from the test result table.'})
-          return(NULL)
-        }
-        # output$Expression_subtype_error_catch <- renderText({NULL})
-        gene <- Expression_subtype_test()[input$Expression_subtype_table_rows_selected,]$Gene
-        df_out <- Expression_subtype_for_test()
-        number_each_group <- 'The number of data in each subtypes. \n'
-        for (nm in names(table(df_out[,colnames(df_out)[2]]))){
-          number_each_group <- paste0(number_each_group, nm , ': ', table(df_out[,colnames(df_out)[2]])[nm], '\n')
-        }
-        # group_by <- input$Expression_subtype_groupBy
-        group_by <- colnames(df_out)[2]
-        df_out_tmp <- df_out[df_out$Genes == gene,] # head(df_out_tmp)
-        output$Expression_subtype_note <- renderText({
-          number_each_group
-        })
-        # 'Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C'), selected='A'))
-        if(input$Expression_subtype_use_single_colour){
-          p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression'))
-        }else{
-          p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', fill=group_by))
-        }
-        if(input$Expression_subtype_figtype == 'A'){  # boxplot
-          if(input$Expression_subtype_use_single_colour){
-            p <- p + geom_boxplot(fill=input$Expression_subtype_choose_single_colour, size=0.2, outlier.size=0.5)
-          }else{
-            p <- p + geom_boxplot(color='black', size=0.2, outlier.size=0.5)
-            if(input$Expression_subtype_select_colour_pallete != 'None'){
-              p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
+          if(isCalculating_Expression_subtype()){
+            output$Expression_subtype_status <- renderText({'Calculating...'})
+            return(ggplot())
+          }
+          if(length(selected_cohort_ex_sub()) > 0){
+            if(selected_cohort_ex_sub() != input$Clinical_data_select){
+              output$Expression_subtype_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
+              return(ggplot())
             }
           }
-        }else if(input$Expression_subtype_figtype == 'B'){ # violin plot
-          if(input$Expression_subtype_use_single_colour){
-            p <- p + geom_violin(trim = FALSE, fill=input$Expression_subtype_choose_single_colour, size=0.2)
-          }else{
-            p <- p + geom_violin(color='black',trim = FALSE, size=0.2)
-            if(input$Expression_subtype_select_colour_pallete != 'None'){
-              p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
-            }
+          if(is.null(Expression_subtype_test())){
+            return(ggplot())
           }
-        }else if(input$Expression_subtype_figtype == 'C'){ # swarm plot
-          p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', color=group_by))
-          if(input$Expression_subtype_use_single_colour){
-            p <- p + geom_beeswarm(size=input$Expression_subtype_dot.size,color=input$Expression_subtype_choose_single_colour)
-          }else{
-            p <- p + geom_beeswarm(size=input$Expression_subtype_dot.size)
-            if(input$Expression_subtype_select_colour_pallete != 'None'){
-              p <- p + scale_color_viridis_d(option=input$Expression_subtype_select_colour_pallete)
-            }
+          if(length(input$Expression_subtype_table_rows_selected)==0){
+            output$Expression_subtype_error_catch <- renderText({'Please select a gene (row) from the test result table.'})
+            return(ggplot())
           }
-        }else if(input$Expression_subtype_figtype == 'D'){ # swarm plot + violin plot
-          if(input$Expression_subtype_use_single_colour){
-            p <- p + geom_violin(trim = FALSE, fill=input$Expression_subtype_choose_single_colour, size=0.2)
-          }else{
-            p <- p + geom_violin(trim = FALSE, size=0.2)
-            if(input$Expression_subtype_select_colour_pallete != 'None'){
-              p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
-            }
+          # output$Expression_subtype_error_catch <- renderText({NULL})
+          gene <- Expression_subtype_test()[input$Expression_subtype_table_rows_selected,]$Gene
+          df_out <- Expression_subtype_for_test()
+          number_each_group <- 'The number of data in each subtypes. \n'
+          for (nm in names(table(df_out[,colnames(df_out)[2]]))){
+            number_each_group <- paste0(number_each_group, nm , ': ', table(df_out[,colnames(df_out)[2]])[nm], '\n')
           }
-          p <- p + geom_jitter(width=0.1, height=0, size=input$Expression_subtype_dot.size)
-        }
-        if(input$Expression_subtype_rotate_x){
-          p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-        }
-        p <- p + theme(axis.text.y = element_text(size = input$Expression_subtype_XY_label.font.size), axis.text.x = element_text(size = input$Expression_subtype_XY_label.font.size))
-        p <- p + theme(axis.title.y = element_text(size = input$Expression_subtype_XY_title.font.size), axis.title.x = element_text(size = input$Expression_subtype_XY_title.font.size))
-        p <- p + theme(legend.position = 'none')
-        p <- p + ggtitle(gene) + theme(plot.title = element_text(size = input$Expression_subtype_title.font.size))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-        if(input$Expression_subtype_white_background){
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
-          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        }
-        output$Expression_subtype_error_catch <- renderText({NULL})
-        p
-      }, width=reactive(input$Expression_subtype_fig.width), height=reactive(input$Expression_subtype_fig.height), res=300)
+          # group_by <- input$Expression_subtype_groupBy
+          group_by <- colnames(df_out)[2]
+          df_out_tmp <- df_out[df_out$Genes == gene,] # head(df_out_tmp)
+          output$Expression_subtype_note <- renderText({
+            number_each_group
+          })
+          # 'Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C'), selected='A'))
+          if(input$Expression_subtype_use_single_colour){
+            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression'))
+          }else{
+            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', fill=group_by))
+          }
+          if(input$Expression_subtype_figtype == 'A'){  # boxplot
+            if(input$Expression_subtype_use_single_colour){
+              p <- p + geom_boxplot(fill=input$Expression_subtype_choose_single_colour, size=0.2, outlier.size=0.5)
+            }else{
+              p <- p + geom_boxplot(color='black', size=0.2, outlier.size=0.5)
+              if(input$Expression_subtype_select_colour_pallete != 'None'){
+                p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
+              }
+            }
+          }else if(input$Expression_subtype_figtype == 'B'){ # violin plot
+            if(input$Expression_subtype_use_single_colour){
+              p <- p + geom_violin(trim = FALSE, fill=input$Expression_subtype_choose_single_colour, size=0.2)
+            }else{
+              p <- p + geom_violin(color='black',trim = FALSE, size=0.2)
+              if(input$Expression_subtype_select_colour_pallete != 'None'){
+                p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
+              }
+            }
+          }else if(input$Expression_subtype_figtype == 'C'){ # swarm plot
+            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', color=group_by))
+            if(input$Expression_subtype_use_single_colour){
+              p <- p + geom_beeswarm(size=input$Expression_subtype_dot.size,color=input$Expression_subtype_choose_single_colour)
+            }else{
+              p <- p + geom_beeswarm(size=input$Expression_subtype_dot.size)
+              if(input$Expression_subtype_select_colour_pallete != 'None'){
+                p <- p + scale_color_viridis_d(option=input$Expression_subtype_select_colour_pallete)
+              }
+            }
+          }else if(input$Expression_subtype_figtype == 'D'){ # swarm plot + violin plot
+            if(input$Expression_subtype_use_single_colour){
+              p <- p + geom_violin(trim = FALSE, fill=input$Expression_subtype_choose_single_colour, size=0.2)
+            }else{
+              p <- p + geom_violin(trim = FALSE, size=0.2)
+              if(input$Expression_subtype_select_colour_pallete != 'None'){
+                p <- p + scale_fill_viridis_d(option=input$Expression_subtype_select_colour_pallete)
+              }
+            }
+            p <- p + geom_jitter(width=0.1, height=0, size=input$Expression_subtype_dot.size)
+          }
+          if(input$Expression_subtype_rotate_x){
+            p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+          }
+          p <- p + theme(axis.text.y = element_text(size = input$Expression_subtype_XY_label.font.size), axis.text.x = element_text(size = input$Expression_subtype_XY_label.font.size))
+          p <- p + theme(axis.title.y = element_text(size = input$Expression_subtype_XY_title.font.size), axis.title.x = element_text(size = input$Expression_subtype_XY_title.font.size))
+          p <- p + theme(legend.position = 'none')
+          p <- p + ggtitle(gene) + theme(plot.title = element_text(size = input$Expression_subtype_title.font.size))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          if(input$Expression_subtype_white_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          output$Expression_subtype_error_catch <- renderText({NULL})
+          p
+        }, width=reactive(input$Expression_subtype_fig.width), height=reactive(input$Expression_subtype_fig.height), res=300)
 
+      #
     #### Upload ####
       # file upload and reset function 
       output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
@@ -9836,265 +9920,331 @@ server <- function(input, output, session) {
       })
     #### Signature analysis
       # select a geneset
-      output$Signature_input_selection_custom_geneset_select <- renderUI({
-        req(input$Signature_input_selection=='A')
-        gene_sets_names <- c()
-        gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-        selectInput('Signature_input_selection_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-      })
-      output$Signature_input_selection_status <- renderText({"Please set the input, choose the method and click 'Calculate the signature score'.\nSignature scores using the selected input genes will be calculated for each sample in the cohort."})
-      output$Signature_analysis_status <- renderText({"The signature scores for the samples will be shown here."})
-      # signature score calculation
-      singature_table <- eventReactive(input$Signature_start,{
-        if(input$Clinical_data_select == 'None'){
-          output$Signature_input_selection_status <- renderText({'Please select a dataset first.'})
-          return(NULL)
-        }
-        # when no proper input
-        df_geneEx <- Clinical_gene_expression() 
-        if(input$Signature_input_selection=='A'){
-          if(input$Signature_input_selection_custom_geneset_select == 'None'){
-            output$Signature_input_selection_status <- renderText({'Please select a gene set'})
-            return(NULL)
-          }else{
-            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Signature_input_selection_custom_geneset_select, ]$Genes, split=', ')[[1]]
-            genes <- intersect(genes, rownames(df_geneEx))
-            if(length(genes)==0){
-              output$Signature_input_selection_status <- renderText({'None of the genes in the selected gene sets are in the dataset. \nPlease change the gene set.'})    
-              return(NULL)
-            }
-          }
-        }else{
-          if(nchar(input$Signature_input_selection_text_input)==0){
-            output$Signature_input_selection_status <- renderText({'Please enter genes (line by line)'})
-            return(NULL)
-          }else{
-            genes <- unlist(strsplit(input$Signature_input_selection_text_input, split = "\n"))
-            genes <- intersect(genes, rownames(df_geneEx))
-            if(length(genes)==0){
-              output$Signature_input_selection_status <- renderText({'None of the inputted genes are in the dataset. \nPlease check if the gene names are correct and do not have unneccesary spaces.'})    
-              return(NULL)
-            }
-          }
-        }
-        # method is not selected
-        if(length(input$Signature_input_score_type)==0){
-          output$Signature_input_selection_status <- renderText({'Please select the Calculation method.'})
-        }
-        output$Signature_input_selection_status <- renderText({NULL})
-        gene_set <- list(selected_gene_set=genes) # gene_set <- list(selected_gene_set=c('CXCL10', 'CXCL9'))
-        df_geneEx[is.na(df_geneEx)] <- 0
-        method <- input$Signature_input_score_type # method='ssgsea'
-        if(method=='ssGSEA'){
-          signaturePar <- ssgseaParam(as.matrix(df_geneEx), gene_set)
-        }else if(method == 'GSVA'){
-          signaturePar <- gsvaParam(as.matrix(df_geneEx), gene_set)
-        }
-        signature_gsva <- gsva(signaturePar)
-        signature_gsva_table <- data.frame(t(data.frame(signature_gsva)))
-        signature_gsva_table$Sample <- gsub('\\.', '-', rownames(signature_gsva_table))
-        signature_gsva_table <- signature_gsva_table[order(signature_gsva_table$selected_gene_set, decreasing = T),]
-        signature_gsva_table <- signature_gsva_table[, c('Sample', 'selected_gene_set')]
-        colnames(signature_gsva_table)[2] <- 'Signature.score'
-        rownames(signature_gsva_table) <- NULL
+        output$Signature_input_selection_custom_geneset_select <- renderUI({
+          req(input$Signature_input_selection=='A')
+          gene_sets_names <- c()
+          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          selectInput('Signature_input_selection_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+        })
+        output$Signature_input_selection_status <- renderText({"Please set the input, choose the method and click 'Calculate the signature score'.\nSignature scores using the selected input genes will be calculated for each sample in the cohort."})
+        output$Signature_analysis_status <- renderText({"The signature scores for the samples will be shown here."})
 
-        return(signature_gsva_table)
-      })
-      selected_cohort_sig <- reactive({ 0 })
-      selected_cohort_sig <- eventReactive(input$Signature_start, { input$Clinical_data_select })
+      # signature score calculation
+        singature_table <- reactiveVal({ NULL })
+        selected_cohort_sig <- reactiveVal('None')
+        isCalculating_singature_table <- reactiveVal(FALSE)
+        isTriggered_singature_table <- reactiveVal(FALSE)
+        observeEvent(input$Signature_start, {
+          selected_cohort_sig(input$Clinical_data_select)
+          isTriggered_singature_table(TRUE)
+          isCalculating_singature_table(TRUE)
+          if(input$Clinical_data_select == 'None'){
+            show_alert(title='Error.', text='Please select a dataset first.', type='error')
+            output$Signature_input_selection_status <- renderText({'Please select a dataset first.'})
+            singature_table(NULL)
+            isCalculating_singature_table(FALSE)
+            return(NULL)
+          }
+          # when no proper input
+          df_geneEx <- Clinical_gene_expression() 
+          if(input$Signature_input_selection=='A'){
+            if(input$Signature_input_selection_custom_geneset_select == 'None'){
+              show_alert(title='Error.', text='Please select a gene set.', type='error')
+              output$Signature_input_selection_status <- renderText({'Please select a gene set'})
+              singature_table(NULL)
+              isCalculating_singature_table(FALSE)
+              return(NULL)
+            }else{
+              genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Signature_input_selection_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              genes <- intersect(genes, rownames(df_geneEx))
+              if(length(genes)==0){
+                show_alert(title='Error.', text='None of the genes in the selected gene set are in the dataset.', type='error')
+                output$Signature_input_selection_status <- renderText({'None of the genes in the selected gene sets are in the dataset. \nPlease change the gene set.'})    
+                singature_table(NULL)
+                isCalculating_singature_table(FALSE)
+                return(NULL)
+              }
+            }
+          }else{
+            if(nchar(input$Signature_input_selection_text_input)==0){
+              show_alert(title='Error.', text='Please input genes (line by line).', type='error')
+              output$Signature_input_selection_status <- renderText({'Please enter genes (line by line)'})
+              singature_table(NULL)
+              isCalculating_singature_table(FALSE)
+              return(NULL)
+            }else{
+              genes <- unlist(strsplit(input$Signature_input_selection_text_input, split = "\n"))
+              genes <- intersect(genes, rownames(df_geneEx))
+              if(length(genes)==0){
+                show_alert(title='Error.', text='None of the inputted genes are in the dataset.', type='error')
+                output$Signature_input_selection_status <- renderText({'None of the inputted genes are in the dataset. \nPlease check if the gene names are correct and do not have unneccesary spaces.'})    
+                singature_table(NULL)
+                isCalculating_singature_table(FALSE)
+                return(NULL)
+              }
+            }
+          }
+          # method is not selected
+          if(length(input$Signature_input_score_type)==0){
+            show_alert(title='Error.', text='Please select the calculation method.', type='error')
+            output$Signature_input_selection_status <- renderText({'Please select the Calculation method.'})
+            singature_table(NULL)
+            isCalculating_singature_table(FALSE)
+            return(NULL)
+          }
+          output$Signature_input_selection_status <- renderText({NULL})
+          gene_set <- list(selected_gene_set=genes) # gene_set <- list(selected_gene_set=c('CXCL10', 'CXCL9'))
+          df_geneEx[is.na(df_geneEx)] <- 0
+          method <- input$Signature_input_score_type # method='ssgsea'
+          if(method=='ssGSEA'){
+            signaturePar <- ssgseaParam(as.matrix(df_geneEx), gene_set)
+          }else if(method == 'GSVA'){
+            signaturePar <- gsvaParam(as.matrix(df_geneEx), gene_set)
+          }
+          signature_gsva <- gsva(signaturePar)
+          signature_gsva_table <- data.frame(t(data.frame(signature_gsva)))
+          signature_gsva_table$Sample <- gsub('\\.', '-', rownames(signature_gsva_table))
+          signature_gsva_table <- signature_gsva_table[order(signature_gsva_table$selected_gene_set, decreasing = T),]
+          signature_gsva_table <- signature_gsva_table[, c('Sample', 'selected_gene_set')]
+          colnames(signature_gsva_table)[2] <- 'Signature.score'
+          rownames(signature_gsva_table) <- NULL
+          singature_table(signature_gsva_table)
+          isCalculating_singature_table(FALSE)
+          return()
+        })
 
       # show table
-      output$Signature_result_table <- DT::renderDataTable({
-        if(is.null(singature_table())){
-          df_test <- data.frame()  
-        }else{
-          output$Signature_analysis_status <- renderText(NULL)
-          df_test <- singature_table()
-        }
-        datatable(df_test, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-      })
+        output$Signature_result_table <- DT::renderDataTable({
+          if(!isTriggered_singature_table()){
+            output$Signature_input_selection_status <- renderText({'Please set the input, choose the method and click "Calculate the signature score".'})
+            df_test <- data.frame('Sample'=character(0), 'Signature.score'=numeric(0), stringsAsFactors = FALSE)
+          }
+          if(isCalculating_singature_table()){
+            output$Signature_input_selection_status <- renderText({'Calculating...'})
+            df_test <- data.frame('Sample'=character(0), 'Signature.score'=numeric(0), stringsAsFactors = FALSE)
+          }
+          if(is.null(singature_table())){
+            df_test <- data.frame('Sample'=character(0), 'Signature.score'=numeric(0), stringsAsFactors = FALSE)
+          }else{
+            output$Signature_analysis_status <- renderText(NULL)
+            df_test <- singature_table()
+          }
+          datatable(df_test, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+        })
 
       # download the table
-      output$Signature_result_table_download <- downloadHandler(
-        filename = function(){"Signature.tsv"}, 
-        content = function(fname){ write.table(singature_table(), fname, sep='\t', row.names=F, quote=F) }
-      )
+        output$Signature_result_table_download <- downloadHandler(
+          filename = function(){"Signature.tsv"}, 
+          content = function(fname){ write.table(singature_table(), fname, sep='\t', row.names=F, quote=F) }
+        )
 
       # survival analysis
-      output$Signature_Survival_detail <- renderText({"Please calulate the signature score first."})
-      output$Signature_Survival_plot <- renderPlot({
-        if(length(input$Clinical_data_select)==0){
-          output$Signature_Survival_detail <- renderText({'Please calulate the signature score first.'})
-          return(NULL)
-        }
-        if(selected_cohort_sig() != input$Clinical_data_select){
-          output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
-          return(NULL)
-        }
-        if(is.null(singature_table())){
-          return(NULL)
-        }else{
-          singature_table <- singature_table()
-        }
-        df_OS <- Clinical_surival()
-        df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-        if(is.null(singature_table)){
-          output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
-          return(NULL)
-        }
-        output$Signature_Survival_detail <- renderText({NULL})
-        Sig_scores <- singature_table[,'Signature.score']
-        if(input$Signature_Survival_cutoff_method == 'A'){
-          med <- median(Sig_scores)
-          df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= med, ]$Sample)
-          df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] < med, ]$Sample)
-        }else{
-          top25 <- quantile(Sig_scores, 0.75, na.rm = T)
-          bottom25 <- quantile(Sig_scores, 0.25, na.rm = T)
-          df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= top25,]$Sample)
-          df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] <= bottom25,]$Sample)
-        }
-        if(length(df_high_sample)==0 | length(df_low_sample)==0){
-          output$Signature_Survival_detail <- renderText({"The samples cannot divide into two using the selected split method."})
-          return(NULL)
-        }
-        df_OS$group = NA
-        df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
-        df_OS[df_OS$sample %in% df_low_sample,]$group <- 'Low'
-        df_OS$group <- factor(df_OS$group, levels=c('Low', 'High'))
+        output$Signature_Survival_detail <- renderText({"Please calulate the signature score first."})
+        output$Signature_Survival_plot <- renderPlot({
+          if(!isTriggered_singature_table()){
+            output$Signature_Survival_detail <- renderText({'Please set the input, choose the method and click "Calculate the signature score".'})
+            return(ggplot())
+          }
+          if(isCalculating_singature_table()){
+            output$Signature_Survival_detail <- renderText({'Calculating...'})
+            return(ggplot())
+          }
+          if(length(input$Clinical_data_select)==0){
+            output$Signature_Survival_detail <- renderText({'Please calulate the signature score first.'})
+            return(ggplot())
+          }
+          if(selected_cohort_sig() != input$Clinical_data_select){
+            output$Signature_Survival_detail <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(ggplot())
+          }
+          if(is.null(singature_table())){
+            return(ggplot())
+          }else{
+            singature_table <- singature_table()
+          }
+          df_OS <- Clinical_surival()
+          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          if(is.null(singature_table)){
+            output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
+            return(ggplot())
+          }
+          output$Signature_Survival_detail <- renderText({NULL})
+          Sig_scores <- singature_table[,'Signature.score']
+          if(input$Signature_Survival_cutoff_method == 'A'){
+            med <- median(Sig_scores)
+            df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= med, ]$Sample)
+            df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] < med, ]$Sample)
+          }else{
+            top25 <- quantile(Sig_scores, 0.75, na.rm = T)
+            bottom25 <- quantile(Sig_scores, 0.25, na.rm = T)
+            df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= top25,]$Sample)
+            df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] <= bottom25,]$Sample)
+          }
+          if(length(df_high_sample)==0 | length(df_low_sample)==0){
+            output$Signature_Survival_detail <- renderText({"The samples cannot divide into two using the selected split method."})
+            return(ggplot())
+          }
+          df_OS$group = NA
+          df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
+          df_OS[df_OS$sample %in% df_low_sample,]$group <- 'Low'
+          df_OS$group <- factor(df_OS$group, levels=c('Low', 'High'))
 
-        # survival object
-        surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
-        km_fit <- survfit(surv_obj ~ group, data = df_OS)
-        cox_model <- coxph(surv_obj ~ group, data = df_OS)
-        km_data <- broom::tidy(km_fit)
-        # Hazard ratio and p
-        HR <- exp(cox_model$coefficients)
-        p_value <- summary(cox_model)$coefficients[, 5]
-        output$Signature_Survival_detail <- renderText({
-          paste0('HR: ', HR, '\n', 'P-value:', p_value)
-        })
-        # graph
-        km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
-          geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
-          labs( title = 'Signature score', x = "Time", y = "Survival Probability", color = "") +
-          scale_color_manual(
-            values=c('group=High'=input$Signature_Survival_plot_High_colour, 'group=Low'=input$Signature_Survival_plot_Low_colour),
-            labels=c(paste0('High (n=', as.character(length(df_high_sample)), ')'), paste0('Low (n=', as.character(length(df_low_sample)), ')'))
-          ) + 
-          scale_fill_manual(
-            values=c('group=High'=input$Signature_Survival_plot_High_colour, 'group=Low'=input$Signature_Survival_plot_Low_colour),
-            labels=c(paste0('High (n=', as.character(length(df_high_sample)), ')'), paste0('Low (n=', as.character(length(df_low_sample)), ')'))
-          ) +
-          guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Signature_Survival_plot_legend_size)) 
-        p <- km_plot
-        p <- p + theme(axis.text = element_text(size = input$Signature_Survival_plot_label_size))
-        p <- p + theme(axis.title = element_text(size = input$Signature_Survival_plot_title_size))
-        p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-        p <- p + theme(legend.key.size = unit(1, "mm"))
-        p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-        p <- p + theme(panel.background = element_rect(fill="white", size=0))
-        p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        p <- p + labs(title=NULL)
-        p
-      }, width=reactive(input$Signature_Survival_plot_fig.width), height=reactive(input$Signature_Survival_plot_fig.height), res=300)
-      
+          # survival object
+          surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
+          km_fit <- survfit(surv_obj ~ group, data = df_OS)
+          cox_model <- coxph(surv_obj ~ group, data = df_OS)
+          km_data <- broom::tidy(km_fit)
+          # Hazard ratio and p
+          HR <- exp(cox_model$coefficients)
+          p_value <- summary(cox_model)$coefficients[, 5]
+          output$Signature_Survival_detail <- renderText({
+            paste0('HR: ', HR, '\n', 'P-value:', p_value)
+          })
+          # graph
+          km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
+            geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
+            labs( title = 'Signature score', x = "Time", y = "Survival Probability", color = "") +
+            scale_color_manual(
+              values=c('group=High'=input$Signature_Survival_plot_High_colour, 'group=Low'=input$Signature_Survival_plot_Low_colour),
+              labels=c(paste0('High (n=', as.character(length(df_high_sample)), ')'), paste0('Low (n=', as.character(length(df_low_sample)), ')'))
+            ) + 
+            scale_fill_manual(
+              values=c('group=High'=input$Signature_Survival_plot_High_colour, 'group=Low'=input$Signature_Survival_plot_Low_colour),
+              labels=c(paste0('High (n=', as.character(length(df_high_sample)), ')'), paste0('Low (n=', as.character(length(df_low_sample)), ')'))
+            ) +
+            guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Signature_Survival_plot_legend_size)) 
+          p <- km_plot
+          p <- p + theme(axis.text = element_text(size = input$Signature_Survival_plot_label_size))
+          p <- p + theme(axis.title = element_text(size = input$Signature_Survival_plot_title_size))
+          p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p <- p + theme(legend.key.size = unit(1, "mm"))
+          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+          p <- p + theme(panel.background = element_rect(fill="white", size=0))
+          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          p <- p + labs(title=NULL)
+          p
+        }, width=reactive(input$Signature_Survival_plot_fig.width), height=reactive(input$Signature_Survival_plot_fig.height), res=300)
+        
       ## compare subtypes
       # select group
-      output$Signature_subtype_groupBy <- renderUI({ selectInput('Signature_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
-      outputOptions(output, "Signature_subtype_groupBy", suspendWhenHidden=FALSE)
+        output$Signature_subtype_groupBy <- renderUI({ selectInput('Signature_subtype_groupBy', 'Group by', c('None'='None', colnames(Clinical_meta()))) })
+        outputOptions(output, "Signature_subtype_groupBy", suspendWhenHidden=FALSE)
       # check how many subtypes there are
-      output$Signature_subtype_subtype_number <- renderText({
-        if(input$Signature_subtype_groupBy =='None'){
-          NULL
-        }else{
-          tmp <- unlist(unique(Clinical_meta()[input$Signature_subtype_groupBy]))
-          tmp <- tmp[tmp!='']
-          tmp <- na.omit(tmp) # length(Clinical_meta[group_by][is.na(Clinical_meta[group_by])])
-          num_blanck <- length(Clinical_meta()[input$Signature_subtype_groupBy][Clinical_meta()[input$Signature_subtype_groupBy]==''])
-          num_na <- length(Clinical_meta()[input$Signature_subtype_groupBy][is.na(Clinical_meta()[input$Signature_subtype_groupBy])])
-          num_nd <- num_blanck + num_na
-          paste0('Number of subtypes: ', length(tmp), '\nNumber of NA or no data: ', num_nd)
-        }
-      })
+        output$Signature_subtype_subtype_number <- renderText({
+          if(input$Signature_subtype_groupBy =='None'){
+            NULL
+          }else{
+            tmp <- unlist(unique(Clinical_meta()[input$Signature_subtype_groupBy]))
+            tmp <- tmp[tmp!='']
+            tmp <- na.omit(tmp) # length(Clinical_meta[group_by][is.na(Clinical_meta[group_by])])
+            num_blanck <- length(Clinical_meta()[input$Signature_subtype_groupBy][Clinical_meta()[input$Signature_subtype_groupBy]==''])
+            num_na <- length(Clinical_meta()[input$Signature_subtype_groupBy][is.na(Clinical_meta()[input$Signature_subtype_groupBy])])
+            num_nd <- num_blanck + num_na
+            paste0('Number of subtypes: ', length(tmp), '\nNumber of NA or no data: ', num_nd)
+          }
+        })
 
       # test 
-      output$Signature_subtype_note <- renderText({"Please start calulating the score first."})
-      Signature_subtype_test <- eventReactive(input$Signature_subtype_start,{
-        # output$Signature_subtype_note <- renderText({"hoge"})
-        if(input$Clinical_data_select == 'None'){
-          # output$Expression_subtype_error_catch <- renderText({'Please select a dataset first.'})
-          return(NULL)
-        }
-        if(is.null(singature_table())){
-          # output$Signature_subtype_note <- renderText({"Please start calulating the score first."})
-          output$Signature_subtype_note <- renderText({"hoge"})
-          return(NULL)
-        }
-        singature_table <- singature_table() # head(singature_table)
-        # meta, subtype
-        df_meta <- Clinical_meta()
-        df_meta$sample <- gsub('\\.', '-', df_meta$sample)
-        group_by <- input$Signature_subtype_groupBy # group_by <- 'gender'
-        if(group_by == 'None'){
-          output$Signature_subtype_note <- renderText({"Please select a group to compare."})
-          return(NULL)
-        }
-        df_meta_subtype <- df_meta[, c('sample', group_by)] # head(df_meta_subtype)
-        df_meta_subtype <- df_meta_subtype[!is.na(df_meta_subtype[,group_by]),]
-        df_meta_subtype <- df_meta_subtype[df_meta_subtype[,group_by] != '',]
-        df_meta_subtype[,group_by] <- as.character(df_meta_subtype[,group_by])
-        # merge
-        colnames(singature_table) <- c('sample', 'score') # head(singature_table)
-        df_tmp <- merge(singature_table, df_meta_subtype, by='sample') # head(df_tmp)
-        df_out <- df_tmp
-        if(length(unique(unlist(df_out[,group_by]))) >= 3){
-          df_test_tmp <- kruskal.test(as.formula(paste('score', '~', group_by)), data=df_out) # str(df_test)
-          p <- df_test_tmp$p.value
-          statistic <- df_test_tmp$statistic
-          output$Signature_subtype_note <- renderText({
-            paste0('P-value: ', p, '\n', 'Statistic (Kruskal-Wallis): ', statistic)
-          })    
-          # # dunntest
-          # library(FSA) #install.packages('FSA')
-          # dunnTest(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp, method='bonferroni')
-        }else if(length(unique(unlist(df_out[,group_by]))) == 2){
-          group1 <- df_out[df_out[,group_by] == unique(unlist(df_out[,group_by]))[1],]$score
-          group2 <- df_out[df_out[,group_by] == unique(unlist(df_out[,group_by]))[2],]$score
-          df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
-          p <- df_test_tmp$p.value
-          statistic <- df_test_tmp$statistic
-          output$Signature_subtype_note <- renderText({
-            paste0('P-value: ', p, '\n', 'Statistic (Wilcoxon): ', statistic)
-          })
-        }else{
-          output$Signature_subtype_note <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
-          return(NULL)
-        }
-        return(df_out)
+        output$Signature_subtype_note <- renderText({"Please start calulating the score first."})
+        Signature_subtype_test <- reactiveVal(NULL)
+        isCalculating_subtype_test <- reactiveVal(FALSE)
+        isTriggered_subtype_test <- reactiveVal(FALSE)
+        observeEvent(input$Signature_subtype_start, {
+          isTriggered_subtype_test(TRUE)
+          isCalculating_subtype_test(TRUE)
+          if(input$Clinical_data_select == 'None'){
+            show_alert(title='Error.', text='Please select a dataset first.', type='error')
+            output$Signature_subtype_note <- renderText({'Please select a dataset first.'})
+            Signature_subtype_test(NULL)
+            isCalculating_subtype_test(FALSE)
+            return(NULL)
+          }
+          if(is.null(singature_table())){
+            show_alert(title='Error.', text='Please calculate the signature score first.', type='error')
+            output$Signature_subtype_note <- renderText({"Please start calulating the score first."})
+            Signature_subtype_test(NULL)
+            isCalculating_subtype_test(FALSE)  
+            return(NULL)
+          }
+          singature_table <- singature_table() # head(singature_table)
+          # meta, subtype
+          df_meta <- Clinical_meta()
+          df_meta$sample <- gsub('\\.', '-', df_meta$sample)
+          group_by <- input$Signature_subtype_groupBy # group_by <- 'gender'
+          if(group_by == 'None'){
+            show_alert(title='Error.', text='Please select a group to compare.', type='error')
+            output$Signature_subtype_note <- renderText({"Please select a group to compare."})
+            Signature_subtype_test(NULL)
+            isCalculating_subtype_test(FALSE)
+            return(NULL)
+          }
+          df_meta_subtype <- df_meta[, c('sample', group_by)] # head(df_meta_subtype)
+          df_meta_subtype <- df_meta_subtype[!is.na(df_meta_subtype[,group_by]),]
+          df_meta_subtype <- df_meta_subtype[df_meta_subtype[,group_by] != '',]
+          df_meta_subtype[,group_by] <- as.character(df_meta_subtype[,group_by])
+          # merge
+          colnames(singature_table) <- c('sample', 'score') # head(singature_table)
+          df_tmp <- merge(singature_table, df_meta_subtype, by='sample') # head(df_tmp)
+          df_out <- df_tmp
+          if(length(unique(unlist(df_out[,group_by]))) >= 3){
+            df_test_tmp <- kruskal.test(as.formula(paste('score', '~', group_by)), data=df_out) # str(df_test)
+            p <- df_test_tmp$p.value
+            statistic <- df_test_tmp$statistic
+            output$Signature_subtype_note <- renderText({
+              paste0('P-value: ', p, '\n', 'Statistic (Kruskal-Wallis): ', statistic)
+            })    
 
-      })
-        
-      observeEvent(input$Signature_subtype_change_colour_pallete, { 
-        if(input$Signature_subtype_change_colour_pallete){ updateCheckboxInput(session, "Signature_subtype_use_single_colour", value=FALSE)}
-      })
-      observeEvent(input$Signature_subtype_use_single_colour, { 
-        if(input$Signature_subtype_use_single_colour){ updateCheckboxInput(session, "Signature_subtype_change_colour_pallete", value=FALSE)}
-      })
+          }else if(length(unique(unlist(df_out[,group_by]))) == 2){
+            group1 <- df_out[df_out[,group_by] == unique(unlist(df_out[,group_by]))[1],]$score
+            group2 <- df_out[df_out[,group_by] == unique(unlist(df_out[,group_by]))[2],]$score
+            df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
+            p <- df_test_tmp$p.value
+            statistic <- df_test_tmp$statistic
+            output$Signature_subtype_note <- renderText({
+              paste0('P-value: ', p, '\n', 'Statistic (Wilcoxon): ', statistic)
+            })
+          }else{
+            show_alert(title='Error.', text='There is no sub groups for the selected category. Please try with other categories.', type='error')
+            output$Signature_subtype_note <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
+            Signature_subtype_test(NULL)
+            isCalculating_subtype_test(FALSE)
+            return(NULL)
+          }
+          Signature_subtype_test(df_out)
+          isCalculating_subtype_test(FALSE)
+          return(NULL)
+
+        })
+          
+      # colour option. Should be mutually exclusive
+        observeEvent(input$Signature_subtype_change_colour_pallete, { 
+          if(input$Signature_subtype_change_colour_pallete){ updateCheckboxInput(session, "Signature_subtype_use_single_colour", value=FALSE)}
+        })
+        observeEvent(input$Signature_subtype_use_single_colour, { 
+          if(input$Signature_subtype_use_single_colour){ updateCheckboxInput(session, "Signature_subtype_change_colour_pallete", value=FALSE)}
+        })
  
       # plot (box, violin, swarm)
-      output$Signature_subtype_plot <- renderPlot({
+        output$Signature_subtype_plot <- renderPlot({
+          if(!isTriggered_subtype_test()){
+            output$Signature_subtype_note <- renderText({'Please start calulating the score first.'})
+            return(ggplot())
+          }
+          if(isCalculating_subtype_test()){
+            output$Signature_subtype_note <- renderText({'Calculating...'})
+            return(ggplot())
+          }
           if(length(input$Clinical_data_select)==0){
             output$Signature_subtype_note <- renderText({'Please select a dataset and start the analysis.'})
-            return(NULL)
+            return(ggplot())
           }
           if(selected_cohort_sig() != input$Clinical_data_select){
             output$Signature_subtype_note <- renderText({'You changed a dataset. Please re-start the analysis.'})
-            return(NULL)
+            return(ggplot())
           }
           if(is.null(Signature_subtype_test())){
-            return(NULL)
+            return(ggplot())
           }
           df_out_tmp <- Signature_subtype_test()
           group_by <- colnames(df_out_tmp)[3]
@@ -10157,48 +10307,55 @@ server <- function(input, output, session) {
             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
           }
           p
-
-      }, width=reactive(input$Signature_subtype_fig.width), height=reactive(input$Signature_subtype_fig.height), res=300)
+        }, width=reactive(input$Signature_subtype_fig.width), height=reactive(input$Signature_subtype_fig.height), res=300)
 
 
       # histogram
-      output$Signature_score_distribution_plot <- renderPlot({
-        if(length(input$Clinical_data_select)==0){
-          output$Signature_score_distribution_status <- renderText({'Please select a dataset and start the analysis.'})
-          return(NULL)
-        }
+        output$Signature_score_distribution_plot <- renderPlot({
+          if(!isTriggered_singature_table()){
+            output$Signature_score_distribution_status <- renderText({'Please set the input, choose the method and click "Calculate the signature score".'})
+            return(ggplot())
+          }
+          if(isCalculating_singature_table()){
+            output$Signature_score_distribution_status <- renderText({'Calculating...'})
+            return(ggplot())
+          }
+          if(length(input$Clinical_data_select)==0){
+            output$Signature_score_distribution_status <- renderText({'Please select a dataset and start the analysis.'})
+            return(ggplot())
+          }
+          
+          if(selected_cohort_sig() != input$Clinical_data_select){
+            output$Signature_score_distribution_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
+            return(ggplot())
+          }
+          if(is.null(singature_table())){
+            return(ggplot())
+          }else{
+            singature_table <- singature_table()
+          }
+          df_OS <- Clinical_surival()
+          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          if(is.null(singature_table)){
+            output$Signature_score_distribution_status <- renderText({"Please Calulate the signature score first."})
+            return(ggplot())
+          }
+          output$Signature_score_distribution_status <- renderText({NULL})
+          p <- ggplot(singature_table, aes_string(x=colnames(singature_table)[2]))
+          p <- p + geom_histogram(fill=input$Signature_score_distribution_colour, alpha=0.6, bins=input$Signature_score_distribution_bin_num)
+          p <- p + theme(axis.text = element_text(size = input$Signature_score_distribution_label_size))
+          p <- p + theme(axis.title = element_text(size = input$Signature_score_distribution_title_size))
+          p <- p + theme(plot.title = element_text(size = input$Signature_score_distribution_graphtitle_size))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          if(input$Signature_score_distribution_white_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          p
+        }, width=reactive(input$Signature_score_distributionfig.width), height=reactive(input$Signature_score_distribution_fig.height), res=300)
         
-        if(selected_cohort_sig() != input$Clinical_data_select){
-          output$Signature_score_distribution_status <- renderText({'You changed a dataset. Please re-start the analysis.'})
-          return(NULL)
-        }
-        if(is.null(singature_table())){
-          return(NULL)
-        }else{
-          singature_table <- singature_table()
-        }
-        df_OS <- Clinical_surival()
-        df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-        if(is.null(singature_table)){
-          output$Signature_score_distribution_status <- renderText({"Please Calulate the signature score first."})
-          return(NULL)
-        }
-        output$Signature_score_distribution_status <- renderText({NULL})
-        p <- ggplot(singature_table, aes_string(x=colnames(singature_table)[2]))
-        p <- p + geom_histogram(fill=input$Signature_score_distribution_colour, alpha=0.6, bins=input$Signature_score_distribution_bin_num)
-        p <- p + theme(axis.text = element_text(size = input$Signature_score_distribution_label_size))
-        p <- p + theme(axis.title = element_text(size = input$Signature_score_distribution_title_size))
-        p <- p + theme(plot.title = element_text(size = input$Signature_score_distribution_graphtitle_size))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-        if(input$Signature_score_distribution_white_background){
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
-          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        }
-        p
-      }, width=reactive(input$Signature_score_distributionfig.width), height=reactive(input$Signature_score_distribution_fig.height), res=300)
-      outputOptions(output, "Signature_score_distribution_plot", suspendWhenHidden=FALSE)
       ###
 
     #### Deconvolution
@@ -10394,275 +10551,307 @@ server <- function(input, output, session) {
 
     #### Mutation
       ## frequency
-        # filtering the cohort (optional)
-        output$Clinical_Mutation_frequency_filter_selection <- renderUI({
-          if(is.null(Clinical_meta())){
-            selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None'))
-          }else{
-            selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
-          }
-          
-        })
-        output$Clinical_Mutation_frequency_filter_selection_category <- renderUI({
-          if(length(input$Clinical_Mutation_frequency_filter_selection)==0 || input$Clinical_Mutation_frequency_filter_selection == 'None'){
-            selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None'))
-          }else{
-            selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Mutation_frequency_filter_selection])))
-          }
-        })
+        # filtering the cohort by metadata (optional)
+          output$Clinical_Mutation_frequency_filter_selection <- renderUI({
+            if(is.null(Clinical_meta())){
+              selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+            }
+          })
+          output$Clinical_Mutation_frequency_filter_selection_category <- renderUI({
+            if(length(input$Clinical_Mutation_frequency_filter_selection)==0 || input$Clinical_Mutation_frequency_filter_selection == 'None'){
+              selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Mutation_frequency_filter_selection])))
+            }
+          })
         
         # when selecting genes from custom genesets
-        output$Clinical_Mutation_gene_from_custom <- renderUI({
-          gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-          selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-        })
-        outputOptions(output, "Clinical_Mutation_gene_from_custom", suspendWhenHidden=FALSE)
+          output$Clinical_Mutation_gene_from_custom <- renderUI({
+            gene_sets_names <- c()
+            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+          })
+          outputOptions(output, "Clinical_Mutation_gene_from_custom", suspendWhenHidden=FALSE)
         
-        # Error before starting
-        output$Clinical_Mutation_frequency_plot_status <- renderText({
-          if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
-            "Please select the dataset first"
-          }else{
-            "Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"
-          }
-        })
+        # message before starting
+          output$Clinical_Mutation_frequency_plot_status <- renderText({
+            if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
+              "Please select the dataset first"
+            }else{
+              "Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"
+            }
+          })
+          output$Clinical_Mutation_frequency_plot_status_table <- renderText({ "A table for Mutation counts (frequenceies) will be shown here." })
+          output$Clinical_Mutation_frequency_plot_status_plot <- renderText({ " A plot for Mutation counts (frequenceies) will be shown here." })
 
-        output$Clinical_Mutation_frequency_plot_status_table <- renderText({ "A table for Mutation counts (frequenceies) will be shown here." })
-        output$Clinical_Mutation_frequency_plot_status_plot <- renderText({ " A plot for Mutation counts (frequenceies) will be shown here." })
         # Show the number of patients after filtering the sample if a category was set
-        output$Clinical_Mutation_frequency_filter_selection_number <- renderText({
-          df_Mut <- Clinical_mutation()
-          df_meta <- Clinical_meta()
-          if(is.null(df_Mut)){
-            "This dataset does not have a mutation data"
-          }else{
+          output$Clinical_Mutation_frequency_filter_selection_number <- renderText({
+            df_Mut <- Clinical_mutation()
+            df_meta <- Clinical_meta()
+            if(is.null(df_Mut)){
+              "This dataset does not have a mutation data"
+            }else{
+              N_sample <- length(df_meta$sample)
+              if(input$Clinical_Mutation_frequency_filter == 'B'){
+                if(length(input$Clinical_Mutation_frequency_filter_selection_category)!= 0){
+                  if(input$Clinical_Mutation_frequency_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Clinical_Mutation_frequency_filter_selection] == input$Clinical_Mutation_frequency_filter_selection_category, ]$sample
+                    df_Mut <- df_Mut[df_Mut$sample %in% filtered_sample, ]
+                    if(dim(df_Mut)[1] == 0){
+                      "None of the selected samples are in the mutation dataset. \nPlease check if the sample names in the meta data and in the mutation data are unique."
+                    }else{
+                      paste0("Number of samples(patients): ", length(filtered_sample))
+                    }
+                  }else{
+                    paste0("Number of samples(patients): (Please select the category)")
+                  }
+                }
+              }else if(input$Clinical_Mutation_frequency_filter == 'A'){
+                N_sample <- length(df_meta$sample)
+                paste0("Number of samples(patients): ", N_sample)
+              }
+            }
+          })
+          outputOptions(output, "Clinical_Mutation_frequency_filter_selection_number", suspendWhenHidden=FALSE)
+
+
+        # Create the table when clicking the start button
+          df_mut_num <- reactiveVal(NULL)
+          sub_sample_list <- reactiveVal(NULL) # in case some subtype of the cohort is selected
+          isCalculating_mutation <- reactiveVal(FALSE)
+          isTriggered_mutation <- reactiveVal(FALSE)
+          observeEvent(input$Clinical_Mutation_plot_start, {
+            isTriggered_mutation(TRUE)
+            isCalculating_mutation(TRUE)
+            output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
+            if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
+              show_alert(title='Error.', text='Please select a dataset first.', type='error')
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select the dataset first"})
+              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
+              output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
+              df_mut_num(NULL)
+              isCalculating_mutation(FALSE)
+              return()
+            }
+            if(is.null(Clinical_mutation())){
+              show_alert(title='Error.', text='This dataset does not have a mutation data.', type='error')
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"No mutation data in this cohort."})
+              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
+              output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
+              df_mut_num(NULL)
+              isCalculating_mutation(FALSE)
+              return()
+            }
+
+            df_Mut <- Clinical_mutation()
+            df_meta <- Clinical_meta()
             N_sample <- length(df_meta$sample)
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"})
+
+            # filtering the sample if a category was set
             if(input$Clinical_Mutation_frequency_filter == 'B'){
               if(length(input$Clinical_Mutation_frequency_filter_selection_category)!= 0){
                 if(input$Clinical_Mutation_frequency_filter_selection_category != 'None'){
                   filtered_sample <- df_meta[df_meta[,input$Clinical_Mutation_frequency_filter_selection] == input$Clinical_Mutation_frequency_filter_selection_category, ]$sample
+                  sub_sample_list(filtered_sample)
                   df_Mut <- df_Mut[df_Mut$sample %in% filtered_sample, ]
                   if(dim(df_Mut)[1] == 0){
-                    "None of the selected samples are in the mutation dataset. \nPlease check if the sample names in the meta data and in the mutation data are unique."
-                  }else{
-                    paste0("Number of samples(patients): ", length(filtered_sample))
+                    output$Clinical_Mutation_frequency_plot <- renderPlot({NULL}, width=100, height=100)
+                    df_mut_num(NULL)
+                    isCalculating_mutation(FALSE)
+                    return()
                   }
                 }else{
-                  paste0("Number of samples(patients): (Please select the category)")
+                  sub_sample_list(df_meta$sample)
                 }
-              }
-            }else if(input$Clinical_Mutation_frequency_filter == 'A'){
-              N_sample <- length(df_meta$sample)
-              paste0("Number of samples(patients): ", N_sample)
+              }            
             }
-          }
-        })
-        outputOptions(output, "Clinical_Mutation_frequency_filter_selection_number", suspendWhenHidden=FALSE)
-
-
-        # Create the table when clicking the start button
-        df_mut_num <- reactiveVal(NULL)
-        sub_sample_list <- reactiveVal(NULL) # in case some subtype of the cohort is selected
-        # output$Clinical_Mutation_frequency_table <- reactiveVal(NULL)
-        observeEvent(input$Clinical_Mutation_plot_start, {
-          output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
-          if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
-            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select the dataset first"})
-            output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
-            df_mut_num(NULL)
-            return()
-          }
-          if(is.null(Clinical_mutation())){
-            output$Clinical_Mutation_frequency_plot_status <- renderText({"No mutation data in this cohort."})
-            output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
-            df_mut_num(NULL)
-            return()
-          }
-
-          df_Mut <- Clinical_mutation()
-          df_meta <- Clinical_meta()
-          N_sample <- length(df_meta$sample)
-          output$Clinical_Mutation_frequency_plot_status <- renderText({"Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"})
-
-          # filtering the sample if a category was set
-          if(input$Clinical_Mutation_frequency_filter == 'B'){
-            if(length(input$Clinical_Mutation_frequency_filter_selection_category)!= 0){
-              if(input$Clinical_Mutation_frequency_filter_selection_category != 'None'){
-                filtered_sample <- df_meta[df_meta[,input$Clinical_Mutation_frequency_filter_selection] == input$Clinical_Mutation_frequency_filter_selection_category, ]$sample
-                sub_sample_list(filtered_sample)
-                df_Mut <- df_Mut[df_Mut$sample %in% filtered_sample, ]
-                if(dim(df_Mut)[1] == 0){
-                  output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame('genes'=c(), 'Number_of_patients'=c(), 'Frequence'=c()), options = list(scrollX = TRUE, pageLength = 10)) })
-                  output$Clinical_Mutation_frequency_plot <- renderPlot({NULL}, width=100, height=100)
-                  df_mut_num(NULL)
-                  return()
-                }
-              }else{
-                sub_sample_list(df_meta$sample)
-              }
-            }            
-          }
-          
-          # gene input
-          if(length(input$Clinical_Mutation_gene_input) == 0){
-            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select one from 'Genes Input from'"})
-            output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-            output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
-            # output$Clinical_Mutation_frequency_plot <- renderPlot({NULL}, width=100, height=100)
-            df_mut_num(NULL)
-            return()
-          }
-          if(input$Clinical_Mutation_gene_input=='A'){ # text input
-            if(nchar(input$Clinical_Mutation_gene) == 0){ # No input
-              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please enter gene names."})
+            
+            # gene input
+            if(length(input$Clinical_Mutation_gene_input) == 0){
+              show_alert(title='Error.', text='Please select the gene input method.', type='error')
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select one from 'Genes Input from'"})
               output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
               output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
               df_mut_num(NULL)
+              isCalculating_mutation(FALSE)
               return()
-            }else{
-              input_genes <- unlist(strsplit(input$Clinical_Mutation_gene, split = "\n"))
+            }
+            if(input$Clinical_Mutation_gene_input=='A'){ # text input
+              if(nchar(input$Clinical_Mutation_gene) == 0){ # No input
+                show_alert(title='Error.', text='Please enter gene names.', type='error')
+                output$Clinical_Mutation_frequency_plot_status <- renderText({"Please enter gene names."})
+                output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
+                output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
+                df_mut_num(NULL)
+                isCalculating_mutation(FALSE)
+                return()
+              }else{
+                input_genes <- unlist(strsplit(input$Clinical_Mutation_gene, split = "\n"))
+                input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
+                if(length(input_genes) == 0){
+                  show_alert(title='Error.', text='None of the inputted genes are included in the cohort.', type='error')
+                  output$Clinical_Mutation_frequency_plot_status <- renderText({"None of the inputted genes are included in the cohort. \nPlease make sure the gene names are correct and they do not have unnecessary spaces."})
+                  output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
+                  output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
+                  df_mut_num(NULL)
+                  isCalculating_mutation(FALSE)
+                  return()
+                }
+              }
+            }else if(input$Clinical_Mutation_gene_input=='B'){  # use all genes
+              input_genes <- rownames(Clinical_gene_expression())
+            }else if(input$Clinical_Mutation_gene_input=='C'){
+              if(input$Clinical_Mutation_gene_from_custom == 'None'){
+                show_alert(title='Error.', text='Please select a custom gene set.', type='error')
+                output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a custom gene set."})
+                output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
+                output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
+                df_mut_num(NULL)
+                isCalculating_mutation(FALSE)
+                return()
+              }
+              input_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_gene_from_custom, ]$Genes, split=', ')[[1]]
               input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
               if(length(input_genes) == 0){
+                show_alert(title='Error.', text='None of the inputted genes are included in the cohort.', type='error')
                 output$Clinical_Mutation_frequency_plot_status <- renderText({"None of the inputted genes are included in the cohort. \nPlease make sure the gene names are correct and they do not have unnecessary spaces."})
                 output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
                 output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-                output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
                 df_mut_num(NULL)
+                isCalculating_mutation(FALSE)
                 return()
               }
             }
-          }else if(input$Clinical_Mutation_gene_input=='B'){  # use all genes
-            input_genes <- rownames(Clinical_gene_expression())
-          }else if(input$Clinical_Mutation_gene_input=='C'){
-            if(input$Clinical_Mutation_gene_from_custom == 'None'){
-              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a custom gene set."})
-              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
-              output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
-              df_mut_num(NULL)
-              return()
-            }
-            input_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_gene_from_custom, ]$Genes, split=', ')[[1]]
-            input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
-            if(length(input_genes) == 0){
-              output$Clinical_Mutation_frequency_plot_status <- renderText({"None of the inputted genes are included in the cohort. \nPlease make sure the gene names are correct and they do not have unnecessary spaces."})
-              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Error. Please check the input."})
-              output$Clinical_Mutation_frequency_plot_status_plot <- renderText({"Error. Please check the input."})
-              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(data.frame(), options = list(scrollX = TRUE, pageLength = 10)) })
-              df_mut_num(NULL)
-              return()
-              # df_mut_num(NULL)
-            }
-          }
 
-          # table for the barplot
-          output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
-          output$Clinical_Mutation_frequency_plot_status_table <- renderText({NULL})
-          output$Clinical_Mutation_frequency_plot_status_plot <- renderText({NULL})
-          df_mut_num <- data.frame(genes=input_genes, 'Number_of_patients'=0)
-          for ( gene in input_genes){
-              df_mut_num[df_mut_num$genes == gene, ]$Number_of_patients <- length(unique(df_Mut[df_Mut$id == gene, ]$sample))
-          }
-          df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
-          df_mut_num <- df_mut_num[order(df_mut_num$Number_of_patients, decreasing = T),]
-          df_mut_num$genes <- factor(df_mut_num$genes, levels=df_mut_num$genes)
-          output$Clinical_Mutation_frequency_table <- DT::renderDataTable({
-            datatable(df_mut_num,  selection = list(mode='single'),  options = list(scrollX = TRUE, pageLength = 10))
+            # table for the barplot
+            output$Clinical_Mutation_frequency_plot_status <- renderText({NULL})
+            output$Clinical_Mutation_frequency_plot_status_table <- renderText({NULL})
+            output$Clinical_Mutation_frequency_plot_status_plot <- renderText({NULL})
+            df_mut_num <- data.frame(genes=input_genes, 'Number_of_patients'=0)
+            for ( gene in input_genes){
+                df_mut_num[df_mut_num$genes == gene, ]$Number_of_patients <- length(unique(df_Mut[df_Mut$id == gene, ]$sample))
+            }
+            df_mut_num$Frequence <- round(df_mut_num$Number_of_patients/N_sample * 100, 2)
+            df_mut_num <- df_mut_num[order(df_mut_num$Number_of_patients, decreasing = T),]
+            df_mut_num$genes <- factor(df_mut_num$genes, levels=df_mut_num$genes)
+            df_mut_num(df_mut_num)
+            isCalculating_mutation(FALSE)
+            return()
+
           })
-          df_mut_num(df_mut_num)
-          # return(df_mut_num)
-          return()
 
-        })
+        # A table for barplot
+          output$Clinical_Mutation_frequency_table <- DT::renderDataTable({
+            if(!isTriggered_mutation()){
+              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Please click 'Show plot' to show the table."})
+              tmp <- data.frame('genes'=character(0), 'Number_of_patients'=numeric(0), 'Frequence'=numeric(0))
+              datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else if(isCalculating_mutation()){
+              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Calculating the mutation frequency. Please wait."})
+              tmp <- data.frame('genes'=character(0), 'Number_of_patients'=numeric(0), 'Frequence'=numeric(0))
+              datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else if(is.null(df_mut_num())){
+              tmp <- data.frame('genes'=character(0), 'Number_of_patients'=numeric(0), 'Frequence'=numeric(0))
+              datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else{
+              datatable(df_mut_num(), selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }
+          })
+          
+
 
         # Plot
-        output$Clinical_Mutation_frequency_plot <- renderPlot({
-          df_mut_num <- df_mut_num()
-          if(is.null(df_mut_num)){
-            return(NULL)
-          }
-          if(length(df_mut_num)==0){
-            return(NULL)
-          }else{
-            # barplot
-            if(length(input$Clinical_Mutation_frequency_plot_type) == 0){
-              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a sample filering method."})
-              output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(df_mut_num, options = list(scrollX = TRUE, pageLength = 10)) })
-              return(NULL)
+          output$Clinical_Mutation_frequency_plot <- renderPlot({
+            if(!isTriggered_mutation()){
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please click 'Show plot' to show the plot."})
+              return(ggplot())
             }
-            more_than_15 <- 0
-            if(dim(df_mut_num)[1]> input$Clinical_Mutation_frequency_plot_top_X){
-              df_mut_num <- head(df_mut_num, input$Clinical_Mutation_frequency_plot_top_X)
-              more_than_15 <- 1
+            if(isCalculating_mutation()){
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Calculating the mutation frequency. Please wait."})
+              return(ggplot())
             }
+            df_mut_num <- df_mut_num()
+            if(is.null(df_mut_num)){
+              return(ggplot())
+            }
+            if(length(df_mut_num)==0){
+              return(ggplot())
+            }else{
+              # barplot
+              if(length(input$Clinical_Mutation_frequency_plot_type) == 0){
+                output$Clinical_Mutation_frequency_plot_status <- renderText({"Please select a sample filering method."})
+                output$Clinical_Mutation_frequency_table <- DT::renderDataTable({ datatable(df_mut_num, options = list(scrollX = TRUE, pageLength = 10)) })
+                return(ggplot())
+              }
+              more_than_15 <- 0
+              if(dim(df_mut_num)[1]> input$Clinical_Mutation_frequency_plot_top_X){
+                df_mut_num <- head(df_mut_num, input$Clinical_Mutation_frequency_plot_top_X)
+                more_than_15 <- 1
+              }
 
-            if(input$Clinical_Mutation_frequency_plot_type == 'A'){ # show the patient number
-              
-              p <- ggplot(df_mut_num, aes(x=genes, y=Number_of_patients, fill=Number_of_patients))
-              p <- p + geom_bar(stat = 'identity')
-              if(!input$Clinical_Mutation_frequency_hide_score){
-                p <- p + geom_text(aes(label=Number_of_patients), vjust=-0.5, color='black', size=input$Clinical_Mutation_frequency_score_size)
+              if(input$Clinical_Mutation_frequency_plot_type == 'A'){ # show the patient number
+                
+                p <- ggplot(df_mut_num, aes(x=genes, y=Number_of_patients, fill=Number_of_patients))
+                p <- p + geom_bar(stat = 'identity')
+                if(!input$Clinical_Mutation_frequency_hide_score){
+                  p <- p + geom_text(aes(label=Number_of_patients), vjust=-0.5, color='black', size=input$Clinical_Mutation_frequency_score_size)
+                }
+                if(max(df_mut_num$Number_of_patients) > 0){
+                  p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Number_of_patients))) , limits = c(0, max(df_mut_num$Number_of_patients)), name=NULL)
+                }else{
+                  p <- p + scale_fill_gradientn(name=NULL)
+                }
+                p <- p + labs(y='Number of the Patients with mutations', x=NULL)
+              }else if(input$Clinical_Mutation_frequency_plot_type == 'B'){ # show the percentage
+                p <- ggplot(df_mut_num, aes(x=genes, y=Frequence, fill=Frequence))
+                p <- p + geom_bar(stat = 'identity')
+                if(!input$Clinical_Mutation_frequency_hide_score){
+                  p <- p + geom_text(aes(label=Frequence), vjust=-0.5, color='black',size=input$Clinical_Mutation_frequency_score_size)
+                }
+                if(max(df_mut_num$Frequence) > 0){
+                  p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Frequence))) , limits = c(0, max(df_mut_num$Frequence)), name=NULL)
+                }else{
+                  p <- p + scale_fill_gradientn(name=NULL)
+                }
+                p <- p + labs(y='Percentage of the Patients with mutations', x=NULL)
               }
-              if(max(df_mut_num$Number_of_patients) > 0){
-                p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Number_of_patients))) , limits = c(0, max(df_mut_num$Number_of_patients)), name=NULL)
-              }else{
-                p <- p + scale_fill_gradientn(name=NULL)
+              if(more_than_15 >0){
+                p <- p + labs(x= paste0("Top ", input$Clinical_Mutation_frequency_plot_top_X ," frequently mutated genes"))
               }
-              p <- p + labs(y='Number of the Patients with mutations', x=NULL)
-            }else if(input$Clinical_Mutation_frequency_plot_type == 'B'){ # show the percentage
-              p <- ggplot(df_mut_num, aes(x=genes, y=Frequence, fill=Frequence))
-              p <- p + geom_bar(stat = 'identity')
-              if(!input$Clinical_Mutation_frequency_hide_score){
-                p <- p + geom_text(aes(label=Frequence), vjust=-0.5, color='black',size=input$Clinical_Mutation_frequency_score_size)
+              p <- p + theme(axis.text.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.text.x = element_text(size = input$Clinical_Mutation_frequency_label_size))
+              p <- p + theme(axis.title.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.title.x = element_text(size = input$Clinical_Mutation_frequency_title_size))
+              p <- p + theme(legend.key.size = unit(2, "mm"))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
+              p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_frequency_legend_size))
+              if(input$Clinical_Mutation_frequency_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               }
-              if(max(df_mut_num$Frequence) > 0){
-                p <- p + scale_fill_gradientn( colors = c(input$Clinical_Mutation_frequency_colour_zero,input$Clinical_Mutation_frequency_colour_high ), values = scales::rescale(c(0, max(df_mut_num$Frequence))) , limits = c(0, max(df_mut_num$Frequence)), name=NULL)
-              }else{
-                p <- p + scale_fill_gradientn(name=NULL)
-              }
-              p <- p + labs(y='Percentage of the Patients with mutations', x=NULL)
+              p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+              p
             }
-            if(more_than_15 >0){
-              p <- p + labs(x= paste0("Top ", input$Clinical_Mutation_frequency_plot_top_X ," frequently mutated genes"))
-            }
-            p <- p + theme(axis.text.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.text.x = element_text(size = input$Clinical_Mutation_frequency_label_size))
-            p <- p + theme(axis.title.y = element_text(size = input$Clinical_Mutation_frequency_title_size), axis.title.x = element_text(size = input$Clinical_Mutation_frequency_title_size))
-            p <- p + theme(legend.key.size = unit(2, "mm"))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))          
-            p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_frequency_legend_size))
-            if(input$Clinical_Mutation_frequency_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
-            p
-          }
-        }, width=reactive(input$Clinical_Mutation_frequency_fig.width), height=reactive(input$Clinical_Mutation_frequency_fig.height), res=300)
-        outputOptions(output, "Clinical_Mutation_frequency_plot", suspendWhenHidden=FALSE)
+          }, width=reactive(input$Clinical_Mutation_frequency_fig.width), height=reactive(input$Clinical_Mutation_frequency_fig.height), res=300)
+          # outputOptions(output, "Clinical_Mutation_frequency_plot", suspendWhenHidden=FALSE)
 
       ## Kaplan-meier
         output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
         output$Clinical_Mutation_Kaplan_plot <- renderPlot({
           if(is.null(df_mut_num())){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(NULL)
+            return(ggplot())
           }
           if(length(df_mut_num()) == 0){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(NULL)
+            return(ggplot())
           }
           if(dim(df_mut_num())[1] == 0){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(NULL)
+            return(ggplot())
           }
           df_geneEx <- Clinical_gene_expression()
           df_OS <- Clinical_surival()
@@ -10678,7 +10867,7 @@ server <- function(input, output, session) {
           df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(length(input$Clinical_Mutation_frequency_table_rows_selected)==0){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
-            return(NULL)
+            return(ggplot())
           }
           #   output$Clinical_Survial_plot_error_catch <- renderText({NULL})
           gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
@@ -10688,11 +10877,11 @@ server <- function(input, output, session) {
           df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample) 
           if(length(df_mut_sample) == 0){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no mutated patient for this gene.'})
-            return(NULL)
+            return(ggplot())
           }
           if(length(df_wt_sample) == 0){
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no wild type patient for this gene.'})
-            return(NULL)
+            return(ggplot())
           }
 
           df_OS$group = NA
@@ -10742,58 +10931,58 @@ server <- function(input, output, session) {
       ## Expression comparison
         ## input genes
           # when selecting from custom genesets
-          output$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-            selectInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
-          })
-          outputOptions(output, "Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+            output$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select <- renderUI({
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              selectInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+            })
+            outputOptions(output, "Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
           # data table for selecting a gene
-          Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp <- reactive({
-            if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset){
-              if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select == 'None'){
-                # output$Clinical_Survial_table_status <- renderText({"Please select a custom gene set."})
-                data.frame(Input=unique(unlist(strsplit(input$Clinical_Mutation_Gene_expression_geneInput, split = "\n"))))
+            Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp <- reactive({
+              if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset){
+                if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select == 'None'){
+                  # output$Clinical_Survial_table_status <- renderText({"Please select a custom gene set."})
+                  data.frame(Input=unique(unlist(strsplit(input$Clinical_Mutation_Gene_expression_geneInput, split = "\n"))))
+                }else{
+                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  data.frame(Input=unique(unlist(strsplit(genes, split = "\n"))))
+                }
               }else{
-                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-                data.frame(Input=unique(unlist(strsplit(genes, split = "\n"))))
+                data.frame(Input=unique(unlist(strsplit(input$Clinical_Mutation_Gene_expression_geneInput, split = "\n"))))
               }
-            }else{
-              data.frame(Input=unique(unlist(strsplit(input$Clinical_Mutation_Gene_expression_geneInput, split = "\n"))))
-            }
-          })
+            })
 
           # show a table
-          output$Clinical_Mutation_Gene_expression_geneInput_selecttable <- renderDataTable({
-            datatable( Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
-          })
+            output$Clinical_Mutation_Gene_expression_geneInput_selecttable <- renderDataTable({
+              datatable( Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+            })
         ## Comparison plot
           # select genes -> make a pivot table -> t-test -> plot
           output$Clinical_Mutation_Gene_expression_geneInput_plot <- renderPlot({
             if(is.null(df_mut_num())){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please calculate the frequency first."})
-              return(NULL)
+              return(ggplot())
             }
             # gene select
             if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset){
               if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select == 'None'){
                 output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please select a geneset."})
-                return(NULL)
+                return(ggplot())
               }
             }else{
               if(nchar(input$Clinical_Mutation_Gene_expression_geneInput) == 0){
                 output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please enter genes."})
-                return(NULL)
+                return(ggplot())
               }
             }
             if(length(input$Clinical_Mutation_frequency_table_rows_selected) == 0){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please select a gene from the frequency table."})
-              return(NULL)
+              return(ggplot())
             }
             if(length(input$Clinical_Mutation_Gene_expression_geneInput_selecttable_rows_selected) == 0){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please select a gene to check the expression from left."})
-              return(NULL)
+              return(ggplot())
             }
             gene_compare <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
             gene_ex <- Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp()[input$Clinical_Mutation_Gene_expression_geneInput_selecttable_rows_selected,]
@@ -10801,7 +10990,7 @@ server <- function(input, output, session) {
             df_geneEx <- Clinical_gene_expression() 
             if(!gene_ex %in% rownames(df_geneEx)){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"The selected gene is not included in the cohort.\nPlease check the gene name is correct and does not have unnecessary spaces."})
-              return(NULL)
+              return(ggplot())
             }
             df_mut <- Clinical_mutation()
             # if samples were filtered by meta data
@@ -10818,11 +11007,11 @@ server <- function(input, output, session) {
             df_wt_sample <- setdiff(colnames(df_geneEx), unique(df_mut[df_mut$id == gene_compare,]$sample)) 
             if(length(df_mut_sample) == 0){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"There is no mutated patient for the selected gene."})
-              return(NULL)
+              return(ggplot())
             }
             if(length(df_wt_sample) == 0){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"There is no wild type patient for the selected gene."})
-              return(NULL)
+              return(ggplot())
             }
             # take expressions
             mut_ex <- df_geneEx[gene_ex,df_mut_sample]
@@ -10838,7 +11027,7 @@ server <- function(input, output, session) {
             df_out$Group <- factor(df_out$Group, levels=c('Mutation','Wild.type'))
             if(length(input$Clinical_Mutation_Gene_expression_plot_type) == 0){
               output$Clinical_Mutation_Gene_expression_geneInput_plot_status <- renderText({"Please select a plot type."})
-              return(NULL)
+              return(ggplot())
             }
             p <- ggplot(df_out, aes(x=Group, y=Expression, fill=Group))
             if(input$Clinical_Mutation_Gene_expression_plot_type == 'A'){ # boxplot
@@ -10876,15 +11065,12 @@ server <- function(input, output, session) {
             }
             p
           }, width=reactive(input$Clinical_Mutation_Gene_expression_fig.width), height=reactive(input$Clinical_Mutation_Gene_expression_fig.height), res=300)
-          
+        ##
 
 
       ##
 
     #### Cacner Gene Census (COSMIC)
-      output$CGC_message <- renderText({
-        'We are using the Cancer Gene Census from COSMIC. (For more details, visit https://cancer.sanger.ac.uk/census) \nPlease enter gene names below or select a gene set.\nIf the genes are associated with cancer predisposition, they will appear in the table. Otherwise, the entire database will be displayed.'
-      })
       CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = FALSE)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
         gene_sets_names <- c()
@@ -10906,7 +11092,7 @@ server <- function(input, output, session) {
             return(NULL)
           }else{
             input_genes <- unlist(strsplit(input$CGC_input_gene, split = "\n"))
-            input_genes <- intersect(CGC_Database[,'Gene.Symbol'], input_genes)
+            input_genes <- intersect(CGC_Database[,'Gene Symbol'], input_genes)
             if(length(input_genes) == 0){
               output$CGC_table_status <- renderText({"Non of the inputted genes are includied in the database. \nAll genes in the database are now shown."})
               return(NULL)
@@ -10921,9 +11107,9 @@ server <- function(input, output, session) {
           CGC_Database_tmp <- CGC_Database
         }else{
           output$CGC_table_status <- renderText({NULL})
-          CGC_Database_tmp <- CGC_Database[CGC_Database[,'Gene.Symbol'] %in% CGC_input_genes(), ]
+          CGC_Database_tmp <- CGC_Database[CGC_Database[,'Gene Symbol'] %in% CGC_input_genes(), ]
         }
-        rownames(CGC_Database_tmp) <- CGC_Database_tmp[,'Gene.Symbol']
+        rownames(CGC_Database_tmp) <- CGC_Database_tmp[,'Gene Symbol']
         return(CGC_Database_tmp)
       })
       output$CGC_table <- renderDataTable({ 
