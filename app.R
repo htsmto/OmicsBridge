@@ -91,7 +91,7 @@ ui <- fluidPage(
           menuItem("Integrate two data", tabName='Integrate_two_dataset', icon=icon('chart-bar')),
           menuItem("Clinical data", tabName='Clinical_dataset', icon=icon('chart-bar')),
           menuItem("scRNA", tabName='scRNA', icon=icon('chart-bar')),
-          menuItem("Genome browser (IGV)", tabName='igv', icon=icon('chart-bar')),
+          menuItem("Epigenome Visualisation", tabName='igv', icon=icon('chart-bar')),
           menuItem("Tools", tabName='Tools', icon=icon('chart-bar')),
           menuItem("Wiki(Document)", tabName='wiki_document', icon=icon('chart-bar'))
         ),
@@ -1505,7 +1505,7 @@ ui <- fluidPage(
                               column(12, withSpinner(dataTableOutput("Gene_comparing_gene_list_table"), type = 5, color='#0dc5c1') )
                             )
                           ),
-                          box(width=12, collapsible=TRUE, title='Data information',  status='warning',
+                          box(width=12, collapsible=TRUE, title=strong('Data information'),  status='warning',
                             fluidRow(
                               column(12, withSpinner(dataTableOutput("dataframe_comparing_dataset"), type=5, color='#0dc5c1') ),
                               column(12, downloadButton('comparing_dataset_download',"Download this table"))
@@ -1513,7 +1513,7 @@ ui <- fluidPage(
                           ),
                         ),
                         column(8,
-                          box(width=12, collapsible=TRUE, title='Plot', status='danger',
+                          box(width=12, collapsible=TRUE, title=strong('Plot'), status='danger',
                             fluidRow(
                               column(12, verbatimTextOutput('Gene_comparing_status')),
                               column(10, radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot', inline=TRUE)),
@@ -2609,73 +2609,99 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Deconvolution
-                    tabPanel("Deconvolution analysis",
+                    tabPanel(strong("Deconvolution analysis"),
                       box(width=12, title='Deconvolution',collapsible=TRUE, status='primary',
                         fluidRow(
                           column(2,
-                            fluidRow(column(12, radioButtons("Deconvodution_tool_select", "Choose a method:", choices=c('MCPcounter', 'xCell'), selected='MCPcounter') )),
-                            fluidRow(column(12, actionButton("Deconvodution_start", "Start deconvolution") ))
+                            fluidRow(
+                              column(12, radioButtons("Deconvodution_tool_select", "Choose a method:", choices=c('MCPcounter', 'xCell'), selected='MCPcounter') ),
+                              column(12, h4('')),
+                              column(12, actionButton("Deconvodution_start", "Start deconvolution", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" ) )
+                            )
                           ),
                           column(10,
-                            fluidRow(column(12, h4('Deconvolution Result table:') )),
-                            fluidRow(column(12, verbatimTextOutput('Deconvodution_status') )),
-                            fluidRow(column(12, dataTableOutput("Deconvodution_results") )),
-                            fluidRow(column(12, downloadButton('Deconvodution_result_download',"Download this table") ))
+                            fluidRow(
+                              column(12, h4('Deconvolution Result table:') ),
+                              column(12, verbatimTextOutput('Deconvodution_status') ),
+                              column(12, withSpinner(dataTableOutput("Deconvodution_results"), type = 5, color = "#0dc5c1" )),
+                              column(12, downloadButton('Deconvodution_result_download',"Download this table") )
+                            )
                           )
                         )
                       ),
                       box(width=12, title='Futher analysis', status='primary',
                         tabsetPanel(
                           tabPanel("Correlation with genes",
-                            box(width=12, title='Input and Setting', status='primary',
-                              fluidRow(
-                                column(4, 
-                                  fluidRow(column(12, h4('') )),
-                                  fluidRow(column(12, textAreaInput('Deconvodution_Gene_correlation_genes', 'Enter genes (line by line)') )),
-                                  fluidRow(column(12, checkboxInput('Deconvodution_Gene_correlation_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE) )),
-                                  conditionalPanel(
-                                    condition = "input.Deconvodution_Gene_correlation_from_custom_geneset == true",
-                                    fluidRow(column(12, htmlOutput('Deconvodution_Gene_correlation_from_custom_geneset_select') ))
+                            fluidRow(
+                              column(12, 
+                                box(width=12, title='Input and Setting', status='info',collapsible=TRUE,
+                                  fluidRow(
+                                    column(4, 
+                                      fluidRow(
+                                        column(12, h4('') ),
+                                        column(12, textAreaInput('Deconvodution_Gene_correlation_genes', 'Enter genes (line by line)') ),
+                                        column(12, materialSwitch('Deconvodution_Gene_correlation_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                        column(12, 
+                                          conditionalPanel(
+                                            condition = "input.Deconvodution_Gene_correlation_from_custom_geneset == true",
+                                            htmlOutput('Deconvodution_Gene_correlation_from_custom_geneset_select')
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    column(3,
+                                      fluidRow(
+                                        column(12, h4('') ),
+                                        column(12, htmlOutput('Deconvodution_Gene_correlation_select_celltype') )
+                                      )
+                                    ),
+                                    column(3,
+                                      fluidRow(
+                                        column(12, h4('') ),
+                                        column(12, radioButtons('Deconvodution_Gene_correlation_method', 'Method for correlation', choices=c('pearson', 'spearman'), selected='pearson')  ),
+                                        column(12, h4('') ),
+                                        column(12, actionButton('Deconvodution_Gene_correlation_start', 'Calculate the correlation',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" ) )
+                                      )
+                                    ),
+                                    column(2, h4(''))
+                                  ),
+                                  fluidRow(
+                                    column(6, verbatimTextOutput('Deconvodution_Gene_correlation_status0') )
                                   )
-                                ),
-                                column(3,
-                                  fluidRow(column(12, h4('') )),
-                                  fluidRow(column(12, htmlOutput('Deconvodution_Gene_correlation_select_celltype') ))
-                                ),
-                                column(3,
-                                  fluidRow(column(12, h4('') )),
-                                  fluidRow(column(12, fluidRow(column(12, radioButtons('Deconvodution_Gene_correlation_method', 'Method for correlation', choices=c('pearson', 'spearman'), selected='pearson') )) )),
-                                  fluidRow(column(12, h4('') )),
-                                  fluidRow(column(12, fluidRow(column(12, actionButton('Deconvodution_Gene_correlation_start', 'Calculate the correlation') )) ))
+                                )                              
+                              ),
+                              column(4, 
+                                box(width=12, title='Correlation table', status='warning',collapsible=TRUE,
+                                  fluidRow(
+                                    column(12, verbatimTextOutput('Deconvodution_Gene_correlation_status1') ),
+                                    column(12, dataTableOutput("Deconvodution_Gene_correlation_table") ),
+                                    column(12, downloadButton('Deconvodution_Gene_correlation_table_download',"Download this table") )
+                                  )
                                 )
                               ),
-                              fluidRow(column(6, verbatimTextOutput('Deconvodution_Gene_correlation_status0') ))
-                            ),
-                            box(width=12, title='Results and Plots', status='primary',
-                              fluidRow(
-                                column(4, 
-                                  fluidRow(column(12, h4('Correlation') )),
-                                  fluidRow(column(12, verbatimTextOutput('Deconvodution_Gene_correlation_status1') )),
-                                  fluidRow(column(12, dataTableOutput("Deconvodution_Gene_correlation_table") )),
-                                  fluidRow(column(12, downloadButton('Deconvodution_Gene_correlation_table_download',"Download this table") ))
-                                ),
-                                column(8, h4('Plot'),
-                                  fluidRow(column(12, verbatimTextOutput('Deconvodution_Gene_correlation_status') )),
-                                  fluidRow(column(12, plotOutput("Deconvodution_Gene_correlation_plot", width="100%", height="100%") )),
-                                  box(width=12, title='Graph options', collapsible = TRUE, collapsed = TRUE, status='success',
-                                    fluidRow(
-                                      column(6,sliderInput('Deconvodution_Gene_correlation_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
-                                      column(6,sliderInput('Deconvodution_Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                              column(8,
+                                box(width=12, title='Plot', status='danger', collapsible=TRUE,
+                                  fluidRow(
+                                    column(10, verbatimTextOutput('Deconvodution_Gene_correlation_status') ),
+                                    column(2,
+                                      dropdownButton( h4(strong("Plot Options")),
+                                        fluidRow(
+                                          column(6,sliderInput('Deconvodution_Gene_correlation_fig.width', 'Fig width', min=300, max=3000, value=700, step=10)),
+                                          column(6,sliderInput('Deconvodution_Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                        ),
+                                        fluidRow(
+                                          column(6,sliderInput('Deconvodution_Gene_correlation_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
+                                          column(6,sliderInput('Deconvodution_Gene_correlation_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                        ),
+                                        fluidRow(
+                                          column(6, colourpicker::colourInput('Deconvodution_Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
+                                          column(6, materialSwitch('Deconvodution_Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE, status='success')),
+                                          column(6, materialSwitch('Deconvodution_Gene_correlation_white_background', 'Use white background', value=FALSE, status = "success"))
+                                        ),
+                                        circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                      )
                                     ),
-                                    fluidRow(
-                                      column(6,sliderInput('Deconvodution_Gene_correlation_label_size', 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                      column(6,sliderInput('Deconvodution_Gene_correlation_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    ),
-                                    fluidRow(
-                                      column(4, colourpicker::colourInput('Deconvodution_Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
-                                      column(4, checkboxInput('Deconvodution_Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE)),
-                                      column(4, checkboxInput('Deconvodution_Gene_correlation_white_background', 'Use white background', value=FALSE))
-                                    )
+                                    column(12, withSpinner(plotOutput("Deconvodution_Gene_correlation_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                   )
                                 )
                               )
@@ -2837,43 +2863,57 @@ ui <- fluidPage(
                       )
                     ),
                   ###### Add new cohort ######
-                    tabPanel("Cohort database",
-                      box(width=12, title='Registered cohort', collapsible = TRUE, status='primary',
+                    tabPanel(strong("Cohort database"),
+                      box(width=12, title='Registered cohort', collapsible = TRUE, status='primary',solidHeader = TRUE,
                         DT::dataTableOutput("Cohort_DataBaseTable"),
-                        fluidRow( column(1, actionButton('Cohort_DataBase_save_dt', 'Save changes')), column(2, actionButton('Cohort_DataBase_delete_row', 'Delete selected data')), column(7, verbatimTextOutput('Cohort_DataBase_status')) )
+                        fluidRow( 
+                          column(1, actionButton('Cohort_DataBase_save_dt', 'Save changes',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
+                          column(2, actionButton('Cohort_DataBase_delete_row', 'Delete selected data', style="color: #ffffff; background-color: #2d3cac; border-color: #1c48fa")), 
+                          column(7, verbatimTextOutput('Cohort_DataBase_status')) 
+                        )
                       ),
-                      box(width=12, title='Upload',collapsible = TRUE,  status='danger',
-                        tags$details(
-                          tags$summary("Quick upload guide ▼"),  # クリックすると開閉されるタイトル
-                          div(
-                            tags$ul(
-                              tags$li("Make sure that the column name for samples (or patients IDs) is set 'sample' and for genes is set 'id'."),
-                              tags$li("The fist column of the gene expression file must be the samples"),
-                              tags$li("The Cohort name is mandatory and must be unique."),
-                              tags$li("Avoid special characters; use only alphabets, numbers, underscores and dots."),
-                            )
-                          )
-                        ),
+                      box(width=12, title='Upload',collapsible = TRUE,  status='danger',solidHeader = TRUE,
+                        # tags$details(
+                        #   tags$summary("Quick upload guide ▼"),  # クリックすると開閉されるタイトル
+                        #   div(
+                        #     tags$ul(
+                        #       tags$li("Make sure that the column name for samples (or patients IDs) is set 'sample' and for genes is set 'id'."),
+                        #       tags$li("The fist column of the gene expression file must be the samples"),
+                        #       tags$li("The Cohort name is mandatory and must be unique."),
+                        #       tags$li("Avoid special characters; use only alphabets, numbers, underscores and dots."),
+                        #     )
+                        #   )
+                        # ),
                         h3(""),
                         fluidRow( 
                           column(5, uiOutput("new_cohort_upload_GE")),
                           column(5, uiOutput("new_cohort_upload_sur")),
-                          # column(5, fileInput("new_cohort_upload_sur", "Upload a survival data file*"))
+                          column(1, 
+                            div(id='help',
+                              dropdownButton( 
+                                fluidRow(
+                                  column(12, h4(strong("Quick upload guide"))),
+                                  column(12, helpText(strong("- Make sure that the column name for samples (or patients IDs) is set 'sample' and for genes is set 'id'."))),
+                                  column(12, helpText("- The fist column of the gene expression file must be the samples.")),
+                                  column(12, helpText("- The Cohort name is mandatory and must be unique.")),
+                                  column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots."))
+                                ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE
+                              )
+                            ) 
+                          )
                         ),
                         fluidRow( 
                           column(5, uiOutput("new_cohort_upload_meta")),
                           column(5, uiOutput("new_cohort_upload_mut")),
-                          # column(5, fileInput("new_cohort_upload_meta", "Upload a metadata file*")),
-                          # column(5, fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)"))
                         ),
-                        fluidRow( column(2, actionButton('new_cohort_upload_reset', "Reset uploaded files"))),
+                        fluidRow( column(2, actionButton('new_cohort_upload_reset', "Reset uploaded files",style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))),
                         fluidRow( column(12, h4('') ) ),
                         fluidRow( 
                           column(12, h3('') ),
                           column(4, textInput("new_cohort_upload_dataset_name", "Cohort Name*")),
                           column(7, textAreaInput("new_cohort_upload_description", "Description")) 
                         ),
-                        fluidRow( column(2, actionButton('new_cohort_upload_data', 'Add a new cohort')), column(6, verbatimTextOutput('new_cohort_status'))),
+                        fluidRow( column(2, actionButton('new_cohort_upload_data', 'Add a new cohort',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" )), column(6, verbatimTextOutput('new_cohort_status'))),
                         fluidRow( column(12, h3('') )),
                         fluidRow( 
                           column(12, h4('Previews') ),
@@ -2881,33 +2921,42 @@ ui <- fluidPage(
                             tabsetPanel(
                               tabPanel('Expression table',  
                                 box(width=12,
-                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_GE_preview_status") )),
-                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_GE_preview") )) 
+                                  fluidRow(
+                                    column(12,  verbatimTextOutput("new_cohort_upload_GE_preview_status") ),
+                                    column(12,  dataTableOutput("new_cohort_upload_GE_preview") )
+                                  ) 
                                 )
                               ),
                               tabPanel('Survival data',  
                                 box(width=12, 
-                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_sur_preview_status") )),
-                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_sur_preview") )) 
+                                  fluidRow(
+                                    column(12,  verbatimTextOutput("new_cohort_upload_sur_preview_status") ),
+                                    column(12,  dataTableOutput("new_cohort_upload_sur_preview") )
+                                  ) 
                                 )
                               ),
                               tabPanel('Meta data',  
                                 box(width=12,
-                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_meta_preview_status") )),
-                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_meta_preview") )) 
+                                  fluidRow(
+                                    column(12,  verbatimTextOutput("new_cohort_upload_meta_preview_status") ),
+                                    column(12,  dataTableOutput("new_cohort_upload_meta_preview") )
+                                  ) 
                                 )
                               ),
                               tabPanel('Mutation data',  
                                 box(width=12,
-                                  fluidRow(column(12,  verbatimTextOutput("new_cohort_upload_mut_preview_status") )),
-                                  fluidRow(column(12,  dataTableOutput("new_cohort_upload_mut_preview") )) 
+                                  fluidRow(
+                                    column(12,  verbatimTextOutput("new_cohort_upload_mut_preview_status") ),
+                                    column(12,  dataTableOutput("new_cohort_upload_mut_preview") )
+                                  ) 
                                 )
                               )
                             )
                           )
-                        ),
+                        )
                       )
-                    ),
+                    )
+                  ####
                 )
               )
             ###
@@ -3305,7 +3354,7 @@ ui <- fluidPage(
           ),
         #### IGV ####
           tabItem( tabName='igv',
-            h2(' Genome Browser (IGV)'),
+            h2(' Epigenome Visualisation'),
             box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
               tabsetPanel(
                 tabPanel( 'Prifile plot',
@@ -3324,7 +3373,11 @@ ui <- fluidPage(
                           column(6, actionButton('Profile_Plot_sample_remove', 'Remove the selected sample',style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
                           column(12, h2('')),
                           column(12, numericInput('Profile_Plot_extend_length', 'Extend length', value=2000, min=0, max=10000, step=10)),
-                          column(12, textAreaInput("Profile_Plot_input_coord", "Enter positions"))
+                          column(12, h5(strong('Enter the coordinates below:'))),
+                          column(12, 
+                            helpText(HTML("Please write the genome locus in the format of 'chr:start-end' line by line. <br>For example, 'chr1:1000000-2000000'."))
+                          ),
+                          column(12, textAreaInput("Profile_Plot_input_coord", ""))
                         ),
                         fluidRow(
                           column(6, actionButton('Profile_Plot_start', 'Generate a plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
@@ -3389,7 +3442,7 @@ ui <- fluidPage(
                             ),
                             fluidRow(
                               h3(''),
-                              column(12, actionButton("igv_data_add", "View in IGV"))
+                              column(12, actionButton("igv_data_add", "View in IGV", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
                             )
                           )
                         )
@@ -3774,7 +3827,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 7. June, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 25. June, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -8515,14 +8568,6 @@ server <- function(input, output, session) {
       # Imported samples
         imported_sample <- reactiveVal(NULL) # list of the imported sample names
         imported_bw_data <- reactiveVal(list())
-        imported_bw_data1 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data2 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data3 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data4 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data5 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data6 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data7 <- reactiveVal(NULL) # Maximum is 8
-        imported_bw_data8 <- reactiveVal(NULL) # Maximum is 8
 
         isCalculating_import <- reactiveVal(FALSE) 
         triggered_import <- reactiveVal(FALSE)
@@ -8550,16 +8595,15 @@ server <- function(input, output, session) {
             return()
           }
           bw_list <- imported_bw_data()
-          bw_list <- append(bw_list, list(import(path))) # 
-          # names(bw_list[[length(bw_list)]]) <- input$Profile_Plot_sample_selection
-          # bw_list <- list(import(path)) # import the data
-          # names(bw_list) <- input$Profile_Plot_sample_selection
+          bw_list <- append(bw_list, list(import(path))) #  ex. tmp <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.24/THP1_LPS.IFNg.0.5h_Rep1.bw')
+          # check if the chr names are chrX or X.
+          # unique(tmp@seqnames)
           tmp <- imported_sample()
           tmp <- c(tmp , input$Profile_Plot_sample_selection)
           imported_sample(tmp)
           imported_bw_data(bw_list)
           isCalculating_import(FALSE)
-          output$Profile_Plot_sample_selection_status <- renderText({print(length(imported_bw_data()))})
+          # output$Profile_Plot_sample_selection_status <- renderText({print(length(imported_bw_data()))})
           return()
         })
 
@@ -8590,24 +8634,77 @@ server <- function(input, output, session) {
           isCalculating(TRUE)
           triggered(TRUE) 
           bw_list <- imported_bw_data()
+
+          if(length(bw_list) == 0){
+            show_alert(title='Error.',text='Please import datasets first.', type='error')
+            output$Profile_Plot_status <- renderText({"Please import datasets first."})
+            isCalculating(FALSE)
+            return()
+          }
+
           names(bw_list) <- imported_sample()
-          output$Profile_Plot_status <- renderText({print(names(bw_list))})
+          # output$Profile_Plot_status <- renderText({print(names(bw_list))})
           if(is.null(bw_list)){
             col_fun(NULL)
             heatmap_data_list(NULL)
             isCalculating(FALSE)
           }
           # positions to explore
-          genome_position <- unlist(strsplit(input$Profile_Plot_input_coord, split = "\n"))
-          chr_list <- sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[1]][1] )
-          Start_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][1] ))
-          End_list <- as.numeric(sapply(strsplit(genome_position,':'), function(x) strsplit(x, "-")[[2]][2] ))
+          if(nchar(input$Profile_Plot_input_coord) == 0){
+            show_alert(title='Error.',text='Please input coordinates.', type='error')
+            output$Profile_Plot_status <- renderText({"Please input coordinates."})
+            isCalculating(FALSE)
+            return()
+          }
+          # the format should be 'chr:start-end'. and they should be line by line without any spaces.
+          # if the text input does not follow the format, it will be ignored.
+          
+          genome_position <- unlist(strsplit(input$Profile_Plot_input_coord, split = "\n")) 
+          # Filter only lines matching 'chr:start-end' format (no spaces)
+          genome_position <- genome_position[grepl("^[^\\s:]+:[0-9]+-[0-9]+$", genome_position)] # ex, genome_position=c('chr1:1000-2000', 'chr2:4000-4000')
+          if(length(genome_position)==0){
+            show_alert(title='Error.',text='Please input coordinates in the format "chr:start-end" (line by line).', type='error')
+            output$Profile_Plot_status <- renderText({"Please input coordinates in the format 'chr:start-end' (line by line)."})
+            isCalculating(FALSE)
+            return()
+          }
+          # Parse coordinates and exclude if end < start
+          parsed_coords <- lapply(genome_position, function(x) {
+            parts <- strsplit(x, ":")[[1]]
+            chr <- parts[1]
+            range <- strsplit(parts[2], "-")[[1]]
+            start <- as.numeric(range[1])
+            end <- as.numeric(range[2])
+            if (!is.na(start) && !is.na(end) && end >= start) {
+              list(chr = chr, start = start, end = end)
+            } else {
+              NULL
+            }
+          })
+          # Remove NULLs (invalid ranges)
+          parsed_coords <- Filter(Negate(is.null), parsed_coords)
+          if(length(parsed_coords) == 0){
+            show_alert(title='Error.',text='Invalid input. Please check the input.', type='error')
+            output$Profile_Plot_status <- renderText({"Please check the input. The input should be in the format 'chr:start-end' and the end should be greater than or equal to the start."})
+            isCalculating(FALSE)
+            return()
+          }
+          chr_list <- sapply(parsed_coords, function(x) x$chr)
+          Start_list <- as.numeric(sapply(parsed_coords, function(x) x$start))
+          End_list <- as.numeric(sapply(parsed_coords, function(x) x$end))
           target_coordinates <- GRanges(seqnames=Rle(chr_list), ranges=IRanges(start=Start_list, end=End_list), Group='test')
 
           # heatmap_data_list <- normalizeToMatrix( bw_list(), target_coordinates, extend = 2000, value_column = "score", mean_mode = "w0", w = 10 )
           heatmap_data_list_tmp <- lapply(bw_list, function(bw_tmp) {
             normalizeToMatrix( bw_tmp, target_coordinates, extend = input$Profile_Plot_extend_length, value_column = "score", mean_mode = "w0", w = 10 )
           })
+          if(max(unlist(lapply(heatmap_data_list_tmp, function(x) quantile(x,0.98)))) == 0){
+            show_alert(title='Error.',text='The coverage is zero for all the positions. Please check the input coordinates.', type='error')
+            output$Profile_Plot_status <- renderText({"The coverage is zero for all the positions. Extending the input coordinates may solve this."})
+            heatmap_data_list(NULL)
+            isCalculating(FALSE)
+            return()
+          }
           heatmap_data_list(heatmap_data_list_tmp)
           # output$Profile_Plot_status <- renderText({'test'})
           isCalculating(FALSE)
@@ -9630,239 +9727,258 @@ server <- function(input, output, session) {
       #
     #### Upload ####
       # file upload and reset function 
-      output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
-      output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
-      output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
-      output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
-      outputOptions(output, "new_cohort_upload_GE", suspendWhenHidden=FALSE)
-      outputOptions(output, "new_cohort_upload_sur", suspendWhenHidden=FALSE)
-      outputOptions(output, "new_cohort_upload_meta", suspendWhenHidden=FALSE)
-      outputOptions(output, "new_cohort_upload_mut", suspendWhenHidden=FALSE)
-
-      # reset
-      observeEvent(input$new_cohort_upload_reset, {
         output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
         output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
         output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
         output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
-        output$new_cohort_upload_GE_preview <- renderDataTable({NULL})
-        output$new_cohort_upload_sur_preview <- renderDataTable({NULL})
-        output$new_cohort_upload_meta_preview <- renderDataTable({NULL})
-        output$new_cohort_upload_mut_preview <- renderDataTable({NULL})
-        output$new_cohort_status <- renderText({ NULL })
+        outputOptions(output, "new_cohort_upload_GE", suspendWhenHidden=FALSE)
+        outputOptions(output, "new_cohort_upload_sur", suspendWhenHidden=FALSE)
+        outputOptions(output, "new_cohort_upload_meta", suspendWhenHidden=FALSE)
+        outputOptions(output, "new_cohort_upload_mut", suspendWhenHidden=FALSE)
+
+      # reset
+        observeEvent(input$new_cohort_upload_reset, {
+          output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
+          output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
+          output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
+          output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
+          output$new_cohort_upload_GE_preview <- renderDataTable({NULL})
+          output$new_cohort_upload_sur_preview <- renderDataTable({NULL})
+          output$new_cohort_upload_meta_preview <- renderDataTable({NULL})
+          output$new_cohort_upload_mut_preview <- renderDataTable({NULL})
+          output$new_cohort_status <- renderText({ NULL })
+          output$new_cohort_upload_GE_preview_status <- renderText({"Please upload a gene expression file. The preview will be shown here."})
+          output$new_cohort_upload_sur_preview_status <- renderText({"Please upload a survival data file. The preview will be shown here."})
+          output$new_cohort_upload_meta_preview_status <- renderText({"Please upload a metadata file. The preview will be shown here."})
+          output$new_cohort_upload_mut_preview_status <- renderText({"Please upload a mutation data file. The preview will be shown here."})
+        })
+
+      ## load data if they are uploaded
+      # initial value
+        gx_table <- reactiveVal(NULL)
+        suv_table <- reactiveVal(NULL)
+        meta_table <- reactiveVal(NULL)
+        mut_table <- reactiveVal(NULL)
+
+        observe({
+          if(is.null(input$new_cohort_upload_GE)){
+            gx_table(NULL)
+          }else{
+            gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T,check.names = FALSE)
+            gx_table(gx_table)
+          }
+          if(is.null(input$new_cohort_upload_sur)){
+            suv_table(NULL)
+          }else{
+            suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T,check.names = FALSE)
+            suv_table(suv_table)
+          }
+          if(is.null(input$new_cohort_upload_meta)){
+            meta_table(NULL)
+          }else{
+            meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T,check.names = FALSE)
+            meta_table(meta_table)
+          }
+          if(is.null(input$new_cohort_upload_mut)){
+            mut_table(NULL)
+          }else{
+            mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T,check.names = FALSE)
+            mut_table(mut_table)
+          }
+        })
+
+
+      # in case that the gx file has duplicated id names
+        output$new_cohort_status <- renderText({NULL})
+        new_cohort_upload_GE_table <- reactive({
+          output$new_cohort_status <- renderText({NULL})
+          if(is.null(gx_table())){
+            return(NULL)
+          }
+          gx_table <- gx_table()
+          if(!'id' %in% colnames(gx_table)){
+            output$new_cohort_status <- renderText({'Error: The gene expression table does not have "id" in its header.'})
+          }
+          duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
+          if(length(duplicated_gene)==0){
+            output$new_cohort_upload_GE_preview <- renderDataTable({
+              datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+            })
+            return(gx_table)
+          }else{
+            output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names will be merged.'})
+            No_duplicated <- gx_table[!gx_table$id %in% duplicated_gene,]
+            Duplicated <- gx_table[gx_table$id %in% duplicated_gene,]
+            Duplicated <- Duplicated %>%
+              group_by(id) %>%
+              summarise(across(.cols = everything(), .fns = sum, na.rm = TRUE))
+            Duplicated <- data.frame(Duplicated)
+            df2 <- rbind(No_duplicated, Duplicated)
+            return(df2)
+          }
+        })    
+
+      # preview
         output$new_cohort_upload_GE_preview_status <- renderText({"Please upload a gene expression file. The preview will be shown here."})
         output$new_cohort_upload_sur_preview_status <- renderText({"Please upload a survival data file. The preview will be shown here."})
         output$new_cohort_upload_meta_preview_status <- renderText({"Please upload a metadata file. The preview will be shown here."})
         output$new_cohort_upload_mut_preview_status <- renderText({"Please upload a mutation data file. The preview will be shown here."})
-      })
 
-      ## load data if they are uploaded
-      # initial value
-      gx_table <- reactiveVal(NULL)
-      suv_table <- reactiveVal(NULL)
-      meta_table <- reactiveVal(NULL)
-      mut_table <- reactiveVal(NULL)
+        output$new_cohort_upload_GE_preview <- renderDataTable({
+          if(is.null(gx_table())){
+            return(NULL)
+          }else{
+            output$new_cohort_upload_GE_preview_status <- renderText({"The below are the first 10 lines."})
+            datatable( head(new_cohort_upload_GE_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+          }
+        })
 
-      observe({
-        if(is.null(input$new_cohort_upload_GE)){
-          gx_table(NULL)
-        }else{
-          gx_table <- read.table(input$new_cohort_upload_GE$datapath, sep='\t', header=T,check.names = FALSE)
-          gx_table(gx_table)
-        }
-        if(is.null(input$new_cohort_upload_sur)){
-          suv_table(NULL)
-        }else{
-          suv_table <- read.table(input$new_cohort_upload_sur$datapath, sep='\t', header=T,check.names = FALSE)
-          suv_table(suv_table)
-        }
-        if(is.null(input$new_cohort_upload_meta)){
-          meta_table(NULL)
-        }else{
-          meta_table <- read.table(input$new_cohort_upload_meta$datapath, sep='\t', header=T,check.names = FALSE)
-          meta_table(meta_table)
-        }
-        if(is.null(input$new_cohort_upload_mut)){
-          mut_table(NULL)
-        }else{
-          mut_table <- read.table(input$new_cohort_upload_mut$datapath, sep='\t', header=T,check.names = FALSE)
-          mut_table(mut_table)
-        }
-      })
+        output$new_cohort_upload_sur_preview <- renderDataTable({
+          if(is.null(suv_table())){
+            return(NULL)
+          }else{
+            output$new_cohort_upload_sur_preview_status <- renderText({"The below are the first 10 lines."})
+            datatable( head(suv_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+          }
+        })
 
+        output$new_cohort_upload_meta_preview <- renderDataTable({
+          if(is.null(meta_table())){
+            return(NULL)
+          }else{
+            output$new_cohort_upload_meta_preview_status <- renderText("The below are the first 10 lines.")
+            datatable( head(meta_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+          }
+        })
 
-      # in case that the gx file has duplicated id names
-      output$new_cohort_status <- renderText({NULL})
-      new_cohort_upload_GE_table <- reactive({
-        output$new_cohort_status <- renderText({NULL})
-        if(is.null(gx_table())){
-          return(NULL)
-        }
-        gx_table <- gx_table()
-        if(!'id' %in% colnames(gx_table)){
-          output$new_cohort_status <- renderText({'Error: The gene expression table does not have "id" in its header.'})
-        }
-        duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
-        if(length(duplicated_gene)==0){
-          output$new_cohort_upload_GE_preview <- renderDataTable({
-            datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-          })
-          return(gx_table)
-        }else{
-          output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names will be merged.'})
-          No_duplicated <- gx_table[!gx_table$id %in% duplicated_gene,]
-          Duplicated <- gx_table[gx_table$id %in% duplicated_gene,]
-          Duplicated <- Duplicated %>%
-            group_by(id) %>%
-            summarise(across(.cols = everything(), .fns = sum, na.rm = TRUE))
-          Duplicated <- data.frame(Duplicated)
-          df2 <- rbind(No_duplicated, Duplicated)
-          return(df2)
-        }
-      })    
-
-      # preview
-      output$new_cohort_upload_GE_preview_status <- renderText({"Please upload a gene expression file. The preview will be shown here."})
-      output$new_cohort_upload_sur_preview_status <- renderText({"Please upload a survival data file. The preview will be shown here."})
-      output$new_cohort_upload_meta_preview_status <- renderText({"Please upload a metadata file. The preview will be shown here."})
-      output$new_cohort_upload_mut_preview_status <- renderText({"Please upload a mutation data file. The preview will be shown here."})
-
-      output$new_cohort_upload_GE_preview <- renderDataTable({
-        if(is.null(gx_table())){
-          return(NULL)
-        }else{
-          output$new_cohort_upload_GE_preview_status <- renderText({"The below are the first 10 lines."})
-          datatable( head(new_cohort_upload_GE_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-        }
-      })
-
-      output$new_cohort_upload_sur_preview <- renderDataTable({
-        if(is.null(suv_table())){
-          return(NULL)
-        }else{
-          output$new_cohort_upload_sur_preview_status <- renderText({"The below are the first 10 lines."})
-          datatable( head(suv_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-        }
-      })
-
-      output$new_cohort_upload_meta_preview <- renderDataTable({
-        if(is.null(meta_table())){
-          return(NULL)
-        }else{
-          output$new_cohort_upload_meta_preview_status <- renderText("The below are the first 10 lines.")
-          datatable( head(meta_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-        }
-      })
-
-      output$new_cohort_upload_mut_preview <- renderDataTable({
-        if(is.null(mut_table())){
-          return(NULL)
-        }else{
-          output$new_cohort_upload_mut_preview_status <- renderText("The below are the first 10 lines.")
-          datatable( head(mut_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
-        }
-      })
+        output$new_cohort_upload_mut_preview <- renderDataTable({
+          if(is.null(mut_table())){
+            return(NULL)
+          }else{
+            output$new_cohort_upload_mut_preview_status <- renderText("The below are the first 10 lines.")
+            datatable( head(mut_table(), 10), options = list(scrollX = TRUE, scrollY = TRUE )) 
+          }
+        })
 
 
       # uploading
-      observeEvent(input$new_cohort_upload_data,{
-        if(is.null(gx_table()) | is.null(suv_table()) | is.null(meta_table()) ){
-          output$new_cohort_status <- renderText({'Error: Please upload the files.'})
-        }else{
-          if(nchar(input$new_cohort_upload_dataset_name)==0 ){
-            output$new_cohort_status <- renderText('Error: * is a mandatory filed.')
+        observeEvent(input$new_cohort_upload_data,{
+          if(is.null(gx_table()) | is.null(suv_table()) | is.null(meta_table()) ){
+            show_alert(title='Error.',text='Please upload all the mandatory files.', type='error' )
+            output$new_cohort_status <- renderText({'Error: Please upload the files.'})
+            return()
           }else{
-            cohort_name <- input$new_cohort_upload_dataset_name
-            if(cohort_name %in% Cliniacal_dataset()$Database.Name){
-              output$new_cohort_status <- renderText('Error: The Cohort name is duplicated.')
-            }else if (str_detect(cohort_name, "[;/,()\\[\\]!@#$%]")) {
-              output$new_cohort_status <- renderText('Error: Please avoid special characters for the cohort name. The Cohort name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+            if(nchar(input$new_cohort_upload_dataset_name)==0 ){
+              show_alert(title='Error.',text='Please enter a cohort name.', type='error' )
+              output$new_cohort_status <- renderText('Error: * is a mandatory filed.')
+              return()
             }else{
-              # in case there are duplicated genes
-              error=0
-              gx_table <- gx_table()
-              if(!'id' %in% colnames(gx_table)){
-                output$new_cohort_status <- renderText('Error: The gene expression table does not have "id" in its header.')
-                error= 1
-              }
-              suv_table <- suv_table()
-              if(!'sample' %in% colnames(suv_table)){
-                output$new_cohort_status <- renderText('Error: The survival table does not have "sample" in its header.')
-                error= 1
-              }
-              meta_table <- meta_table()
-              if(!'sample' %in% colnames(meta_table)){
-                output$new_cohort_status <- renderText('Error: The meta data does not have "sample" in its header.')
-                error= 1
-              }
-              mut_table <- mut_table()
-              if(!'sample' %in% colnames(mut_table)){
-                output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "sample" in its header.')
-                error= 1
-              }
-              mut_table <- mut_table()
-              if(!'id' %in% colnames(mut_table)){
-                output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "id" in its header.')
-                error= 1
-              }
-              if(error == 0){
-                time_stamp <- as.character(Sys.time()) 
-                Year <- format(Sys.time(), "%Y")
-                date <- format(Sys.time(), "%m.%d")
-                dir.create(file.path('00_Clinical_dataset', Year, date), recursive=T, showWarnings = F)
-
-                save_path_ge <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_GE$name))
-                save_path_cli <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_sur$name))
-                save_path_meta <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_meta$name))
-                if(is.null(mut_table())){
-                  save_path_mut <- NULL
-                }else{
-                  save_path_mut <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_mut$name))
+              cohort_name <- input$new_cohort_upload_dataset_name
+              if(cohort_name %in% Cliniacal_dataset()$Database.Name){
+                show_alert(title='Error.',text='The cohort name is duplicated. Please enter a different name.', type='error' )
+                output$new_cohort_status <- renderText('Error: The Cohort name is duplicated.')
+                return()
+              }else if (str_detect(cohort_name, "[;/,()\\[\\]!@#$%]")) {
+                show_alert(title='Error.',text='Please avoid special characters for the cohort name.', type='error' )
+                output$new_cohort_status <- renderText('Error: Please avoid special characters for the cohort name. The Cohort name cannot contain "/ , ( ) [ ] ! # @ $ %"!')
+                return()
+              }else{
+                # in case there are duplicated genes
+                error=0
+                gx_table <- gx_table()
+                if(!'id' %in% colnames(gx_table)){
+                  show_alert(title='Error.',text='The gene expression table does not have "id" in its header.', type='error' )
+                  output$new_cohort_status <- renderText('Error: The gene expression table does not have "id" in its header.')
+                  error= 1
+                  return()
                 }
-                Description <- unlist(strsplit(input$new_cohort_upload_description, split = "\n"))[1]
-
-                duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
-                if(length(duplicated_gene)==0){
-                  file.copy(input$new_cohort_upload_GE$datapath, save_path_ge)
-                }else{
-                  output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names will be merged.'})
-                  No_duplicated <- gx_table[!gx_table$id %in% duplicated_gene,]
-                  Duplicated <- gx_table[gx_table$id %in% duplicated_gene,]
-                  Duplicated <- Duplicated %>%
-                    group_by(id) %>%
-                    summarise(across(.cols = everything(), .fns = sum, na.rm = TRUE))
-                  Duplicated <- data.frame(Duplicated)
-                  df2 <- rbind(No_duplicated, Duplicated)
-                  write.table(df2, save_path_ge, sep='\t', row.names=F)
-                  # output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names were merged.'})
-                  # return(NULL)
+                suv_table <- suv_table()
+                if(!'sample' %in% colnames(suv_table)){
+                  show_alert(title='Error.',text='The survival table does not have "sample" in its header.', type='error' )
+                  output$new_cohort_status <- renderText('Error: The survival table does not have "sample" in its header.')
+                  error= 1
+                  return()
                 }
+                meta_table <- meta_table()
+                if(!'sample' %in% colnames(meta_table)){
+                  show_alert(title='Error.',text='The meta data does not have "sample" in its header.', type='error' )
+                  output$new_cohort_status <- renderText('Error: The meta data does not have "sample" in its header.')
+                  error= 1
+                  return()
+                }
+                mut_table <- mut_table()
+                if(!'sample' %in% colnames(mut_table)){
+                  show_alert(title='Error.',text='The mutation data tabke does not have "sample" in its header.', type='error' )
+                  output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "sample" in its header.')
+                  error= 1
+                  return()
+                }
+                mut_table <- mut_table()
+                if(!'id' %in% colnames(mut_table)){
+                  show_alert(title='Error.',text='The mutation data tabke does not have "id" in its header.', type='error' )
+                  output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "id" in its header.')
+                  error= 1
+                  return()
+                }
+                if(error == 0){
+                  time_stamp <- as.character(Sys.time()) 
+                  Year <- format(Sys.time(), "%Y")
+                  date <- format(Sys.time(), "%m.%d")
+                  dir.create(file.path('00_Clinical_dataset', Year, date), recursive=T, showWarnings = F)
 
-                # save
-                file.copy(input$new_cohort_upload_sur$datapath, save_path_cli)
-                file.copy(input$new_cohort_upload_meta$datapath, save_path_meta)
-                if(!is.null(mut_table())){
-                  file.copy(input$new_cohort_upload_mut$datapath, save_path_mut)
-                }               
+                  save_path_ge <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_GE$name))
+                  save_path_cli <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_sur$name))
+                  save_path_meta <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_meta$name))
+                  if(is.null(mut_table())){
+                    save_path_mut <- NULL
+                  }else{
+                    save_path_mut <- file.path('00_Clinical_dataset', Year, date, paste0(format(Sys.time(), "%H.%M.%S"), '-', input$new_cohort_upload_mut$name))
+                  }
+                  Description <- unlist(strsplit(input$new_cohort_upload_description, split = "\n"))[1]
 
-                tmp <- Cliniacal_dataset()
-                tmp <- add_row(tmp, Database.Name=cohort_name , 
-                  Description=	Description,
-                  Expression_path= save_path_ge,
-                  Survival_path= save_path_cli,
-                  Meta_path= save_path_meta,
-                  added.when= time_stamp,
-                  Mutation_path= save_path_mut)
-                tmp <- tmp[order(tmp$added.when, decreasing =T),]
-                Cliniacal_dataset(tmp)
-                replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
-                write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
-                output$new_cohort_status <- renderText('uploaded!')
+                  duplicated_gene <- unique(gx_table$id[duplicated(gx_table$id)])
+                  if(length(duplicated_gene)==0){
+                    file.copy(input$new_cohort_upload_GE$datapath, save_path_ge)
+                  }else{
+                    output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names will be merged.'})
+                    No_duplicated <- gx_table[!gx_table$id %in% duplicated_gene,]
+                    Duplicated <- gx_table[gx_table$id %in% duplicated_gene,]
+                    Duplicated <- Duplicated %>%
+                      group_by(id) %>%
+                      summarise(across(.cols = everything(), .fns = sum, na.rm = TRUE))
+                    Duplicated <- data.frame(Duplicated)
+                    df2 <- rbind(No_duplicated, Duplicated)
+                    write.table(df2, save_path_ge, sep='\t', row.names=F)
+                    # output$new_cohort_status <- renderText({'The gene expression table has duplicated genes. The expression assigned to the same gene names were merged.'})
+                    # return(NULL)
+                  }
+
+                  # save
+                  file.copy(input$new_cohort_upload_sur$datapath, save_path_cli)
+                  file.copy(input$new_cohort_upload_meta$datapath, save_path_meta)
+                  if(!is.null(mut_table())){
+                    file.copy(input$new_cohort_upload_mut$datapath, save_path_mut)
+                  }               
+
+                  tmp <- Cliniacal_dataset()
+                  tmp <- add_row(tmp, Database.Name=cohort_name , 
+                    Description=	Description,
+                    Expression_path= save_path_ge,
+                    Survival_path= save_path_cli,
+                    Meta_path= save_path_meta,
+                    added.when= time_stamp,
+                    Mutation_path= save_path_mut)
+                  tmp <- tmp[order(tmp$added.when, decreasing =T),]
+                  Cliniacal_dataset(tmp)
+                  replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
+                  write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+                  show_alert(title='Success!', text='The cohort was successfully uploaded.', type='success')
+                  output$new_cohort_status <- renderText('uploaded!')
+                }
               }
             }
-          }
-        }  
-      })
+          }  
+        })
 
     #### Cohort database
       output$Cohort_DataBaseTable <- DT::renderDataTable({ 
@@ -10359,95 +10475,145 @@ server <- function(input, output, session) {
       ###
 
     #### Deconvolution
-      # do deconvolution
-      library(MCPcounter)
-      library(xCell)
-      deconv_table <- reactive({NULL})
-      output$Deconvodution_status <- renderText({"Please select the dataset and the deconvolution method, and click 'Start deconvolution'."})
-      deconv_table <- eventReactive(input$Deconvodution_start,{
-        if(input$Clinical_data_select == 'None'){
-          output$Deconvodution_status <- renderText({'Please select a dataset first.'})
+      # initial setting message
+        library(MCPcounter)
+        library(xCell)
+        output$Deconvodution_status <- renderText({"Please select the dataset and the deconvolution method, and click 'Start deconvolution'."})
+        
+      # Run deconvolution
+        deconv_table <- reactiveVal(NULL)
+        isCalculating_deconv_table <- reactiveVal(FALSE)
+        isTriggered_deconv_table <- reactiveVal(FALSE)
+        observeEvent(input$Deconvodution_start,{
+          isTriggered_deconv_table(TRUE)
+          isCalculating_deconv_table(TRUE)
+          if(input$Clinical_data_select == 'None'){
+            show_alert(title='Error.', text='Please select a dataset first.', type='error')
+            output$Deconvodution_status <- renderText({'Please select a dataset first.'})
+            deconv_table(NULL)
+            isCalculating_deconv_table(FALSE)
+            return(NULL)
+          }
+          if(length(input$Deconvodution_tool_select)==0){
+            show_alert(title='Error.', text='Please select the deconvolution method.', type='error')
+            output$Deconvodution_status <- renderText({'Please select the method.'})
+            deconv_table(NULL)
+            isCalculating_deconv_table(FALSE)
+            return(NULL)
+          }
+          output$Deconvodution_status <- renderText({NULL})
+          df_geneEx <-  Clinical_gene_expression() 
+          if(input$Deconvodution_tool_select == 'MCPcounter'){
+            deconv_table_tmp <-  MCPcounter.estimate(df_geneEx,featuresType="HUGO_symbols")
+          }else if(input$Deconvodution_tool_select == 'xCell'){
+            deconv_table_tmp <- xCellAnalysis(df_geneEx) # deconv_table[1:3, 1:3]
+          }
+          colnames(deconv_table_tmp) <- gsub('\\.', '-', colnames(deconv_table_tmp))
+          # output$Deconvodution_results <- renderDataTable({
+          #   datatable(deconv_table, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          # })
+          deconv_table(deconv_table_tmp)
+          isCalculating_deconv_table(FALSE)
           return(NULL)
-        }
-        if(length(input$Deconvodution_tool_select)==0){
-          output$Deconvodution_status <- renderText({'Please select the method.'})
-          return(NULL)
-        }
-        output$Deconvodution_status <- renderText({NULL})
-        df_geneEx <-  Clinical_gene_expression() 
-        if(input$Deconvodution_tool_select == 'MCPcounter'){
-          deconv_table <-  MCPcounter.estimate(df_geneEx,featuresType="HUGO_symbols")
-        }else if(input$Deconvodution_tool_select == 'xCell'){
-          deconv_table <- xCellAnalysis(df_geneEx) # deconv_table[1:3, 1:3]
-        }
-        colnames(deconv_table) <- gsub('\\.', '-', colnames(deconv_table))
-        output$Deconvodution_results <- renderDataTable({
-          datatable(deconv_table, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
         })
-        return(deconv_table)
-      })
+
+      # table
+        output$Deconvodution_results <- renderDataTable({
+          if(!isTriggered_deconv_table()){
+            tmp <- data.frame('Cell type'=character(0), 'Sample'=character(0), 'Abundance'=numeric(0), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)))
+          }
+          if(isCalculating_deconv_table()){
+            output$Deconvodution_status <- renderText({'Calculating...'})
+            tmp <- data.frame('Cell type'=character(0), 'Sample'=character(0), 'Abundance'=numeric(0), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)))
+          }
+          if(is.null(deconv_table())){
+            tmp <- data.frame('Cell type'=character(0), 'Sample'=character(0), 'Abundance'=numeric(0), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)))
+          }else{
+            return(datatable(deconv_table(), selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10)))
+          }
+        })
+
 
       # when changing the cohort, data table is reset
-      observeEvent(input$Clinical_data_select, {
-        # deconv_table <- reactive({NULL})
-        output$Deconvodution_status <- renderText({"Please select the dataset and the deconvolution method, and click 'Start deconvolution'."})
-        output$Deconvodution_results <-  renderDataTable({NULL})
-      }, ignoreInit=TRUE)
-    
+        observeEvent(input$Clinical_data_select, {
+          output$Deconvodution_status <- renderText({"Please select the dataset and the deconvolution method, and click 'Start deconvolution'."})
+          # output$Deconvodution_results <-  renderDataTable({NULL})
+        }, ignoreInit=TRUE)
+      
 
       # download the table
-      output$Deconvodution_result_download <- downloadHandler(
-        filename = function(){"deconvolution.tsv"}, 
-        content = function(fname){ write.table(deconv_table(), fname, sep='\t', row.names=F, quote=F) }
-      )
+        output$Deconvodution_result_download <- downloadHandler(
+          filename = function(){"deconvolution.tsv"}, 
+          content = function(fname){ write.table(deconv_table(), fname, sep='\t', row.names=F, quote=F) }
+        )
 
       # gene correlation
       # when using a custom gene set
-      output$Deconvodution_Gene_correlation_from_custom_geneset_select <- renderUI({
-        gene_sets_names <- c()
-        gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
-        selectInput('Deconvodution_Gene_correlation_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-      })
-      outputOptions(output, "Deconvodution_Gene_correlation_from_custom_geneset_select", suspendWhenHidden=FALSE)
+        output$Deconvodution_Gene_correlation_from_custom_geneset_select <- renderUI({
+          gene_sets_names <- c()
+          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          selectInput('Deconvodution_Gene_correlation_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+        })
+        outputOptions(output, "Deconvodution_Gene_correlation_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
       # select the cell type to compare
-      output$Deconvodution_Gene_correlation_select_celltype <- renderUI({
-        gene_sets_names <- c()
-        tryCatch({
-          gene_sets_names <- c(gene_sets_names, rownames(deconv_table()))  
-          selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None', gene_sets_names))  
-        },error=function(e){
-          selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None'))  
+        output$Deconvodution_Gene_correlation_select_celltype <- renderUI({
+          gene_sets_names <- c()
+          tryCatch({
+            gene_sets_names <- c(gene_sets_names, rownames(deconv_table()))  
+            selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None', gene_sets_names))  
+          },error=function(e){
+            selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None'))  
+          })
         })
-      })
-      outputOptions(output, "Deconvodution_Gene_correlation_select_celltype", suspendWhenHidden=FALSE)
+        outputOptions(output, "Deconvodution_Gene_correlation_select_celltype", suspendWhenHidden=FALSE)
 
       # calculate p and r
       output$Deconvodution_Gene_correlation_status0 <- renderText({
         "Please do the deconvolution first, and then, enter the input and choose the setting.\nCorrelations between the inputted genes' expressions and the estimated immune cell abandance level will be calculated."
       })
       output$Deconvodution_Gene_correlation_status <- renderText({"Please do the deconvolution first."})
-      Deconvodution_gene_correlation <- eventReactive(input$Deconvodution_Gene_correlation_start, {
+      Deconvodution_gene_correlation <- reactiveVal(NULL)
+      isCalculating_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+      isTriggered_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+      observeEvent(input$Deconvodution_Gene_correlation_start, {
+        isTriggered_Deconvodution_gene_correlation(TRUE)
+        isCalculating_Deconvodution_gene_correlation(TRUE)
         if(input$Deconvodution_Gene_correlation_select_celltype == 'None'){
+          show_alert(title='Error.', text='Please select a cell type to compare.', type='error')
           output$Deconvodution_Gene_correlation_status0 <- renderText({"Please choose the cell type"})
+          Deconvodution_gene_correlation(NULL)
+          isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
         }
         if(input$Deconvodution_Gene_correlation_from_custom_geneset){
           if(input$Deconvodution_Gene_correlation_from_custom_geneset_select == 'None'){
+            show_alert(title='Error.', text='Please select a custom gene set.', type='error')
             output$Deconvodution_Gene_correlation_status0 <- renderText({"Please select a custom gene set."})
+            Deconvodution_gene_correlation(NULL)
+            isCalculating_Deconvodution_gene_correlation(FALSE)
             return(NULL)
           }
           genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
         }else{
           if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
+            show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
             output$Deconvodution_Gene_correlation_status0 <- renderText({"Please enter genes (line by line)"})
+            Deconvodution_gene_correlation(NULL)
+            isCalculating_Deconvodution_gene_correlation(FALSE)
             return(NULL)
           }
           genes <- unlist(strsplit(input$Deconvodution_Gene_correlation_genes, '\n'))
         }
         # Cell abundunce
         if(is.null(deconv_table())){
+          show_alert(title='Error.', text='Please do the deconvolution first.', type='error')
           output$Deconvodution_Gene_correlation_status0 <- renderText({"Please do deconvolution first."})
+          Deconvodution_gene_correlation(NULL)
+          isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
         }
         deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
@@ -10457,17 +10623,26 @@ server <- function(input, output, session) {
         sample_deconv <- gsub('\\.', '-', colnames(deconv_table))
         sample_geneEx <- gsub('\\.', '-', colnames(df_geneEx))
         if(length(intersect(sample_deconv, sample_geneEx))==0){
+          show_alert(title='Error.', text='The sample names in the gene expression data and the deconvolution data do not match. Please check the data.', type='error')
           output$Deconvodution_Gene_correlation_status0 <- renderText({'Error. Please chech the expression data has a "sample" in its columns'})
+          Deconvodution_gene_correlation(NULL)
+          isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
         }
         genes <- intersect(genes, rownames(df_geneEx))
         if(length(genes) == 0){
+          show_alert(title='Error.', text='The inputted gene is not in the dataset. Please make sure the gene name is correct and does not include unnecessary spaces.', type='error')
           output$Deconvodution_Gene_correlation_status0 <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+          Deconvodution_gene_correlation(NULL)
+          isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
         }
         df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
         if(length(input$Deconvodution_Gene_correlation_method)==0){
+          show_alert(title='Error.', text='Please select the method for correlation.', type='error')
           output$Deconvodution_Gene_correlation_status0 <- renderText({'Please select the Method for correlation.'})
+          Deconvodution_gene_correlation(NULL)
+          isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
         }
         for ( gene2 in genes){ # gene2 = genes[1]
@@ -10482,7 +10657,9 @@ server <- function(input, output, session) {
         df_cor_out$cell_type <- cell_type
         rownames(df_cor_out) <- NULL
         output$Deconvodution_Gene_correlation_status0 <- renderText({NULL})
-        return(df_cor_out)
+        Deconvodution_gene_correlation(df_cor_out)
+        isCalculating_Deconvodution_gene_correlation(FALSE)
+        return(NULL)
       })
 
       # show in table
@@ -10510,7 +10687,7 @@ server <- function(input, output, session) {
       output$Deconvodution_Gene_correlation_plot <- renderPlot({
         if(is.null(Deconvodution_gene_correlation())){
           # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
-          return(NULL)
+          return(ggplot())
         }else{
           if(length(input$Deconvodution_Gene_correlation_table_rows_selected)>0){
             output$Deconvodution_Gene_correlation_status <- renderText({NULL})
@@ -10543,7 +10720,7 @@ server <- function(input, output, session) {
             p
           }else{
             output$Deconvodution_Gene_correlation_status <- renderText('Please select a gene from the table.')
-            return(NULL)
+            return(ggplot())
           }
         }
         p
