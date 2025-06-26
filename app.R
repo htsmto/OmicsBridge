@@ -4033,12 +4033,6 @@ server <- function(input, output, session) {
             output$status_upload <- renderText('The Data type cannot contain "/ , ! # @ $ % " !')
             show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
             return()
-          }else if(input$upload_data_type_select_select == 'Other'){
-            if(nchar(input$upload_data_type_manual)==0){
-              output$status_upload <- renderText('* is a mandatory filed!')
-              show_alert(title='Error.',text='* is a mandatory filed!', type='error')
-              return()
-            }
           }else{
             if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
               gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
