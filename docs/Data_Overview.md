@@ -1,20 +1,26 @@
-# Data Overview and Downstream Analysis
+# **Data Overview and Downstream Analysis**
 
 This section provides an overview of the selected dataset (except for scRNA data and bam/bed files, which are viewable in the "scRNA" and "Genome Browser" sections). Users can create various plots, identify and highlight significant genes and hits, examine overlaps with gene sets of interest, and conduct downstream analyses including GO/KEGG and GSEA analyses.
 
-## <u> **Data Selection** </u>
+## <u> **1. Data Selection** </u>
 
 To begin, a dataset will be chosen in the “Dataset Selection” section. Upon selection, the details of the dataset will be displayed on the right side. Users can filter datasets by “Data from," "Experiment," or “Data type" inside the toggle button. Depending on whether the data is in the form of a Count Table (A) or Comparison Data (B), the content will be presented in the “Overview and Analysis” section. Please refer to the following for more information.
 
-## <u> **Analysis of "Comparison data"** </u>
+## <u> **2. Analysis of "Comparison data"** </u>
 
 Upon selecting a **“Comparison Data”** type of data, two tabs will appear within the **“Overview and Analysis”** section. The “Data Table” presents the data in tabular format, while the "Plot” tab enables users to generate graphical representations and conduct subsequent analyses.
 
 ### <u> **Getting an overview (Scatter Plot)** </u>
 
-Users can create a scatter plot to gain a comprehensive overview of the selected dataset by selecting the X and Y axes from the “Display Options” panel on the right. Generally, the X-axis represents "Log Fold Change," while the Y-axis displays a statistical value such as "-log10(p.value)." When users select a region within the plot using their mouse, the dots within that region will be labelled with their respective gene names (ids). The ggplot automatically adjusts the positioning of labels; hence, not all dots may be annotated. Additionally, if the selection area is excessively large, no annotations will be provided to prevent complications associated with calculating the label positions for numerous dots. Further information regarding these dots, including pertinent scores, is presented in a table located at the bottom of the page under "Selected Area Information.”
+The scatter plot offers a visual summary of the selected dataset, enabling users to intuitively explore gene-level information. By selecting the X and Y axes from the “Display Options” panel on the right-hand side, users can tailor the plot to suit their analytical objectives. Commonly, the X-axis represents "Log Fold Change", while the Y-axis displays a statistical measure such as "-log10(p.value)".
 
-Users can highlight genes of interest in the plot by inputting the gene names line by line in the "Enter genes" box. By default, the genes will be marked in red, accompanied by annotations of their names. If they are not visible, please check to ensure that your genes are present in the dataset—a message will indicate which genes are not included in the dataset. Please ensure there are no extra spaces before or after gene names in the text box. The "show information as a table" switch generates a downloadable table containing details about highlighted genes in the "Information of genes of interest" section at the bottom. When the annotations become too crowded, utilise the "show gene names" switch to toggle gene labels on or off.
+Users can interactively select a region of the plot using their mouse. Genes (represented as dots) within the selected area will be annotated with their names (IDs), although not all may be labelled due to automatic label positioning by ggplot. To maintain clarity and system performance, annotations are disabled when the selected area is excessively large.
+
+Further details about the selected genes are shown in the "Selected Area Information" table located at the bottom of the page.
+
+To highlight specific genes of interest, users may input gene names—one per line—into the "Enter genes" text box. These genes will be marked in red on the plot, along with their labels. If any of the entered genes are not found within the dataset, a message will indicate which ones are missing. Please ensure that there are no leading or trailing spaces in the input.
+
+The “Show information as a table” switch allows users to generate a downloadable table containing details of the highlighted genes, displayed in the "Information of Genes of Interest" section. If the plot becomes visually cluttered, the “Show gene names” switch can be used to toggle the gene labels on or off for improved readability.
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
@@ -114,10 +120,10 @@ This analysis is specifically for RNA-seq data processed by DESeq2 and requires 
     - The size of the X and Y axis font size
 
 
-## Analysis of "Count table" 
+## **3. Analysis of "Count table"**
 
 ### <u> **Swarm plot** </u>
-The swarm plot visualises expression differences of genes of interest across samples. Samples with the same experimental conditions (replicated samples) are grouped together, making it easy to compare differences between conditions. Please make sure that the sample names are all set to SamepleName_Rep# so that the interface can tell which samples are replicates of each other.
+The swarm plot visualises expression differences of genes of interest across samples. Samples with the same experimental conditions (replicated samples) are grouped together, making it easy to compare differences between conditions. Please make sure that the sample names are all set to `(SamepleName)_Rep#` so that the interface can tell which samples are replicates of each other.
 
 To create a plot, enter gene names line by line in the "Enter genes" box. The genes will appear in the table below. Clicking any gene in the table displays its swarm plot on the right. A detailed table showing individual sample scores appears beside the plot. To customise the display, check "Re-order the X axis" - this allows you to reorder or filter which experimental groups appear in the plot by entering group names line by line. The plot will show only the groups you specify in your chosen order.
 
@@ -126,6 +132,16 @@ To create a plot, enter gene names line by line in the "Enter genes" box. The ge
     - the size of the X and Y axis/label font size. 
     - the size of the graph title.
     - The point size.  
+    - The colour pallete
+    - The colour of the dots.
+
+### <u> **Two gene correlation Plot** </u>
+
+hogehogehogeo
+
+??? success  "Adjustable graph parameters"
+    - the size (width and height) of the figure
+
 
 ### <u> **Heatmap** </u>
 Users can generate a heatmap to visualize gene expression patterns across selected samples. Expression values are standardized across samples to enable clear comparisons.
@@ -151,10 +167,3 @@ Users can generate a PCA plot from the count matrix to visualise sample patterns
     - the size of the sample labels and the legend
     - hide the labels if they are messy ("Hide labels")
     - use a white background instead of the default grey background ("Use white background")
-
-### <u> **Two gene correlation Plot** </u>
-
-hogehogehogeo
-
-??? success  "Adjustable graph parameters"
-    - the size (width and height) of the figure
