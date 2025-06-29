@@ -3717,7 +3717,7 @@ ui <- fluidPage(
                                     )
                                   )
                                 ),
-                                circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
+                                circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                               )
                             ),
                             column(12, withSpinner(plotOutput("Cross_tabulation_plot",  width="100%", height="100%"), type = 5, color = "#0dc5c1"))
