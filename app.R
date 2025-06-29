@@ -4935,7 +4935,7 @@ server <- function(input, output, session) {
                         p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
                       }
                     }
-                    if(input$show_threhold_lines){
+                    if(input$show_threhold_lines & input$How_to_filter == 'B'){
                       switch(input$Main_scatter_thr_X_method,
                         'B' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X1, linetype='dotted', size=0.2),
                         'C' = p <- p + geom_vline(xintercept=input$Main_scatter_thr_X2, linetype='dotted', size=0.2),
