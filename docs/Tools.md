@@ -56,6 +56,11 @@ This section enables users to conduct a quick cross-tabulation analysis to exami
     - Use a white background
     - Rotate the X labels for 90°
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Tool_4_720.mp4" type="video/mp4"> 
+    </video>
+
 ## <u>**Venn Diagram**</u>
 
 This section helps users quickly check the overlaps between two or three groups and create a Venn diagram.
@@ -70,5 +75,10 @@ The following figure parameters can be customised:
     - Figure size (width, height)
     - Font size (labels, title)
     - Colours for each group
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Tool_5_720.mp4" type="video/mp4"> 
+    </video>
 
 ## <u>**Network Plot**</u>
