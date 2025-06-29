@@ -24,7 +24,7 @@ The “Show information as a table” switch allows users to generate a download
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="img/21_Overview_comparison_plot.mp4" type="video/mp4"> 
+    <source src="../videos/21_Overview_comparison_plot.mp4" type="video/mp4"> 
     </video>
 
 ??? success  "Adjustable graph parameters"
