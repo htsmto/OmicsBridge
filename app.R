@@ -782,10 +782,34 @@ ui <- fluidPage(
                                       )
                                     ),
                                     tabPanel(strong('Bar Plot'),
-                                      column(12, h4('')),
-                                      column(12, verbatimTextOutput("Gene_ex_barplot_status")),
-                                      column(12, h4('')),
-                                      column(12, withSpinner(plotOutput("Gene_ex_barplot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                      fluidRow(
+                                        column(12, h4('')),
+                                        column(10, verbatimTextOutput("Gene_ex_barplot_status")),
+                                        column(2, 
+                                          dropdownButton( h4(strong("Plot Options")),
+                                            fluidRow(
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.width', label='fig width', min=300, max=3000, value=500, step=10)),
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_graph.title.font.size', label='Y title size', min=1, max=10, value=4, step=0.1))
+                                            ),
+                                            fluidRow( # colour for max, 0 and min values
+                                              column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_max', label='Colour for the max value:', value='red')),
+                                              column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_min', label='Colour for the min value:', value='blue')),
+                                              column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_0', label='Colour for the 0 value:', value='white'))
+                                            ),
+                                            fluidRow(
+                                              # Rotate x axis lable in the bar plot
+                                              column(6, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable', value=FALSE, status = "success")),
+                                              column(6, materialSwitch('Gene_ex_barplot_white_background', 'Use white background', value=FALSE, status = "success"))
+                                            ),
+                                            circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                          )
+                                        ),
+                                        column(12, h4('')),
+                                        column(12, withSpinner(plotOutput("Gene_ex_barplot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                      )
                                     )
                                   )
                                 )
@@ -894,17 +918,8 @@ ui <- fluidPage(
                                         condition = "input.outlier_gene_colour == true",
                                           column(6, colourpicker::colourInput('outlier_gene_colour_id', 'Positive side:', value='#0000CD')),
                                           column(6, colourpicker::colourInput('outlier_gene_colour_id_negative', 'Negative side:', value='#FF8C00'))
-                                      )
-                                    ),
-                                    fluidRow(
-                                      column(12, materialSwitch('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE, status='info')),
-                                      column(12,
-                                        conditionalPanel(
-                                          condition = " input.show_outliers_bar_plot == true ",
-                                          fluidRow(column(12, radioButtons('show_outliers_bar_colour', 'Colour by:', choices = c("X", "Y", "None"), selected='None', inline=TRUE))),
-                                          fluidRow(column(12, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable in the bar plot', status='info')))
-                                        )
-                                      )
+                                      ),
+                                      column(12, materialSwitch('show_outliers_bar_plot', 'Show in a bar plot', value=FALSE, status='info'))
                                     )
                                   ),
                                   # show pathway genes
@@ -926,30 +941,33 @@ ui <- fluidPage(
                                     ),
                                     fluidRow(
                                       column(6, materialSwitch('hide_gene_label_pathway', 'Hide labels', value=FALSE, status='info')),
-                                      column(6, materialSwitch('show_information_pathway', 'Show the genes information', value=FALSE, status='info'))
-                                    ),
-                                    fluidRow(
+                                      column(6, materialSwitch('show_information_pathway', 'Show the genes information', value=FALSE, status='info')),
                                       column(6, materialSwitch("pathway_gene_colour", "change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.pathway_gene_colour == true",
                                           column(6, colourpicker::colourInput('pathway_gene_colour_id', 'select colour:', value='#FF00FF'))
-                                      )
+                                      ),
                                     ),
-                                    fluidRow(column(12, materialSwitch("Main_scatter_pathway_filter", "Apply further filtering", value=FALSE, status='info') )),
-                                    conditionalPanel(
-                                      condition = "input.Main_scatter_pathway_filter == true",
-                                      fluidRow(
-                                        column(12, h4('Futher filtering')),
+                                    fluidRow(
+                                      column(6, materialSwitch('show_pathway_bar_plot', 'Show in a bar plot', value=FALSE, status='info'))
+                                    ),
+                                    fluidRow(
+                                      column(12, materialSwitch("Main_scatter_pathway_filter", "Apply further filtering", value=FALSE, status='info') ),
+                                      conditionalPanel(
+                                        condition = "input.Main_scatter_pathway_filter == true",
+                                        column(12, h5('Further filtering:')),
                                         column(12, 
                                           fluidRow(
                                             column(3,
                                               fluidRow(
-                                                column(12, numericInput('Main_scatter_pathway_thr_X1', 'X threshold 1',  value=1, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
+                                                column(12, numericInput('Main_scatter_pathway_thr_X1', 'X threshold 1',  value=1, step=0.1) ), 
+                                                column(12, numericInput('Main_scatter_pathway_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
                                               )
                                             ),
                                             column(3,
                                               fluidRow(
-                                                column(12, numericInput('Main_scatter_pathway_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), column(12, numericInput('Main_scatter_pathway_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
+                                                column(12, numericInput('Main_scatter_pathway_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), 
+                                                column(12, numericInput('Main_scatter_pathway_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
                                               )
                                             ),
                                             column(3, radioButtons("Main_scatter_pathway_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
@@ -957,47 +975,45 @@ ui <- fluidPage(
                                           )
                                         )
                                       )
-                                    )
+                                    ),
+
                                   ),
                                   # show custom gene sets
                                   conditionalPanel(
                                     condition = "input.show_filterin_input_option == 'D'",
                                     fluidRow(
                                       column(12, htmlOutput("Plot_Gene_set_select_geneset")),
-                                    ),
-                                    fluidRow(
                                       column(6, materialSwitch('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE, status='info')),
-                                      column(6, materialSwitch('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE, status='info'))
-                                    ),
-                                    fluidRow(
+                                      column(6, materialSwitch('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE, status='info')),
                                       column(6, materialSwitch("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.Plot_Gene_set_pathway_gene_colour == true",
                                           column(6, colourpicker::colourInput('Plot_Gene_set_pathway_gene_colour_id', 'select colour:', value='#fcc203'))
                                       )
                                     ),
+                                    fluidRow(
+                                      column(6, materialSwitch('show_geneset_bar_plot', 'Show in a bar plot', value=FALSE, status='info'))
+                                    ),
                                     fluidRow(column(12, materialSwitch("Main_scatter_geneset_filter", "Apply further filtering", value=FALSE, status='info') )),
                                     conditionalPanel(
                                       condition = "input.Main_scatter_geneset_filter == true",
-                                      h3(''),
-                                      fluidRow(
-                                        column(12,
-                                          box(width=12, title='Apply filtering', collapsible=T, 
+                                      column(12, h5('Further filtering:')),
+                                      column(12,
+                                        fluidRow(
+                                          column(3,
                                             fluidRow(
-                                              column(3,
-                                                fluidRow(
-                                                  column(12, numericInput('Main_scatter_geneset_thr_X1', 'X threshold 1',  value=1, step=0.1) ), column(12, numericInput('Main_scatter_geneset_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
-                                                )
-                                              ),
-                                              column(3,
-                                                fluidRow(
-                                                  column(12, numericInput('Main_scatter_geneset_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), column(12, numericInput('Main_scatter_geneset_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
-                                                )
-                                              ),
-                                              column(3, radioButtons("Main_scatter_geneset_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
-                                              column(3, radioButtons("Main_scatter_geneset_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') )
+                                              column(12, numericInput('Main_scatter_geneset_thr_X1', 'X threshold 1',  value=1, step=0.1) ), 
+                                              column(12, numericInput('Main_scatter_geneset_thr_X2', 'X threshold 2',  value=-1, step=0.1) )
                                             )
-                                          )
+                                          ),
+                                          column(3,
+                                            fluidRow(
+                                              column(12, numericInput('Main_scatter_geneset_thr_Y1', 'Y threshold 1', value=1.3, step=0.1) ), 
+                                              column(12, numericInput('Main_scatter_geneset_thr_Y2', 'Y threshold 2', value=0, step=0.1) )
+                                            )
+                                          ),
+                                          column(3, radioButtons("Main_scatter_geneset_thr_X_method", "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='B') ),
+                                          column(3, radioButtons("Main_scatter_geneset_thr_Y_method", "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='B') )
                                         )
                                       )
                                     )
@@ -1031,7 +1047,7 @@ ui <- fluidPage(
                                 ),
                                 # display the pathway genes (table)
                                 conditionalPanel(
-                                  condition = "input.show_pathway == true & input.show_information_pathway== true",
+                                  condition = "input.show_filterin_input_option=='C'  & input.show_information_pathway== true",
                                   box(title='Pathway Genes Information', collapsible=TRUE, status='warning', width=12,
                                     withSpinner(dataTableOutput("outFile3_pathway"), type=5, color='#0dc5c1'),
                                     fluidRow(
@@ -1042,7 +1058,7 @@ ui <- fluidPage(
                                 ),
                                 # display the custom gene sets (table)
                                 conditionalPanel(
-                                  condition = "input.Plot_Gene_set == true & input.Plot_Gene_setshow_information== true",
+                                  condition = "input.show_filterin_input_option=='D'  & input.Plot_Gene_setshow_information== true",
                                   box(title='Custom Gene Sets Information', collapsible=TRUE, status='warning', width=12,
                                     withSpinner(dataTableOutput("outFile3_custom_geneset"), type=5, color='#0dc5c1'),
                                     fluidRow(
@@ -1822,6 +1838,16 @@ ui <- fluidPage(
                         column(9, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
                       ),
                       fluidRow(
+                        column(4, materialSwitch('Integrate_data1_plus_2_change_colour', 'Change colour of the selected genes', value=FALSE, status='info')),
+                        conditionalPanel(
+                          condition = "input.Integrate_data1_plus_2_change_colour == true",
+                          column(4, colourpicker::colourInput('Integrate_data1_plus_2_target_gene_colour', 'Colour of the selected genes:', value='red'))
+                        ),
+                      ),
+                      fluidRow(
+                        column(4, materialSwitch('Integrate_data1_plus_2_show_gene_name', 'Show gene names', value=TRUE, status='info') ),
+                      ),
+                      fluidRow(
                         column(12, h4('Filtering')),
                         column(6, 
                           fluidRow(
@@ -2072,23 +2098,28 @@ ui <- fluidPage(
                                   column(7, 
                                     conditionalPanel(
                                       condition="input.Gene_correlation_genes_comparison_type == 'B'",
-                                      fluidRow(column(9, textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis) (line by line)'))),
-                                      fluidRow(column(12, materialSwitch('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') )),
-                                      conditionalPanel(
-                                        condition = "input.Gene_correlation_genes_y_from_custom_geneset == true",
-                                        fluidRow(column(12, htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select')))
+                                      fluidRow(
+                                        column(9, textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis) (line by line)')),
+                                        column(3, h3('')),
+                                        column(12, materialSwitch('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                        conditionalPanel(
+                                          condition = "input.Gene_correlation_genes_y_from_custom_geneset == true",
+                                          column(12, htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select'))
+                                        )
                                       )
                                     )
                                   )
                                 )
                               ), 
                               column(2, 
-                                fluidRow(column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson'))),
-                                fluidRow(column(12, h4(''))),
-                                fluidRow(column(12, h4(''))),
-                                fluidRow(column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
+                                fluidRow(
+                                  column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson')),
+                                  column(12, h4('')),
+                                  column(12, h4('')),
+                                  column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                                )
                               ),
-                              column(1,
+                              column(3,
                                 div(id='help',
                                   dropdownButton( 
                                     fluidRow(
@@ -2108,11 +2139,10 @@ ui <- fluidPage(
                                     ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
                                   ),
                                 )
-                              ),
-                              column(2, h4()),
-                              column(9, 
-                                verbatimTextOutput('Gene_correlation_all_status')
                               )
+                            ),
+                            fluidRow(
+                              column(8,  verbatimTextOutput('Gene_correlation_all_status') )
                             )
                           ),
                         )
@@ -2202,8 +2232,10 @@ ui <- fluidPage(
                                 fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Calculate the mutation frequency", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
                               ),
                               column(2, h4('')),
-                              column(12, h4('')),
-                              column(12, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))
+                              column(12, h4(''))
+                            ),
+                            fluidRow(
+                              column(8, verbatimTextOutput('Clinical_Mutation_frequency_plot_status'))
                             )
                           ),
                         ),
@@ -2372,8 +2404,10 @@ ui <- fluidPage(
                                   column(12, actionButton('Expression_subtype_start', 'Start comparing',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
                                 )
                               ),
-                              column(2, h4('')),
-                              column(12, verbatimTextOutput('Expression_subtype_status'))
+                              column(2, h4(''))
+                            ),
+                            fluidRow(
+                              column(8, verbatimTextOutput('Expression_subtype_status'))
                             )
                           )
                         ),
@@ -2469,7 +2503,9 @@ ui <- fluidPage(
                                   column(8, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) )
                                 )
                               ),
-                              column(12, h4('')),
+                              column(12, h4(''))
+                            ),
+                            fluidRow(
                               column(8, verbatimTextOutput('Signature_input_selection_status'))
                             )
                           )
@@ -2622,6 +2658,7 @@ ui <- fluidPage(
                           column(10,
                             fluidRow(
                               column(12, h4('Deconvolution Result table:') ),
+                              column(12, h3('')),
                               column(12, verbatimTextOutput('Deconvodution_status') ),
                               column(12, withSpinner(dataTableOutput("Deconvodution_results"), type = 5, color = "#0dc5c1" )),
                               column(12, downloadButton('Deconvodution_result_download',"Download this table") )
@@ -2712,7 +2749,6 @@ ui <- fluidPage(
                     ),
                   ###### Compare cohorts
                     tabPanel(strong("Compare cohorts"),
-                      h4(''),
                       fluidRow(
                         column(5, 
                           box(width=12, title='Inputs and Settings', status='info',
@@ -2864,6 +2900,7 @@ ui <- fluidPage(
                     ),
                   ###### Add new cohort ######
                     tabPanel(strong("Cohort database"),
+                      h4(''),
                       box(width=12, title='Registered cohort', collapsible = TRUE, status='primary',solidHeader = TRUE,
                         DT::dataTableOutput("Cohort_DataBaseTable"),
                         fluidRow( 
@@ -3500,7 +3537,7 @@ ui <- fluidPage(
             h2(' Tools'),
             tabsetPanel(
               # Human <=> Mouse
-                tabPanel('Human <=> Mouse',
+                tabPanel(strong('Human <=> Mouse'),
                   box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
                     # h3("Convert Huamns genes with Mouse genes."),
                     fluidRow(
@@ -3535,7 +3572,7 @@ ui <- fluidPage(
                   )
                 ),
               # Gene symbol <=> Ensembl
-                tabPanel('Gene symbol <=> Ensembl',
+                tabPanel(strong('Gene symbol <=> Ensembl'),
                   box(width=12, status='primary',  solidHeader = TRUE, title='Convert Ensemble gene ids with Gene symbols',
                     fluidRow(
                       column(5, 
@@ -3572,7 +3609,7 @@ ui <- fluidPage(
                   )
                 ),
               # Find gene loci
-                tabPanel('Find gene loci',
+                tabPanel(strong('Find gene loci'),
                   box(width=12, status='primary',  solidHeader = TRUE, title='Find the genomic loci',
                     fluidRow(
                       column(5, 
@@ -3605,7 +3642,7 @@ ui <- fluidPage(
                   )
                 ),
               # Cross-tabulation analysis
-                tabPanel('Cross-tabulation analysis',
+                tabPanel(strong('Cross-tabulation analysis'),
                   box(width=12, status='primary',  solidHeader = TRUE, title='Cross-tabulation analysis',
                     # h3('Cross-tabulation analysis'),
                     fluidRow(
@@ -3614,12 +3651,12 @@ ui <- fluidPage(
                           column(12, 
                             box(width=12, title='Table contents', status='info',collapsible = TRUE,
                               fluidRow(
-                                column(12, h4('Group Names')),
+                                column(12, h4(strong('Group Names'))),
                                 column(6, textInput("Cross_tabulation_Row1", "Row - Group 1")),
                                 column(6, textInput("Cross_tabulation_Row2", "Row - Group 2")),
                                 column(6, textInput("Cross_tabulation_col1", "Column - Group 1")),
                                 column(6, textInput("Cross_tabulation_col2", "Column - Group 2")),
-                                column(12, h4('Values')),
+                                column(12, h4(strong('Values'))),
                                 column(6, numericInput("Cross_tabulation_val1", "Row-Group1 & Column-Group1", 0, min=0)),
                                 column(6, numericInput("Cross_tabulation_val2", "Row-Group1 & Column-Group2", 0, min=0)),
                                 column(6, numericInput("Cross_tabulation_val3", "Row-Group2 & Column-Group1", 0, min=0)),
@@ -3654,8 +3691,7 @@ ui <- fluidPage(
                                 'Use the original count (dodge bar plot)'='D'
                               ), selected='A')
                             ),
-                            column(12, verbatimTextOutput("Cross_tabulation_plot_status")),
-                            column(12, plotOutput("Cross_tabulation_plot",  width="100%", height="100%")),
+                            column(10, verbatimTextOutput("Cross_tabulation_plot_status")),
                             column(2, 
                               dropdownButton( h4(strong("Plot Options")),
                                 fluidRow(
@@ -3683,7 +3719,8 @@ ui <- fluidPage(
                                 ),
                                 circle = FALSE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                               )
-                            )
+                            ),
+                            column(12, withSpinner(plotOutput("Cross_tabulation_plot",  width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                           )
                         )
                       ),
@@ -3691,7 +3728,7 @@ ui <- fluidPage(
                   )
                 ),
               # Venn Diagram
-                tabPanel('Venn Diagram',
+                tabPanel(strong('Venn Diagram'),
                   box(width=12, title='Venn Diagram', status='primary',  solidHeader = TRUE,
                     fluidRow(
                       column(4,
@@ -3755,7 +3792,7 @@ ui <- fluidPage(
                   )
                 ),
               # Network plot
-                tabPanel('Network plot', 
+                tabPanel(strong('Network plot'), 
                   box(width=12, status='primary',  solidHeader = TRUE, title='Network plot',
                       # h3('Network plot'),
                       fluidRow(
@@ -4847,7 +4884,7 @@ server <- function(input, output, session) {
           
           #
 
-        ###### Scatter plot ######
+        ###### Scatter plot & bar plo ######
           # main plot for overvirw
             output$Gene_ex <- renderPlot({
               # No data is selected
@@ -5080,55 +5117,110 @@ server <- function(input, output, session) {
 
           ## show a bar plot for the filtered genes
             output$Gene_ex_barplot <- renderPlot({
-              req(input$show_outliers_bar_plot)
-              outliers <- df_outliers()
+              if( is.null(input$scat.x) || is.null(input$scat.y) ){ 
+                output$Gene_ex_barplot_status <- renderText({'Please select a dataset, X and Y.'})
+                return(ggplot())
+              }else if( input$scat.x == 'None' ||input$scat.y == 'None'){ 
+                output$Gene_ex_barplot_status <- renderText({'Please select a dataset, X and Y.'})
+                return(ggplot())
+              }
+
+              if(input$show_filterin_input_option=='A'){
+                output$Gene_ex_barplot_status <- renderText({'Please turn on "Show in a bar plot" in the "Highlight filterd genes or gene sets in the plot" section. \nA bar plot will be generated here.'})  
+                return(ggplot())
+              }else if(input$show_filterin_input_option=='B'){
+                if(input$show_outliers_bar_plot){
+                  output$Gene_ex_barplot_status <- renderText({NULL})
+                  outliers <- df_outliers()
+                }else{
+                  output$Gene_ex_barplot_status <- renderText({'Please turn on "Show in a bar plot". \nA bar plot will be generated here.'})  
+                  return(ggplot())
+                }
+              }else if(input$show_filterin_input_option=='C'){
+                if(input$show_pathway_bar_plot){
+                  output$Gene_ex_barplot_status <- renderText({NULL})
+                  outliers <- df_outliers_pathway()
+                }else{
+                  output$Gene_ex_barplot_status <- renderText({'Please turn on "Show in a bar plot". \nA bar plot will be generated here.'})  
+                  return(ggplot())
+                }
+              }else if(input$show_filterin_input_option=='D'){
+                if(input$show_geneset_bar_plot){
+                  output$Gene_ex_barplot_status <- renderText({NULL}) 
+                  outliers <- df_genes_custom_geneset()
+                }else{
+                  output$Gene_ex_barplot_status <- renderText({'Please turn on "Show in a bar plot". \nA bar plot will be generated here.'})  
+                  return(ggplot())
+                }
+              }
+
+              if(dim(outliers)[1] == 0){
+                output$Gene_ex_barplot_status <- renderText({'Nothing was detected. \nPlease change the input.'})
+                return(ggplot())
+              }
+              output$Gene_ex_barplot_status <- renderText(NULL)
               outliers <- outliers[order(outliers[, input$scat.x], decreasing=T), ]
               outliers[,'id'] <- factor(outliers[,'id'], levels = c(outliers[,'id']))
-              switch(input$show_outliers_bar_colour, 
-                "X" = fill_option <- input$scat.x,
-                "Y" = fill_option <- input$scat.y,
-                "None" = fill_option <- NA)
+              fill_option <- input$scat.x
+
               if(!is.null(input$target_gene) && input$target_gene!= "" ){
                 highligh_category <- unlist(strsplit(input$target_gene, split = "\n"))
-                outliers <- outliers %>% mutate(fill_colour = ifelse(id %in% highligh_category, 'red', 'gray'))
-                p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill= 'fill_colour')) + scale_fill_identity()
+                outliers <- outliers %>% mutate(fill_colour = ifelse(id %in% highligh_category, input$interesting_gene_colour_id, 'gray'))
+                p <- ggplot(outliers, aes(x=id, y=.data[[input$scat.x]], fill=fill_colour)) + scale_fill_identity()
               }else{
-                if(is.na(fill_option)){
-                  p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x))
-                }else{
-                  p <- ggplot(outliers, aes_string(x= "id", y=input$scat.x, fill=fill_option))
-                }
-                if(!is.na(fill_option)){
-                  values_for_colours <- outliers[,fill_option][!is.na(outliers[,fill_option])]
-                  if( min(values_for_colours)<0 ){
-                    if( max(values_for_colours)>=0 ){
-                      tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                      p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
-                      p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
-                    }else{
-                      p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
-                      p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
-                    }
+                p <- ggplot(outliers, aes(x= id, y=.data[[input$scat.x]], fill=.data[[input$scat.x]]))
+                values_for_colours <- outliers[,fill_option][!is.na(outliers[,fill_option])]
+                if( min(values_for_colours)<0 ){
+                  if( max(values_for_colours)>=0 ){
+                    tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                    p <- p + scale_color_gradientn( colors = c(input$Gene_ex_barplot_col_min, input$Gene_ex_barplot_col_0, input$Gene_ex_barplot_col_max), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
+                    p <- p + scale_fill_gradientn( colors = c(input$Gene_ex_barplot_col_min, input$Gene_ex_barplot_col_0, input$Gene_ex_barplot_col_max), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=fill_option)
                   }else{
-                    p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
-                    p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
+                    p <- p + scale_color_gradientn( colors = c(input$Gene_ex_barplot_col_min, input$Gene_ex_barplot_col_0), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
+                    p <- p + scale_fill_gradientn( colors = c(input$Gene_ex_barplot_col_min, input$Gene_ex_barplot_col_0), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=fill_option)
                   }
+                }else{
+                  p <- p + scale_color_gradientn( colors = c(input$Gene_ex_barplot_col_0, input$Gene_ex_barplot_col_max), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
+                  p <- p + scale_fill_gradientn( colors = c(input$Gene_ex_barplot_col_0, input$Gene_ex_barplot_col_max), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=fill_option)
                 }
               }
               if(input$show_outliers_rotate_x){
                 p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
               }
-              p <- p + geom_bar(stat='identity')
+              p <- p + geom_bar(stat='identity') + labs(x = NULL)
               p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
               p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-              p <- p + theme(axis.text.y = element_text(size = input$label.font.size), axis.text.x = element_text(size = input$label.font.size))
-              p <- p + theme(axis.title.y = element_text(size = input$title.font.size), axis.title.x = element_text(size = input$title.font.size))
+              p <- p + theme(axis.text.y = element_text(size = input$Gene_ex_barplot_ylab.font.size), axis.text.x = element_text(size = input$Gene_ex_barplot_xlab.font.size))
+              p <- p + theme(axis.title.y = element_text(size = input$Gene_ex_barplot_graph.title.font.size))
               p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
               p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              p 
-              p 
-            }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
+              if(input$Gene_ex_barplot_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p <- p + theme(legend.key.size = unit(0.5, "mm"))
+              p
+            }, width=reactive(input$Gene_ex_barplot_fig.width), height=reactive(input$Gene_ex_barplot_fig.height), res=300)
           # 
+
+                                          # fluidRow(
+                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.width', label='fig width', min=300, max=3000, value=500, step=10)),
+                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
+                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
+                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
+                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_graph.title.font.size', label='Y title size', min=1, max=10, value=4, step=0.1))
+                                          # ),
+                                          # fluidRow( # colour for max, 0 and min values
+                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_max', label='Colour for the max value:', value='red')),
+                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_min', label='Colour for the min value:', value='blue')),
+                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_0', label='Colour for the 0 value:', value='white'))
+                                          # ),
+                                          # fluidRow(
+                                          #   # Rotate x axis lable in the bar plot
+                                          #   column(6, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable', value=FALSE, status = "success")),
+                                          #   column(6, materialSwitch('Gene_ex_barplot_white_background', 'Use white background', value=FALSE, status = "success"))
+                                          # ),
 
         ###### GO analysis ######
           # Choose the genes used in GO analysis
@@ -7472,12 +7564,14 @@ server <- function(input, output, session) {
               }
             }          
             if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
-              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color='red' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = "red", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
+              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
+              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
             }
+            p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
             p <- p + theme(axis.text.y = element_text(size = input$Integrate_data1_plus_2_XY_label_size), axis.text.x = element_text(size = input$Integrate_data1_plus_2_XY_label_size))
             p <- p + theme(axis.title.y = element_text(size = input$Integrate_data1_plus_2_XY_title_size), axis.title.x = element_text(size = input$Integrate_data1_plus_2_XY_title_size))
             p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(legend.key.size = unit(0.2, "mm"))
             if(input$Integrate_data1_plus_2_white_background){
               p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
               p <- p + theme(panel.background = element_rect(fill="white", size=0))
@@ -11794,119 +11888,120 @@ server <- function(input, output, session) {
     
     ### Cross_tabulation analysis
       # input the parameter for the contingency table
-      cross_table <- reactive({
-        tmp <- data.frame(A=c(input$Cross_tabulation_val1,input$Cross_tabulation_val3), B=c(input$Cross_tabulation_val2,input$Cross_tabulation_val4))
-        if(input$Cross_tabulation_Row1 == '' | input$Cross_tabulation_Row2 == ''){
-          rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
-        }else{
-          if(input$Cross_tabulation_Row1 == input$Cross_tabulation_Row2){
-            output$cross_table_status <- renderText({"Row names are duplicated."})
+        cross_table <- reactive({
+          tmp <- data.frame(A=c(input$Cross_tabulation_val1,input$Cross_tabulation_val3), B=c(input$Cross_tabulation_val2,input$Cross_tabulation_val4))
+          if(input$Cross_tabulation_Row1 == '' | input$Cross_tabulation_Row2 == ''){
             rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
           }else{
-            output$cross_table_status <- renderText({NULL})
-            rownames(tmp) <- c(input$Cross_tabulation_Row1, input$Cross_tabulation_Row2)
+            if(input$Cross_tabulation_Row1 == input$Cross_tabulation_Row2){
+              output$cross_table_status <- renderText({"Row names are duplicated."})
+              rownames(tmp) <- c('Row Group 1', 'Row Group 2')  
+            }else{
+              output$cross_table_status <- renderText({NULL})
+              rownames(tmp) <- c(input$Cross_tabulation_Row1, input$Cross_tabulation_Row2)
+            }
           }
-        }
-        if(input$Cross_tabulation_col1 == '' | input$Cross_tabulation_col2 == ''){
-          colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
-        }else{
-          if(input$Cross_tabulation_col1 == input$Cross_tabulation_col2){
-            output$cross_table_status <- renderText({"Column names are duplicated."})
+          if(input$Cross_tabulation_col1 == '' | input$Cross_tabulation_col2 == ''){
             colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
           }else{
-            output$cross_table_status <- renderText({NULL})
-            colnames(tmp) <- c(input$Cross_tabulation_col1, input$Cross_tabulation_col2)
+            if(input$Cross_tabulation_col1 == input$Cross_tabulation_col2){
+              output$cross_table_status <- renderText({"Column names are duplicated."})
+              colnames(tmp) <- c('Column Group 1', 'Column Group 2')  
+            }else{
+              output$cross_table_status <- renderText({NULL})
+              colnames(tmp) <- c(input$Cross_tabulation_col1, input$Cross_tabulation_col2)
+            }
           }
-        }
-        output$cross_table_status <- renderText({NULL})
-        tmp        
-      })
-      
+          output$cross_table_status <- renderText({NULL})
+          tmp        
+        })
+        
       # show table
-      output$Cross_tabulation_table <- renderDataTable({
-        datatable( cross_table()) 
-      })
+        output$Cross_tabulation_table <- renderDataTable({
+          datatable( cross_table()) 
+        })
 
       # plot
-      output$Cross_tabulation_plot <- renderPlot({
-        df_cross <- cross_table()
-        if(length(df_cross[is.na(df_cross)])>0){
-          output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
-          return(ggplot())
-        }else if(length(df_cross[df_cross==0])==4){
-          output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
-          return(ggplot())         
-        }
-        col_group <- colnames(df_cross)
-        df_cross$Row_group <- rownames(df_cross)
-        df_cross_melt <- pivot_longer(df_cross, cols=-Row_group, names_to = 'Column_group')
-        if(length(input$Cross_tabulation_plot_method) == 0){
-          output$Cross_tabulation_plot_status <- renderText({'Please choose the plot method'}) 
-          return(ggplot())
-        }
-        output$Cross_tabulation_plot_status <- renderText({NULL}) 
-        p <- ggplot(df_cross_melt, aes(x=Row_group, y=value, fill=Column_group))
-        if(input$Cross_tabulation_plot_method == 'A'){
-          p <- p + geom_bar(stat='identity', position='fill')
-          p <- p + ylab('Percentage')
-        }else if(input$Cross_tabulation_plot_method == 'C'){
-          p <- p + geom_bar(stat='identity')
-          p <- p + ylab('Count')
-        }else if(input$Cross_tabulation_plot_method == 'D'){
-          p <- p + geom_bar(stat='identity', position='dodge')
-          p <- p + ylab('Count')
-        }
-        p <- p + theme(axis.text = element_text(size = input$Cross_tabulation_plot_XY_label.font.size))
-        p <- p + theme(axis.title = element_text(size = input$Cross_tabulation_plot_XY_title.font.size))
-        p <- p + theme(axis.title.x= element_blank())
-        p <- p + theme(legend.text = element_text(size = input$Cross_tabulation_plot_legend_size))
-        p <- p + theme(legend.title = element_blank())
-        colours <- setNames(c(input$Cross_tabulation_plot_col1_colour,input$Cross_tabulation_plot_col2_colour), col_group)
-        p <- p + scale_fill_manual(values = colours)
-        if(input$Cross_tabulation_plot_col2_colour_while_background){
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
-          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        }
-        if(input$Cross_tabulation_plot_rotate_x){
-          if(!is.na(input$Cross_tabulation_plot_rotate_x_angle)){
-            if(input$Cross_tabulation_plot_rotate_x_angle != ''){
-              if(is.integer(input$Cross_tabulation_plot_rotate_x_angle)){
-                if( ( as.integer(input$Cross_tabulation_plot_rotate_x_angle) %% 90) == 0 ){
-                  p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 0.5))
-                }else{
-                  p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 1))
+        output$Cross_tabulation_plot <- renderPlot({
+          df_cross <- cross_table()
+          if(length(df_cross[is.na(df_cross)])>0){
+            output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
+            return(ggplot())
+          }else if(length(df_cross[df_cross==0])==4){
+            output$Cross_tabulation_plot_status <- renderText({'Please fill in the table first.'}) 
+            return(ggplot())         
+          }
+          col_group <- colnames(df_cross)
+          df_cross$Row_group <- rownames(df_cross)
+          df_cross_melt <- pivot_longer(df_cross, cols=-Row_group, names_to = 'Column_group')
+          if(length(input$Cross_tabulation_plot_method) == 0){
+            output$Cross_tabulation_plot_status <- renderText({'Please choose the plot method'}) 
+            return(ggplot())
+          }
+          output$Cross_tabulation_plot_status <- renderText({NULL}) 
+          p <- ggplot(df_cross_melt, aes(x=Row_group, y=value, fill=Column_group))
+          if(input$Cross_tabulation_plot_method == 'A'){
+            p <- p + geom_bar(stat='identity', position='fill')
+            p <- p + ylab('Percentage')
+          }else if(input$Cross_tabulation_plot_method == 'C'){
+            p <- p + geom_bar(stat='identity')
+            p <- p + ylab('Count')
+          }else if(input$Cross_tabulation_plot_method == 'D'){
+            p <- p + geom_bar(stat='identity', position='dodge')
+            p <- p + ylab('Count')
+          }
+          p <- p + theme(axis.text = element_text(size = input$Cross_tabulation_plot_XY_label.font.size))
+          p <- p + theme(axis.title = element_text(size = input$Cross_tabulation_plot_XY_title.font.size))
+          p <- p + theme(axis.title.x= element_blank())
+          p <- p + theme(legend.text = element_text(size = input$Cross_tabulation_plot_legend_size))
+          p <- p + theme(legend.title = element_blank())
+          colours <- setNames(c(input$Cross_tabulation_plot_col1_colour,input$Cross_tabulation_plot_col2_colour), col_group)
+          p <- p + scale_fill_manual(values = colours)
+          if(input$Cross_tabulation_plot_col2_colour_while_background){
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+          }
+          if(input$Cross_tabulation_plot_rotate_x){
+            if(!is.na(input$Cross_tabulation_plot_rotate_x_angle)){
+              if(input$Cross_tabulation_plot_rotate_x_angle != ''){
+                if(is.integer(input$Cross_tabulation_plot_rotate_x_angle)){
+                  if( ( as.integer(input$Cross_tabulation_plot_rotate_x_angle) %% 90) == 0 ){
+                    p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 0.5))
+                  }else{
+                    p <- p + theme(axis.text.x = element_text(angle = input$Cross_tabulation_plot_rotate_x_angle, vjust = 1, hjust= 1))
+                  }
                 }
               }
+
             }
-
           }
-        }
-        p <- p + theme(legend.key.size = unit(2, "mm"))
-        p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-        p
+          p <- p + theme(legend.key.size = unit(2, "mm"))
+          p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+          p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p
 
-      }, width=reactive(input$Cross_tabulation_plot.width), height=reactive(input$Cross_tabulation_plot.height), res=300)
+        }, width=reactive(input$Cross_tabulation_plot.width), height=reactive(input$Cross_tabulation_plot.height), res=300)
 
       # test
-      output$cross_table_Statistic <- renderText({
-        df_cross <- cross_table()
-        if(length(df_cross[is.na(df_cross)])>0){
-          'Please fill in the table first.'
-        }else if(length(df_cross[df_cross==0])==4){
-          'Please fill in the table first.'
-        }else{
-          if(input$cross_table_Statistic_method == 'A'){
-            chi2_res <- chisq.test(cross_table())
-            paste0('P-value: ', chi2_res$p.value)
+        output$cross_table_Statistic <- renderText({
+          df_cross <- cross_table()
+          if(length(df_cross[is.na(df_cross)])>0){
+            'Please fill in the table first.'
+          }else if(length(df_cross[df_cross==0])==4){
+            'Please fill in the table first.'
           }else{
-            fisher_res <- fisher.test(cross_table())
-            paste0('P-value: ',fisher_res$p.value)
+            if(input$cross_table_Statistic_method == 'A'){
+              chi2_res <- chisq.test(cross_table())
+              paste0('P-value: ', chi2_res$p.value)
+            }else{
+              fisher_res <- fisher.test(cross_table())
+              paste0('P-value: ',fisher_res$p.value)
+            }
           }
-        }
-      })
+        })
+      #
 
     ### Venn Diagram
       venn_data <- reactive({
@@ -12004,10 +12099,18 @@ server <- function(input, output, session) {
               weight = c(10.0, 5.8, 2.9, 1.7, 10.9,  0.5, 12.0, 5.8, 1.9, 3.7, 1.0, 2.8, 7.9, 1.7, 5.0, 8.8, 6.0, 1.9, 2.9,10.9, 10.0, 5.0, 6.0, 8.0)
             )
             Network_input_data(edges)
+            return()
           }else{
-            req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
-            edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = FALSE)
-            Network_input_data(edges)
+            if(length(input$Network_input_file) == 0){
+              output$Network_input_table_visNet_status <- renderText({'Please input the data'})
+              Network_input_data(NULL)
+              return(NULL)
+            }else{
+              req(input$Network_input_file)  # ファイルがアップロードされたら処理を続行
+              edges <- read.delim(input$Network_input_file$datapath, header = TRUE, stringsAsFactors = FALSE, sep='\t',check.names = FALSE)
+              Network_input_data(edges)
+              return()
+            }
           }
         })
 
