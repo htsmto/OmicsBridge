@@ -22,11 +22,6 @@ To highlight specific genes of interest, users may input gene names—one per li
 
 The “Show information as a table” switch allows users to generate a downloadable table containing details of the highlighted genes, displayed in the "Information of Genes of Interest" section. If the plot becomes visually cluttered, the “Show gene names” switch can be used to toggle the gene labels on or off for improved readability.
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/21_Overview_comparison_plot.mp4" type="video/mp4"> 
-    </video>
-
 ??? success  "Adjustable graph parameters"
     - The size of the figure. (width and height)
     - The size of all the dots and the highlighted dots.
@@ -35,6 +30,10 @@ The “Show information as a table” switch allows users to generate a download
     - Axis range control: Specify minimum and maximum values for x and y axes to zoom in on specific data regions.
     - White background option: The default is a grey background. Use this to switch to a white background.
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_1_720.mp4" type="video/mp4"> 
+    </video>
 
 ### <u> **Highlighting the filtered genes** </u>
 
@@ -48,6 +47,11 @@ Users can highlight significant data points by selecting "Show outliers." By def
     - View filtered points in a downloadable table in the "Outliers Information" section below. Users can also access a simple list of filtered gene names for easy copying to other analyses ("Show the filtered genes information")
     - View the filtered data as a bar plot, sorted by X-axis value (e.g., LFC). The bars can be colored based on X-axis values, Y-axis values, or shown in plain grey. Any genes listed in the "Enter genes" box will be highlighted in red. ("Show in a bar plot")
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_2_720.mp4" type="video/mp4"> 
+    </video>
+
 #### **2. Showing the pathway genes**
 Users can visualise genes associated with specific pathways in the plot. HALLMARK gene sets for humans and mice from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb) are available as preset options. Users with custom gene sets can upload them in GMT format by selecting "custom." Note that only gmt files are supported. After selecting a pathway, all genes within that pathway will be highlighted in the plot.
 
@@ -56,6 +60,12 @@ Users can visualise genes associated with specific pathways in the plot. HALLMAR
     - display information about filtered points in a table below ("Show the genes information")
     - change the highlighting colour ("Change the colour")
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_3_720.mp4" type="video/mp4"> 
+    </video>
+
+
 #### **3. Showing the custom gene set genes**
 Users can visualise genes from their custom gene sets that are registered in the interface. When a gene set is selected, all genes within that set will be highlighted in the plot. For instructions on creating gene sets, refer to the "Gene set" section.
 
@@ -63,6 +73,11 @@ Users can visualise genes from their custom gene sets that are registered in the
     - Hide gene labels when the display becomes crowded ("Hide labels")
     - Display detailed information about the highlighted genes in the table below ("Show the genes information")
     - Customize the highlighting colour ("Change the colour")
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_4_720.mp4" type="video/mp4"> 
+    </video>
 
 ### <u> **Downstream analysis** </u>
 
