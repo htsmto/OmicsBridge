@@ -5516,7 +5516,23 @@ server <- function(input, output, session) {
                   p <- p + geom_node_point(aes(size = node_size, color = node_type)) 
                   p <- p + scale_color_manual(values = c("GO Term" = "#d3a200", "Gene" = "#292929"))
                   p <- p + scale_size_continuous(range = c(input$GO_netPlot_node_size_gene, input$GO_netPlot_node_size_term)) 
-                  p <- p + geom_node_text(aes(label = name, color = node_type), repel = TRUE, size = input$GO_netPlot_label_size_term, segment.size=0.2)
+                  p <- p + geom_node_text(
+                    data = function(x) dplyr::filter(x, node_type == "GO Term"),
+                    aes(label = name), color = '#d3a200',
+                    size = input$GO_netPlot_label_size_term,
+                    repel = TRUE,
+                    max.overlaps = Inf,
+                    segment.size = 0.2
+                  )
+                  p <- p + geom_node_text(
+                    data = function(x) dplyr::filter(x, node_type == "Gene"),
+                    aes(label = name), color = '#292929',
+                    size = input$GO_netPlot_label_size_term,
+                    repel = TRUE,
+                    segment.size = 0.2
+                    max.overlaps =5
+                  )
+                  # p <- p + geom_node_text(aes(label = name, color = node_type),  size = input$GO_netPlot_label_size_term, segment.size=0.2, repel = TRUE, max.overlaps = Inf)
                   p <- p + guides(color = "none")
                   p <- p + theme(legend.key.size = unit(1.5, "mm"))
                   p <- p + theme(legend.text = element_text(size = input$GO_netPlot_legend.size), legend.title = element_text(size = input$GO_netPlot_legend.size) )
