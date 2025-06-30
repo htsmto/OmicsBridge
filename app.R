@@ -5529,7 +5529,7 @@ server <- function(input, output, session) {
                     aes(label = name), color = '#292929',
                     size = input$GO_netPlot_label_size_term,
                     repel = TRUE,
-                    segment.size = 0.2
+                    segment.size = 0.2, 
                     max.overlaps =5
                   )
                   # p <- p + geom_node_text(aes(label = name, color = node_type),  size = input$GO_netPlot_label_size_term, segment.size=0.2, repel = TRUE, max.overlaps = Inf)
