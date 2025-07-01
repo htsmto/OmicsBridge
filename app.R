@@ -1170,7 +1170,7 @@ ui <- fluidPage(
                                                           column(6, colourpicker::colourInput('GO_Bubble_colour_min', 'Min colour:', value='#c45f00')),
                                                           column(6, materialSwitch('GO_Bubble_white_background', 'Use white background', value=FALSE, status='success')),
                                                         ),
-                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "1000px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                                        circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                                       ),
                                                     ),
                                                     column(12, withSpinner(plotOutput("GO_goBubblePlot", width="100%", height="100%"), type=5, color='#0dc5c1'))
@@ -1188,9 +1188,15 @@ ui <- fluidPage(
                                                           column(6, sliderInput('GO_netPlot_category_show_number', 'Number of categories to show', min=1, max=20, value=5, step=1)),
                                                           column(6, sliderInput('GO_netPlot_legend.size', 'Legend size', min=0.1, max=20, value=5, step=0.1)),
                                                           column(6, sliderInput('GO_netPlot_edge_size_term', 'Edge line width', min=0.01, max=2, value=0.2, step=0.01)),
-                                                          column(6, sliderInput('GO_netPlot_label_size_term', 'Node label size', min=0.1, max=5, value=2, step=0.1)),
-                                                          column(6, sliderInput('GO_netPlot_node_size_term', 'Node size (Term)', min=0.1, max=10, value=2, step=0.1)),
-                                                          column(6, sliderInput('GO_netPlot_node_size_gene', 'Node size (Gene)', min=0.1, max=10, value=1, step=0.1))
+                                                        ),
+                                                        fluidRow(
+                                                          column(6, sliderInput('GO_netPlot_label_size_term_term', 'Node label size (Term name)', min=0, max=5, value=2, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_label_size_term_gene', 'Node label size (Gene)', min=0, max=5, value=0, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_node_size_term', 'Node size (Term name)', min=0.1, max=10, value=2, step=0.1)),
+                                                          column(6, sliderInput('GO_netPlot_node_size_gene', 'Node size (Gene)', min=0.1, max=10, value=1, step=0.1)),
+                                                          # colour of the node
+                                                          column(6, colourpicker::colourInput('GO_netPlot_node_colour_term', 'Node colour (Term name):', value='#d3a200')),
+                                                          column(6, colourpicker::colourInput('GO_netPlot_node_colour_gene', 'Node colour (Gene):', value='#292929'))
                                                         ),
                                                         fluidRow(
                                                           column(6, materialSwitch('GO_netPlot_change_edge_colour', 'Change edge colour by terms', value=FALSE, status='success')),
@@ -1199,7 +1205,7 @@ ui <- fluidPage(
                                                         circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                                       ),
                                                     ),
-                                                    column(12, withSpinner(plotOutput("GO_netPlot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                                    column(12, withSpinner(plotOutput("GO_netPlot",  brush = "plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                                   )
                                                 )
                                               ) 
@@ -1254,9 +1260,9 @@ ui <- fluidPage(
                                                   column(4, sliderInput('GSEA_fig.height','Fig height', min=300, max=3000, value=500, step=10))
                                                 ),
                                                 fluidRow(
-                                                  column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=15, value=5, step=1)),
-                                                  column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=15, value=5, step=1)),
-                                                  column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=15, value=5, step=1))
+                                                  column(4, sliderInput('GSEA_lab.font.size', 'X/Y labels size', min=1, max=15, value=5, step=0.1)),
+                                                  column(4, sliderInput('GSEA_title.font.size', 'X/Y title font size', min=1, max=15, value=5, step=0.1)),
+                                                  column(4, sliderInput('GSEA_graph_title.font.size', 'Graph title font size', min=1, max=15, value=5, step=0.1))
                                                 ),
                                                 fluidRow(
                                                   column(4, colourpicker::colourInput('GSEA_graph_line_colour', 'GSEA line colour:', value='green')),
@@ -1957,11 +1963,11 @@ ui <- fluidPage(
                         column(12,
                           box(width=12, status='info', title='Inputs and Settings',
                             fluidRow(
-                              column(7, 
+                              column(4, 
                                 fluidRow(
-                                  column(8, textAreaInput('Clinical_Survival_genes', 'Enter genes (line by line)') ),
+                                  column(12, textAreaInput('Clinical_Survival_genes', 'Enter genes (line by line)') ),
                                   column(12, materialSwitch('Clinical_Survival_genes_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
-                                  column(11, 
+                                  column(12, 
                                     conditionalPanel(
                                       condition = "input.Clinical_Survival_genes_from_custom_geneset == true",
                                       htmlOutput('Clinical_Survival_genes_from_custom_geneset_select')
@@ -1969,9 +1975,27 @@ ui <- fluidPage(
                                   )
                                 )                            
                               ),
-                              column(2,
+                              column(5,
                                 fluidRow(
-                                  column(12, radioButtons('Clinical_Survival_Split_way', 'Split the samples by:', choices = c('Median'='A', 'Top 25% vs Bottom 25%'='B'),selected='A') )
+                                  column(12, radioButtons('Clinical_Survival_Split_way', 'Split the samples by:', choices = c('Median'='A', 'Top 25% vs Bottom 25%'='B', 'Top X% vs Bottom Y%'='D' ,'Custom grouping (No need to enter/set genes)'='C'),selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = "input.Clinical_Survival_Split_way == 'C'",
+                                      fluidRow(
+                                        column(6, textAreaInput('Clinical_Survival_Split_Group1', 'Enter sample names for Group 1 (line by line)') ),
+                                        column(6, textAreaInput('Clinical_Survival_Split_Group2', 'Enter sample names for Group 2 (line by line)') )
+                                      )
+                                    )
+                                  ),
+                                  column(12,
+                                    conditionalPanel(
+                                      condition = "input.Clinical_Survival_Split_way == 'D'",
+                                      fluidRow(
+                                        column(6, numericInput('Clinical_Survival_Split_Group1_perc', 'Top X%:', value=25, min=0, max=100, step=1) ),
+                                        column(6, numericInput('Clinical_Survival_Split_Group2_perc', 'Bottom Y%:', value=25, min=0, max=100, step=1) )
+                                      )
+                                    )
+                                  )
                                 )
                               ),
                               column(2,
@@ -1986,14 +2010,18 @@ ui <- fluidPage(
                                   dropdownButton( 
                                     fluidRow(
                                       column(12, h4(strong("Quick guide"))),
-                                      column(12, helpText("0. Select a cohort.")),
-                                      column(12, helpText("1. Set the input. Enter gene names in the text box or select from the custom gene sets.")),
-                                      column(12, helpText("2. Select the way to split the samples.")),
-                                      column(12, helpText("3. Select the type of event for the survival analysis.")),
-                                      column(12, helpText("4. Click the 'Start the survival analysis' button to run the analysis.")),
-                                      column(12, helpText("5. A table containing the p valaue and the hazard ratio for each gene will be displayed in the 'Results' section below.")),
-                                      column(12, helpText("6. By clicking a gene (row) in the table, the Kaplan-Meier curve and the histogram of the expression distribution will be displayed in the 'Plots' section."))
-                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                      column(12, helpText(
+                                        HTML("
+                                          0. Select a cohort.<br>
+                                          1. Set the input. Enter gene names in the text box or select from the custom gene sets. <br>
+                                          2. Select the way to split the samples. <br>
+                                          3. Select the type of event for the survival analysis. <br>
+                                          4. Click the 'Start the survival analysis' button to run the analysis.<br>
+                                          5. A table containing the p value and the hazard ratio for each gene will be displayed in the 'Results' section below.<br>
+                                          6. By clicking a gene (row) in the table, the Kaplan-Meier curve and the histogram of the expression distribution will be displayed in the 'Plots' section.<br>                                      
+                                        "))
+                                      ),
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
                                   ),
                                 ) 
                               )
@@ -2119,7 +2147,8 @@ ui <- fluidPage(
                                   column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                                 )
                               ),
-                              column(3,
+                              column(2, h4('')),
+                              column(1,
                                 div(id='help',
                                   dropdownButton( 
                                     fluidRow(
@@ -2136,7 +2165,7 @@ ui <- fluidPage(
                                             ")
                                           )
                                       ),
-                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
                                   ),
                                 )
                               )
@@ -2231,7 +2260,29 @@ ui <- fluidPage(
                                 fluidRow(column(12, h3(''))),
                                 fluidRow(column(12, actionButton('Clinical_Mutation_plot_start', "Calculate the mutation frequency", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")))
                               ),
-                              column(2, h4('')),
+                              column(1, h4('')),
+                              column(1,
+                                div(id='help',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Quick guide"))),
+                                      column(12, helpText(
+                                        HTML("
+                                          0. Select a cohort.<br>
+                                          1. Set the input. <br>
+                                          2. (Optional) Filter the samples by category if needed.<br>
+                                          3. Click the 'Calculate the mutation frequency'. A mutation frequency table and its bar plot will be generated below. <br>
+                                          4. By clicking a gene (row) in the table, the Kaplan-Meier curve  will be displayed in the 'Survival analysis' tab in the 'Plots' section.<br>
+                                          5. For the 'Gene expression' tab: <br>
+                                            - Select a gene from the mutation frequency table. <br>
+                                            - Set the input genes <br>
+                                            - Click a gene in the table below to compare expression between the mutant and wild-type groups of the gene selected from the mutation frequency table.
+                                        "))
+                                      ),
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                  ),
+                                ) 
+                              ),
                               column(12, h4(''))
                             ),
                             fluidRow(
@@ -2310,6 +2361,7 @@ ui <- fluidPage(
                               ),
                               tabPanel('Gene expression',
                                 fluidRow(
+                                  column(12, h3('') ),
                                   column(12, 
                                     box(width=12, title='Input and Setting', status='info', collapsible=TRUE,
                                       fluidRow(
@@ -2404,7 +2456,25 @@ ui <- fluidPage(
                                   column(12, actionButton('Expression_subtype_start', 'Start comparing',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
                                 )
                               ),
-                              column(2, h4(''))
+                              column(1, h4('')),
+                              column(1,
+                                div(id='help',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Quick guide"))),
+                                      column(12, helpText(
+                                        HTML("
+                                          0. Select a cohort.<br>
+                                          1. Set the input. <br>
+                                          2. Select a category for grouping the samples.<br>
+                                          3. Click the 'Start comparing'. A test result (table) will be shown in below. <br>
+                                          4. By clicking a gene (row) in the table, a box plot (by default) will be displayed in the 'Plots' section.<br>
+                                        "))
+                                      ),
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                  ),
+                                ) 
+                              )
                             ),
                             fluidRow(
                               column(8, verbatimTextOutput('Expression_subtype_status'))
@@ -2496,12 +2566,30 @@ ui <- fluidPage(
                                 )
                               ),
                               column(2, radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA') ),
-                              column(4, 
+                              column(3, 
                                 fluidRow(
                                   column(12, h2('')),
                                   column(12, actionButton('Signature_start', 'Calculate the signature score', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
-                                  column(8, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) )
+                                  column(9, h5(span('Note: This takes 1~2 minutes depending on the size of the inputted genes. Please be patient.', style="color: red;")) )
                                 )
+                              ),
+                              column(1,
+                                div(id='help',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Quick guide"))),
+                                      column(12, helpText(
+                                        HTML("
+                                          0. Select a cohort.<br>
+                                          1. Set the input genes. Select a custom geneset or write down the genes list. <br>
+                                          2. Choose a method.<br>
+                                          3. Click the 'Calculate the signature score'. A result table with the score for each sample will be shown and a Kaplan-Meier cureve and a histogran will be automatically generated (in the Survival analysis section and the Distribution section). <br>
+                                          4. For the Score comparison part, select a group to compare and click 'Show Plot'.<br>
+                                        "))
+                                      ),
+                                    ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
+                                  ),
+                                ) 
                               ),
                               column(12, h4(''))
                             ),
@@ -5485,7 +5573,6 @@ server <- function(input, output, session) {
                 }
                 else{ 
                   output$GO_netPlot_status_status <- renderText({NULL})
-
                   df_goResults <- as.data.frame(goResult())
                   showCategory <- input$GO_netPlot_category_show_number 
                   df_goResults <- df_goResults[order(df_goResults$p.adjust), ][1:showCategory, ]  # Select top categories based on p.adjust
@@ -5514,27 +5601,24 @@ server <- function(input, output, session) {
                   }
                   p <- p + scale_edge_color_manual(values = setNames(rainbow(length(unique(edge_df$GO_Term))), unique(edge_df$GO_Term)))
                   p <- p + geom_node_point(aes(size = node_size, color = node_type)) 
-                  p <- p + scale_color_manual(values = c("GO Term" = "#d3a200", "Gene" = "#292929"))
+                  p <- p + scale_color_manual(values = c("GO Term" = input$GO_netPlot_node_colour_term, "Gene" = input$GO_netPlot_node_colour_gene))
                   p <- p + scale_size_continuous(range = c(input$GO_netPlot_node_size_gene, input$GO_netPlot_node_size_term)) 
-                  p <- p + geom_node_text(
-                    data = function(x) dplyr::filter(x, node_type == "GO Term"),
-                    aes(label = name), color = '#d3a200',
-                    size = input$GO_netPlot_label_size_term,
-                    repel = TRUE,
-                    max.overlaps = Inf,
-                    segment.size = 0.2
-                  )
-                  p <- p + geom_node_text(
-                    data = function(x) dplyr::filter(x, node_type == "Gene"),
-                    aes(label = name), color = '#292929',
-                    size = input$GO_netPlot_label_size_term,
-                    repel = TRUE,
-                    segment.size = 0.2, 
-                    max.overlaps =5
-                  )
-                  # p <- p + geom_node_text(aes(label = name, color = node_type),  size = input$GO_netPlot_label_size_term, segment.size=0.2, repel = TRUE, max.overlaps = Inf)
+                  if(input$GO_netPlot_label_size_term_term > 0){
+                    p <- p + geom_node_text(
+                      data = function(x) dplyr::filter(x, node_type == "GO Term"),
+                      aes(label = name), color = input$GO_netPlot_node_colour_term, size = input$GO_netPlot_label_size_term_term,
+                      repel = TRUE, max.overlaps = Inf, segment.size = 0.2
+                    )
+                  }
+                  if(input$GO_netPlot_label_size_term_gene > 0){
+                    p <- p + geom_node_text(
+                      data = function(x) dplyr::filter(x, node_type == "Gene"),
+                      aes(label = name), color = input$GO_netPlot_node_colour_gene, size = input$GO_netPlot_label_size_term_gene,
+                      repel = TRUE, segment.size = 0.2, max.overlaps = 5
+                    )
+                  }
                   p <- p + guides(color = "none")
-                  p <- p + theme(legend.key.size = unit(1.5, "mm"))
+                  p <- p + theme(legend.key.size = unit(0.5, "mm"))
                   p <- p + theme(legend.text = element_text(size = input$GO_netPlot_legend.size), legend.title = element_text(size = input$GO_netPlot_legend.size) )
                   p <- p + theme(panel.background = element_rect(fill="white", size=0))
                   p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
@@ -8952,7 +9036,18 @@ server <- function(input, output, session) {
 
         # when selecting a cohort
           observe({
-            req(input$Clinical_data_select)
+            # req(input$Clinical_data_select)
+            if(length(input$Clinical_data_select)==0){
+              output$Clinical_View_Geneexpression_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_Survival_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
+              output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
+              Clinical_gene_expression(NULL)
+              Clinical_surival(NULL)
+              Clinical_meta(NULL)
+              Clinical_mutation(NULL)
+              return(NULL)
+            }
             if(input$Clinical_data_select != 'None'){
               # Gene expression
                 path <- Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Expression_path
@@ -8960,11 +9055,11 @@ server <- function(input, output, session) {
                   output$Clinical_View_Geneexpression_status <- renderText({'The file does not exsit. \nDid you download and deploy the folloeing files? \nhttps://d250-shiny2.inet.dkfz-heidelberg.de/users/h023o/in_house_screening/00_Clinical_dataset.tar.gz \n \n or, please upload the data again. '})  
                   Clinical_gene_expression(NULL)
                 }else{
-                  tmp <- read.table(path, sep='\t', header=T, row.names=1, check.names = FALSE)
+                  tmp_ex <- read.table(path, sep='\t', header=T, row.names=1, check.names = FALSE)
                   output$Clinical_View_Geneexpression_status <- renderText({
-                    paste0('Number of genes: ', dim(tmp)[1], '\n', 'Number of samples: ' , dim(tmp)[2])
+                    paste0('Number of genes: ', dim(tmp_ex)[1], '\n', 'Number of samples: ' , dim(tmp_ex)[2])
                   })
-                  Clinical_gene_expression(tmp)
+                  Clinical_gene_expression(tmp_ex)
                 }
 
               # survival
@@ -8974,8 +9069,8 @@ server <- function(input, output, session) {
                   output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you successfully upload the data? '})  
                   Clinical_surival(NULL)
                 }else{
-                  tmp <- read.table(path, header=T, check.names = FALSE, sep='\t')
-                  Clinical_surival(tmp)
+                  tmp_suv <- read.table(path, header=T, check.names = FALSE, sep='\t')
+                  Clinical_surival(tmp_suv)
                 }
 
               # meta
@@ -8985,8 +9080,8 @@ server <- function(input, output, session) {
                   output$Clinical_View_MetaData_status <- renderText({'The file does not exsit. \nDid you upload the data?'})  
                   Clinical_meta(NULL)
                 }else{
-                  tmp <- read.delim(path, header=T,check.names = FALSE)
-                  Clinical_meta(tmp)
+                  tmp_meta <- read.delim(path, header=T,check.names = FALSE)
+                  Clinical_meta(tmp_meta)
                 }
 
               # mutation
@@ -8996,8 +9091,8 @@ server <- function(input, output, session) {
                   Clinical_mutation(NULL)
                 }else{
                   if(file.exists(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path)){
-                    tmp <- read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T,check.names = FALSE)
-                    Clinical_mutation(tmp)
+                    tmp_mut <- read.delim(Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Mutation_path, header=T,check.names = FALSE)
+                    Clinical_mutation(tmp_mut)
                   }else{
                     output$Clinical_View_mutation_status <- renderText({"No mutation data in this cohort"})
                     Clinical_mutation(NULL)
@@ -9084,6 +9179,8 @@ server <- function(input, output, session) {
 
           # caluculate the p and HR value and save as a table.
           df_Suv_p_and_HR <- reactiveVal(NULL)
+          topX_perc <- reactiveVal(NULL) # for df_Suv_p_and_HR()$method[1] == 'C'
+          topY_perc <- reactiveVal(NULL) # for df_Suv_p_and_HR()$method[1] == 'C'
           observeEvent(input$Clinical_Survival_start, {
             # After clicking the button, the table for p and HR (df_Suv_p_and_HR) will be updated.
             # update the selected cohort name and event type
@@ -9106,30 +9203,34 @@ server <- function(input, output, session) {
               df_OS <- Clinical_surival()
 
             # gene selection for input
-              if(input$Clinical_Survival_genes_from_custom_geneset){ # gene selection (from custom geneset)
-                if(input$Clinical_Survival_genes_from_custom_geneset_select == 'None'){
-                  show_alert(title='Error.',text='Please select a custom gene set.', type='error')
-                  output$Clinical_Survial_all_status <- renderText({"Please select a custom gene set."})
-                  output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
-                  output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
-                  output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
-                  df_Suv_p_and_HR(NULL)
-                  return()
+              if(input$Clinical_Survival_Split_way != 'C'){
+                if(input$Clinical_Survival_genes_from_custom_geneset){ # gene selection (from custom geneset)
+                  if(input$Clinical_Survival_genes_from_custom_geneset_select == 'None'){
+                    show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+                    output$Clinical_Survial_all_status <- renderText({"Please select a custom gene set."})
+                    output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                    output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                    output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                    df_Suv_p_and_HR(NULL)
+                    return()
+                  }
+                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                }else{  # gene selection (from text input)
+                  if(nchar(input$Clinical_Survival_genes)== 0 ){
+                    show_alert(title='Error.',text='Please enter genes (line by line)', type='error')
+                    output$Clinical_Survial_all_status <- renderText({"Please enter genes (line by line)"})
+                    output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                    output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                    output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                    df_Suv_p_and_HR(NULL)
+                    return()
+                  }
+                  genes <- unlist(strsplit(input$Clinical_Survival_genes, '\n'))
                 }
-                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-              }else{  # gene selection (from text input)
-                if(nchar(input$Clinical_Survival_genes)== 0 ){
-                  show_alert(title='Error.',text='Please enter genes (line by line)', type='error')
-                  output$Clinical_Survial_all_status <- renderText({"Please enter genes (line by line)"})
-                  output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
-                  output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
-                  output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
-                  df_Suv_p_and_HR(NULL)
-                  return()
-                }
-                genes <- unlist(strsplit(input$Clinical_Survival_genes, '\n'))
+                genes <- intersect(genes, rownames(df_geneEx))
+              }else{
+                genes <- c('(Custom grouping)')
               }
-              genes <- intersect(genes, rownames(df_geneEx))
               if(length(genes) == 0){
                 show_alert(title='Error.',text='None of the inputted genes are not in the dataset.', type='error')
                 output$Clinical_Survial_all_status <- renderText({"None of the inputted genes are not in the dataset. \nPlease make sure the gene names are correct and does not include unnecessary spaces."})
@@ -9155,7 +9256,7 @@ server <- function(input, output, session) {
               output$Clinical_Survial_table_status <- renderText({NULL})
               for (gene in genes){ # gene <- genes[1]
                 if(gene!=''){ 
-                  if(!(gene %in% rownames(df_geneEx))){
+                  if(input$Clinical_Survival_Split_way != 'C' & !(gene %in% rownames(df_geneEx))){
                     df_tmp <- data.frame('Gene'=gene, 'P.value'=NA, 'Hazard.Ratio'=NA)
                     df_out <- rbind(df_out, df_tmp)
                   }else{
@@ -9163,12 +9264,60 @@ server <- function(input, output, session) {
                       med <- median(unlist(df_geneEx[gene,]))
                       df_high_sample <- colnames(df_geneEx[,df_geneEx[gene,] >= med])
                       df_low_sample <- colnames(df_geneEx[,df_geneEx[gene,] < med])
-                    }else{
+                    }else if(input$Clinical_Survival_Split_way == 'B'){
                       top25 <- quantile(unlist(df_geneEx[gene,]), 0.75, na.rm = T)
                       bottom25 <- quantile(unlist(df_geneEx[gene,]), 0.25, na.rm = T)
                       df_high_sample <- colnames(df_geneEx[,df_geneEx[gene,] >= top25])
                       df_low_sample <- colnames(df_geneEx[,df_geneEx[gene,] <= bottom25])
+                    }else if(input$Clinical_Survival_Split_way == 'C'){
+                      group1_sample <- unlist(strsplit(input$Clinical_Survival_Split_Group1, "\n"))
+                      group2_sample <- unlist(strsplit(input$Clinical_Survival_Split_Group2, "\n"))
+                      if(length(group1_sample) == 0 | length(group2_sample) == 0){
+                        show_alert(title='Error.',text='Please enter the sample names for the groups.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the sample names for the groups.'})
+                        return()
+                      }
+                      if(length(intersect(group1_sample,group2_sample )) > 0){
+                        show_alert(title='Error.',text='The sample names for the groups are not unique. \nPlease check the input.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'The sample names for the groups are not unique. \nPlease check the input.'})
+                        return()
+                      }
+                      df_high_sample <-  intersect(group1_sample, colnames(df_geneEx))
+                      df_low_sample <- intersect(group2_sample, colnames(df_geneEx))
+                      if(length(df_high_sample) == 0 | length(df_low_sample) == 0){
+                        show_alert(title='Error.',text='The sample names for the groups are not in the dataset. \nPlease check the input.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'The sample names for the groups are not in the dataset. \nPlease check the input.'})
+                        return()
+                      }
+                    }else if(input$Clinical_Survival_Split_way == 'D'){
+                      # use the top X% and bottom Y% of the expression values
+                      if(is.numeric(input$Clinical_Survival_Split_Group1_perc) == FALSE | is.numeric(input$Clinical_Survival_Split_Group2_perc) == FALSE){
+                        show_alert(title='Error.',text='Please enter the percentage of the top and bottom groups.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the top and bottom groups.'})
+                        return()
+                      }
+                      if(input$Clinical_Survival_Split_Group1_perc < 0 | input$Clinical_Survival_Split_Group1_perc > 100){
+                        show_alert(title='Error.',text='Please enter the percentage of the top group between 0 and 100.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the top group between 0 and 100.'})
+                        return()
+                      }
+                      if(input$Clinical_Survival_Split_Group2_perc < 0 | input$Clinical_Survival_Split_Group2_perc > 100){
+                        show_alert(title='Error.',text='Please enter the percentage of the bottom group between 0 and 100.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the bottom group between 0 and 100.'})
+                        return()
+                      }
+                      if(input$Clinical_Survival_Split_Group1_perc+input$Clinical_Survival_Split_Group2_perc > 100){
+                        show_alert(title='Error.',text='The sum of the percentage of the top and bottom groups should be less than or equal to 100.', type='error')
+                        output$Clinical_Survial_plot_error_catch <- renderText({'The sum of the percentage of the top and bottom groups should be less than or equal to 100.'})
+                        return()
+                      }
+                      topX <- quantile(unlist(df_geneEx[gene,]), (100-input$Clinical_Survival_Split_Group1_perc)/100 , na.rm = T)
+                      bottomY <- quantile(unlist(df_geneEx[gene,]), input$Clinical_Survival_Split_Group2_perc/100 , na.rm = T)
+                      df_high_sample <- colnames(df_geneEx[,df_geneEx[gene,] >= topX])
+                      df_low_sample <- colnames(df_geneEx[,df_geneEx[gene,] <= bottomY])
                     }
+                    topX_perc(input$Clinical_Survival_Split_Group1_perc)
+                    topY_perc(input$Clinical_Survival_Split_Group2_perc)
                     if(length(df_high_sample)==0|length(df_low_sample)==0){
                       error_genes <- c(error_genes, gene)
                     }else{
@@ -9185,6 +9334,9 @@ server <- function(input, output, session) {
                       # Hazard ratio and p
                       HR <- exp(cox_model$coefficients)
                       p_value <- summary(cox_model)$coefficients[, 5]
+                      if(input$Clinical_Survival_Split_way == 'C'){
+                        gene <- '(Custom grouping)'
+                      }
                       df_tmp <- data.frame('Gene'=gene, 'P.value'=p_value, 'Hazard.Ratio'=HR)
                       df_out <- rbind(df_out, df_tmp)
                     }
@@ -9274,11 +9426,21 @@ server <- function(input, output, session) {
             med <- median(unlist(df_geneEx[gene_kaplan,]))
             df_high_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= med])
             df_low_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] < med])
-          }else{
+          }else if(df_Suv_p_and_HR()$method[1] == 'B'){
             top25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.75, na.rm = T)
             bottom25 <- quantile(unlist(df_geneEx[gene_kaplan,]), 0.25, na.rm = T)
             df_high_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= top25])
             df_low_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] <= bottom25])
+          }else if(df_Suv_p_and_HR()$method[1] == 'C'){
+            group1_sample <- unlist(strsplit(input$Clinical_Survival_Split_Group1, "\n"))
+            group2_sample <- unlist(strsplit(input$Clinical_Survival_Split_Group2, "\n"))
+            df_high_sample <-  intersect(group1_sample, colnames(df_geneEx))
+            df_low_sample <- intersect(group2_sample, colnames(df_geneEx))
+          }else if(df_Suv_p_and_HR()$method[1] == 'D'){
+            topX <- quantile(unlist(df_geneEx[gene_kaplan,]), (100-topX_perc())/100 , na.rm = T)
+            bottomY <- quantile(unlist(df_geneEx[gene_kaplan,]), topY_perc()/100 , na.rm = T)
+            df_high_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] >= topX])
+            df_low_sample <- colnames(df_geneEx[,df_geneEx[gene_kaplan,] <= bottomY])
           }
           df_OS$group = NA
           df_OS[df_OS$sample %in% df_high_sample,]$group <- 'High'
@@ -9292,17 +9454,30 @@ server <- function(input, output, session) {
           # graph
           km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
             geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
-            labs( title = gene_kaplan, x = "Time", y = "Survival Probability", color = "") +
-            scale_color_manual(
-              values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
-              labels=c(paste0(gene_kaplan, '-High (n=', as.character(length(df_high_sample)), ')'), paste0(gene_kaplan, '-Low (n=', as.character(length(df_low_sample)), ')'))
-            ) + 
-            scale_fill_manual(
-              values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
-              labels=c(paste0(gene_kaplan, '-High (n=', as.character(length(df_high_sample)), ')'), paste0(gene_kaplan, '-Low (n=', as.character(length(df_low_sample)), ')'))
-            ) +
-            guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Clinical_Survial_legend_size)) 
+            labs( title = gene_kaplan, x = "Time", y = "Survival Probability", color = "")
           p <- km_plot
+          if(df_Suv_p_and_HR()$method[1] == 'A' | df_Suv_p_and_HR()$method[1] == 'B' | df_Suv_p_and_HR()$method[1] == 'D'){
+            p <- p +
+              scale_color_manual(
+                  values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
+                  labels=c(paste0(gene_kaplan, '-High (n=', as.character(length(df_high_sample)), ')'), paste0(gene_kaplan, '-Low (n=', as.character(length(df_low_sample)), ')'))
+                ) +
+              scale_fill_manual(
+                  values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
+                  labels=c(paste0(gene_kaplan, '-High (n=', as.character(length(df_high_sample)), ')'), paste0(gene_kaplan, '-Low (n=', as.character(length(df_low_sample)), ')'))
+                )
+          }else if(df_Suv_p_and_HR()$method[1] == 'C'){
+            p <- p +
+              scale_color_manual(
+                  values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
+                  labels=c(paste0('Group1', ' (n=', as.character(length(df_high_sample)), ')'), paste0('Group2', ' (n=', as.character(length(df_low_sample)), ')'))
+                ) +
+              scale_fill_manual(
+                  values=c('group=High'=input$Clinical_Survial_High_colour, 'group=Low'=input$Clinical_Survial_Low_colour),
+                  labels=c(paste0('Group1', ' (n=', as.character(length(df_high_sample)), ')'), paste0('Group2', ' (n=', as.character(length(df_low_sample)), ')'))
+                )
+          }
+          p <- p + guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Clinical_Survial_legend_size)) 
           p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
           p <- p + theme(axis.text.y = element_text(size = input$Clinical_Survial_label_size), axis.text.x = element_text(size = input$Clinical_Survial_label_size))
           p <- p + theme(axis.title.y = element_text(size = input$Clinical_Survial_title_size), axis.title.x = element_text(size = input$Clinical_Survial_title_size))
@@ -9754,10 +9929,11 @@ server <- function(input, output, session) {
           }
           # output$Expression_subtype_error_catch <- renderText({NULL})
           gene <- Expression_subtype_test()[input$Expression_subtype_table_rows_selected,]$Gene
+          df_meta <- Clinical_meta()
           df_out <- Expression_subtype_for_test()
           number_each_group <- 'The number of data in each subtypes. \n'
           for (nm in names(table(df_out[,colnames(df_out)[2]]))){
-            number_each_group <- paste0(number_each_group, nm , ': ', table(df_out[,colnames(df_out)[2]])[nm], '\n')
+            number_each_group <- paste0(number_each_group, nm , ': ', table(df_meta[,colnames(df_out)[2]])[nm], '\n') # df_out[,])
           }
           # group_by <- input$Expression_subtype_groupBy
           group_by <- colnames(df_out)[2]
@@ -11027,7 +11203,7 @@ server <- function(input, output, session) {
         # A table for barplot
           output$Clinical_Mutation_frequency_table <- DT::renderDataTable({
             if(!isTriggered_mutation()){
-              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Please click 'Show plot' to show the table."})
+              output$Clinical_Mutation_frequency_plot_status_table <- renderText({"Please click 'Calculate the mutation frequency' to show the table."})
               tmp <- data.frame('genes'=character(0), 'Number_of_patients'=numeric(0), 'Frequence'=numeric(0))
               datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
             }else if(isCalculating_mutation()){
@@ -11047,7 +11223,7 @@ server <- function(input, output, session) {
         # Plot
           output$Clinical_Mutation_frequency_plot <- renderPlot({
             if(!isTriggered_mutation()){
-              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please click 'Show plot' to show the plot."})
+              output$Clinical_Mutation_frequency_plot_status <- renderText({"Please click 'Calculate the mutation frequency' to show the plot."})
               return(ggplot())
             }
             if(isCalculating_mutation()){
@@ -11150,7 +11326,6 @@ server <- function(input, output, session) {
             output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
             return(ggplot())
           }
-          #   output$Clinical_Survial_plot_error_catch <- renderText({NULL})
           gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
           df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           df_mut$sample <- gsub('\\.', '-', df_mut$sample)
