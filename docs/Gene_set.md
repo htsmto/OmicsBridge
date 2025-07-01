@@ -15,5 +15,10 @@ Users can add new gene sets in the "Add a Gene Set" section. Please note that us
 
 Click "Add the geneset to the list", and the user can see the newly added gene set at the top of the table. 
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Custome_GeneSet_1_720.mp4" type="video/mp4"> 
+    </video>
+
 ### **Editing a gene set** 
 The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking. After making an edit, the changes will appear below the table. The edit is saved when you click "Save changes" and see the confirmation message "saved!" You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking "Delete selected data" removes all selected rows from the database.

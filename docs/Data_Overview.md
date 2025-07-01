@@ -111,6 +111,10 @@ Users can perform GO or KEGG analysis using gene symbols (Note: ENSEMBL IDs are 
     - X and Y axis label size
     - X-axis title size
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_5_720.mp4" type="video/mp4"> 
+    </video>
 
 
 #### **2. GSEA analysis**
@@ -125,6 +129,11 @@ After clicking "Start GSEA Analysis," the interface displays a table with statis
     - The size of the X and Y axis font size
     - The size of the graph title
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_6_720.mp4" type="video/mp4"> 
+    </video>
+
 
 #### **3. Transcription Factor activity inference analysis**
 
@@ -134,6 +143,10 @@ This analysis is specifically for RNA-seq data processed by DESeq2 and requires 
     - The size (width and height) of the figure
     - The size of the X and Y axis font size
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_7_720.mp4" type="video/mp4"> 
+    </video>
 
 ## **3. Analysis of "Count table"**
 
@@ -150,12 +163,23 @@ To create a plot, enter gene names line by line in the "Enter genes" box. The ge
     - The colour pallete
     - The colour of the dots.
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_8_720.mp4" type="video/mp4"> 
+    </video>
+
+
 ### <u> **Two gene correlation Plot** </u>
 
 hogehogehogeo
 
 ??? success  "Adjustable graph parameters"
     - the size (width and height) of the figure
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_9_720.mp4" type="video/mp4"> 
+    </video>
 
 
 ### <u> **Heatmap** </u>
@@ -172,6 +196,12 @@ The "Expression scores" table below the plot shows standardized scores and clust
     - the size of the X and Y axis/label font size.
     - the colour of the highest, lowest and zero values in the heatmap
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_10_720.mp4" type="video/mp4"> 
+    </video>
+
+
 ### <u> **PCA plot** </u>
 Users can generate a PCA plot from the count matrix to visualise sample patterns and relationships. By default, it uses all samples and colours them by detected groups (those with replicates, as in the swarm plot). Users can also specify which samples to include and assign group names themselves by clicking "Define the groups" and entering group descriptions following the example. Clicking "Generate a PCA plot" displays the visualisation coloured by either interface-detected or user-defined groups. Alternatively, you can use a single colour for all samples by unchecking "Colour by groups".
 
@@ -182,3 +212,8 @@ Users can generate a PCA plot from the count matrix to visualise sample patterns
     - the size of the sample labels and the legend
     - hide the labels if they are messy ("Hide labels")
     - use a white background instead of the default grey background ("Use white background")
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/DataOverview_11_720.mp4" type="video/mp4"> 
+    </video>
