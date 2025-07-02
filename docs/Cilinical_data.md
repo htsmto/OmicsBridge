@@ -1,20 +1,22 @@
 # **Clinical data**
 
-In this section, users can analyse how their genes of interest impact patient cohorts through various type of exploration methods.
-
 ## <u>**1. Cohort selection and view the data**</u>
 
 A cohort can be selected in the top. Once selected, its details will be shown on the right. The data can be viewed as an excel format in the “View the data” section. For a gene expression, since this table is usually a large data, by default it shows the first 1000 lines to avoid over memory usega. The uses can choose to show all the data if they want.
 
 ## <u>**2. Survival analysis**</u>
 
-This section allows you to examine the association between gene expression and survival outcomes within a selected cohort.
+This section allows you to examine the association between gene expression and survival outcomes within a selected patient cohort. 
 
-To get started, enter the gene names one per line in the input box, taking care not to include extra spaces before or after each name. The gene names must exactly match those used in your gene expression dataset. Alternatively, you can also choose a geneset from the custom genesets registered in OmicsBridge.
+You can begin by entering individual gene names or selecting a custom gene set. For each gene, a Kaplan–Meier survival curve will be generated.
 
-Then choose how to group the samples: either by a median split, dividing them into high and low expression groups, or by comparing the top 25% and bottom 25% of expression levels (quartile split). Next, select the clinical event to use for the analysis, such as Overall Survival (OS) or Progression-Free Survival (PFS).
+Patients can be divided into high- and low-expression groups based on different criteria, such as the median, top 25% vs. bottom 25%, or custom-defined thresholds (e.g., top X% vs. bottom Y%). Alternatively, you can manually specify the two groups by entering sample names directly.
 
-Once the settings are in place, click the Start button to run the analysis. A results table will be generated, showing the p-value and hazard ratio for each gene (sorted by p-value). Clicking on any gene in the table will display its Kaplan–Meier survival curve on its right.
+After running the analysis, a results table will display p-values and hazard ratios for each gene. Clicking on a row in the table will display the corresponding Kaplan–Meier curve.
+
+To help determine how to split the samples, you can view gene expression distributions using histograms.
+
+The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to the **10-2. How to upload an own cohort** section.
 
 ??? success  "Adjustable graph parameters"
 
@@ -22,6 +24,11 @@ Once the settings are in place, click the Start button to run the analysis. A re
     - The size of the X and Y axis/label font size.
     - The size of the legend title
     - The colour for the high- and low-expression group.
+  
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_1_720.mp4" type="video/mp4"> 
+    </video>
 
 ## <u>**3. Gene correlation**</u>
 
@@ -46,11 +53,20 @@ The output will include a table showing the correlation coefficient and p-value 
     - The colour of the dot
     - Show the correlation line
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_2_720.mp4" type="video/mp4"> 
+    </video>
+
 ## <u>**4. Mutation analysis**</u>
 
 This section allows you to explore and compare the frequency of gene mutations within a selected cohort, provided that mutation data has been uploaded.
 
-To begin, specify the genes you wish to analyse. There are three input options: 1) Enter gene names one per line in the text box (avoiding extra spaces), 2) Choose to analyse all genes in the dataset, or 3) Select genes from a saved Custom Geneset.
+To begin, specify the genes you wish to analyse. There are three input options: 
+
+1) Enter gene names one per line in the text box (avoiding extra spaces) <br>
+2) Choose to analyse all genes in the dataset, or  <br>
+3) Select genes from a saved Custom Geneset.
 
 By default, the analysis includes all samples in the cohort. However, you may filter the samples based on metadata categories (e.g. treatment group, subtype, or gender) to compare mutation frequencies across different groups.
 
