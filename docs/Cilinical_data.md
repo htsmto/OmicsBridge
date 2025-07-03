@@ -60,17 +60,21 @@ The output will include a table showing the correlation coefficient and p-value 
 
 ## <u>**4. Mutation analysis**</u>
 
-This section allows you to explore and compare the frequency of gene mutations within a selected cohort, provided that mutation data has been uploaded.
+This section enables you to explore and analyse gene mutations within your selected cohort. You can examine mutation frequencies across different patient groups and investigate their impact on survival and gene expression.
+To begin your analysis, you need to specify which genes to investigate. You have three options:
 
-To begin, specify the genes you wish to analyse. There are three input options: 
+1. Enter gene names one per line in the text box (please avoid extra spaces)
+2. Choose to analyse all genes in the dataset
+3. Select genes from a previously saved Custom Gene Set
 
-1) Enter gene names one per line in the text box (avoiding extra spaces) <br>
-2) Choose to analyse all genes in the dataset, or  <br>
-3) Select genes from a saved Custom Geneset.
+By default, the analysis includes all samples in the cohort. For more targeted analysis, you can filter samples using metadata categories such as treatment group, cancer subtype, or patient demographics. This allows you to compare mutation patterns across different patient populations.
 
-By default, the analysis includes all samples in the cohort. However, you may filter the samples based on metadata categories (e.g. treatment group, subtype, or gender) to compare mutation frequencies across different groups.
+After clicking the start button, you'll get:
 
-After clicking the Start button, a table will be generated showing the number of samples with mutations in each gene, and the corresponding mutation frequency. In addition, a bar plot will be displayed, visualising either the top genes by count or by frequency of mutation, depending on the results.
+- A comprehensive table showing the number of samples with mutations in each gene and their corresponding mutation frequencies
+- A visual **bar plot** in the 'Frequency Plot' tab displaying either the top genes by mutation count or by mutation frequency
+- In the 'Survival analysis' tab, a Kaplan-Meier curve comparing survival outcomes between wild-type and mutant groups for your selected gene
+- In the 'Gene expression' tab, a comparison of gene expression levels between wild-type and mutant groups
 
 ??? success  "Adjustable graph parameters"
     - Can choose to show either the number of samples with mutations or the mutation frequency
