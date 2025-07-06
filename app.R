@@ -1844,7 +1844,14 @@ ui <- fluidPage(
                         column(9, textAreaInput("Integrate_data1_plus_2_target_gene", "Enter gene(s) of interest (line by line)"))
                       ),
                       fluidRow(
-                        column(4, materialSwitch('Integrate_data1_plus_2_change_colour', 'Change colour of the selected genes', value=FALSE, status='info')),
+                        column(12, materialSwitch('Integrate_data1_plus_2_target_gene_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                        conditionalPanel(
+                          condition = "input.Integrate_data1_plus_2_target_gene_from_custom_geneset == true",
+                          column(10, htmlOutput('Integrate_data1_plus_2_target_gene_from_custom_geneset_select'))
+                        )
+                      ),
+                      fluidRow(
+                        column(7, materialSwitch('Integrate_data1_plus_2_change_colour', 'Change colour of the selected genes', value=FALSE, status='info')),
                         conditionalPanel(
                           condition = "input.Integrate_data1_plus_2_change_colour == true",
                           column(4, colourpicker::colourInput('Integrate_data1_plus_2_target_gene_colour', 'Colour of the selected genes:', value='red'))
@@ -1855,6 +1862,26 @@ ui <- fluidPage(
                       ),
                       fluidRow(
                         column(12, h4('Filtering')),
+                        column(12, materialSwitch('Integrate_data1_plus_2_plot_use_geneset', 'Use pathway genes', value=FALSE, status='info')),
+                        column(12,
+                          conditionalPanel(
+                            condition = "input.Integrate_data1_plus_2_plot_use_geneset == true",
+                            fluidRow(
+                              column(4, radioButtons("Integrate_data1_plus_2_plot_pathway_dataset_select", "pathways from:", choices = c("HALLMARK (human)", "HALLMARK (mouse)", "Custom"))),
+                              column(8,
+                                fluidRow(
+                                  column(12, 
+                                    conditionalPanel( 
+                                      condition = "input.Integrate_data1_plus_2_plot_pathway_dataset_select == 'Custom'", 
+                                      fileInput("Integrate_data1_plus_2_plot_upload_custom_pathway_file", "Upload a gmt file")
+                                    )
+                                  ),
+                                  column(12, htmlOutput("Integrate_data1_plus_2_plot_select_pathway"))
+                                )
+                              )
+                            )
+                          )
+                        ),
                         column(6, 
                           fluidRow(
                             column(12, numericInput('Integrate_data1_plus_2_plot_xthr1', 'X threshold 1 (X1)', value=1, step=0.1 ) ),
@@ -2356,6 +2383,8 @@ ui <- fluidPage(
                                       circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
                                   ),
+                                  column(5, htmlOutput('Clinical_Mutation_Kaplan_choose_score_type')),
+                                  column(6, h4('')),
                                   column(12, withSpinner(plotOutput('Clinical_Mutation_Kaplan_plot', width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                 )
                               ),
@@ -3581,42 +3610,252 @@ ui <- fluidPage(
                       )
                     )
                   )
+                ),
+                tabPanel('Find Enhancer/Promoter', # select RNAseq count data and ATACseq count data. input gene names. calculate the correlation with the peak, return the correlated positiosn.
+                  h4(''),
+                  fluidRow(
+                    column(5,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12,
+                            fluidRow(
+                              column(12, 
+                                helpText("This tool calculates the correlation between RNA-seq gene expression and ATAC-seq peak intensity for a specified gene across matched samples.")
+                              ),
+                              column(12, h2('')),
+                              column(10, htmlOutput('Enhancer_Find_data_select_RNAseq')),
+                              column(2,
+                                fluidRow(
+                                  column(12, h2('') ),
+                                  column(12, 
+                                    div(id='filterin_dropdown',
+                                      dropdownButton( 
+                                        fluidRow(
+                                          column(12, h4(strong("Dataset filtering"))),
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Seuqenced_by")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Experiments")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Data_type")) 
+                                        ), circle = FALSE, status = "info", icon = icon("sliders"), width = "300px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                                      )
+                                    ) 
+                                  )
+                                )
+                              ),
+                              column(12, helpText("The column names of the RNAseq data:")),
+                              column(12, verbatimTextOutput('Enhancer_Find_data_select_RNAseq_SampleNames')),
+                            )
+                          ),
+                          column(12,
+                            fluidRow(
+                              column(10, htmlOutput('Enhancer_Find_data_select_ATACseq')),
+                              column(2,
+                                fluidRow(
+                                  column(12, h2('') ),
+                                  column(12,
+                                    div(id='filterin_dropdown',
+                                      dropdownButton( 
+                                        fluidRow(
+                                          column(12, h4(strong("Dataset filtering"))),
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Seuqenced_by")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Experiments")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Data_type")) 
+                                        ), circle = FALSE, status = "info", icon = icon("sliders"), width = "300px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                                      ),
+                                    ) 
+                                  )
+                                )
+                              ),
+                              column(12, helpText("The column names of the ATACseq data:")),
+                              column(12, verbatimTextOutput('Enhancer_Find_data_select_ATACseq_SampleNames')),
+                            )
+                          ),                          
+                          column(12,
+                            fluidRow(
+                              column(12, h2(' ')),
+                              column(12, 
+                                helpText(HTML(
+                                  "Below, enter matching sample names from the RNA-seq and ATAC-seq tables. <br>
+                                  One pair per line, separated by a comma. At least 3 pairs are required. <br>
+                                  <br>
+                                  Example: <br>
+                                  \tSample1_RNA_Rep1,Sample1_ATAC_Rep1"
+                                  ))
+                              ),
+                              column(12, textAreaInput('Enhancer_Find_sample_select', 'Enter sample names (RNA_sample,ATAC_sample)', placeholder = 'Name in RNAseq,Name.in.ATACseq \nSample1_RNA_Rep1,Sample1_ATAC_Rep1\nSample2_RNA_Rep1,Sample2_ATAC_Rep1')),
+                              column(12, textAreaInput('Enhancer_Find_input_gene', 'Enter genes (line by line)', placeholder='Gene1\nGene2\nGene3')),
+                              column(12, materialSwitch('Enhancer_Find_use_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                              column(12, 
+                                conditionalPanel(
+                                  condition = "input.Enhancer_Find_use_custom_geneset == true",
+                                  htmlOutput('Enhancer_Find_custom_geneset_select')
+                                )
+                              )
+                            )
+                          ),
+                          column(12,
+                            fluidRow(
+                              column(12, h2('')),
+                              column(12, radioButtons("Enhancer_Find_calculation_type", "Calculation type", choices = c('pearson', 'spearm'), selected='pearson', inline=TRUE )), 
+                              column(6, numericInput('Enhancer_Find_extend_length', 'See ±Xbp around the gene', value=100000, min=0, step=100)),
+                              column(6, h3(''))
+                            ),
+                            fluidRow(
+                              column(12, materialSwitch('Enhancer_Find_chr_focus','Check only the same chromosomes of the target genes', value=TRUE, status='info') ),
+                              column(12, helpText('Note: If this is NOT checked, it takes very long time to calculate the correlation.')),
+                              column(12, h3('')),
+                              column(12, actionButton('Enhancer_Find_start', 'Find enhancers/promoters', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    column(7,
+                      fluidRow(
+                        column(12,
+                          box(width=12, title='Results', status='warning', collapsible = TRUE,
+                            # three tabs. 1: Corraltion result, 2: RNAseq data table, 3: ATACseq data table
+                            tabsetPanel(
+                              tabPanel('Correlation result',
+                                h4(''),
+                                fluidRow(
+                                  column(12, verbatimTextOutput('Enhancer_Find_table_status') ),
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_table'), type = 5, color = "#0dc5c1") )
+                                )
+                              ),
+                              tabPanel('RNAseq data table',
+                                h4(''),
+                                fluidRow(
+                                  column(12, verbatimTextOutput('Enhancer_Find_RNAseq_data_status') ),
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_RNAseq_data_table'), type = 5, color = "#0dc5c1") )
+                                )
+                              ),
+                              tabPanel('ATACseq data table',
+                                h4(''),
+                                fluidRow(
+                                  column(12, verbatimTextOutput('Enhancer_Find_ATACseq_data_status') ),
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_ATACseq_data_table'), type = 5, color = "#0dc5c1") )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(12,
+                          box(width=12, title='Show the potential enhancer/promoter list', status='danger', collapsible = TRUE,
+                            fluidRow(
+                              column(4, 
+                                fluidRow(
+                                  column(12, htmlOutput('Enhancer_Find_gene_selection')),
+                                  column(12, numericInput('Enhancer_Find_show_list_threshold', 'P-value threshold', value=0.05, min=0, step=0.001))
+                                )
+                              ),
+                              column(8,
+                                fluidRow(
+                                  column(12, h2('')),
+                                  column(9, verbatimTextOutput('Enhancer_Find_gene_correlated_peak_list'))
+                                ))
+                              
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel('Motif analysis',
+                  h4(''),
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12, radioButtons('Motif_analysis_input_type', 'Input type', choices = c('Input peaks'='A', 'Input sequences'='B'), selected='A', inline=TRUE)),
+                          conditionalPanel(
+                            condition = "input.Motif_analysis_input_type == 'A'",
+                            column(12, textAreaInput("Motif_analysis_input_peaks", "Enter peaks (line by line)", placeholder='chr1:1000000-2000000\nchr1:2000000-3000000'))
+                          ),
+                          conditionalPanel(
+                            condition = "input.Motif_analysis_input_type == 'B'",
+                            column(12, textAreaInput("Motif_analysis_input_sequences", "Enter sequences (line by line)", placeholder='ATCGATCGATCG\nGCTAGCTAGCTA'))
+                          ),
+                          column(12, radioButtons("Motif_analysis_input_genome_type", "Genome type", choices = c('hg38', 'hg19'), selected='hg38', inline=TRUE)),
+                          column(12, h2('')),
+                          column(12, actionButton('Motif_analysis_start', 'Start motif analysis', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                        )
+                      )
+                    ),
+                    column(8,
+                      fluidRow(
+                        column(12, 
+                          box(width=12, title='Motifs', status='warning', collapsible = TRUE,
+                            fluidRow(
+                              column(12, verbatimTextOutput('Motif_analysis_status') ),
+                              column(12, withSpinner(DT::dataTableOutput('Motif_analysis_table'), type = 5, color = "#0dc5c1") )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(12, 
+                          box(width=12, title='Plot (logo)', status='danger', collapsible = TRUE,
+                            fluidRow(
+                              column(10, verbatimTextOutput('Motif_analysis_plot_status')),
+                              column(2,
+                                dropdownButton( 
+                                  h4(strong("Plot Options")),
+                                  fluidRow(
+                                    column(6, sliderInput('Motif_analysis_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                                    column(6, sliderInput('Motif_analysis_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                                    column(6, sliderInput('Motif_analysis_plot_XY_label_size', 'X/Y label size', min=0.1, max=10, value=3, step=0.1)),
+                                    column(6, sliderInput('Motif_analysis_plot_XY_title_size', 'X/Y title size', min=0.1, max=10, value=4, step=0.1))
+                                  ),
+                                  fluidRow(
+                                    column(6, radioButtons('Motif_analysis_plot_Y_axis', 'Y axis:', choices = c('bits','prob'), selected = 'bits', inline=TRUE))
+                                  ),
+                                  circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                )
+                              ),
+                              column(12, withSpinner(plotOutput('Motif_analysis_plot', width='100%', height='100%'), type = 5, color = "#0dc5c1") )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel('Genome visualisation'
+                  # h4(''),
+                  # fluidRow(
+                  #   column(4,
+                  #     box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                  #       fluidRow(
+                  #         column(12, htmlOutput('Gviz_data_select')),
+                  #         column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                  #       )
+                  #     )
+                  #   ),
+                  #   column(8,
+                  #     box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                  #       fluidRow(
+                  #         column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
+                  #         column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                  #         column(10, verbatimTextOutput('Gviz_plot_status') ),
+                  #         column(2, 
+                  #           dropdownButton( h4(strong("Plot Options")),
+                  #             fluidRow(
+                  #               column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                  #               column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                  #               column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                  #               column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                  #               column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                  #             ),
+                  #             circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                  #           )
+                  #         ),
+                  #         column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
+                  #       )
+                  #     )
+                  #   )
+                  # )
                 )
-                # tabPanel('Genome visualisation',
-                #   h4(''),
-                #   fluidRow(
-                #     column(4,
-                #       box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
-                #         fluidRow(
-                #           column(12, htmlOutput('Gviz_data_select')),
-                #           column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
-                #         )
-                #       )
-                #     ),
-                #     column(8,
-                #       box(width=12, title='Plot', status='danger', collapsible = TRUE,
-                #         fluidRow(
-                #           column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
-                #           column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
-                #           column(10, verbatimTextOutput('Gviz_plot_status') ),
-                #           column(2, 
-                #             dropdownButton( h4(strong("Plot Options")),
-                #               fluidRow(
-                #                 column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
-                #                 column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                #                 column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                #                 column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
-                #                 column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
-                #               ),
-                #               circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
-                #             )
-                #           ),
-                #           column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
-                #         )
-                #       )
-                #     )
-                #   )
-                # )
               )
             )
           ),
@@ -7553,6 +7792,32 @@ server <- function(input, output, session) {
           outputOptions(output, "Integrate_data1_plus_2_Scat.colour", suspendWhenHidden=FALSE)
 
         # get the filtered genes
+          # for pathway genes, select pathway
+            Integrate_data1_plus_2_plot_Gene_set <- reactive({
+              if(input$Integrate_data1_plus_2_plot_use_geneset){
+                if(input$Integrate_data1_plus_2_plot_pathway_dataset_select == 'HALLMARK (human)'){ gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt') }
+                else if(input$Integrate_data1_plus_2_plot_pathway_dataset_select == 'HALLMARK (mouse)'){ gsc <- getGmt('data/mh.all.v2023.2.Mm.symbols.gmt') } 
+                else if(input$Integrate_data1_plus_2_plot_pathway_dataset_select == 'Custom'){ 
+                  tmp <- input$Integrate_data1_plus_2_plot_upload_custom_pathway_file
+                  if (is.null(tmp)){ gsc <- NULL }
+                  else { gsc <- getGmt(tmp$datapath)}
+                }
+                gsc
+              }else{
+                return(NULL)
+              }
+            })
+
+            output$Integrate_data1_plus_2_plot_select_pathway <- renderUI({
+              gene_sets_names <- c()
+              if(!is.null(Integrate_data1_plus_2_plot_Gene_set())){
+                for ( i in 1:length(Integrate_data1_plus_2_plot_Gene_set())){ gene_sets_names <- c(gene_sets_names, Integrate_data1_plus_2_plot_Gene_set()@.Data[[i]]@setName)}
+              }
+              selectInput('Integrate_data1_plus_2_plot_select_pathway', 'Select a geneset',  c('None'='None', gene_sets_names))  
+            })
+            outputOptions(output, "Integrate_data1_plus_2_plot_select_pathway", suspendWhenHidden=FALSE)
+
+          # take filtered genes
           Integrate_data1_plus_2_plot_filtered <- reactive({
             df_main_plot <- data1_plus_data2()
             if(is.null(df_main_plot)){ 
@@ -7561,7 +7826,7 @@ server <- function(input, output, session) {
             if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
               return(NULL)  
             }
-            if(input$Integrate_data1_plus_2_plot_xselect =='E' & input$Integrate_data1_plus_2_plot_yselect =='E'){
+            if(!input$Integrate_data1_plus_2_plot_use_geneset & input$Integrate_data1_plus_2_plot_xselect =='E' & input$Integrate_data1_plus_2_plot_yselect =='E'){
               return(NULL)  
             }
             x_select <- input$Integrate_data1_plus_2_plot_xselect
@@ -7578,108 +7843,140 @@ server <- function(input, output, session) {
             if(!is.numeric(input$Integrate_data1_plus_2_plot_ythr2) & (y_select == 'B' | y_select == 'C' | y_select == 'D')){
               return(NULL)
             }
-            switch(x_select,
-              "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1, ] },
-              "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2, ] },
-              "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr2), ] },
-              "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2), ] }
-            )
-            switch(y_select,
-              "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1, ] },
-              "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2, ] },
-              "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr2), ] },
-              "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2), ] }
-            )
+            if(input$Integrate_data1_plus_2_plot_use_geneset){
+              if(input$Integrate_data1_plus_2_plot_select_pathway != 'None'){ 
+                genes_in_the_pathway <- Integrate_data1_plus_2_plot_Gene_set()[[input$Integrate_data1_plus_2_plot_select_pathway]]@geneIds
+                df_main_plot <- df_main_plot[df_main_plot$id %in% genes_in_the_pathway, ]
+              }else{
+                return(NULL)
+              }
+
+            }
+            if(dim(df_main_plot)[1] != 0){
+              switch(x_select,
+                "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1, ] },
+                "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2, ] },
+                "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr2), ] },
+                "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.X] >=  input$Integrate_data1_plus_2_plot_xthr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.X] <=  input$Integrate_data1_plus_2_plot_xthr2), ] }
+              )
+              switch(y_select,
+                "A" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1, ] },
+                "B" = { df_main_plot <- df_main_plot[df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2, ] },
+                "C" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr1 & df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr2), ] },
+                "D" = { df_main_plot <- df_main_plot[ (df_main_plot[input$Integrate_data1_plus_2_Scat.Y] >=  input$Integrate_data1_plus_2_plot_ythr1 |  df_main_plot[input$Integrate_data1_plus_2_Scat.Y] <=  input$Integrate_data1_plus_2_plot_ythr2), ] }
+              )
+            }
             return(df_main_plot)
           })
 
         # plot
-          output$Integrate_data1_plus_2_plot <- renderPlot({
-            df_main_plot <- data1_plus_data2()
-            if(is.null(df_main_plot)){ 
-              output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the Data1 and the Data2."})
-              return(ggplot()) 
-            }
-            if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
-              output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the X and the Y."})
-              return(ggplot())  
-            }
-            else{ 
-              output$Integrate_data1_plus_2_plot_status <- renderText({NULL})
-              if(is.null(input$Integrate_data1_plus_2_Scat.colour) || input$Integrate_data1_plus_2_Scat.colour == 'None'){
-                p <- ggplot(df_main_plot, 
-                  aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]]))
-              }else{
-                p <- ggplot(df_main_plot, 
-                  aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]], color = .data[[input$Integrate_data1_plus_2_Scat.colour]]))
+          # for highlight genes from the custome genes 
+            output$Integrate_data1_plus_2_target_gene_from_custom_geneset_select <- renderUI({
+                  gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+                  selectInput('Integrate_data1_plus_2_target_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+                })
+            outputOptions(output, "Integrate_data1_plus_2_target_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
-                values_for_colours <- df_main_plot[,input$Integrate_data1_plus_2_Scat.colour][!is.na(df_main_plot[,input$Integrate_data1_plus_2_Scat.colour])]
-                if( min(values_for_colours)<0 ){
-                  if( max(values_for_colours)>=0 ){
-                    tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                    p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
-                    p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
-                  }else{
-                    p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
-                    p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
-                  }
+
+          # plot
+            output$Integrate_data1_plus_2_plot <- renderPlot({
+              df_main_plot <- data1_plus_data2()
+              if(is.null(df_main_plot)){ 
+                output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the Data1 and the Data2."})
+                return(ggplot()) 
+              }
+              if((input$Integrate_data1_plus_2_Scat.X == 'None') || (input$Integrate_data1_plus_2_Scat.Y == 'None')){ 
+                output$Integrate_data1_plus_2_plot_status <- renderText({"Please set the X and the Y."})
+                return(ggplot())  
+              }
+              else{ 
+                output$Integrate_data1_plus_2_plot_status <- renderText({NULL})
+                if(is.null(input$Integrate_data1_plus_2_Scat.colour) || input$Integrate_data1_plus_2_Scat.colour == 'None'){
+                  p <- ggplot(df_main_plot, 
+                    aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]]))
                 }else{
-                  p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
-                  p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
+                  p <- ggplot(df_main_plot, 
+                    aes(x = .data[[input$Integrate_data1_plus_2_Scat.X]], y = .data[[input$Integrate_data1_plus_2_Scat.Y]], color = .data[[input$Integrate_data1_plus_2_Scat.colour]]))
+
+                  values_for_colours <- df_main_plot[,input$Integrate_data1_plus_2_Scat.colour][!is.na(df_main_plot[,input$Integrate_data1_plus_2_Scat.colour])]
+                  if( min(values_for_colours)<0 ){
+                    if( max(values_for_colours)>=0 ){
+                      tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                      p <- p + scale_color_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
+                      p <- p + scale_fill_gradientn( colors = c("blue", "white", "red"), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=input$Integrate_data1_plus_2_Scat.colour)
+                    }else{
+                      p <- p + scale_color_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
+                      p <- p + scale_fill_gradientn( colors = c("blue", "white"), values = scales::rescale(c(min(values_for_colours), 0)  , limits = c(c(min(values_for_colours), 0)) ), name=input$Integrate_data1_plus_2_Scat.colour)
+                    }
+                  }else{
+                    p <- p + scale_color_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
+                    p <- p + scale_fill_gradientn( colors = c("white", "red"), values = scales::rescale(c(0,max(values_for_colours)))  , limits = c(0,max(values_for_colours)) , name=input$Integrate_data1_plus_2_Scat.colour)
+                  }
+                }
+                p <- p + geom_point(size = input$Integrate_data1_plus_2_dot_label_size) 
+              }
+              tryCatch(
+                expr = {
+                  res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush,
+                    xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y)
+                  p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
+                },
+                error = function(e){NULL}
+              )
+              if(!is.null(Integrate_data1_plus_2_plot_filtered())){
+                Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
+                if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
+                  p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2) 
+                }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
+                  p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
+                }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
+                  p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2)  
+                  p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
+                }
+
+                if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
+                  p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
+                }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
+                  p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
+                }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
+                  p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
+                  p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
+                }
+                
+                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
+                if(!input$Integrate_data1_plus_2_plot_filter_label){
+                  p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
+                }
+              } 
+              if(input$Integrate_data1_plus_2_target_gene_from_custom_geneset){
+                if(input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select != 'None'){
+                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% genes,], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
+                  if(input$Integrate_data1_plus_2_show_gene_name){
+                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% genes,],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
+                  }
+                }
+              }else{
+                if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
+                  p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
+                  if(input$Integrate_data1_plus_2_show_gene_name){
+                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
+                  }
                 }
               }
-              p <- p + geom_point(size = input$Integrate_data1_plus_2_dot_label_size) 
-            }
-            tryCatch(
-              expr = {
-                res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush,
-                  xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y)
-                p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
-              },
-              error = function(e){NULL}
-            )
-            if(!is.null(Integrate_data1_plus_2_plot_filtered())){
-              Integrate_outliers <- Integrate_data1_plus_2_plot_filtered()
-              if(input$Integrate_data1_plus_2_plot_xselect == 'A'){
-                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2) 
-              }else if(input$Integrate_data1_plus_2_plot_xselect == 'B'){
-                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
-              }else if(input$Integrate_data1_plus_2_plot_xselect == 'C' | input$Integrate_data1_plus_2_plot_xselect == 'D'){
-                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr1, linetype='dotted', size=0.2)  
-                p <- p + geom_vline(xintercept=input$Integrate_data1_plus_2_plot_xthr2, linetype='dotted', size=0.2)  
+              p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
+              p <- p + theme(axis.text.y = element_text(size = input$Integrate_data1_plus_2_XY_label_size), axis.text.x = element_text(size = input$Integrate_data1_plus_2_XY_label_size))
+              p <- p + theme(axis.title.y = element_text(size = input$Integrate_data1_plus_2_XY_title_size), axis.title.x = element_text(size = input$Integrate_data1_plus_2_XY_title_size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(legend.key.size = unit(0.2, "mm"))
+              if(input$Integrate_data1_plus_2_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               }
-
-              if(input$Integrate_data1_plus_2_plot_yselect == 'A'){
-                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
-              }else if(input$Integrate_data1_plus_2_plot_yselect == 'B'){
-                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
-              }else if(input$Integrate_data1_plus_2_plot_yselect == 'C' | input$Integrate_data1_plus_2_plot_yselect == 'D'){
-                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr1, linetype='dotted', size=0.2)
-                p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
-              }
-              
-              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
-              if(!input$Integrate_data1_plus_2_plot_filter_label){
-                p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
-              }
-            }          
-            if(nchar(input$Integrate_data1_plus_2_target_gene) != 0){
-              p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
-              p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% unlist(strsplit(input$Integrate_data1_plus_2_target_gene, split = "\n")),],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
-            }
-            p <- p + theme(legend.text = element_text(size = 4), legend.title = element_text(size = 4) ) + guides(color = guide_colourbar(barwidth = 0.5, barheight = 2)) 
-            p <- p + theme(axis.text.y = element_text(size = input$Integrate_data1_plus_2_XY_label_size), axis.text.x = element_text(size = input$Integrate_data1_plus_2_XY_label_size))
-            p <- p + theme(axis.title.y = element_text(size = input$Integrate_data1_plus_2_XY_title_size), axis.title.x = element_text(size = input$Integrate_data1_plus_2_XY_title_size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(legend.key.size = unit(0.2, "mm"))
-            if(input$Integrate_data1_plus_2_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-            }
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            p
-          }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height), res=300)
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p
+            }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height), res=300)
 
         # display the filtered genes
           output$Integrate_data1_plus_2_filtered_status <- renderText({
@@ -9008,6 +9305,483 @@ server <- function(input, output, session) {
       #     plotTracks(list(itrack, gtrack ), from = 100000, to = 200000, chromosome='chr1')
       #   }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
       # #
+    #### Enhancer finder
+      # select RNAseq data
+        output$Enhancer_Find_data_select_RNAseq <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          selectInput('Enhancer_Find_data_select_RNAseq', 'Select a RNAseq count dataset', c('None'='None', unique(df_tmp$Dataset)) )
+        })
+        outputOptions(output, "Enhancer_Find_data_select_RNAseq", suspendWhenHidden=FALSE)
+
+      # select ATACseq data
+        output$Enhancer_Find_data_select_ATACseq <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          selectInput('Enhancer_Find_data_select_ATACseq', 'Select a ATACseq count dataset', c('None'='None', unique(df_tmp$Dataset)) )
+        })
+        outputOptions(output, "Enhancer_Find_data_select_ATACseq", suspendWhenHidden=FALSE)
+
+      # load RNAseq data
+        output$Enhancer_Find_data_select_RNAseq_SampleNames <- renderText({"Please select a dataset."})
+        Enhancer_Find_RNAseq_data <- reactiveVal(NULL)
+        observeEvent(input$Enhancer_Find_data_select_RNAseq, {
+          if(length(input$Enhancer_Find_data_select_RNAseq)==0){
+            Enhancer_Find_RNAseq_data(NULL)
+            return(NULL)
+          }
+          if(input$Enhancer_Find_data_select_RNAseq == 'None'){
+            output$Enhancer_Find_data_select_RNAseq_SampleNames <- renderText({"Please select a dataset."})
+            Enhancer_Find_RNAseq_data(NULL)
+            return(NULL)
+          }
+          path <- Dataset()[Dataset()$Dataset == input$Enhancer_Find_data_select_RNAseq, ]$Path
+          if(!file.exists(path)){
+            output$Enhancer_Find_data_select_RNAseq_SampleNames <- renderText({"The file does not exist. Please upload the dataset again."})
+            Enhancer_Find_RNAseq_data(NULL)
+            return(NULL)
+          }
+          tmp <- read.table(path, header=T, check.names = FALSE)
+          output$Enhancer_Find_data_select_RNAseq_SampleNames <- renderText({
+            col_names <- colnames(tmp)
+            n <- 3  # break after every 4 elements
+            groups <- split(col_names, ceiling(seq_along(col_names) / n))
+            paste(sapply(groups, function(x) paste(x, collapse = ", ")), collapse = "\n")
+          })
+          Enhancer_Find_RNAseq_data(tmp)
+          return(NULL)
+        })
+
+      # load ATACseq data
+        output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"Please select a dataset."})
+        Enhancer_Find_ATACseq_data <- reactiveVal(NULL)
+        observeEvent(input$Enhancer_Find_data_select_ATACseq, {
+          if(length(input$Enhancer_Find_data_select_ATACseq)==0){
+            Enhancer_Find_ATACseq_data(NULL)
+            return(NULL)
+          }
+          if(input$Enhancer_Find_data_select_ATACseq == 'None'){
+            output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"Please select a dataset."})
+            Enhancer_Find_ATACseq_data(NULL)
+            return(NULL)
+          }
+          path <- Dataset()[Dataset()$Dataset == input$Enhancer_Find_data_select_ATACseq, ]$Path
+          if(!file.exists(path)){
+            output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"The file does not exist. Please upload the dataset again."})
+            Enhancer_Find_ATACseq_data(NULL)
+            return(NULL)
+          }
+          tmp <- read.table(path, header=T, check.names = FALSE  )
+          # if the selected data is not an ATACseq data: (the value in the tmp$id is not the format of chr:start-end)
+          if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", tmp$id))){
+            output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"The selected dataset is not an ATACseq data. \nPlease select a valid ATACseq dataset. \nThe id should be the format of 'chr:start-end'."})
+            Enhancer_Find_ATACseq_data(NULL)
+            return(NULL)
+          }
+          # show the colnames
+          output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({
+            col_names <- colnames(tmp)
+            n <- 3  # break after every 4 elements
+            groups <- split(col_names, ceiling(seq_along(col_names) / n))
+            paste(sapply(groups, function(x) paste(x, collapse = ", ")), collapse = "\n")
+          })
+          Enhancer_Find_ATACseq_data(tmp)
+          return(NULL)
+        })
+      # when using custom geneset
+        output$Enhancer_Find_custom_geneset_select <- renderUI({
+          gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+          selectInput('Enhancer_Find_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+        })
+        outputOptions(output, "Enhancer_Find_custom_geneset_select",  suspendWhenHidden=FALSE)
+      # Calculate the correlated peaks (MAIN part)
+        output$Enhancer_Find_table_status <- renderText({"The calculated correlations will be displayed here."})
+        output$Enhancer_Find_RNAseq_data_status <- renderText({"The RNAseq data used for the correlation calculation will be shown here."})
+        output$Enhancer_Find_ATACseq_data_status <- renderText({"The ATACseq data used for the correlation calculation will be shown here."})
+        RNAseq_data_table <- reactiveVal(NULL)
+        ATACseq_data_table <- reactiveVal(NULL)
+        Enhancer_Find_table_result <- reactiveVal(NULL)
+        isCalculating_Enhancer_Find <- reactiveVal(FALSE)
+        isTriggered_Enhancer_Find <- reactiveVal(FALSE)
+        observeEvent(input$Enhancer_Find_start, {
+          isTriggered_Enhancer_Find(TRUE)
+          isCalculating_Enhancer_Find(TRUE)
+          if(is.null(Enhancer_Find_RNAseq_data()) || is.null(Enhancer_Find_ATACseq_data())){ # when the data is not loaded
+            show_alert(title='Error.',text='Please select RNAseq and ATACseq datasets.', type='error')
+            output$Enhancer_Find_table_status <- renderText({"Please select RNAseq and ATACseq datasets."})
+            output$Enhancer_Find_RNAseq_data_status <- renderText({"Please select RNAseq dataset."})
+            output$Enhancer_Find_ATACseq_data_status <- renderText({"Please select ATACseq dataset."})
+            RNAseq_data_table(NULL)
+            ATACseq_data_table(NULL)  
+            Enhancer_Find_table_result(NULL)
+            isCalculating_Enhancer_Find(FALSE)
+            return(NULL)
+          }
+          if(input$Enhancer_Find_data_select_RNAseq == 'None' || input$Enhancer_Find_data_select_ATACseq == 'None'){ # when the data is not loaded
+            show_alert(title='Error.',text='Please select RNAseq and ATACseq datasets.', type='error')
+            output$Enhancer_Find_table_status <- renderText({"Please select RNAseq and ATACseq datasets."})
+            output$Enhancer_Find_RNAseq_data_status <- renderText({"Please select RNAseq dataset."})
+            output$Enhancer_Find_ATACseq_data_status <- renderText({"Please select ATACseq dataset."})
+            RNAseq_data_table(NULL)
+            ATACseq_data_table(NULL)  
+            Enhancer_Find_table_result(NULL)
+            isCalculating_Enhancer_Find(FALSE)
+            return(NULL)
+          }
+          # when no genes are inputted
+          if(input$Enhancer_Find_use_custom_geneset){
+            if(input$Enhancer_Find_custom_geneset_select == 'None'){
+              show_alert(title='Error.',text='Please select a custom geneset.', type='error')
+              output$Enhancer_Find_table_status <- renderText({"Please select a custom geneset."})
+              output$Enhancer_Find_RNAseq_data_status <- renderText({"Please set the input."})
+              output$Enhancer_Find_ATACseq_data_status <- renderText({"Please set the input."})
+              RNAseq_data_table(NULL)
+              ATACseq_data_table(NULL)
+              Enhancer_Find_table_result(NULL)
+              isCalculating_Enhancer_Find(FALSE)
+              return(NULL)
+            }
+            target_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes, split=', ')[[1]]
+          }else{
+            if(nchar(input$Enhancer_Find_input_gene) == 0){
+              show_alert(title='Error.',text='Please input genes.', type='error')
+              output$Enhancer_Find_table_status <- renderText({"Please input genes."})
+              output$Enhancer_Find_RNAseq_data_status <- renderText({"Please input genes."})
+              output$Enhancer_Find_ATACseq_data_status <- renderText({"Please set the input"})
+              RNAseq_data_table(NULL)
+              ATACseq_data_table(NULL)
+              Enhancer_Find_table_result(NULL)
+              isCalculating_Enhancer_Find(FALSE)
+              return(NULL)
+            }
+            target_genes <- unlist(strsplit(input$Enhancer_Find_input_gene, split = "\n")) # ex. target_genes=c('gene1', 'gene2', 'gene3')
+          }
+          if(length(intersect(target_genes, Enhancer_Find_RNAseq_data()$id)) == 0){ # check the overlap of the inputted gene and the id in the RANseq data
+            show_alert(title='Error.',text='The inputted genes are not found in the RNAseq data.', type='error')
+            output$Enhancer_Find_table_status <- renderText({"The inputted genes are not found in the RNAseq data."})
+            output$Enhancer_Find_RNAseq_data_status <- renderText({"The inputted genes are not found in the RNAseq data."})
+            output$Enhancer_Find_ATACseq_data_status <- renderText({"Please set the input"})
+            RNAseq_data_table(NULL)
+            ATACseq_data_table(NULL)
+            Enhancer_Find_table_result(NULL)
+            isCalculating_Enhancer_Find(FALSE)  
+            return(NULL)
+          }
+          # take the samples
+          Sample_name_df <- read.csv(text = input$Enhancer_Find_sample_select, header = FALSE)
+          RNAseq_sample <- Sample_name_df[,1]
+          ATACseq_sample <- Sample_name_df[,2]
+          RNAseq_sample_intersect <- intersect(RNAseq_sample, colnames(Enhancer_Find_RNAseq_data()))
+          ATACseq_sample_intersect <- intersect(ATACseq_sample, colnames(Enhancer_Find_ATACseq_data()))
+          if(length(RNAseq_sample_intersect) <= 2 || length(ATACseq_sample_intersect) <= 2){
+            show_alert(title='Error.',text='Please input more than three samples.', type='error')
+            output$Enhancer_Find_table_status <- renderText({"Please input more than three samples"})
+            output$Enhancer_Find_RNAseq_data_status <- renderText({"Please input more than three samples"})
+            output$Enhancer_Find_ATACseq_data_status <- renderText({"Please input more than three samples"})
+            RNAseq_data_table(NULL)
+            ATACseq_data_table(NULL)
+            Enhancer_Find_table_result(NULL)
+            isCalculating_Enhancer_Find(FALSE)
+            return(NULL)
+          }
+          RNAseq_sample_diff <- setdiff(RNAseq_sample, RNAseq_sample_intersect)
+          ATACseq_sample_diff <- setdiff(ATACseq_sample, ATACseq_sample_intersect)
+          if(length(RNAseq_sample_diff) > 0 || length(ATACseq_sample_diff) > 0){
+            output$Enhancer_Find_table_status <- renderText({
+              msg <- "The following samples are not found in the RNAseq or ATACseq data:\n"
+              if(length(RNAseq_sample_diff) > 0){
+                msg <- paste0(msg, "RNAseq samples: ", paste(RNAseq_sample_diff, collapse = ", "), "\n")
+              }
+              if(length(ATACseq_sample_diff) > 0){
+                msg <- paste0(msg, "ATACseq samples: ", paste(ATACseq_sample_diff, collapse = ", "))
+              }
+              return(msg)
+            })
+          }
+          RNAseq_df <- Enhancer_Find_RNAseq_data()[Enhancer_Find_RNAseq_data()$id %in% target_genes, c('id', RNAseq_sample_intersect)]
+          ATACseq_df <- Enhancer_Find_ATACseq_data()[, c('id', ATACseq_sample_intersect)]
+          RNAseq_data_table(RNAseq_df)
+          ATACseq_data_table(ATACseq_df)
+          # output$Enhancer_Find_table_status <- renderText({dim(ATACseq_df)})
+          # add meta infor to the ATACseq_df. The ATACseq_df$id is set 'chr:start-end'. Split this column into chr, start and end.
+          ATACseq_df$id <- as.character(ATACseq_df$id)
+          ATACseq_df$chr <- sapply(strsplit(ATACseq_df$id, ":"), function(x) x[1])
+          ATACseq_df$start <- as.numeric(sapply(strsplit(ATACseq_df$id, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][1])))
+          ATACseq_df$end <- as.numeric(sapply(strsplit(ATACseq_df$id, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][2])))
+          ATACseq_df <- ATACseq_df[, c('id', 'chr', 'start', 'end', ATACseq_sample_intersect)]
+          # calculate the correlation
+          df_cor_tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+          ATACseq_Peak_all <- c()
+          for (each_gene in intersect(target_genes, Enhancer_Find_RNAseq_data()$id)){
+            RNAseq_df_gene <- RNAseq_df[RNAseq_df$id == each_gene, ]
+            RNAseq_df_gene <- as.numeric(RNAseq_df_gene[1, RNAseq_sample_intersect]) # remove the id column
+            # find the genome position
+            gene_chr <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'chr']
+            gene_start <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'start']
+            gene_end <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'end']
+            if(gene_start > gene_end){
+              tmp <- gene_start
+              gene_start <- gene_end
+              gene_end <- tmp
+            }
+            
+            # extract the ATACseq data
+            Extend = input$Enhancer_Find_extend_length
+            if(input$Enhancer_Find_chr_focus){
+              ATACseq_df_tmp <- ATACseq_df[ATACseq_df$chr == gene_chr & ATACseq_df$end >= gene_start-Extend & ATACseq_df$start <= gene_end+Extend, ]
+            }
+            # Calculate the correlation with RNAseq_df_gene
+            if(dim(ATACseq_df_tmp)[1] == 0){
+              next # if no ATACseq data is found, skip to the next gene
+            }
+            ATACseq_Peak_all <- c(ATACseq_Peak_all, ATACseq_df_tmp$id)
+            
+            for (each_peak in ATACseq_df_tmp$id){
+              ATACseq_df_peak <- ATACseq_df_tmp[ATACseq_df_tmp$id == each_peak, ]
+              ATACseq_df_peak <- as.numeric(ATACseq_df_peak[1, -c(1,2,3,4 )]) # remove the id, chr, start
+              if(length(RNAseq_df_gene) != length(ATACseq_df_peak)){
+                next # if the length of the RNAseq and ATACseq data is not the same
+              }
+              # tmp <- c(RNAseq_df_gene, ATACseq_df_peak)
+              # output$Enhancer_Find_table_status <- renderText({RNAseq_df_gene })
+              if(var(RNAseq_df_gene) == 0 || var(ATACseq_df_peak) == 0){
+                next # if the variance is zero, skip to the next peak
+              }
+              # calculate the correlation. If error, show the error message in Enhancer_Find_table_status
+              cor_test <- tryCatch(
+                cor.test(RNAseq_df_gene, ATACseq_df_peak, method = input$Enhancer_Find_calculation_type),
+                error = function(e) {
+                  output$Enhancer_Find_table_status <- renderText({paste0("Error in correlation calculation for gene: ", each_gene, " and peak: ", each_peak, ". ", e$message)})
+                  next
+                }
+              )
+              if (!is.null(cor_test)){
+                df_cor_tmp <- rbind(df_cor_tmp, data.frame(Gene=each_gene, Peak=each_peak,  Correlation=cor_test$estimate, P.value=cor_test$p.value,stringsAsFactors = FALSE))
+              }
+            }
+            # output$Enhancer_Find_table_status <- renderText({RNAseq_df_gene})
+          }
+          ATACseq_data_table(ATACseq_df[ATACseq_df$id %in% ATACseq_Peak_all, ])
+          output$Enhancer_Find_table_status <- renderText({NULL})
+          output$Enhancer_Find_RNAseq_data_status <- renderText({NULL})
+          output$Enhancer_Find_ATACseq_data_status <- renderText({NULL})
+          Enhancer_Find_table_result(df_cor_tmp)
+          isCalculating_Enhancer_Find(FALSE)
+          return(NULL)          
+        })
+
+      # show the RNA/ATACseq table
+        # RNAseq_data_table
+        output$Enhancer_Find_RNAseq_data_table <- renderDataTable({
+          if(is.null(RNAseq_data_table())){
+            tmp <- data.frame(list('Gene'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+          }else{
+            tmp <- RNAseq_data_table()
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+          }
+        })
+
+
+        # ATACseq data table
+        output$Enhancer_Find_ATACseq_data_table <- renderDataTable({
+          if(is.null(ATACseq_data_table())){
+            tmp <- data.frame(list('id'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+          }else{
+            tmp <- ATACseq_data_table()
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+          }
+        })
+
+      # show the correlation table
+        output$Enhancer_Find_table <- renderDataTable({
+          if(!isTriggered_Enhancer_Find()) {
+            tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }else if(isCalculating_Enhancer_Find()) {
+            tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }
+          if(is.null(Enhancer_Find_table_result())){
+            tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }else{
+            tmp <- Enhancer_Find_table_result()
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE, pageLength=5)))
+          }
+        })
+        outputOptions(output, "Enhancer_Find_table", suspendWhenHidden=FALSE)
+      # Show the list of the correlated peak list
+        # gene select
+          output$Enhancer_Find_gene_selection <- renderUI({
+            if(is.null(Enhancer_Find_table_result())){
+              selectInput('Enhancer_Find_gene_selection', 'Select a gene', c('All'))
+            }else{
+              Enhancer_Find_gene_selection_genes <- c('All', Enhancer_Find_table_result()$Gene)
+              selectInput('Enhancer_Find_gene_selection', 'Select a gene', Enhancer_Find_gene_selection_genes)
+            }
+          })
+        # peak show
+          output$Enhancer_Find_gene_correlated_peak_list <- renderText({
+            if(is.null(Enhancer_Find_table_result())){
+              return("Please calculate the correlation first.")
+            }
+            if(input$Enhancer_Find_gene_selection == 'All'){
+              p_thr <- input$Enhancer_Find_show_list_threshold
+              tmp <- Enhancer_Find_table_result()[Enhancer_Find_table_result()$P.value < p_thr, ]
+              if(dim(tmp)[1] == 0){
+                return("No peaks found with the selected threshold.")
+              }
+              tmp <- tmp[order(tmp$Correlation, decreasing = TRUE), ]
+              return(paste(tmp$Peak, collapse = "\n"))
+            }else{
+              selected_gene <- input$Enhancer_Find_gene_selection
+              if(selected_gene %in% Enhancer_Find_table_result()$Gene){
+                selected_peaks <- Enhancer_Find_table_result()[Enhancer_Find_table_result()$Gene == selected_gene, ]$Peak
+                p_thr <- input$Enhancer_Find_show_list_threshold
+                selected_peaks <- selected_peaks[Enhancer_Find_table_result()[Enhancer_Find_table_result()$Gene == selected_gene, ]$P.value < p_thr]
+                if(length(selected_peaks) == 0){
+                  return("No peaks found with the selected threshold.")
+                }
+                return(paste(selected_peaks, collapse = "\n"))
+              }else{
+                return("Please select a gene.")
+              }
+            }
+          })
+
+
+    #### Motif search
+      library(PWMEnrich.Hsapiens.background)
+      library(seqLogo)
+      library(PWMEnrich)
+      library(BSgenome.Hsapiens.UCSC.hg38)
+      library(BSgenome.Hsapiens.UCSC.hg19)
+      library(ggseqlogo)
+      data(PWMLogn.hg19.MotifDb.Hsap)
+      # defalt message
+        output$Motif_analysis_status <- renderText({'Motif scan result will be shown here.'})
+        output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
+
+      # Motif scan
+        Motif_scan_result <- reactiveVal(NULL)
+        isCalculating_Motif_analysis <- reactiveVal(FALSE)
+        isTriggered_Motif_analysis <- reactiveVal(FALSE)
+
+        observeEvent(input$Motif_analysis_start,{
+          if(input$Motif_analysis_input_genome_type == 'hg38'){
+            genome <- BSgenome.Hsapiens.UCSC.hg38
+          }else if(input$Motif_analysis_input_genome_type == 'hg19'){
+            genome <- BSgenome.Hsapiens.UCSC.hg19
+          }
+          isCalculating_Motif_analysis(TRUE)
+          isTriggered_Motif_analysis(TRUE)
+
+          # creat the input
+          if(input$Motif_analysis_input_type == 'A'){
+            if(nchar(input$Motif_analysis_input_peaks) == 0){
+              show_alert(title='Error.',text='Please input the peaks in the format of chr:start-end.', type='error')
+              output$Motif_analysis_status <- renderText({'Please input the peaks in the format of chr:start-end.'})
+              isCalculating_Motif_analysis(FALSE)
+              return(NULL)
+            }
+            peaks <- unlist(strsplit(input$Motif_analysis_input_peaks, split = "\n"))
+            peaks <- unique(peaks)
+            # if the selected data is not an ATACseq data: (the value in the tmp$id is not the format of chr:start-end)
+            if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", peaks))){
+              output$Motif_analysis_status <- renderText({ "The input peaks are not in the format of 'chr:start-end'. Please input the peaks in the correct format." })
+              isCalculating_Motif_analysis(FALSE)
+              return(NULL)
+            } 
+            chromosome <- sapply(strsplit(peaks, ":"), function(x) x[1])
+            start <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][1])))
+            end <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][2])))
+            seq_region <- getSeq(genome, names=chromosome, start=start, end=end)
+            seq_region_clean <- seq_region[grepl("^[ACGT]+$", as.character(seq_region))]
+            seq_region_with_non_acgt <- seq_region[!grepl("^[ACGT]+$", as.character(seq_region))] # the selected region dose not contain A,T,G,C (or not defined)
+            if(length(seq_region_with_non_acgt) > 0 ){
+              if(length(seq_region_clean) == 0){ 
+                output$Motif_analysis_status <- renderText({ "The selected region does not contain A,T,G,C. Please select another region." })
+                isCalculating_Motif_analysis(FALSE)
+                return(NULL)
+              }else{
+                error_peak <- peaks[!grepl("^[ACGT]+$", as.character(seq_region))]
+                output$Motif_analysis_status <- renderText({ paste("The following peaks do not contain A,T,G,C and will be ignored:\n", paste(error_peak, collapse = "\n")) })
+              }
+            }
+          }else if(input$Motif_analysis_input_type == 'B'){
+            if(nchar(input$Motif_analysis_input_sequences) == 0){
+              show_alert(title='Error.',text='Please input the sequences in the format of ACGT.', type='error')
+              output$Motif_analysis_status <- renderText({'Please input the sequences in the format of ACGT.'})
+              isCalculating_Motif_analysis(FALSE)
+              return(NULL)
+            }
+            seq_region <- unlist(strsplit(input$Motif_analysis_input_sequences, split = "\n"))
+            seq_region <- unique(seq_region)
+            seq_region_clean <- seq_region[grepl("^[ACGT]+$", as.character(seq_region))]
+            seq_region_with_non_acgt <- seq_region[!grepl("^[ACGT]+$", as.character(seq_region))] # the selected region dose not contain A,T,G,C (or not defined)
+            if(length(seq_region_with_non_acgt) > 0 ){
+              if(length(seq_region_clean) == 0){ 
+                output$Motif_analysis_status <- renderText({ "The input sequences contain characters other than A, T, G, and C. Please enter the sequences again." })
+                isCalculating_Motif_analysis(FALSE)
+                return(NULL)
+              }else{
+                output$Motif_analysis_status <- renderText({ paste("The following sequences contain characters other than A, T, G, and C, and will be ignored:\n", paste(seq_region_with_non_acgt, collapse = "\n")) })
+              }
+            }
+            seq_region_clean <- DNAStringSet(seq_region_clean) # convert to DNAStringSet
+          }
+
+          # scan
+          res = motifEnrichment(seq_region_clean, PWMLogn.hg19.MotifDb.Hsap)
+          report = groupReport(res)
+          output$Motif_analysis_plot_status <- renderText({'Please select a row in the motif scan table.'})
+          Motif_scan_result(df_report <- as.data.frame(report))
+          isCalculating_Motif_analysis(FALSE)
+          return(NULL)
+        })
+        
+      # Show the table
+        output$Motif_analysis_table <- renderDataTable({
+          if(!isTriggered_Motif_analysis()) {
+            tmp <- data.frame(list('rank'=character(0), 'target'=character(0), 'id'=character(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }else if(isCalculating_Motif_analysis()) {
+            tmp <- data.frame(list('rank'=character(0), 'target'=character(0), 'id'=character(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }else if(is.null(Motif_scan_result())){
+            tmp <- data.frame(list('rank'=character(0), 'target'=character(0), 'id'=character(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
+            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }else{
+            return(datatable(Motif_scan_result(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
+          }
+        })
+
+      # show a logo
+        output$Motif_analysis_plot <- renderPlot({
+          if(!isTriggered_Motif_analysis() || isCalculating_Motif_analysis() || is.null(Motif_scan_result())){
+            return(ggplot())
+          }
+          selected_row <- input$Motif_analysis_table_rows_selected
+          if(length(selected_row) == 0){
+            output$Motif_analysis_plot_status <- renderText({'Please select a row in the motif scan table.'})
+            return(ggplot())
+          }
+          data(PWMLogn.hg19.MotifDb.Hsap)
+          select_id <- Motif_scan_result()[selected_row, 'id']
+          pfm <- PWMLogn.hg19.MotifDb.Hsap@pwms[[select_id]]$pfm
+          pfm_norm <- apply(pfm, 2, function(col) col / sum(col))
+          output$Motif_analysis_plot_status <- renderText({NULL})
+          p <- ggseqlogo(pfm_norm, method=input$Motif_analysis_plot_Y_axis)
+          p <- p + theme(axis.title = element_text(size = input$Motif_analysis_plot_XY_title_size), axis.text = element_text(size = input$Motif_analysis_plot_XY_label_size))
+          p
+
+        }, width = reactive(input$Motif_analysis_fig.width), height = reactive(input$Motif_analysis_fig.height), res=300)
+
+    ####
+
+      
 
   ###
 
@@ -11296,93 +12070,107 @@ server <- function(input, output, session) {
           # outputOptions(output, "Clinical_Mutation_frequency_plot", suspendWhenHidden=FALSE)
 
       ## Kaplan-meier
-        output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-        output$Clinical_Mutation_Kaplan_plot <- renderPlot({
-          if(is.null(df_mut_num())){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(ggplot())
-          }
-          if(length(df_mut_num()) == 0){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(ggplot())
-          }
-          if(dim(df_mut_num())[1] == 0){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
-            return(ggplot())
-          }
-          df_geneEx <- Clinical_gene_expression()
-          df_OS <- Clinical_surival()
-          # if samples were filtered by meta data
-          if(input$Clinical_Mutation_frequency_filter == 'B'){
-            df_OS <- df_OS[df_OS$sample %in% sub_sample_list(),]
-          }
-          df_mut <- Clinical_mutation()
-          # if samples were filtered by meta data
-          if(input$Clinical_Mutation_frequency_filter == 'B'){
-            df_mut <- df_mut[df_mut$sample %in% sub_sample_list(),]
-          }
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-          if(length(input$Clinical_Mutation_frequency_table_rows_selected)==0){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
-            return(ggplot())
-          }
-          gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-          df_mut$sample <- gsub('\\.', '-', df_mut$sample)
-          df_mut_sample <- intersect(df_OS$sample, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
-          df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample) 
-          if(length(df_mut_sample) == 0){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no mutated patient for this gene.'})
-            return(ggplot())
-          }
-          if(length(df_wt_sample) == 0){
-            output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no wild type patient for this gene.'})
-            return(ggplot())
-          }
-
-          df_OS$group = NA
-          df_OS[df_OS$sample %in% df_mut_sample,]$group <- 'Mutation'
-          df_OS[df_OS$sample %in% df_wt_sample,]$group <- 'Wild.Type'
-          df_OS$group <- factor(df_OS$group, levels=c('Mutation', 'Wild.Type'))
-
-          # survival object
-          surv_obj <- Surv(time = df_OS$OS.time, event = df_OS$OS)
-          km_fit <- survfit(surv_obj ~ group, data = df_OS)
-          km_data <- broom::tidy(km_fit)
-          cox_model <- coxph(surv_obj ~ group, data = df_OS)
-          # Hazard ratio and p
-          HR <- exp(cox_model$coefficients)
-          p_value <- summary(cox_model)$coefficients[, 5]
-          output$Clinical_Mutation_Kaplan_plot_status <- renderText({
-            paste0('P-value: ', p_value, '\n', 'HR: ', HR )
+        # choose the event type
+          output$Clinical_Mutation_Kaplan_choose_score_type <- renderUI({
+            if(!is.null(Clinical_surival())){
+              suv_colnames <- colnames(Clinical_surival())
+              col_tmp <- suv_colnames[grepl("\\.time", suv_colnames, ignore.case = TRUE)]
+              col_first_parts <- sapply(strsplit(col_tmp, "\\."), `[`, 1)
+            }else{
+              col_first_parts <- NULL
+            }
+            selectInput('Clinical_Mutation_Kaplan_choose_score_type', 'Select the event type',  c('None'='None', col_first_parts))
           })
-          # graph
-          km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
-            geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
-            labs( title = gene_kaplan, x = "Time", y = "Survival Probability", color = "") +
-            scale_color_manual(
-              values=c('group=Mutation'=input$Clinical_Mutation_Kaplan_High_colour, 'group=Wild.Type'=input$Clinical_Mutation_Kaplan_Low_colour),
-              labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
-            ) + 
-            scale_fill_manual(
-              values=c('group=Mutation'=input$Clinical_Mutation_Kaplan_High_colour, 'group=Wild.Type'=input$Clinical_Mutation_Kaplan_Low_colour),
-              labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
-            ) +
-            guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Clinical_Mutation_Kaplan_legend_size)) 
-          p <- km_plot
-          p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-          p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Kaplan_label_size))
-          p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Kaplan_title_size))
-          # p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
-          p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-          p <- p + theme(legend.key.size = unit(2, "mm"))
-          p <- p + labs(title=NULL)
-          p
-        }, width=reactive(input$Clinical_Mutation_Kaplan_fig.width), height=reactive(input$Clinical_Mutation_Kaplan_fig.height), res=300)
+          outputOptions(output, "Clinical_Mutation_Kaplan_choose_score_type",  suspendWhenHidden=FALSE)
 
+        # plot
+          output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+          output$Clinical_Mutation_Kaplan_plot <- renderPlot({
+            if(is.null(df_mut_num())){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+              return(ggplot())
+            }
+            if(length(df_mut_num()) == 0){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+              return(ggplot())
+            }
+            if(dim(df_mut_num())[1] == 0){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please calculate the frequency first."})
+              return(ggplot())
+            }
+            df_geneEx <- Clinical_gene_expression()
+            df_OS <- Clinical_surival()
+            # if samples were filtered by meta data
+            if(input$Clinical_Mutation_frequency_filter == 'B'){
+              df_OS <- df_OS[df_OS$sample %in% sub_sample_list(),]
+            }
+            df_mut <- Clinical_mutation()
+            df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+            if(length(input$Clinical_Mutation_frequency_table_rows_selected)==0){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
+              return(ggplot())
+            }
+            gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
+            df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+            df_mut$sample <- gsub('\\.', '-', df_mut$sample)
+            df_mut_sample <- intersect(df_OS$sample, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
+            df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample) 
+            if(length(df_mut_sample) == 0){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({paste0('There is no mutated patient for this gene: ', gene_kaplan , df_mut[df_mut$id == gene_kaplan,]$sample)})
+              return(ggplot())
+            }
+            if(length(df_wt_sample) == 0){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({'There is no wild type patient for this gene.'})
+              return(ggplot())
+            }
+
+            df_OS$group = NA
+            df_OS[df_OS$sample %in% df_mut_sample,]$group <- 'Mutation'
+            df_OS[df_OS$sample %in% df_wt_sample,]$group <- 'Wild.Type'
+            df_OS$group <- factor(df_OS$group, levels=c('Mutation', 'Wild.Type'))
+
+            # survival object
+            if(length(input$Clinical_Mutation_Kaplan_choose_score_type) == 0 || input$Clinical_Mutation_Kaplan_choose_score_type == 'None'){
+              output$Clinical_Mutation_Kaplan_plot_status <- renderText({"Please select the event type."})
+              return(ggplot())
+            }
+            surv_obj <- Surv(time = df_OS[, paste0(input$Clinical_Mutation_Kaplan_choose_score_type, '.time')], event = df_OS[,input$Clinical_Mutation_Kaplan_choose_score_type])
+            km_fit <- survfit(surv_obj ~ group, data = df_OS)
+            km_data <- broom::tidy(km_fit)
+            cox_model <- coxph(surv_obj ~ group, data = df_OS)
+            # Hazard ratio and p
+            HR <- exp(cox_model$coefficients)
+            p_value <- summary(cox_model)$coefficients[, 5]
+            output$Clinical_Mutation_Kaplan_plot_status <- renderText({
+              paste0('P-value: ', p_value, '\n', 'HR: ', HR )
+            })
+            # graph
+            km_plot <- ggplot(km_data, aes(x = time, y = estimate, color = strata, group = strata)) + geom_step(size = 0.25) + 
+              geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill=strata), alpha = 0.2, color=NA) +
+              labs( title = gene_kaplan, x = "Time", y = "Survival Probability", color = "") +
+              scale_color_manual(
+                values=c('group=Mutation'=input$Clinical_Mutation_Kaplan_High_colour, 'group=Wild.Type'=input$Clinical_Mutation_Kaplan_Low_colour),
+                labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
+              ) + 
+              scale_fill_manual(
+                values=c('group=Mutation'=input$Clinical_Mutation_Kaplan_High_colour, 'group=Wild.Type'=input$Clinical_Mutation_Kaplan_Low_colour),
+                labels=c(paste0(gene_kaplan, '-Mutation (n=', as.character(length(df_mut_sample)), ')'), paste0(gene_kaplan, '-Wild.Type (n=', as.character(length(df_wt_sample)), ')'))
+              ) +
+              guides(fill='none') + theme_minimal() + theme(legend.position = "top", legend.direction='horizontal', legend.text=element_text(size=input$Clinical_Mutation_Kaplan_legend_size)) 
+            p <- km_plot
+            p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+            p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Kaplan_label_size))
+            p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Kaplan_title_size))
+            # p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            p <- p + theme(legend.key.size = unit(2, "mm"))
+            p <- p + labs(title=NULL)
+            p
+          }, width=reactive(input$Clinical_Mutation_Kaplan_fig.width), height=reactive(input$Clinical_Mutation_Kaplan_fig.height), res=300)
+        #
 
       ## Expression comparison
         ## input genes
@@ -12356,61 +13144,62 @@ server <- function(input, output, session) {
   ###
 
   ### Wiki-document ##########################
-    Introduction_md <- reactiveFileReader(1000, session, "wiki/Introduction.md", readLines)
-    output$Introduction_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Introduction_md(), fragment.only = TRUE))
-    })
+    # Introduction_md <- reactiveFileReader(1000, session, "wiki/Introduction.md", readLines)
+    # output$Introduction_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Introduction_md(), fragment.only = TRUE))
+    # })
 
-    Database_md <- reactiveFileReader(1000, session, "wiki/Database.md", readLines)
-    output$Database_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Database_md(), fragment.only = TRUE))
-    })
+    # Database_md <- reactiveFileReader(1000, session, "wiki/Database.md", readLines)
+    # output$Database_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Database_md(), fragment.only = TRUE))
+    # })
 
-    Data_Overview_md <- reactiveFileReader(1000, session, "wiki/Data_Overview.md", readLines)
-    output$Data_Overview_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Data_Overview_md(), fragment.only = TRUE))
-    })
+    # Data_Overview_md <- reactiveFileReader(1000, session, "wiki/Data_Overview.md", readLines)
+    # output$Data_Overview_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Data_Overview_md(), fragment.only = TRUE))
+    # })
 
-    Gene_set_md <- reactiveFileReader(1000, session, "wiki/Gene_set.md", readLines)
-    output$Gene_set_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Gene_set_md(), fragment.only = TRUE))
-    })
+    # Gene_set_md <- reactiveFileReader(1000, session, "wiki/Gene_set.md", readLines)
+    # output$Gene_set_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Gene_set_md(), fragment.only = TRUE))
+    # })
 
-    Compare_acorss_datasets_md <- reactiveFileReader(1000, session, "wiki/Compare_acorss_datasets.md", readLines)
-    output$Compare_acorss_datasets_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Compare_acorss_datasets_md(), fragment.only = TRUE))
-    })
+    # Compare_acorss_datasets_md <- reactiveFileReader(1000, session, "wiki/Compare_acorss_datasets.md", readLines)
+    # output$Compare_acorss_datasets_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Compare_acorss_datasets_md(), fragment.only = TRUE))
+    # })
 
-    Cilinical_data_md <- reactiveFileReader(1000, session, "wiki/Cilinical_data.md", readLines)
-    output$Cilinical_data_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Cilinical_data_md(), fragment.only = TRUE))
-    })
+    # Cilinical_data_md <- reactiveFileReader(1000, session, "wiki/Cilinical_data.md", readLines)
+    # output$Cilinical_data_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Cilinical_data_md(), fragment.only = TRUE))
+    # })
 
-    integrate_two_md <- reactiveFileReader(1000, session, "wiki/integrate_two.md", readLines)
-    output$integrate_two_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = integrate_two_md(), fragment.only = TRUE))
-    })
+    # integrate_two_md <- reactiveFileReader(1000, session, "wiki/integrate_two.md", readLines)
+    # output$integrate_two_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = integrate_two_md(), fragment.only = TRUE))
+    # })
 
-    scRNA_md <- reactiveFileReader(1000, session, "wiki/scRNA.md", readLines)
-    output$scRNA_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = scRNA_md(), fragment.only = TRUE))
-    })
+    # scRNA_md <- reactiveFileReader(1000, session, "wiki/scRNA.md", readLines)
+    # output$scRNA_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = scRNA_md(), fragment.only = TRUE))
+    # })
 
-    igv_md <- reactiveFileReader(1000, session, "wiki/igv.md", readLines)
-    output$igv_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = igv_md(), fragment.only = TRUE))
-    })
+    # igv_md <- reactiveFileReader(1000, session, "wiki/igv.md", readLines)
+    # output$igv_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = igv_md(), fragment.only = TRUE))
+    # })
 
-    Tools_md <- reactiveFileReader(1000, session, "wiki/Tools.md", readLines)
-    output$Tools_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = Tools_md(), fragment.only = TRUE))
-    })
+    # Tools_md <- reactiveFileReader(1000, session, "wiki/Tools.md", readLines)
+    # output$Tools_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = Tools_md(), fragment.only = TRUE))
+    # })
 
-    FAQ_md <- reactiveFileReader(1000, session, "wiki/FAQ.md", readLines)
-    output$FAQ_md <- renderUI({
-        HTML(markdown::markdownToHTML(text = FAQ_md(), fragment.only = TRUE))
-    })
+    # FAQ_md <- reactiveFileReader(1000, session, "wiki/FAQ.md", readLines)
+    # output$FAQ_md <- renderUI({
+    #     HTML(markdown::markdownToHTML(text = FAQ_md(), fragment.only = TRUE))
+    # })
 
+  ### 
 }
 
 
