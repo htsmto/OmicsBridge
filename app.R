@@ -3761,24 +3761,27 @@ ui <- fluidPage(
                     )
                   )
                 ),
-                tabPanel('Motif analysis',
+                tabPanel('Motif Scan',
                   h4(''),
                   fluidRow(
                     column(4,
                       box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
                         fluidRow(
+                          column(12, 
+                            helpText("This tool scans for motifs in the input peaks or sequences with the MotifDb database (PWMLogn.hg19.MotifDb.Hsap), identifying potential transcription factor binding sites within the specified genomic region.")
+                          ),
                           column(12, radioButtons('Motif_analysis_input_type', 'Input type', choices = c('Input peaks'='A', 'Input sequences'='B'), selected='A', inline=TRUE)),
                           conditionalPanel(
                             condition = "input.Motif_analysis_input_type == 'A'",
-                            column(12, textAreaInput("Motif_analysis_input_peaks", "Enter peaks (line by line)", placeholder='chr1:1000000-2000000\nchr1:2000000-3000000'))
+                            column(12, textAreaInput("Motif_analysis_input_peaks", "Enter peaks (line by line)", placeholder='chr1:1000000-2000000\nchr1:2000000-3000000')),
+                            column(12, radioButtons("Motif_analysis_input_genome_type", "Genome type", choices = c('hg38', 'hg19'), selected='hg38', inline=TRUE))
                           ),
                           conditionalPanel(
                             condition = "input.Motif_analysis_input_type == 'B'",
                             column(12, textAreaInput("Motif_analysis_input_sequences", "Enter sequences (line by line)", placeholder='ATCGATCGATCG\nGCTAGCTAGCTA'))
                           ),
-                          column(12, radioButtons("Motif_analysis_input_genome_type", "Genome type", choices = c('hg38', 'hg19'), selected='hg38', inline=TRUE)),
                           column(12, h2('')),
-                          column(12, actionButton('Motif_analysis_start', 'Start motif analysis', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                          column(12, actionButton('Motif_analysis_start', 'Start motif scan', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
                         )
                       )
                     ),
@@ -4178,20 +4181,34 @@ ui <- fluidPage(
             #     tabPanel("Tools", box(width=12, uiOutput("Tools_md"))),
             #     tabPanel("FAQ", box(width=12, uiOutput("FAQ_md")))
             # )
-            tags$div(
-              HTML("
-                <br>
-                <p style='text-align: center; font-family: Helvetica, Arial, serif; font-size: 22px;'>
-                  The wiki for OmicsBridge is available at 
-                  <a href='https://htsmto.github.io/OmicsBridge/' target='_blank' style='color: #007ACC;'>
-                    this link
-                  </a>.
-                </p>
-              ")
+            fluidRow(
+              column(12, 
+                tags$div(
+                  HTML("
+                    <br>
+                    <p style='text-align: center; font-family: Helvetica, Arial, serif; font-size: 22px;'>
+                      The wiki for OmicsBridge is available at 
+                      <a href='https://htsmto.github.io/OmicsBridge/' target='_blank' style='color: #007ACC;'>
+                        this link
+                      </a>.
+                    </p>
+                  ")
+                )
+              )
+            ),
+            fluidRow(
+              column(3, h2(' ')),
+              column(6, 
+                fluidRow(
+                  column(12, h4(strong('Session Info'))),
+                  column(12, verbatimTextOutput("session_info"))
+                )
+              ),
+              column(3, h2(' '))
             )
           )
       ),
-      h4(tags$div("Last updated on 25. June, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 6. July, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -7330,7 +7347,6 @@ server <- function(input, output, session) {
   ###
 
   ### Integrate two datasets #######################################################################
-
     #### functions for dataset selection 
       # data from who
       Seuqenced_by_select_button_creation <- function(df_tmp,Name){
@@ -8033,6 +8049,7 @@ server <- function(input, output, session) {
         
         #
       #####
+    ####
   ###
 
   ### scRNA ########################################################################################
@@ -8968,11 +8985,11 @@ server <- function(input, output, session) {
   ###
 
   ### igv ##########################################################################################
-      suppressMessages(library(igvShiny))
-      suppressMessages(library(GenomicAlignments))
-      suppressMessages(library(EnrichedHeatmap))
-      suppressMessages(library(rtracklayer))
-      suppressMessages(library(circlize))
+    suppressMessages(library(igvShiny))
+    suppressMessages(library(GenomicAlignments))
+    suppressMessages(library(EnrichedHeatmap))
+    suppressMessages(library(rtracklayer))
+    suppressMessages(library(circlize))
 
     #### data selection for IGV
       # data from who
@@ -9683,6 +9700,7 @@ server <- function(input, output, session) {
             if(nchar(input$Motif_analysis_input_peaks) == 0){
               show_alert(title='Error.',text='Please input the peaks in the format of chr:start-end.', type='error')
               output$Motif_analysis_status <- renderText({'Please input the peaks in the format of chr:start-end.'})
+              output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
               isCalculating_Motif_analysis(FALSE)
               return(NULL)
             }
@@ -9690,7 +9708,9 @@ server <- function(input, output, session) {
             peaks <- unique(peaks)
             # if the selected data is not an ATACseq data: (the value in the tmp$id is not the format of chr:start-end)
             if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", peaks))){
+              show_alert(title='Error.',text='The input peaks are not in the format of "chr:start-end". Please input the peaks in the correct format.', type='error')
               output$Motif_analysis_status <- renderText({ "The input peaks are not in the format of 'chr:start-end'. Please input the peaks in the correct format." })
+              output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
               isCalculating_Motif_analysis(FALSE)
               return(NULL)
             } 
@@ -9702,18 +9722,23 @@ server <- function(input, output, session) {
             seq_region_with_non_acgt <- seq_region[!grepl("^[ACGT]+$", as.character(seq_region))] # the selected region dose not contain A,T,G,C (or not defined)
             if(length(seq_region_with_non_acgt) > 0 ){
               if(length(seq_region_clean) == 0){ 
+                show_alert(title='Error.',text='The selected region does not contain A,T,G,C. Please select another region.', type='error')
                 output$Motif_analysis_status <- renderText({ "The selected region does not contain A,T,G,C. Please select another region." })
+                output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
                 isCalculating_Motif_analysis(FALSE)
                 return(NULL)
               }else{
                 error_peak <- peaks[!grepl("^[ACGT]+$", as.character(seq_region))]
                 output$Motif_analysis_status <- renderText({ paste("The following peaks do not contain A,T,G,C and will be ignored:\n", paste(error_peak, collapse = "\n")) })
               }
+            }else{
+              output$Motif_analysis_status <- renderText({NULL})
             }
           }else if(input$Motif_analysis_input_type == 'B'){
             if(nchar(input$Motif_analysis_input_sequences) == 0){
               show_alert(title='Error.',text='Please input the sequences in the format of ACGT.', type='error')
               output$Motif_analysis_status <- renderText({'Please input the sequences in the format of ACGT.'})
+              output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
               isCalculating_Motif_analysis(FALSE)
               return(NULL)
             }
@@ -9723,12 +9748,16 @@ server <- function(input, output, session) {
             seq_region_with_non_acgt <- seq_region[!grepl("^[ACGT]+$", as.character(seq_region))] # the selected region dose not contain A,T,G,C (or not defined)
             if(length(seq_region_with_non_acgt) > 0 ){
               if(length(seq_region_clean) == 0){ 
+                show_alert(title='Error.',text='The input sequences contain characters other than A, T, G, and C. Please enter the sequences again.', type='error')
                 output$Motif_analysis_status <- renderText({ "The input sequences contain characters other than A, T, G, and C. Please enter the sequences again." })
+                output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
                 isCalculating_Motif_analysis(FALSE)
                 return(NULL)
               }else{
                 output$Motif_analysis_status <- renderText({ paste("The following sequences contain characters other than A, T, G, and C, and will be ignored:\n", paste(seq_region_with_non_acgt, collapse = "\n")) })
               }
+            }else{
+              output$Motif_analysis_status <- renderText({NULL})
             }
             seq_region_clean <- DNAStringSet(seq_region_clean) # convert to DNAStringSet
           }
@@ -9780,9 +9809,6 @@ server <- function(input, output, session) {
         }, width = reactive(input$Motif_analysis_fig.width), height = reactive(input$Motif_analysis_fig.height), res=300)
 
     ####
-
-      
-
   ###
 
   ### Clinical_data ################################################################################
@@ -13144,61 +13170,7 @@ server <- function(input, output, session) {
   ###
 
   ### Wiki-document ##########################
-    # Introduction_md <- reactiveFileReader(1000, session, "wiki/Introduction.md", readLines)
-    # output$Introduction_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Introduction_md(), fragment.only = TRUE))
-    # })
-
-    # Database_md <- reactiveFileReader(1000, session, "wiki/Database.md", readLines)
-    # output$Database_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Database_md(), fragment.only = TRUE))
-    # })
-
-    # Data_Overview_md <- reactiveFileReader(1000, session, "wiki/Data_Overview.md", readLines)
-    # output$Data_Overview_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Data_Overview_md(), fragment.only = TRUE))
-    # })
-
-    # Gene_set_md <- reactiveFileReader(1000, session, "wiki/Gene_set.md", readLines)
-    # output$Gene_set_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Gene_set_md(), fragment.only = TRUE))
-    # })
-
-    # Compare_acorss_datasets_md <- reactiveFileReader(1000, session, "wiki/Compare_acorss_datasets.md", readLines)
-    # output$Compare_acorss_datasets_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Compare_acorss_datasets_md(), fragment.only = TRUE))
-    # })
-
-    # Cilinical_data_md <- reactiveFileReader(1000, session, "wiki/Cilinical_data.md", readLines)
-    # output$Cilinical_data_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Cilinical_data_md(), fragment.only = TRUE))
-    # })
-
-    # integrate_two_md <- reactiveFileReader(1000, session, "wiki/integrate_two.md", readLines)
-    # output$integrate_two_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = integrate_two_md(), fragment.only = TRUE))
-    # })
-
-    # scRNA_md <- reactiveFileReader(1000, session, "wiki/scRNA.md", readLines)
-    # output$scRNA_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = scRNA_md(), fragment.only = TRUE))
-    # })
-
-    # igv_md <- reactiveFileReader(1000, session, "wiki/igv.md", readLines)
-    # output$igv_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = igv_md(), fragment.only = TRUE))
-    # })
-
-    # Tools_md <- reactiveFileReader(1000, session, "wiki/Tools.md", readLines)
-    # output$Tools_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = Tools_md(), fragment.only = TRUE))
-    # })
-
-    # FAQ_md <- reactiveFileReader(1000, session, "wiki/FAQ.md", readLines)
-    # output$FAQ_md <- renderUI({
-    #     HTML(markdown::markdownToHTML(text = FAQ_md(), fragment.only = TRUE))
-    # })
-
+    output$session_info <- renderText({   paste(capture.output(sessionInfo()), collapse = "\n") })
   ### 
 }
 
