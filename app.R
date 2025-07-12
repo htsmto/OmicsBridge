@@ -11,29 +11,23 @@ options(error = recover)
   suppressMessages(library(tidyr))
   suppressMessages(library(dplyr))
   suppressMessages(library(DT))
-  suppressMessages(library(ggrepel))
-  # suppressMessages(library(GSVA)) 
+  suppressMessages(library(ggrepel)) 
   suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
   suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
   suppressMessages(library(fgsea))
   suppressMessages(library(tibble))
-  # suppressMessages(library(fgsea))
   suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
   suppressMessages(library(org.Hs.eg.db)) # BiocManager::install("org.Hs.eg.db")
   suppressMessages(library(org.Mm.eg.db)) # BiocManager::install("org.Mm.eg.db")
   suppressMessages(library(forcats))
-  # suppressMessages(library(decoupleR))  # BiocManager::install("decoupleR")
-  # suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
-  # suppressMessages(library(GenomicAlignments)) # BiocManager::install("GenomicAlignments")
+  suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
   suppressMessages(library(colourpicker))
   suppressMessages(library(stringr))
   suppressMessages(library(Cairo))
-  suppressMessages(library(eulerr))
-  suppressMessages(library(visNetwork))
-  suppressMessages(library(igvShiny))
   suppressMessages(library(shinyWidgets))
   suppressMessages(library(shinycssloaders))
   suppressMessages(library(ggraph))
+  suppressMessages(library(visNetwork))
   
 
   options(shiny.maxRequestSize = 10000*1024^2)
@@ -3791,7 +3785,8 @@ ui <- fluidPage(
                           box(width=12, title='Motifs', status='warning', collapsible = TRUE,
                             fluidRow(
                               column(12, verbatimTextOutput('Motif_analysis_status') ),
-                              column(12, withSpinner(DT::dataTableOutput('Motif_analysis_table'), type = 5, color = "#0dc5c1") )
+                              column(12, withSpinner(DT::dataTableOutput('Motif_analysis_table'), type = 5, color = "#0dc5c1") ),
+                              column(12, downloadButton('Motif_analysis_table_download', 'Download motif table', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
                             )
                           )
                         )
@@ -3824,40 +3819,41 @@ ui <- fluidPage(
                     )
                   )
                 ),
-                tabPanel('Genome visualisation'
-                  # h4(''),
-                  # fluidRow(
-                  #   column(4,
-                  #     box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
-                  #       fluidRow(
-                  #         column(12, htmlOutput('Gviz_data_select')),
-                  #         column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
-                  #       )
-                  #     )
-                  #   ),
-                  #   column(8,
-                  #     box(width=12, title='Plot', status='danger', collapsible = TRUE,
-                  #       fluidRow(
-                  #         column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
-                  #         column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
-                  #         column(10, verbatimTextOutput('Gviz_plot_status') ),
-                  #         column(2, 
-                  #           dropdownButton( h4(strong("Plot Options")),
-                  #             fluidRow(
-                  #               column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
-                  #               column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                  #               column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                  #               column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
-                  #               column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
-                  #             ),
-                  #             circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
-                  #           )
-                  #         ),
-                  #         column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") )
-                  #       )
-                  #     )
-                  #   )
-                  # )
+                tabPanel('Genome visualisation',
+                  h4(''),
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12, htmlOutput('Gviz_data_select')),
+                          column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                        fluidRow(
+                          column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19'), selected='hg38')),
+                          column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                          column(10, verbatimTextOutput('Gviz_plot_status') ),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                                column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                                column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                              ),
+                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                            )
+                          ),
+                          column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") ),
+                          column(12, helpText(paste("Visualised by the Gviz library. Version: ", installed.packages()["Gviz", "Version"])))
+                        )
+                      )
+                    )
+                  )
                 )
               )
             )
@@ -4168,19 +4164,6 @@ ui <- fluidPage(
           ),
         #### wiki-document ####
           tabItem( tabName='wiki_document',
-            # tabsetPanel(
-            #     tabPanel("Introduction", box(width=12, uiOutput("Introduction_md"))),
-            #     tabPanel("Database", box(width=12, uiOutput("Database_md"))),
-            #     tabPanel("Data_Overview", box(width=12, uiOutput("Data_Overview_md"))),
-            #     tabPanel("Gene Set", box(width=12, uiOutput("Gene_set_md"))),
-            #     tabPanel("Compare acorss datasets", box(width=12, uiOutput("Compare_acorss_datasets_md"))),
-            #     tabPanel("Clinical data", box(width=12, uiOutput("Cilinical_data_md"))),
-            #     tabPanel("Integration", box(width=12, uiOutput("integrate_two_md"))),
-            #     tabPanel("scRNA", box(width=12, uiOutput("scRNA_md"))),
-            #     tabPanel("IGV", box(width=12, uiOutput("igv_md"))),
-            #     tabPanel("Tools", box(width=12, uiOutput("Tools_md"))),
-            #     tabPanel("FAQ", box(width=12, uiOutput("FAQ_md")))
-            # )
             fluidRow(
               column(12, 
                 tags$div(
@@ -4201,6 +4184,8 @@ ui <- fluidPage(
               column(6, 
                 fluidRow(
                   column(12, h4(strong('Session Info'))),
+                  column(12, actionButton("session_info_refresh", "Refresh Session Info")),
+                  column(12, h4('')),
                   column(12, verbatimTextOutput("session_info"))
                 )
               ),
@@ -4227,8 +4212,18 @@ server <- function(input, output, session) {
         suppressMessages(library(cowplot))
         suppressMessages(library(AUCell))
       }else if(input$sidebar == 'igv'){
-        # suppressMessages(library(igvShiny))
         suppressMessages(library(GenomicAlignments))
+        suppressMessages(library(EnrichedHeatmap))
+        suppressMessages(library(rtracklayer))
+        suppressMessages(library(circlize))
+        # suppressMessages(library(Gviz))
+        suppressMessages(library(PWMEnrich.Hsapiens.background))
+        suppressMessages(library(seqLogo))
+        suppressMessages(library(PWMEnrich))
+        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+        suppressMessages(library(ggseqlogo))
+        data(PWMLogn.hg19.MotifDb.Hsap)
       }else if(input$sidebar == 'Data_Overview'){
         suppressMessages(library(decoupleR))
         # suppressMessages(library(visNetwork))
@@ -4237,6 +4232,12 @@ server <- function(input, output, session) {
       }else if(input$sidebar == 'Clinical_data'){
         suppressMessages(library(survival))
         suppressMessages(library(survminer))
+        suppressMessages(library(MCPcounter))
+        suppressMessages(library(xCell))
+      }else if(input$sidebar == 'Tools'){
+        suppressMessages(library(visNetwork))
+        suppressMessages(library(eulerr))
+
       }
     })
   ###
@@ -8053,11 +8054,6 @@ server <- function(input, output, session) {
   ###
 
   ### scRNA ########################################################################################
-    suppressMessages(library(Seurat))
-    suppressMessages(library(reshape2))
-    suppressMessages(library(cowplot))
-    suppressMessages(library(AUCell))
-
     #### data selection
       output$scRNA_data_select <- renderUI({ selectInput('scRNA_data_select', 'Select a scRNA data', c('None'='None', Dataset()[Dataset()$Data.Class == 'C',]$Dataset)) })
       outputOptions(output, "scRNA_data_select", suspendWhenHidden=FALSE)
@@ -8985,11 +8981,18 @@ server <- function(input, output, session) {
   ###
 
   ### igv ##########################################################################################
-    suppressMessages(library(igvShiny))
-    suppressMessages(library(GenomicAlignments))
-    suppressMessages(library(EnrichedHeatmap))
-    suppressMessages(library(rtracklayer))
-    suppressMessages(library(circlize))
+    # suppressMessages(library(GenomicAlignments))
+    # suppressMessages(library(EnrichedHeatmap))
+    # suppressMessages(library(rtracklayer))
+    # suppressMessages(library(circlize))
+    # # suppressMessages(library(Gviz))
+    # suppressMessages(library(PWMEnrich.Hsapiens.background))
+    # suppressMessages(library(seqLogo))
+    # suppressMessages(library(PWMEnrich))
+    # suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+    # suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+    # suppressMessages(library(ggseqlogo))
+    # data(PWMLogn.hg19.MotifDb.Hsap)
 
     #### data selection for IGV
       # data from who
@@ -9106,6 +9109,28 @@ server <- function(input, output, session) {
           imported_bw_data(bw_list)
           isCalculating_import(FALSE)
           # output$Profile_Plot_sample_selection_status <- renderText({print(length(imported_bw_data()))})
+          return()
+        })
+
+      # remove selected sample, Profile_Plot_sample_remove
+        observeEvent(input$Profile_Plot_sample_remove, {
+          if(length(input$Profile_Plot_imported_sample_table_rows_selected) == 0){
+            show_alert(title='Error.',text='Please select a sample to remove.', type='error')
+            output$Profile_Plot_sample_selection_status <- renderText({"Please select a sample to remove."})
+            return()
+          }
+          isCalculating_import(TRUE)
+          triggered_import(TRUE) 
+          selected_sample <- imported_sample()[input$Profile_Plot_imported_sample_table_rows_selected]
+          bw_list <- imported_bw_data()
+          # position index
+          delete_index <- which(imported_sample() == selected_sample)
+          bw_list <- bw_list[-delete_index]
+          tmp <- imported_sample()
+          tmp <- tmp[-delete_index]
+          imported_bw_data(bw_list)
+          imported_sample(tmp)
+          isCalculating_import(FALSE)
           return()
         })
 
@@ -9240,13 +9265,17 @@ server <- function(input, output, session) {
               )
 
               # ヒートマップ作成
+              ymax <- max(sapply(heatmap_data_list, function(x) {
+                max(colMeans(x, na.rm = TRUE))  # or another summary stat depending on your data
+              }))
               top_anno <- HeatmapAnnotation( 
                 enriched = anno_enriched(
                   gp = gpar(col = input$Profile_Plot_line_col),
                   pos_line_gp = gpar(lwd=0.5,lty = 2),
                   axis_param = list(
                     gp = grid::gpar(fontsize = input$Profile_Plot_label_size_up)
-                  )
+                  ),
+                  ylim = c(0, ymax)
                 ),
                 show_annotation_name = FALSE,
                 height=unit(input$Profile_Plot_top_annot_height , 'cm')
@@ -9288,40 +9317,85 @@ server <- function(input, output, session) {
 
       #
     #### Gviz plot
-      # library(Gviz)
       # library(GenomicRanges)
-      # # dataset select
-      #   output$Gviz_data_select <- renderUI({
-      #     df_tmp <- Dataset()
-      #     df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
-      #     selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
-      #   })
-      #   outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
+      # dataset select
+        output$Gviz_data_select <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
+        })
+        outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
 
-      #   # positions
-      #   # Gvis_chr <- reactiveVal({'chr1'})
-      #   # Gvis_start  <- reactiveVal({100000})
-      #   # Gvis_end  <- reactiveVal({200000})
-      #   # observe({
-      #   #   req(input$Gviz_chromosome_pos)
-      #   #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
-      #   #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
-      #   #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
-      #   #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
-      #   # })
+        # positions
+        # Gvis_chr <- reactiveVal({'chr1'})
+        # Gvis_start  <- reactiveVal({100000})
+        # Gvis_end  <- reactiveVal({200000})
+        # observe({
+        #   req(input$Gviz_chromosome_pos)
+        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
+        #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
+        #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
+        #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
+        # })
 
 
-      # # Plot
-      #   output$Gviz_plot <- renderPlot({
-      #     # Datatrak1 <- AlignmentsTrack('data/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome='hg38')
-      #     gen='hg38'
-      #     names(gen) <- 'chr1'
-      #     chr='chr1'
-      #     itrack <- IdeogramTrack(genome = gen, chromosome = chr)
-      #     gtrack <- GenomeAxisTrack()
-      #     plotTracks(list(itrack, gtrack ), from = 100000, to = 200000, chromosome='chr1')
-      #   }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
-      # #
+      # Plot
+        # change the cyto based on the Gviz_genome_selection. hg38 or hg19
+        cyto <- reactive({
+          if(input$Gviz_genome_selection == 'hg38'){
+            read.table("data/cytoBand_hg38.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+          }else if(input$Gviz_genome_selection == 'hg19'){
+            read.table("data/cytoBand_hg19.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+          }else{
+            return(NULL)
+          }
+        })
+        
+        # output$Gviz_plot <- renderPlot({
+        #   gen=input$Gviz_genome_selection
+
+        #   # extact the position from the input (Gviz_chromosome_pos) Gviz_plot_status
+        #   if(length(input$Gviz_chromosome_pos)==0 || input$Gviz_chromosome_pos == ''){
+        #     output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
+        #     return(NULL)
+        #   }
+        #   output$Gviz_plot_status <- renderText({NULL})
+        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
+        #   Gviz_chr <- strsplit(input$Gviz_chromosome_pos, ':')[[1]][1]
+        #   Gviz_start <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1])
+        #   Gviz_end <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2])
+        #   if(is.na(Gviz_start) || is.na(Gviz_end)){
+        #     output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
+        #     return(NULL)
+        #   }
+        #   if(Gviz_start >= Gviz_end){
+        #     output$Gviz_plot_status <- renderText({'The start position should be less than the end position.'})
+        #     return(NULL)
+        #   }
+        #   if(!Gviz_chr %in% cyto()$chrom){
+        #     output$Gviz_plot_status <- renderText({'The chromosome name is not valid. Please check the chromosome name.'})
+        #     return(NULL)
+        #   }
+        #   output$Gviz_plot_status <- renderText({NULL})
+          
+        #   names(gen) <- Gviz_chr
+        #   chr=Gviz_chr
+        #   itrack <- Gviz::IdeogramTrack(genome = gen, chromosome = chr, bands = cyto())
+        #   gtrack <- Gviz::GenomeAxisTrack()
+
+        #   # load the selected dataset
+        #   # (test)
+        #   Datatrak1 <- Gviz::AlignmentsTrack('00_Expression_data_all/2025/07.04/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome=input$Gviz_genome_selection)
+        #   # bmt <- Gviz::BiomartGeneRegionTrack(genome = input$Gviz_genome_selection, chromosome = chr,
+        #   #                               start = Gviz_start, end = Gviz_end,
+        #   #                               filter = list(with_ox_refseq_mrna = TRUE),
+        #   #                               stacking = "dense")
+
+
+        #   # Gviz::plotTracks(list(itrack, gtrack, Datatrak1, bmt ), from = Gviz_start, to = Gviz_end, chromosome=chr)
+        #   Gviz::plotTracks(list(itrack, gtrack, Datatrak1 ), from = Gviz_start, to = Gviz_end, chromosome=chr)
+        # }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
+      #
     #### Enhancer finder
       # select RNAseq data
         output$Enhancer_Find_data_select_RNAseq <- renderUI({
@@ -9530,53 +9604,74 @@ server <- function(input, output, session) {
           df_cor_tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
           ATACseq_Peak_all <- c()
           for (each_gene in intersect(target_genes, Enhancer_Find_RNAseq_data()$id)){
+            if(each_gene %in% RNAseq_df$id == FALSE){
+              next # if the gene is not in the RNAseq data, skip to the next gene
+            }
             RNAseq_df_gene <- RNAseq_df[RNAseq_df$id == each_gene, ]
             RNAseq_df_gene <- as.numeric(RNAseq_df_gene[1, RNAseq_sample_intersect]) # remove the id column
             # find the genome position
-            gene_chr <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'chr']
-            gene_start <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'start']
-            gene_end <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'end']
-            if(gene_start > gene_end){
-              tmp <- gene_start
-              gene_start <- gene_end
-              gene_end <- tmp
+            if(each_gene %in% Gene_coords_GRch38$gene_name == FALSE){
+              next # if the gene is not in the Gene_coords_GRch38, skip to the next gene
             }
-            
-            # extract the ATACseq data
-            Extend = input$Enhancer_Find_extend_length
-            if(input$Enhancer_Find_chr_focus){
-              ATACseq_df_tmp <- ATACseq_df[ATACseq_df$chr == gene_chr & ATACseq_df$end >= gene_start-Extend & ATACseq_df$start <= gene_end+Extend, ]
+            gene_chr_all <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'chr']
+            gene_start_all <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'start']
+            gene_end_all <- Gene_coords_GRch38[Gene_coords_GRch38$gene_name == each_gene, 'end']
+            if(length(gene_chr_all) == 0 | length(gene_start_all) == 0 | length(gene_end_all) == 0){
+              next # if the gene is not in the Gene_coords_GRch38, skip to the next gene
             }
-            # Calculate the correlation with RNAseq_df_gene
-            if(dim(ATACseq_df_tmp)[1] == 0){
-              next # if no ATACseq data is found, skip to the next gene
+            if(any(is.na(gene_chr_all) | is.na(gene_start_all) | is.na(gene_end_all))){
+              next # if the gene is not in the Gene_coords_GRch38, skip to the next gene
             }
-            ATACseq_Peak_all <- c(ATACseq_Peak_all, ATACseq_df_tmp$id)
-            
-            for (each_peak in ATACseq_df_tmp$id){
-              ATACseq_df_peak <- ATACseq_df_tmp[ATACseq_df_tmp$id == each_peak, ]
-              ATACseq_df_peak <- as.numeric(ATACseq_df_peak[1, -c(1,2,3,4 )]) # remove the id, chr, start
-              if(length(RNAseq_df_gene) != length(ATACseq_df_peak)){
-                next # if the length of the RNAseq and ATACseq data is not the same
+            for(i in seq_along(gene_chr_all)){
+              # if the gene has multiple positions, take the first one
+              gene_chr <- gene_chr_all[i]
+              gene_start <- gene_start_all[i]
+              gene_end <- gene_end_all[i]
+              # if the gene_start is greater than gene_end, swap them
+              if(gene_start > gene_end){
+                tmp <- gene_start
+                gene_start <- gene_end
+                gene_end <- tmp
               }
-              # tmp <- c(RNAseq_df_gene, ATACseq_df_peak)
-              # output$Enhancer_Find_table_status <- renderText({RNAseq_df_gene })
-              if(var(RNAseq_df_gene) == 0 || var(ATACseq_df_peak) == 0){
-                next # if the variance is zero, skip to the next peak
+              
+              # extract the ATACseq data
+              Extend = input$Enhancer_Find_extend_length
+              if(input$Enhancer_Find_chr_focus){
+                ATACseq_df_tmp <- ATACseq_df[ATACseq_df$chr == gene_chr & ATACseq_df$end >= gene_start-Extend & ATACseq_df$start <= gene_end+Extend, ]
               }
-              # calculate the correlation. If error, show the error message in Enhancer_Find_table_status
-              cor_test <- tryCatch(
-                cor.test(RNAseq_df_gene, ATACseq_df_peak, method = input$Enhancer_Find_calculation_type),
-                error = function(e) {
-                  output$Enhancer_Find_table_status <- renderText({paste0("Error in correlation calculation for gene: ", each_gene, " and peak: ", each_peak, ". ", e$message)})
-                  next
+              # Calculate the correlation with RNAseq_df_gene
+              if(dim(ATACseq_df_tmp)[1] == 0){
+                next # if no ATACseq data is found, skip to the next gene
+              }
+              ATACseq_Peak_all <- c(ATACseq_Peak_all, ATACseq_df_tmp$id)
+              
+              for (each_peak in ATACseq_df_tmp$id){
+                ATACseq_df_peak <- ATACseq_df_tmp[ATACseq_df_tmp$id == each_peak, ]
+                ATACseq_df_peak <- as.numeric(ATACseq_df_peak[1, -c(1,2,3,4 )]) # remove the id, chr, start
+                if(length(RNAseq_df_gene) != length(ATACseq_df_peak)){
+                  next # if the length of the RNAseq and ATACseq data is not the same
                 }
-              )
-              if (!is.null(cor_test)){
-                df_cor_tmp <- rbind(df_cor_tmp, data.frame(Gene=each_gene, Peak=each_peak,  Correlation=cor_test$estimate, P.value=cor_test$p.value,stringsAsFactors = FALSE))
+                # tmp <- c(RNAseq_df_gene, ATACseq_df_peak)
+                # output$Enhancer_Find_table_status <- renderText({RNAseq_df_gene })
+                if(var(RNAseq_df_gene) == 0 || var(ATACseq_df_peak) == 0){
+                  next # if the variance is zero, skip to the next peak
+                }
+                # calculate the correlation. If error, show the error message in Enhancer_Find_table_status
+                cor_test <- tryCatch(
+                  cor.test(RNAseq_df_gene, ATACseq_df_peak, method = input$Enhancer_Find_calculation_type),
+                  error = function(e) {
+                    output$Enhancer_Find_table_status <- renderText({paste0("Error in correlation calculation for gene: ", each_gene, " and peak: ", each_peak, ". ", e$message)})
+                    next
+                  }
+                )
+                if (!is.null(cor_test)){
+                  df_cor_tmp <- rbind(df_cor_tmp, data.frame(Gene=each_gene, Peak=each_peak,  Correlation=cor_test$estimate, P.value=cor_test$p.value,stringsAsFactors = FALSE))
+                }
               }
+
             }
-            # output$Enhancer_Find_table_status <- renderText({RNAseq_df_gene})
+
+            
           }
           ATACseq_data_table(ATACseq_df[ATACseq_df$id %in% ATACseq_Peak_all, ])
           output$Enhancer_Find_table_status <- renderText({NULL})
@@ -9670,13 +9765,6 @@ server <- function(input, output, session) {
 
 
     #### Motif search
-      library(PWMEnrich.Hsapiens.background)
-      library(seqLogo)
-      library(PWMEnrich)
-      library(BSgenome.Hsapiens.UCSC.hg38)
-      library(BSgenome.Hsapiens.UCSC.hg19)
-      library(ggseqlogo)
-      data(PWMLogn.hg19.MotifDb.Hsap)
       # defalt message
         output$Motif_analysis_status <- renderText({'Motif scan result will be shown here.'})
         output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
@@ -9786,6 +9874,21 @@ server <- function(input, output, session) {
             return(datatable(Motif_scan_result(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)))
           }
         })
+
+      # download table
+        output$Motif_analysis_table_download <- downloadHandler(
+          filename = function() {
+            "Motif_analysis_table.tsv"
+          },
+          content = function(fname) {
+            # Guard clause inside content function
+            if (!isTriggered_Motif_analysis() || isCalculating_Motif_analysis() || is.null(Motif_scan_result())) {
+              return(NULL)
+            }
+            write.table(Motif_scan_result(), fname, sep = '\t', row.names = FALSE, quote = FALSE)
+          }
+        )
+
 
       # show a logo
         output$Motif_analysis_plot <- renderPlot({
@@ -9941,8 +10044,6 @@ server <- function(input, output, session) {
 
 
     #### Survival analysis ####
-      suppressMessages(library(survival))
-      suppressMessages(library(survminer))
 
       ##### Calculate the p and HR #####
         # when using a custom gene set
@@ -11556,8 +11657,6 @@ server <- function(input, output, session) {
 
     #### Deconvolution
       # initial setting message
-        library(MCPcounter)
-        library(xCell)
         output$Deconvodution_status <- renderText({"Please select the dataset and the deconvolution method, and click 'Start deconvolution'."})
         
       # Run deconvolution
@@ -13170,7 +13269,12 @@ server <- function(input, output, session) {
   ###
 
   ### Wiki-document ##########################
-    output$session_info <- renderText({   paste(capture.output(sessionInfo()), collapse = "\n") })
+    output$session_info <- renderText({
+      input$session_info_refresh  # trigger dependency
+      isolate({
+        paste(capture.output(sessionInfo()), collapse = "\n")
+      })
+    })
   ### 
 }
 
