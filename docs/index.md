@@ -13,7 +13,7 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ## **Installation**
 
-Plase make a clone of this repository first. In the terminal,
+Please clone this repository first. In the terminal:
 
 ```bash
 git clone https://github.com/Immune-Regulation-in-Cancer/OmicsBridge.git
@@ -22,82 +22,80 @@ cd OmicsBridge
 
 Or, download the zip file from [here](https://omicsbridge.dkfz.de/OmicsBridge.zip), and umcompress it.
 
+Next, download the necessary data, uncompress and place the folders in the OmicsBridge directory:
+
 
 Please download the necessary data, uncompress and deploy the folder in the `OmicsBridge` folter.
 ```bash
 curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
 curl -O https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz
 tar -xzvf 00_Clinical_dataset.tar.gz
-tar -xzvf 00_Expression_data_all.tar.gz 
+tar -xzvf 00_Expression_data_all.tar.gz
+
+# the final file structure:
+# .
+# ├── 00_Clinical_dataset
+# ├── 00_Expression_data_all
+# ├── app.R
+# ├── data
+# ├── docs
+# ├── mkdocs.yml
+# ├── README.md
+# ├── wiki
+# └── www
 ```
 
-Or, copy the links above and paste in a browser to download the files, umcompress and diploy them inside the OmicsBridge folder.
+Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.
 
-Please make sure that all the dependencies are ready (Read below). 
-<p>
+## Dependencies
 
-Once you are ready, open R in a terminal (or in a console in R studio), and
-
-```R
-shiny::runApp('app.R')
+### Docker Image
+We provide a Docker image available from Docker Hub:
+```bash
+docker pull htsmto/omicsbridge:latest
 ```
 
-The interface will open in your brower.
-If not, check the console and find `Listening on http://127.0.0.1:XXXX`. Please go to your browser and enter `http://127.0.0.1:XXXX` in the URL bar.
-
-<p>
-
-If you have a shiny server, please deploy the folder in the shiny home. You can access the interface via `https://(Your-shiny-server-address)/OmicsBridge`
-
-## Dependency
-
-To use OmicsBridge, R is requrired and version should be >=4.4.0. We confirmed that R 4.2 or R 4.3 can be also okay for most of the functions, but some functions (ex. GSVA packages) will cause some errors, so we recommend to install the latest version of R.
-
-The necessary R libraries can be installed as the follwings:
-
-### Manually install the necessary libraries
-
-Installing via the renv library can be OS specifc. If it does not work, please install the following packages manually to your R environment.
-
+## Manual Installation of Required Libraries
+OmicsBridge requires R version **4.4.0 or higher**. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version **3.20 or higher**.
 ```R
 ## CRAN dependent packages
 install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork'))
 
 ## BiocManager dependent packages
-BiocManager::install(version = "3.20")
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell"))
+BiocManager::install() # Make sure to install >3.20
+BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz'))
 
 ## Other packages
 devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 devtools::install_github('dviraran/xCell')
-
 ```
 
-If you cannot install BiocManager >= 3.20 due to the version of R, you may install the libraries from your available BiocManager version. But we highly recommend to use >=3.20.
+## Launching the App
+Open your terminal. If you are using a Docker image:
+```bash
+docker run -it --rm \
+  -v ${Your_path_to_OmicsBridge_directory}:/app \
+  -w /app \
+  -p 4191:4191 \
+  htsmto/omicsbridge \
+  Rscript -e "shiny::runApp('app.R', host='0.0.0.0', port=4191)"
+```
+You can customise the port number (4191 in this example) as needed. Once running, open http://localhost:4191 in your browser.
 
-Depends on the system, it usually takes 30-45 minutes to install all the dependencies.
+> Note: If you are running this on a remote server, make sure to forward the port when connecting via SSH. For example:
+> ```bash
+> ssh -L 4191:localhost:4191 your_username@remote_server_address
+> ```
 
+After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app.
+If you're using your local R environment instead of Docker:
 
-### Using renv
-
-The renv package is a tool for managing project-specific package dependencies in R. We provide a lockfile for Ubuntsu and MacOS in case you restore the R environemnt via renv.
-
-```R
-install.packages('rnev') # skippable if you already have rnev
-
-## For Linux (Ubuntsu)
-renv::restore(lockfile='renv.lock')
-## For Mac
-renv::restore(lockfile='renv_Mac.lock')
-
-# Please type '1' (1: Activate the project and use the project library) when you are asked "How would you like to proceed?"
-# Please just type 'y' when you are asked "Do you want to proceed? [Y/n]:"
-
+```bash
+cd ${Your_path_to_OmicsBridge_directory}
+Rscript -e "shiny::runApp('app.R')"
 ```
 
-<br>
-Depends on the OS, it usually takes 15-30 minutes.
+A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
-## How to use?
-
-Please refer to the Wiki in the interface. We provide concise instructions and short demo videos for each visualisation and analysis there.
+## Usage Guide
+We provide a comprehensive Wiki for the interface at [https://htsmto.github.io/OmicsBridge/](https://htsmto.github.io/OmicsBridge/). The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
