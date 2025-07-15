@@ -24,8 +24,8 @@ Or, download the zip file from [here](https://omicsbridge.dkfz.de/OmicsBridge.zi
 Next, download the necessary data, uncompress and place the folders in the `OmicsBridge` directory:
 
 ```bash
-curl -O <https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz>
-curl -O <https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz>
+curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
+curl -O https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz
 tar -xzvf 00_Clinical_dataset.tar.gz
 tar -xzvf 00_Expression_data_all.tar.gz
 
@@ -63,7 +63,7 @@ install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','pa
 
 ## BiocManager dependent packages
 BiocManager::install() # Make sure to install >3.20
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell"))
+BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz'))
 
 ## Other packages
 devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
@@ -82,7 +82,17 @@ docker run -it --rm \
   Rscript -e "shiny::runApp('app.R', host='0.0.0.0', port=4191)"
 ```
 
-You can customise the port number (4191 in this example) as needed. Once running, open `http://localhost:4191` in your browser.
+You can customise the port number (4191 in this example) as needed. Once running, open `http://localhost:4191` in your browser.<br> 
+
+> Note: If you are running this on a remote server, make sure to forward the port when connecting via SSH. For example:
+> 
+> ```bash
+> ssh -L 4191:localhost:4191 your_username@remote_server_address
+> ```
+
+After logging in, run the Docker command as above on the remote server. Then, open http://localhost:4191 in your local browser to access the app. <br>
+
+
 If you're using your local R environment instead of Docker:
 
 ```R
