@@ -53,6 +53,18 @@ We provide a Docker image available from Docker Hub:
 docker pull htsmto/omicsbridge:latest
 ```
 
+### Conda/Mamba environment
+
+We provide a yml file for users can create a conda/mamba environment in their system.
+```bash
+# for Linux
+mamba env create -f omicsbridge.yml
+
+# For Mac (not intel chips)
+mamba env create -f omicsbridge_arm64.yml
+```
+
+
 ### Manual Installation of Required Libraries
 
 OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version *3.20 or higher*.
@@ -99,6 +111,10 @@ If you're using your local R environment instead of Docker:
 cd ${Your_path_to_OmicsBridge_directory}
 Rscript -e "shiny::runApp('app.R')"
 ```
+> Note: If you get an error of utils::browseURL (ex. 'browser' must be a non-empty character string), please try:
+> ```R
+> Rscript -e "shiny::runApp('app.R', launch.browser = FALSE)"
+> ```
 
 A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
