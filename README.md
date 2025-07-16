@@ -55,11 +55,11 @@ docker pull htsmto/omicsbridge:latest
 
 ### Manual Installation of Required Libraries
 
-OmicsBridge requires R version 4.2.0 or higher. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version 3.20 or higher.
+OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version *3.20 or higher*.
 
 ```R
 ## CRAN dependent packages
-install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork'))
+install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork', 'ggraph', "shinyWidgets", "shinycssloaders", 'ggseqlogo'))
 
 ## BiocManager dependent packages
 BiocManager::install() # Make sure to install >3.20
@@ -90,7 +90,7 @@ You can customise the port number (4191 in this example) as needed. Once running
 > ssh -L 4191:localhost:4191 your_username@remote_server_address
 > ```
 
-After logging in, run the Docker command as above on the remote server. Then, open http://localhost:4191 in your local browser to access the app. <br>
+After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
 
 
 If you're using your local R environment instead of Docker:
@@ -100,7 +100,7 @@ cd ${Your_path_to_OmicsBridge_directory}
 Rscript -e "shiny::runApp('app.R')"
 ```
 
-A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on http://X.X.X.X:YYYY and navigate to that URL in your browser.
+A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
 ## Usage Guide
 We provide a comprehensive Wiki for the interface at https://htsmto.github.io/OmicsBridge/.
