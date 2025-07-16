@@ -1,4 +1,4 @@
-name: /omics/groups/OE0582/internal_temp/mamba_env/OmicsBridge
+name: OmicsBridge
 channels:
   - conda-forge
   - bioconda
@@ -96,4 +96,4 @@ dependencies:
   - xorg-libxrender=0.9.12
   - xorg-libxt=1.3.1
   - zstd=1.5.7
-prefix: /omics/groups/OE0582/internal_temp/mamba_env/OmicsBridge
+prefix: OmicsBridge
