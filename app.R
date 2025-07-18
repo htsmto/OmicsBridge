@@ -4234,7 +4234,7 @@ ui <- fluidPage(
             )
           )
       ),
-      h4(tags$div("Last updated on 6. July, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 18. July, 2025 ", style = "text-align: right;"))
     )
   )
 )
