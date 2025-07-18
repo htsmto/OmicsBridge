@@ -1,5 +1,8 @@
-options(error = recover)
 #### Load packages and setting ####
+  options(install.packages.check.source = "no")
+  options(ask = FALSE)
+  suppressMessages(library(openssl))
+  suppressMessages(library(V8))
   suppressMessages(library(htmlwidgets))
   suppressMessages(library(shiny))
   suppressMessages(library(shinyjs))
@@ -20,15 +23,18 @@ options(error = recover)
   suppressMessages(library(org.Hs.eg.db)) # BiocManager::install("org.Hs.eg.db")
   suppressMessages(library(org.Mm.eg.db)) # BiocManager::install("org.Mm.eg.db")
   suppressMessages(library(forcats))
+  if (!requireNamespace("igvShiny", quietly = TRUE)) { BiocManager::install("igvShiny", ask = FALSE) }
   suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
   suppressMessages(library(colourpicker))
   suppressMessages(library(stringr))
+  if(!requireNamespace("Cairo", quietly = TRUE)) { install.packages("Cairo", dependencies = FALSE) }
   suppressMessages(library(Cairo))
   suppressMessages(library(shinyWidgets))
   suppressMessages(library(shinycssloaders))
   suppressMessages(library(ggraph))
   suppressMessages(library(visNetwork))
-  
+  if(!requireNamespace("MCPcounter", quietly = TRUE)) { devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source", force = TRUE, upgrade = "never") }
+  if(!requireNamespace("xCell", quietly = TRUE)) { devtools::install_github('dviraran/xCell',upgrade = "never") }
 
   options(shiny.maxRequestSize = 10000*1024^2)
   options(shiny.usecairo=TRUE)
@@ -37,7 +43,6 @@ options(error = recover)
   options(scipen = 10)
   set.seed(123)
   net <- readRDS('data/OmnipathR_net.rds')
-  # colour_pallets <- c('Set1', 'Set2', 'Set3', 'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = FALSE)
 ####
@@ -4220,7 +4225,13 @@ server <- function(input, output, session) {
         suppressMessages(library(PWMEnrich.Hsapiens.background))
         suppressMessages(library(seqLogo))
         suppressMessages(library(PWMEnrich))
+        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)) {
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
+        } 
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) {
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+        }
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
         suppressMessages(library(ggseqlogo))
         data(PWMLogn.hg19.MotifDb.Hsap)
@@ -4229,10 +4240,16 @@ server <- function(input, output, session) {
         # suppressMessages(library(visNetwork))
         # net <- readRDS('data/OmnipathR_net.rds')
         # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
-      }else if(input$sidebar == 'Clinical_data'){
+      }else if(input$sidebar == 'Clinical_dataset'){
         suppressMessages(library(survival))
         suppressMessages(library(survminer))
+        if(!requireNamespace("MCPcounter", quietly = TRUE)) {
+          devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source", force = TRUE)
+        }
         suppressMessages(library(MCPcounter))
+        if(!requireNamespace("xCell", quietly = TRUE)) {
+          devtools::install_github('dviraran/xCell')
+        }
         suppressMessages(library(xCell))
       }else if(input$sidebar == 'Tools'){
         suppressMessages(library(visNetwork))
