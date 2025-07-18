@@ -1,37 +1,67 @@
 #### Load packages and setting ####
   options(install.packages.check.source = "no")
   options(ask = FALSE)
+options(install.packages.check.source = "no")
+  options(ask = FALSE)
+  if(!requireNamespace('openssl', quietly = TRUE)) { install.packages('openssl', dependencies = FALSE) }
   suppressMessages(library(openssl))
+  if(!requireNamespace('V8', quietly = TRUE)) { install.packages('V8', dependencies = FALSE) }
   suppressMessages(library(V8))
+  if(!requireNamespace('htmlwidgets', quietly = TRUE)) { install.packages('htmlwidgets', dependencies = FALSE) }
   suppressMessages(library(htmlwidgets))
+  if(!requireNamespace('shiny', quietly = TRUE)) { install.packages('shiny', dependencies = FALSE) }
   suppressMessages(library(shiny))
+  if(!requireNamespace('shinyjs', quietly = TRUE)) { install.packages('shinyjs', dependencies = FALSE) }
   suppressMessages(library(shinyjs))
+  if(!requireNamespace('shinydashboard', quietly = TRUE)) { install.packages('shinydashboard', dependencies = FALSE) }
   suppressMessages(library(shinydashboard))
+  if(!requireNamespace('ggplot2', quietly = TRUE)) { install.packages('ggplot2', dependencies = FALSE) }
   suppressMessages(library(ggplot2))
+  if(!requireNamespace('ggbeeswarm', quietly = TRUE)) { install.packages('ggbeeswarm', dependencies = FALSE) }
   suppressMessages(library(ggbeeswarm))
+  if(!requireNamespace('patchwork', quietly = TRUE)) { install.packages('patchwork', dependencies = FALSE) }
   suppressMessages(library(patchwork))
+  if(!requireNamespace('igraph', quietly = TRUE)) { install.packages('igraph', dependencies = FALSE) }
   suppressMessages(library(igraph))
+  if(!requireNamespace('tidyr', quietly = TRUE)) { install.packages('tidyr', dependencies = FALSE) }
   suppressMessages(library(tidyr))
+  if(!requireNamespace('dplyr', quietly = TRUE)) { install.packages('dplyr', dependencies = FALSE) }
   suppressMessages(library(dplyr))
+  if(!requireNamespace('DT', quietly = TRUE)) { install.packages('DT', dependencies = FALSE) }
   suppressMessages(library(DT))
+  if(!requireNamespace('ggrepel', quietly = TRUE)) { install.packages('ggrepel', dependencies = FALSE) }
   suppressMessages(library(ggrepel)) 
-  suppressMessages(library(GSEABase)) # BiocManager::install("GSEABase")
-  suppressMessages(library(GSVA)) # BiocManager::install('GSVA')
+  if (!requireNamespace("GSEABase", quietly = TRUE)) { BiocManager::install("GSEABase", ask = FALSE) }
+  suppressMessages(library(GSEABase)) 
+  if (!requireNamespace("GSVA", quietly = TRUE)) { BiocManager::install("GSVA", ask = FALSE) }
+  suppressMessages(library(GSVA))
+  if (!requireNamespace("fgsea", quietly = TRUE)) { BiocManager::install("fgsea", ask = FALSE) }
   suppressMessages(library(fgsea))
+  if (!requireNamespace("tibble", quietly = TRUE)) { install.packages("tibble", dependencies = FALSE) }
   suppressMessages(library(tibble))
-  suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
-  suppressMessages(library(org.Hs.eg.db)) # BiocManager::install("org.Hs.eg.db")
-  suppressMessages(library(org.Mm.eg.db)) # BiocManager::install("org.Mm.eg.db")
+  if (!requireNamespace("clusterProfiler", quietly = TRUE)) { BiocManager::install("clusterProfiler", ask = FALSE) }
+  suppressMessages(library(clusterProfiler)) 
+  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) { BiocManager::install("org.Hs.eg.db", ask = FALSE) }
+  suppressMessages(library(org.Hs.eg.db))
+  if (!requireNamespace("org.Mm.eg.db", quietly = TRUE)) { BiocManager::install("org.Mm.eg.db", ask = FALSE) }
+  suppressMessages(library(org.Mm.eg.db))
+  if (!requireNamespace("forcats", quietly = TRUE)) { install.packages("forcats", dependencies = FALSE) }
   suppressMessages(library(forcats))
   if (!requireNamespace("igvShiny", quietly = TRUE)) { BiocManager::install("igvShiny", ask = FALSE) }
-  suppressMessages(library(igvShiny)) # BiocManager::install("igvShiny")
+  suppressMessages(library(igvShiny))
+  if (!requireNamespace("colourpicker", quietly = TRUE)) { install.packages("colourpicker", dependencies = FALSE) }
   suppressMessages(library(colourpicker))
+  if (!requireNamespace("stringr", quietly = TRUE)) { install.packages("stringr", dependencies = FALSE) }
   suppressMessages(library(stringr))
   if(!requireNamespace("Cairo", quietly = TRUE)) { install.packages("Cairo", dependencies = FALSE) }
   suppressMessages(library(Cairo))
+  if (!requireNamespace("shinyWidgets", quietly = TRUE)) { install.packages("shinyWidgets", dependencies = FALSE) }
   suppressMessages(library(shinyWidgets))
+  if (!requireNamespace("shinycssloaders", quietly = TRUE)) { install.packages("shinycssloaders", dependencies = FALSE) }
   suppressMessages(library(shinycssloaders))
+  if (!requireNamespace("ggraph", quietly = TRUE)) { install.packages("ggraph", dependencies = FALSE) }
   suppressMessages(library(ggraph))
+  if (!requireNamespace("visNetwork", quietly = TRUE)) { install.packages("visNetwork", dependencies = FALSE) }
   suppressMessages(library(visNetwork))
   if(!requireNamespace("MCPcounter", quietly = TRUE)) { devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source", force = TRUE, upgrade = "never") }
   if(!requireNamespace("xCell", quietly = TRUE)) { devtools::install_github('dviraran/xCell',upgrade = "never") }
@@ -4212,11 +4242,24 @@ server <- function(input, output, session) {
   ### Library loading ################
     observeEvent(input$sidebar,{
       if(input$sidebar == 'scRNA'){
+        if(!requireNamespace("Seurat", quietly = TRUE)) { install.packages("Seurat", dependencies = FALSE) }
         suppressMessages(library(Seurat))
+        if(!requireNamespace("reshape2", quietly = TRUE)) { install.packages("reshape2", dependencies = FALSE) }
         suppressMessages(library(reshape2))
+        if(!requireNamespace("cowplot", quietly = TRUE)) { install.packages("cowplot", dependencies = FALSE) }
         suppressMessages(library(cowplot))
+        if(!requireNamespace("AUCell", quietly = TRUE)) { BiocManager::install("AUCell", ask = FALSE) }
         suppressMessages(library(AUCell))
       }else if(input$sidebar == 'igv'){
+        if(!requireNamespace("GenomicAlignments", quietly = TRUE)) { BiocManager::install("GenomicAlignments", ask = FALSE) }
+        if(!requireNamespace("EnrichedHeatmap", quietly = TRUE)) { BiocManager::install("EnrichedHeatmap", ask = FALSE) }
+        if(!requireNamespace("rtracklayer", quietly = TRUE)) { BiocManager::install("rtracklayer", ask = FALSE) }
+        if(!requireNamespace("circlize", quietly = TRUE)) { install.packages("circlize", dependencies = FALSE) }
+        if(!requireNamespace("Gviz", quietly = TRUE)) { BiocManager::install("Gviz", ask = FALSE) }
+        if(!requireNamespace("PWMEnrich.Hsapiens.background", quietly = TRUE)) { BiocManager::install("PWMEnrich.Hsapiens.background", ask = FALSE) }
+        if(!requireNamespace("seqLogo", quietly = TRUE)) { BiocManager::install("seqLogo", ask = FALSE) }
+        if(!requireNamespace("PWMEnrich", quietly = TRUE)) { BiocManager::install("PWMEnrich", ask = FALSE) }
+        if(!requireNamespace("ggseqlogo", quietly = TRUE)) { install.packages("ggseqlogo", dependencies = FALSE) }
         suppressMessages(library(GenomicAlignments))
         suppressMessages(library(EnrichedHeatmap))
         suppressMessages(library(rtracklayer))
@@ -4225,17 +4268,15 @@ server <- function(input, output, session) {
         suppressMessages(library(PWMEnrich.Hsapiens.background))
         suppressMessages(library(seqLogo))
         suppressMessages(library(PWMEnrich))
-        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)) {
-          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
-        } 
-        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
-        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) {
-          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
-        }
-        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
         suppressMessages(library(ggseqlogo))
+        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)) { BiocManager::install("BSgenome.Hsapiens.UCSC.hg38", ask = FALSE) } 
+        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+        if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) { BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", ask = FALSE) }
+        suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+        
         data(PWMLogn.hg19.MotifDb.Hsap)
       }else if(input$sidebar == 'Data_Overview'){
+        if(!requireNamespace("decoupleR", quietly = TRUE)) { BiocManager::install("decoupleR", ask = FALSE) }
         suppressMessages(library(decoupleR))
         # suppressMessages(library(visNetwork))
         # net <- readRDS('data/OmnipathR_net.rds')
