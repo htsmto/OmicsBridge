@@ -1,7 +1,13 @@
+# if 00_Clinical_dataset and 00_Expression_data_all directory is not in the working, stop
+  if (!dir.exists('00_Clinical_dataset') || !dir.exists('00_Expression_data_all')) {
+    stop("Please make sure that the directories '00_Clinical_dataset' and '00_Expression_data_all' are downloaded and deployed in the working directory.")
+  }
+
+
 #### Load packages and setting ####
   options(install.packages.check.source = "no")
   options(ask = FALSE)
-options(install.packages.check.source = "no")
+  options(install.packages.check.source = "no")
   options(ask = FALSE)
   if(!requireNamespace('openssl', quietly = TRUE)) { install.packages('openssl', dependencies = FALSE) }
   suppressMessages(library(openssl))
