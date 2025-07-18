@@ -53,17 +53,6 @@ We provide a Docker image available from Docker Hub:
 docker pull htsmto/omicsbridge:latest
 ```
 
-### Conda/Mamba environment
-
-We provide a yml file for users can create a conda/mamba environment in their system.
-```bash
-# for Linux
-mamba env create -f omicsbridge.yml
-
-# For Mac (not intel chips)
-mamba env create -f omicsbridge_arm64.yml
-```
-
 
 ### Manual Installation of Required Libraries
 
@@ -83,9 +72,9 @@ devtools::install_github('dviraran/xCell')
 ```
 
 ## Launching the App
-Open your terminal. If you are using a Docker image:
+If you are using a Docker image, open your termiank and
 
-```R
+```bash
 docker run -it --rm \
   -v ${Your_path_to_OmicsBridge_directory}:/app \
   -w /app \
@@ -105,9 +94,9 @@ You can customise the port number (4191 in this example) as needed. Once running
 After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
 
 
-If you're using your local R environment instead of Docker:
+If you're using your local R environment instead of Docker, open your teminal and:
 
-```R
+```bash
 cd ${Your_path_to_OmicsBridge_directory}
 Rscript -e "shiny::runApp('app.R')"
 ```
