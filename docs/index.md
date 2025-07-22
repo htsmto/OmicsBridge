@@ -5,7 +5,7 @@
 OmicsBrige is an intuitive platform that integrates and visualises diverse omics datasets. Our tool assists researchers in identifying key genes with functional and clinical relevance, supporting hypothesis generation. It also functions as a centralised database for efficient data storage and access, minimising scattered datasets and enhancing overall data accessibility.
 
 
-You can use OmicsBridge in a stand alone web interface at https://omicsbridge.dkfz.de.
+You can use OmicsBridge in a stand alone web interface at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de).
 There, the uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
@@ -59,11 +59,11 @@ docker pull htsmto/omicsbridge:latest
 OmicsBridge requires R version **4.4.0 or higher**. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version **3.20 or higher**.
 ```R
 ## CRAN dependent packages
-install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork'))
+install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork', 'ggraph', "shinyWidgets", "shinycssloaders", 'ggseqlogo', 'circlize'))
 
 ## BiocManager dependent packages
 BiocManager::install() # Make sure to install >3.20
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz'))
+BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz', 'PWMEnrich', 'seqLogo', 'PWMEnrich.Hsapiens.background', 'BSgenome.Hsapiens.UCSC.hg38', 'BSgenome.Hsapiens.UCSC.hg19', 'EnrichedHeatmap', 'rtracklayer'))
 
 ## Other packages
 devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
