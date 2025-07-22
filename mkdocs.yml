@@ -8,7 +8,7 @@ nav:
   - Cilinical Data Analysis: Cilinical_data.md
   - Two Datasets Integration: integrate_two.md
   - scRNA Data Overview: scRNA.md
-  - Gonome Browser: igv.md
+  - Epigenome Visualisation: igv.md
   - Tools: Tools.md
   - FAQ: FAQ.md
 theme:

@@ -44,14 +44,17 @@ A file can be selected or dragged and dropped into the file upload section. Make
 ### **2. Complete the dataset information**.
 <span style="color: red;">Do not use line breaks</span> in any text boxes, as the database will only keep the first line. Fields marked with an asterisk (*) are required. Also, avoid using special characters (such as /,!,?, etc.).
 
-- **Dataset Name***: Denotes the name assigned to the dataset to be uploaded. Duplicate dataset names are prohibited.
-- **Experiment Name***: Refers to the name of the experiment to which the dataset is associated. This information aids in filtering the dataset for selection in the Database or Data Overview section.
-- **Data Source***: Indicates the origin or creator of the dataset.
-- **Data Type***: Represents the category of data, such as “DEG from RNAseq” or “CRISPR screening. “ All datasets categorised under the same Data Type must maintain identical data structures (i.e., same header/column names). This uniformity facilitates comparison across datasets (refer to "Compare across datasets" section).
-- **Data Class***: Select the appropriate classification for the dataset.
-- **Cell Line** (Optional): Specifies the cell line utilised in the experiment (e.g., MCF7, THP1, Mouse Monocyte Derived Macrophages, etc.).
-- **Collection Date** (Optional): Denotes the time period during which the dataset was collected.
-- **Description** (Optional): Provides additional details regarding the dataset.
+| **Field**  | **Description**|
+|-----|-----|
+| **Dataset Name***      | Denotes the name assigned to the dataset to be uploaded. Duplicate dataset names are prohibited.  |
+| **Experiment Name***   | Refers to the name of the experiment to which the dataset is associated. This information aids in filtering the dataset for selection in the Database or Data Overview section. |
+| **Data Source***       | Indicates the origin or creator of the dataset.  |
+| **Data Type***         | Represents the category of data, such as “DEG from RNAseq” or “CRISPR screening.” All datasets under the same Data Type must have identical data structures (same header/column names) for comparison. |
+| **Data Class***        | Select the appropriate classification for the dataset.|
+| **Cell Line** (Optional)     | Specifies the cell line utilised in the experiment (e.g., MCF7, THP1, Mouse Monocyte Derived Macrophages, etc.).|
+| **Collection Date** (Optional) | Denotes the time period during which the dataset was collected.|
+| **Description** (Optional)    | Provides additional details regarding the dataset.|
+
 
 ### **3. Click on ‘Add to the dataset’**.
 If the upload is successful, a message stating “Uploaded!” will appear adjacent to the upload button. Additionally, the newly added dataset will be displayed as the first entry in the table.
