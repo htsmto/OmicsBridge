@@ -9,6 +9,7 @@
   options(ask = FALSE)
   options(install.packages.check.source = "no")
   options(ask = FALSE)
+  options(ucscChromosomeNames=FALSE)
   if(!requireNamespace('openssl', quietly = TRUE)) { install.packages('openssl', dependencies = FALSE) }
   suppressMessages(library(openssl))
   if(!requireNamespace('V8', quietly = TRUE)) { install.packages('V8', dependencies = FALSE) }
@@ -81,6 +82,7 @@
   net <- readRDS('data/OmnipathR_net.rds')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = FALSE)
+  customegeneModels <- readRDS('data/customgeneModels.rds')
 ####
 
 
@@ -3867,7 +3869,15 @@ ui <- fluidPage(
                       box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
                         fluidRow(
                           column(12, htmlOutput('Gviz_data_select')),
-                          column(12, actionButton('Gviz_data_add', 'Import data', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                          column(12, radioButtons('Gviz_data_type', 'Data type', choices=c('BigWig', 'BAM'), selected='BigWig', inline=TRUE)),
+                          column(12, actionButton('Gviz_data_add', 'Use this dataset', style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
+                          column(12, h2('')),
+                          column(12, verbatimTextOutput('Gviz_selected_dataset_status') ),
+                          column(12, h2('')),
+                          column(12, h5(strong('Selected datasets:'))),
+                          column(12, DT::dataTableOutput('Gviz_selected_dataset')),
+                          column(12, actionButton('Gviz_data_delete', 'Remove the dataset from the list', style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
+                          column(12, verbatimTextOutput('Gviz_selected_dataset_delete_status') ),
                         )
                       )
                     ),
@@ -3876,15 +3886,43 @@ ui <- fluidPage(
                         fluidRow(
                           column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19'), selected='hg38')),
                           column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                          column(4, 
+                            fluidRow(
+                              column(12, h2('')),
+                              column(12, actionButton('Gviz_plot_start', 'Show Plot', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                            )
+                          ),
                           column(10, verbatimTextOutput('Gviz_plot_status') ),
                           column(2, 
                             dropdownButton( h4(strong("Plot Options")),
                               fluidRow(
                                 column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
                                 column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                                column(6, sliderInput('Gviz_plot_XY_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                                column(6, sliderInput('Gviz_plot_XY_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
-                                column(6, sliderInput('Gviz_plot_legend_size', 'Legend font size', min=0.1, max=10, value=4, step=0.1))
+                              ),
+                              fluidRow(
+                                column(12, h5(strong('For the following, please re-run the plot'))),
+                                column(6, colourpicker::colourInput('Gviz_plot_bw_col', 'The colour for the bigwig data', value="#3c6602")),
+                                column(6, colourpicker::colourInput('Gviz_plot_bam_col', 'The colour for the bam data', value="#f21392")),
+                                column(6, colourpicker::colourInput('Gviz_plot_refseq_col', 'The colour for the reference data', value="#311fbf")),
+                              ),
+                              fluidRow(
+                                column(6, numericInput('Gviz_plot_height_bw', 'The height of the bigwig data', min=1, value=20, step=1)),
+                                column(6, numericInput('Gviz_plot_height_bam', 'The height of the bam data', min=1, value=30, step=1)),
+                                column(6, numericInput('Gviz_plot_height_ref', 'The height of the reference data', min=1, value=20, step=1))
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Gviz_plot_ylim_bw', 'Use Y-axis limit for the bigwig data', value=FALSE, status = "success")),
+                                conditionalPanel(
+                                  condition = "input.Gviz_plot_ylim_bw == true",
+                                  column(6, numericInput('Gviz_plot_ylim_bw_max', 'Max Y-axis:', value=1, step=1)),
+                                )
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Gviz_plot_ylim_bam', 'Use Y-axis limit for the bam data', value=FALSE, status = "success")),
+                                conditionalPanel(
+                                  condition = "input.Gviz_plot_ylim_bam == true",
+                                  column(6, numericInput('Gviz_plot_ylim_bam_max', 'Max Y-axis:', value=50, step=1)),
+                                )
                               ),
                               circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                             )
@@ -4279,7 +4317,6 @@ server <- function(input, output, session) {
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
         if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) { BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", ask = FALSE) }
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
-        
         data(PWMLogn.hg19.MotifDb.Hsap)
       }else if(input$sidebar == 'Data_Overview'){
         if(!requireNamespace("decoupleR", quietly = TRUE)) { BiocManager::install("decoupleR", ask = FALSE) }
@@ -9045,19 +9082,6 @@ server <- function(input, output, session) {
   ###
 
   ### igv ##########################################################################################
-    # suppressMessages(library(GenomicAlignments))
-    # suppressMessages(library(EnrichedHeatmap))
-    # suppressMessages(library(rtracklayer))
-    # suppressMessages(library(circlize))
-    # # suppressMessages(library(Gviz))
-    # suppressMessages(library(PWMEnrich.Hsapiens.background))
-    # suppressMessages(library(seqLogo))
-    # suppressMessages(library(PWMEnrich))
-    # suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
-    # suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
-    # suppressMessages(library(ggseqlogo))
-    # data(PWMLogn.hg19.MotifDb.Hsap)
-
     #### data selection for IGV
       # data from who
         output$igv_data_DataFrom <- renderUI({  selectInput('igv_data_DataFrom', 'Data from', c('None'='None', Dataset()[Dataset()$Data.Class == input$igv_data_type,]$Data.from)) })
@@ -9347,7 +9371,7 @@ server <- function(input, output, session) {
               heatmaps <- lapply(seq_along(heatmap_data_list), function(i) {
                 EnrichedHeatmap(
                   heatmap_data_list[[i]], 
-                  column_title = names(heatmap_data_list)[i],
+                  column_title = gsub("(.{10})", "\\1\n", names(heatmap_data_list)[i]),
                   pos_line_gp = gpar(lwd = 0.5,lty = 2),
                   col = col_fun, use_raster = TRUE,
                   show_heatmap_legend = FALSE, 
@@ -9385,80 +9409,189 @@ server <- function(input, output, session) {
       # dataset select
         output$Gviz_data_select <- renderUI({
           df_tmp <- Dataset()
-          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          if(length(input$Gviz_data_type)==0){
+            selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None') )
+          }
+          if(input$Gviz_data_type == 'BigWig'){ # 'BigWig', 'BAM'
+            df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          }else if(input$Gviz_data_type == 'BAM'){
+            df_tmp <- df_tmp[df_tmp$Data.Class == 'F',]
+          }
           selectInput('Gviz_data_select', 'Select a dataset to see in Gviz', c('None'='None', unique(df_tmp$Dataset)) )
         })
         outputOptions(output, "Gviz_data_select", suspendWhenHidden=FALSE)
 
-        # positions
-        # Gvis_chr <- reactiveVal({'chr1'})
-        # Gvis_start  <- reactiveVal({100000})
-        # Gvis_end  <- reactiveVal({200000})
-        # observe({
-        #   req(input$Gviz_chromosome_pos)
-        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
-        #   Gvis_chr(strsplit(input$Gviz_chromosome_pos, ':')[[1]][1])
-        #   Gvis_start(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1]))
-        #   Gvis_end(as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2]))
-        # })
+        # Add the selected data to Gviz_selected_dataset and show the list in output$Gviz_selected_dataset as a table
+        Gviz_selected_dataset <- reactiveVal(c())
+        Gviz_selected_dataset_type <- reactiveVal(c())
+        observeEvent(input$Gviz_data_add, {
+          if(input$Gviz_data_select == 'None'){
+            output$Gviz_selected_dataset_status <- renderText({'Please select a dataset.'})
+            return(NULL)
+          }
+          tmp <- Gviz_selected_dataset()
+          if(input$Gviz_data_select %in% tmp) {
+            output$Gviz_selected_dataset_status <- renderText({'The selected dataset is already added.'})
+            return(NULL)
+          }
+          tmp <- c(tmp, input$Gviz_data_select)
+          Gviz_selected_dataset(tmp)
+          Gviz_selected_dataset_type(c(Gviz_selected_dataset_type(), input$Gviz_data_type))
+          output$Gviz_selected_dataset_status <- renderText({NULL})
+          return(NULL)
+        })
 
+        # show as a table
+        output$Gviz_selected_dataset <- renderDataTable({
+          if(length(Gviz_selected_dataset()) == 0){
+            tmp <- data.frame('Dataset'=character(0), stringsAsFactors = FALSE)
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE))
+          }else{
+            tmp <- data.frame('Dataset'=Gviz_selected_dataset(), 'Type'=Gviz_selected_dataset_type(), stringsAsFactors = FALSE)
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE))
+          }
+        })
+
+        # delete the selected dataset from the list
+        observeEvent(input$Gviz_data_delete, {
+          if(length(input$Gviz_selected_dataset_rows_selected) == 0){
+            output$Gviz_selected_dataset_delete_status <- renderText({'Please select a dataset to remove.'})
+            return(NULL)
+          }
+          tmp <- Gviz_selected_dataset()
+          tmp_type <- Gviz_selected_dataset_type()
+          selected_row <- input$Gviz_selected_dataset_rows_selected
+          tmp <- tmp[-selected_row]
+          tmp_type <- tmp_type[-selected_row]
+          Gviz_selected_dataset(tmp)
+          Gviz_selected_dataset_type(tmp_type)
+          output$Gviz_selected_dataset_status <- renderText({NULL})
+        })
 
       # Plot
         # change the cyto based on the Gviz_genome_selection. hg38 or hg19
-        cyto <- reactive({
-          if(input$Gviz_genome_selection == 'hg38'){
-            read.table("data/cytoBand_hg38.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
-          }else if(input$Gviz_genome_selection == 'hg19'){
-            read.table("data/cytoBand_hg19.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
-          }else{
+          cyto <- reactive({
+            if(input$Gviz_genome_selection == 'hg38'){
+              read.table("data/cytoBand_hg38.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            }else if(input$Gviz_genome_selection == 'hg19'){
+              read.table("data/cytoBand_hg19.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            }else{
+              return(NULL)
+            }
+          })
+
+        # main plot, Calculation
+          options(ucscChromosomeNames=FALSE) 
+          Gviz_Tracks <- reactiveVal(NULL)
+          Gviz_Track_sizes <- reactiveVal(c())
+          Gviz_params <- reactiveVal(NULL)
+          isCalculating_Gviz <- reactiveVal(FALSE)
+          triggered_Gviz <- reactiveVal(FALSE)
+          output$Gviz_plot_status <- renderText({
+            "Please select the input datasets and set the chromosome position, and click the start button."
+          })
+          observeEvent(input$Gviz_plot_start, {
+            isCalculating_Gviz(TRUE)
+            triggered_Gviz(TRUE)
+
+            # if the chromosome position is invalid
+            if(length(input$Gviz_chromosome_pos)==0 || input$Gviz_chromosome_pos == ''){
+              output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
+              Gviz_Tracks(NULL)
+              isCalculating_Gviz(FALSE)
+              return(NULL)
+            }
+
+            Gviz_chr <- strsplit(input$Gviz_chromosome_pos, ':')[[1]][1] # The format is "chrN:start-end". Let's break this to chrN, start, and end.
+            Gviz_start <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1])
+            Gviz_end <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2])
+
+            # if the chromosome names and position is invalid
+            if(is.na(Gviz_start) || is.na(Gviz_end)){
+              output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
+              Gviz_Tracks(NULL)
+              isCalculating_Gviz(FALSE)
+              return(NULL)
+            }
+            if(Gviz_start >= Gviz_end){
+              output$Gviz_plot_status <- renderText({'The start position should be less than the end position.'})
+              Gviz_Tracks(NULL)
+              isCalculating_Gviz(FALSE)
+              return(NULL)
+            }
+            if(!Gviz_chr %in% cyto()$chrom){
+              output$Gviz_plot_status <- renderText({'The chromosome name is not valid. Please check the chromosome name.'})
+              Gviz_Tracks(NULL)
+              isCalculating_Gviz(FALSE)
+              return(NULL)
+            }
+            output$Gviz_plot_status <- renderText({NULL})
+
+            gen=input$Gviz_genome_selection
+            chr=Gviz_chr
+
+            # base tracks
+            itrack <- Gviz::IdeogramTrack(genome = gen, chromosome = chr, bands = cyto(), fontsize=5)
+            gtrack <- Gviz::GenomeAxisTrack(fontsize=5)
+            grtrack <- Gviz::GeneRegionTrack(customegeneModels, genome = gen, chromosome = chr, name = "Refseq", transcriptAnnotation = "gene", cex = 0.4, fontsize=5,fontsize.group=2)
+
+            # refseq colour option
+            scheme <- Gviz::getScheme()
+            scheme$GeneRegionTrack$fill <- input$Gviz_plot_refseq_col
+            scheme$GeneRegionTrack$col <- NULL
+            scheme$GeneRegionTrack$fontsize <- 2
+            Gviz::addScheme(scheme, "myScheme")
+            options(Gviz.scheme = "myScheme")
+
+            ## DataTrack objects:
+            DataTrack_list <- list()
+            DataTrack_list[[1]] <- itrack
+            DataTrack_list[[2]] <- gtrack
+            Gviz_Track_sizes_tmp <- c(0.1, 0.1)
+            if(length(Gviz_selected_dataset()) >= 1){
+              for (i in seq_along(Gviz_selected_dataset())) {
+                dataset <- Gviz_selected_dataset()[i]
+                type <- Gviz_selected_dataset_type()[i]
+                path <- Dataset()[Dataset()$Dataset == dataset, ]$Path
+                if(type == 'BigWig'){
+                  if(input$Gviz_plot_ylim_bw){
+                    DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, input$Gviz_plot_bw_col, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bw_max)))
+                  }else{
+                    DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, fontsize=6)
+                  }
+                  Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bw)/100)
+                }else if(type == 'BAM'){
+                  options(ucscChromosomeNames=FALSE)
+                  if(input$Gviz_plot_ylim_bam){
+                    DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bam_max)))
+                  }else{
+                    DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6)
+                  }
+                  Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bam)/100)
+                }
+              }
+            }
+            DataTrack_list[[length(DataTrack_list) + 1]] <- grtrack
+            Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_ref)/100)
+
+            ### Gviz tracks
+            Gviz_Tracks(DataTrack_list)
+            Gviz_Track_sizes(Gviz_Track_sizes_tmp)
+            Gviz_params(list(genome = gen, chromosome = chr, from = Gviz_start, to = Gviz_end))
+            isCalculating_Gviz(FALSE)
             return(NULL)
-          }
-        })
-        
-        # output$Gviz_plot <- renderPlot({
-        #   gen=input$Gviz_genome_selection
+          })
 
-        #   # extact the position from the input (Gviz_chromosome_pos) Gviz_plot_status
-        #   if(length(input$Gviz_chromosome_pos)==0 || input$Gviz_chromosome_pos == ''){
-        #     output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
-        #     return(NULL)
-        #   }
-        #   output$Gviz_plot_status <- renderText({NULL})
-        #   # The foramt is "chrN:start-end". Let's break this to chrN, start, and end.
-        #   Gviz_chr <- strsplit(input$Gviz_chromosome_pos, ':')[[1]][1]
-        #   Gviz_start <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][1])
-        #   Gviz_end <- as.numeric(strsplit(strsplit(input$Gviz_chromosome_pos, ':')[[1]][2], '-')[[1]][2])
-        #   if(is.na(Gviz_start) || is.na(Gviz_end)){
-        #     output$Gviz_plot_status <- renderText({'Please input the chromosome position in the format "chrN:start-end".'})
-        #     return(NULL)
-        #   }
-        #   if(Gviz_start >= Gviz_end){
-        #     output$Gviz_plot_status <- renderText({'The start position should be less than the end position.'})
-        #     return(NULL)
-        #   }
-        #   if(!Gviz_chr %in% cyto()$chrom){
-        #     output$Gviz_plot_status <- renderText({'The chromosome name is not valid. Please check the chromosome name.'})
-        #     return(NULL)
-        #   }
-        #   output$Gviz_plot_status <- renderText({NULL})
-          
-        #   names(gen) <- Gviz_chr
-        #   chr=Gviz_chr
-        #   itrack <- Gviz::IdeogramTrack(genome = gen, chromosome = chr, bands = cyto())
-        #   gtrack <- Gviz::GenomeAxisTrack()
+        # plot
+          output$Gviz_plot <- renderPlot({
+            if(is.null(Gviz_Tracks())){
+              return(ggplot())
+            }else(
+              Gviz::plotTracks(Gviz_Tracks(), from = Gviz_params()$from, to = Gviz_params()$to, chromosome=Gviz_params()$chromosome, sizes = Gviz_Track_sizes())
+            )
+          }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
+        # 
 
-        #   # load the selected dataset
-        #   # (test)
-        #   Datatrak1 <- Gviz::AlignmentsTrack('00_Expression_data_all/2025/07.04/MCF7_E2_Rep1_sort_by_coordinate_dup.bam',showIndels=TRUE, name='MCF7_E2_Rep1', genome=input$Gviz_genome_selection)
-        #   # bmt <- Gviz::BiomartGeneRegionTrack(genome = input$Gviz_genome_selection, chromosome = chr,
-        #   #                               start = Gviz_start, end = Gviz_end,
-        #   #                               filter = list(with_ox_refseq_mrna = TRUE),
-        #   #                               stacking = "dense")
-
-
-        #   # Gviz::plotTracks(list(itrack, gtrack, Datatrak1, bmt ), from = Gviz_start, to = Gviz_end, chromosome=chr)
-        #   Gviz::plotTracks(list(itrack, gtrack, Datatrak1 ), from = Gviz_start, to = Gviz_end, chromosome=chr)
-        # }, width = reactive(input$Gviz_fig.width), height = reactive(input$Gviz_fig.height), res=300)
       #
     #### Enhancer finder
       # select RNAseq data
@@ -9529,7 +9662,7 @@ server <- function(input, output, session) {
           tmp <- read.table(path, header=T, check.names = FALSE  )
           # if the selected data is not an ATACseq data: (the value in the tmp$id is not the format of chr:start-end)
           if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", tmp$id))){
-            output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"The selected dataset is not an ATACseq data. \nPlease select a valid ATACseq dataset. \nThe id should be the format of 'chr:start-end'."})
+            output$Enhancer_Find_data_select_ATACseq_SampleNames <- renderText({"The selected dataset is not an ATACseq data. \nPlease select a valid ATACseq dataset. \nThe id of the ATACseq data should be the format of 'chr:start-end'."})
             Enhancer_Find_ATACseq_data(NULL)
             return(NULL)
           }
