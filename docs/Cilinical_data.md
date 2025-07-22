@@ -6,17 +6,22 @@ A cohort can be selected in the top. Once selected, its details will be shown on
 
 ## <u>**2. Survival analysis**</u>
 
-This section allows you to examine the association between gene expression and survival outcomes within a selected patient cohort. 
+This section examines the association between gene expression and survival outcomes within a selected patient cohort.
 
-You can begin by entering individual gene names or selecting a custom gene set. For each gene, a Kaplan–Meier survival curve will be generated.
+1. Enter individual gene names line by line or select a custom gene set.
+2. Choose how to divide patients into high- and low-expression groups:
+    - Using the median (default)
+    - Using top 25% vs. bottom 25%
+    - Using custom-defined thresholds (e.g., top X% vs. bottom Y%)
+    - Manually specifying the two groups by entering sample names directly
+3. Select the event type
+4. Click the start button.
+    - It generates a results table showing p-values and hazard ratios for each gene, sorted by the hazard ratio.
+5. Click on any row in the results table to display the corresponding Kaplan–Meier curve.
+6. Use the histogram feature to visualise gene expression distributions, which can help determine appropriate sample splitting criteria.
 
-Patients can be divided into high- and low-expression groups based on different criteria, such as the median, top 25% vs. bottom 25%, or custom-defined thresholds (e.g., top X% vs. bottom Y%). Alternatively, you can manually specify the two groups by entering sample names directly.
+The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to **10-2. How to upload your own cohort** section.
 
-After running the analysis, a results table will display p-values and hazard ratios for each gene. Clicking on a row in the table will display the corresponding Kaplan–Meier curve.
-
-To help determine how to split the samples, you can view gene expression distributions using histograms.
-
-The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to the **10-2. How to upload an own cohort** section.
 
 ??? success  "Adjustable graph parameters"
 
@@ -32,18 +37,17 @@ The survival events available for analysis (such as overall survival or progress
 
 ## <u>**3. Gene correlation**</u>
 
-This section allows you to explore the correlation between gene expression levels within a selected cohort.
+This section allows you to analyse gene expression correlations within a selected cohort. Users can investigate how the expression level of a specific gene correlates with the expression levels of other genes.
 
-Begin by entering the name of the target gene, which will be shown on the Y-axis of the scatter plots.
-
-You can choose between two analysis modes under Explore type:
-
-- <u>Explore one gene's correlation with specific genes</u> (default): After entering the target gene, you manually specify one or more genes to compare with it. These genes will appear on the X-axis. You can input them one per line in the text box (avoiding extra spaces), or select them from a saved Custom Geneset.
-- <u>Explore one gene's correlation with all the genes</u>: Only the target gene is needed; the system will automatically calculate correlations between the target gene and all genes available in the selected cohort. Note that this takes a few minutes. 
-  
-Next, choose the correlation method: Pearson (for linear relationships) or Spearman (for rank-based relationships). Click the Start button to run the analysis.
-
-The output will include a table showing the correlation coefficient and p-value for each gene. Clicking on a gene in the table will display a scatter plot on the right, showing the correlation between that gene and the target gene.
+1. Enter one name of the target gene (will be shown on the Y-axis of scatter plots).
+2. Select an analysis mode under Explore type:
+    - **Explore one gene's correlation with specific genes** (default):
+        - In this case, enter the gene names or select a geneset from a Custom Geneset to investigate the correlation (will be shown on the X-axis)
+    - **Explore one gene's correlation with all the genes**:
+        - It calculates correlations with all genes in the cohort. This takes several minutes.
+3. Choose correlation method: Pearson (linear relationships) or Spearman (rank-based).
+4. Click Start to run analysis. It returns a table showing correlation coefficient and p-value for each gene.
+5. Clicking any gene in the table displays its scatter plot showing correlation with the target gene.
 
 ??? success  "Adjustable graph parameters"
 
@@ -60,46 +64,110 @@ The output will include a table showing the correlation coefficient and p-value 
 
 ## <u>**4. Mutation analysis**</u>
 
-This section enables you to explore and analyse gene mutations within your selected cohort. You can examine mutation frequencies across different patient groups and investigate their impact on survival and gene expression.
-To begin your analysis, you need to specify which genes to investigate. You have three options:
+This section helps you analyse gene mutations in the selected cohort.
 
-1. Enter gene names one per line in the text box (please avoid extra spaces)
-2. Choose to analyse all genes in the dataset
-3. Select genes from a previously saved Custom Gene Set
-
-By default, the analysis includes all samples in the cohort. For more targeted analysis, you can filter samples using metadata categories such as treatment group, cancer subtype, or patient demographics. This allows you to compare mutation patterns across different patient populations.
-
-After clicking the start button, you'll get:
-
-- A comprehensive table showing the number of samples with mutations in each gene and their corresponding mutation frequencies
-- A visual **bar plot** in the 'Frequency Plot' tab displaying either the top genes by mutation count or by mutation frequency
-- In the 'Survival analysis' tab, a Kaplan-Meier curve comparing survival outcomes between wild-type and mutant groups for your selected gene
-- In the 'Gene expression' tab, a comparison of gene expression levels between wild-type and mutant groups
+1. Input the genes to investigate by:
+    - Entering gene names one per line in the text box ('Text input')
+    - Choosing to analyse all genes in the dataset ('Use all genes')
+    - Selecting a geneset from the Custom Geneset ('Select from custom genesets')
+2. Filter the samples if necessary
+    - By default, all cohort samples are included ('Use all samples')
+    - When choosing 'Use the selected samples by a specific category', you can filter samples using metadata (treatment group, cancer subtype, demographics) for targeted analysis
+3. Click the start button. A Results table will appear in the bottom left section. The following plots will be generated in the tabs:
+    - **Frequency Plot** tab: 
+    A bar plot showing the frequency or the counts of mutated genes. The Y-axis displays either mutation count or frequency (%). You can adjust the number of genes to display.
+    - **Survival analysis** tab: 
+    Select an event for survival analysis. Clicking a gene name displays a Kaplan-Meier curve comparing the wild-type patients and the mutant patients.
+    - **Gene expression plot** tab: 
+    This comparison examines the expression levels between the wild-type and mutant groups.
+        1. Click a gene in the mutation analysis results table
+        2. Enter genes in the input field to generate a table listing these genes
+        3. Click a gene from the Input genes table to generate a plot comparing its expression between the wild-type and mutant patients
 
 ??? success  "Adjustable graph parameters"
-    - Can choose to show either the number of samples with mutations or the mutation frequency
-    - Can choose to show a score on top of each bar
-    - The number of genes to show in the bar plot
-    - The size (width and height) of the figure.
-    - The size of the X and Y axis/label font size.
-    - The size of the legend font and the score font
-    - Use a white background
-    - The colour of the bar plot
+    1. Frequency Plot
+        - Plot size (width and height)
+        - X and Y label size
+        - Legend size
+        - Colours for highest and lowest mutant count/frequency
+        - Number of genes to display
+        - White background option
+        - Option to hide scores on each bar
+    2. Survival analysis
+        - Figure size (width and height)
+        - X and Y axis/label font size
+        - Legend title size
+        - Colours for high and low expression groups
+    3. Gene expression plot
+        - Plot size (width and height)
+        - X and Y label size
+        - Graph title and legend font size
+        - Colours for wild-type and mutant groups
 
 
 ## <u>**5. Gene expression across subtypes**</u>
 
-When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across these groups.
+When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across patient subgroups.
 
-Enter your genes of interest and select a category for subtyping from the "Group by" menu. Click "Start comparing" to analyse gene expression across subtypes using statistical tests. For two subtypes, the tool uses the Wilcox test; for three or more subtypes, it uses the Kruskal-Wallis test. The results table shows statistical scores (W values for two subtypes, H values for three or more) and p-values, sorted by p-value. Therefore, genes at the top of the table show the largest expression differences between subtypes. Click any row to display a visualization on the right. You can choose between Box plot, Violin plot, Swarm plot, or Violin + Swarm plot formats.
+1. Enter the genes or select a custom geneset
+2. Select a category for subtype from the "Group by" drop-down menu
+3. Click "Start comparing" to compare gene expression across subtypes. Note that visualisation may be slow and cluttered when there are many subtypes in the selected group.
+4. A result table with statistical scores and p-values will be generated. Statistical scores include W values for two subtypes and H values for three or more subtypes.
+5. Clicking any row in the table displays a visualisation on the right. Available plot types include Box plot, Violin plot, Swarm plot, or Violin + Swarm plot
+   
 
 ??? success  "Adjustable graph parameters"
-    - the size (width and height) of the figure.
-    - the size of the X and Y axis/label font size.
-    - the size of the graph title.
-    - the colour for the high- and low-expression group.
+    - Figure size (width and height)
+    - X and Y axis/label font size
+    - Graph title size
+    - Colour palette for each subtype
 
 ## <u>**6. Signature analysis**</u>
+
+This section performs signature analysis on gene expression data from the selected cohort to evaluate the activity or presence of specific biological processes.
+
+1. Choose the input type by either:
+    - Selecting from custom gene sets
+    - Entering gene names line by line
+2. Select the calculation method:
+    - GSVA (Gene Set Variation Analysis) or ssGSEA (single-sample Gene Set Enrichment Analysis) is available.
+    - What is GSVA and ssGSEA?
+        
+        
+        GSVA (Gene Set Variation Analysis) calculates an enrichment score for each gene set by transforming gene expression data into a pathway activity score across samples. It uses kernel-based density estimation to assess the relative enrichment of a gene set, comparing it to the overall expression distribution in the dataset.
+        
+        ssGSEA (single-sample Gene Set Enrichment Analysis), on the other hand, ranks genes within each sample and calculates an enrichment score based on the ranked positions of genes in a gene set. It evaluates how consistently genes of a set are positioned at the top or bottom of the ranked gene list for each individual sample.
+        
+        In summary, GSVA works across samples to estimate pathway activity, while ssGSEA focuses on ranking genes within each sample to calculate enrichment scores.
+        
+3. Click the start button. This generates a result table with scores for each sample.
+4. Three plots are generated:
+    - **Survival analysis plot** tab:
+        - Generates a Kaplan-Meier plot.
+        - Allows selection of methods to split samples into high and low-score patients: either by median or comparing Top 25% vs Bottom 25%.
+    - **Score comparison** tab:
+        - Select the group to compare signature scores and click the start button.
+        - Four plot types are available (Box plot, Violin plot, Swarm plot, and Violin + Swarm plot).
+    - **Distribution** tab:
+        - Generates a histogram of signature scores to help determine appropriate sample splitting criteria.
+  
+??? success  "Adjustable graph parameters"
+    - **Survival analysis plot**
+        - Figure size (width and height)
+        - X and Y axis/label font size
+        - Legend title size
+        - Colors for high and low expression groups
+    - **Score comparison plot**
+        - Figure size (width and height)
+        - X and Y axis/label font size
+        - Legend title size
+        - Color palette
+    - **Histogram**
+        - Figure size (width and height)
+        - X and Y axis/label font size
+        - Legend title size
+        - Histogram bin color
+        - Number of histogram bins
 
 ## <u>**7. Deconvolution analysis**</u>
 
