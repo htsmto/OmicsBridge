@@ -1,7 +1,7 @@
-# Tools
+# **Tools**
 This section contains useful tools and functions that support analyses in other sections.
 
-## <u> **Human & Mouse Gene Converter** </u>
+## <u> **1. Human & Mouse Gene Converter** </u>
 This tool converts gene symbols between human and mouse.
 
 1. Select the conversion direction (human to mouse or mouse to human).
@@ -16,7 +16,7 @@ A Conversion Table showing corresponding gene names between species will be gene
     </video>
 
 
-## <u>**Ensembl ID & Gene Symbol Converter** </u>
+## <u>**2. Ensembl ID & Gene Symbol Converter** </u>
 This tool converts between gene symbols and Ensembl IDs for both human and mouse genes.
 
 1. Select the species
@@ -30,7 +30,7 @@ A Conversion Table will be displayed in the middle. Entries without matches rema
     <source src="../videos/Tool_2_720.mp4" type="video/mp4"> 
     </video>
 
-## <u>**Find gene loci**</u>
+## <u>**3. Find gene loci**</u>
 
 This tool displays chromosomal coordinates for genes of interest in humans. It can also identify genes at specific genomic locations.
 
@@ -45,9 +45,18 @@ The tool generates a table showing gene names (both Ensembl ID and gene symbol),
     <source src="../videos/Tool_3_720.mp4" type="video/mp4"> 
     </video>
 
-## <u>**Cross-tabulation analysis**</u>
+## <u>**4. Cross-tabulation analysis**</u>
 
-This section enables users to conduct a quick cross-tabulation analysis to examine relationships between two categorical variables that are discovered while exploring datasets. Enter category names and values for each entry to generate a plot. A 2×2 table is also displayed. By default, a stacked percentile bar plot is shown. Users can display the original count values instead of percentiles, or switch to a dodge bar plot instead of a stacked one. A p-value will be calculated using either a chi-square test (default) or Fisher's exact test. The following figure parameters can be customised:
+This section offers a cross-tabulation analysis tool for examining relationships between two categorical variables. Follow these steps:
+
+1. Enter category names and values for each entry
+    - This automatically generates a 2×2 table and a plot
+2. Choose display options:
+    - View percentiles (default) or original count values
+    - Select stacked bar plot (default) or dodge bar plot
+3. Check the calculated p-value from either:
+    - Chi-square test (default)
+    - Fisher's exact test
 
 ??? success  "Adjustable graph parameters"
     - Figure size (width, height)
@@ -61,7 +70,7 @@ This section enables users to conduct a quick cross-tabulation analysis to exami
     <source src="../videos/Tool_4_720.mp4" type="video/mp4"> 
     </video>
 
-## <u>**Venn Diagram**</u>
+## <u>**5. Venn Diagram**</u>
 
 This section helps users quickly check the overlaps between two or three groups and create a Venn diagram.
 
@@ -81,4 +90,15 @@ The following figure parameters can be customised:
     <source src="../videos/Tool_5_720.mp4" type="video/mp4"> 
     </video>
 
-## <u>**Network Plot**</u>
+## <u>**6. Network Plot**</u>
+This section generates a network plot by providing a TSV file containing nodes, edges, and weights.
+
+1. Upload the input TSV file. The header should contain 'from', 'to' and 'weight' columns. Click the "Use an example data" switch to see sample data. The data table will be displayed below.
+2. After uploading, the network graph will be automatically generated.
+
+??? success  "Adjustable graph parameters"
+    - The shape of the From nodes and the To nodes.
+    - The colour of the From nodes and the To nodes.
+    - Option to show the direction of the node connections.
+
+??? example  "Example Usage video"

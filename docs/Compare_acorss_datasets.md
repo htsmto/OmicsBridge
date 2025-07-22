@@ -3,21 +3,34 @@
 
 This section enables users to compare numerical scores (such as log fold changes of genes of interest) across multiple datasets. After selecting datasets of the same type, users can perform two types of analyses:
  
-1. **"Get overlap"**: Compare the top/bottom N% of hits across datasets to identify genes that consistently appear as significant hits, tracking their frequency of occurrence.
+1. **"Get overlaps"**: Compare the top/bottom N% of hits across datasets to identify genes that consistently appear as significant hits, tracking their frequency of occurrence.
 2. **"Compare one gene"**: Compare specific scores (such as the LFC value of a particular gene) across datasets to identify experiment-specific effects and determine which conditions show stronger effect sizes.
 
 
-## <u> **Datasets selection**</u>
+## <u> **0. Datasets selection**</u>
 
 1. First, select a "Data type" from the dropdown menu to view compatible datasets with matching structures.
 2. Next, select datasets for analysis by clicking rows in the table. Use "Select all" or "Deselect all" buttons as needed. For targeted analysis, use the "Data from" and "Experiment" filters to narrow options by source or conditions.
 
-## <u>**Get overlap: Identify genes that consistently appear as hits across multiple datasets** </u>
-This section analyses genes that consistently rank at the top or bottom across selected datasets, identifying significant hits. By default, it selects the top 5% of genes ranked by the user-specified score, typically log fold changes. After clicking "Investigate the overlap," a results table appears, showing how many times each gene appears in the top/bottom N% (i.e., "Overlap_times") across the selected datasets. The table also displays each gene's score in datasets where it's significant. For non-hit genes, the score remains blank for that dataset. <br>
+## <u>**1. Get overlaps** </u> <br>
+This section analyses and identifies genes that consistently appear as significant hits across multiple datasets to .
 
-Users can filter the results by setting a minimum threshold for gene overlap across datasets using "Show genes whose Overlap_time is more than:". This lets you focus on genes that consistently appear as significant hits in multiple datasets. <br>
+1. (Select the datasets to compare)
+2. Select a score for ranking
+    - Typically log fold changes.
+    - The interface gets the top or bottom N% of genes ranked by this score.
+3. Select the direction
+    - Either investigating top X% or bottom X%
+    - For top X%, the interface will identify how many times each gene appears in the top X% across the selected datasets.
+4. Set the threshold (Default: 5%)
+5. Set "Overlap_times"
+    - This defines how many times a gene must appear in the top/bottom N%
+    - Example: If you select 10 datasets and set Overlap_times to 5 for top 15%, it will return genes that appear in the top 15% in at least 5 of the 10 datasets.
+6. Click the start button
+    - The results table will appear below.
+    - The result table displays the frequency of each gene's appearance and its corresponding score for each dataset. When a gene is not in the top/bottom X% in a dataset, its score will be blank for that dataset.
+7. Clicking any gene name in the table generates a bar plot on the right
 
-Clicking any gene name in the table generates a bar plot on the right.
 
 ??? success  "Adjustable graph parameters"
     - The size (width and height) of the figure
@@ -31,7 +44,7 @@ Clicking any gene name in the table generates a bar plot on the right.
     </video>
 
 
-## <u>**Compare one gene: Compare the scores for specific genes**</u>
+## <u>**2. Compare one gene**</u>
 
 This feature compares scores of specific genes across selected datasets, displaying results as either a bar plot or scatter plot (bar plot is default). To use it:
 

@@ -1,5 +1,5 @@
 
-# Gene set 
+# **Gene set**
 In this section, users can create and save their own gene sets. Later, in the “Data Overview”, they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. 
 
 ## <u> **Adding and editing the gene set** </u>
