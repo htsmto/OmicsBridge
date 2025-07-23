@@ -138,8 +138,7 @@ This section performs signature analysis on gene expression data from the select
         
         ssGSEA (single-sample Gene Set Enrichment Analysis), on the other hand, ranks genes within each sample and calculates an enrichment score based on the ranked positions of genes in a gene set. It evaluates how consistently genes of a set are positioned at the top or bottom of the ranked gene list for each individual sample.
         
-        In summary, GSVA works across samples to estimate pathway activity, while ssGSEA focuses on ranking genes within each sample to calculate enrichment scores.
-        
+        In summary, GSVA works across samples to estimate pathway activity, while ssGSEA focuses on ranking genes within each sample to calculate enrichment scores.      
 3. Click the start button. This generates a result table with scores for each sample.
 4. Three plots are generated:
     - **Survival analysis plot** tab:
@@ -171,15 +170,84 @@ This section performs signature analysis on gene expression data from the select
 
 ## <u>**7. Deconvolution analysis**</u>
 
+This section provides deconvolution analysis from patients' gene expression data (typically bulk RNAseq). While several deconvolution tools exist, two are available here: [MCPcounter](https://github.com/ebecht/MCPcounter) and [xCell](https://comphealth.ucsf.edu/app/xcell).
+
+1. Select the cohort
+2. Choose either MCPcounter or xCell as your method, then click the start button. A deconvolution result table will appear on the right.
+
+The interface provides two additional analysis tabs. 
+
+### <u>**7.1. Generating a heatmap/barplot**</u>
+First, you can generate a heatmap or barplot to visualise cell type fractions across samples.
+
+1. Choose which samples to use:
+    - "All samples": Includes every sample in the dataset
+    - "Filter from metadata":
+        - Filter samples by subtypes using information from the metadata files
+        - The number of samples selected will be displayed after choosing a category
+    - "Text input": Enter sample IDs (patient IDs) line by line in the text box, ensuring no extra spaces
+2. Choose which cell types to include:
+    - "All cell types": Includes all available cell types
+    - "Select cell types":
+        - A table of available cell types will be displayed
+        - Click on specific cell types you want to include in the plot
+3. Click the "Show plots" button to generate a heatmap and barplot on the right
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - X and Y axis font size
+    - Legend font size
+    - Colours for high and low deconvolution score (for the heatmap)
+
+### <u>**7.2. Exploring correlations between gene expression and cell type abundance**</u>
+
+This feature allows you to analyse the relationship between specific gene expression levels and cell type abundance.
+
+1. Enter the gene names line by line (or choose a geneset)
+2. Select a cell type to investigate
+3. Choose a correlation method, either Pearson or Spearman
+4. Click the start button. This calculates the correlation between gene expression and cell type abundance, generating a table with correlation coefficients and p-values.
+5. Clicking any row in the result table generates a scatter plot.
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - X and Y axis font size
+    - Legend font size
+    - Dot and correlation line colours
+    - Option to display or hide the correlation line
+    - Option to use a white background
+
 ## <u>**8. Compare cohorts**</u>
+In this section, you can compare gene expression or mutation frequency across different cohorts.
+
+1. (You do not have to select a cohort in this section)
+2. Enter gene names line by line, or choose a custom geneset
+3. The list of genes will appear. Click the gene you want to investigate.
+4. Select the cohorts you want to include.
+    - All cohorts stored in OmicsBridge will be listed.
+    - You can select multiple cohorts, but note that generating figures may take longer, especially for gene expression analysis. (ex. When selecting all TCGA cohorts, it takes ~30 min for the mutation frequency analysis and 2~3 minutes for the gene expression analysis.)
+5. Click the start button in either tab ("Mutation Frequency" or "Gene expression")
+    - In "Mutation Frequency," a bar plot will display the number (or percentage) of patients with mutations in the selected gene across the chosen cohorts.
+    - In "Gene expression," a box plot is generated that compares gene expression levels across the selected cohorts
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - Font size for x-axis, y-axis, and legend
+    - Colour scheme for the bar plot (mutation frequency analysis)
+    - Option to use a white background
+
 
 ## <u>**9. Cancer Gene Census (COSMOS)**</u>
+OmicsBridge includes a database of cancer predisposition genes sourced from [Cancer Gene Census from COSMIC](https://cancer.sanger.ac.uk/census). This feature helps you identify which genes from your input are known to be associated with cancer predisposition.
+
+1. Enter gene names line by line.
+2. If any of the genes you entered are associated with cancer predisposition, they will appear in the results table. If none match, the complete database will be displayed instead.
 
 
 ## <u>**10. Manage the cohort database**</u>
-Select a cohort dataset to view its details on the right. Three tables will be displayed in the "View the data" section: Gene expression, Patient survival information, and Metadata. You can also upload your own cohort from the "upload own cohort" sub-section.
- 
-### <u>**10-1. Pre-installed cohort**</u>
+The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.
+
+### <u>**10.1. Pre-installed cohort**</u>
 [TCGA](https://www.nature.com/articles/ng.2764) data (34 cancer types, see the table below) is available as pre-installed cohorts. This includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from [UCSC](https://xenabrowser.net/datapages/?hub=https://tcga.xenahubs.net:443) Xena, with gene expression values transformed as log2(RSEM normalised count+1).
 
 ??? info  "TCGA abbreviation"
@@ -221,36 +289,37 @@ Select a cohort dataset to view its details on the right. Three tables will be d
     | TCGA_LUNG | Lung Cancer |   
 
 
-### <u>**10-2.How to upload an own cohort**</u>
+### <u>**10.2.How to upload an own cohort**</u>
 
 The users can upload their own cohort and analyse it here. Three files (Gene expression, Clinical data a d Metadata) should be uploaded. Optionally, mutation data can be added. Each data has to follow the following data format.
 
-#### 1. **Gene expression**
+#### <u>**10.2.1 Gene expression**</u>
 
 A tab-delimited table of the gene expression of each sample (genes × samples(patients)) from bulk RNAseq (or microarray). 
 
 - Ensure the data is already normalised before uploading, as the interface does not perform normalisation automatically.
 - Rows (index): gene names.
-- Columns (headers): sample names that match those used in your clinical data.
+- Columns (headers): sample names that match those used in your clinical data and metadata.
 
 ??? tip "Example"
     ![Example](img/3_ex_example.png)
 
-#### 2. **Patient survival information**
+####  <u>**10.2.2. Patient survival information**</u>
 
 A tab-delimited table containing the information of overall survival, progression-free survival, etc (those needed for generating a Kaplan-Meier curve or survival analysis). Please follow these rules.
 
-- The first column must contain sample IDs and should have the header named `sample` (in all lowercase). All sample IDs should exactly match those used in your gene expression and clinical data.
-- All other columns must represent pairs of event data:
+- **The first column must contain sample IDs and should have the header named `sample` (in all lowercase).** All sample IDs should exactly match those used in your gene expression and clinical data.
+- **All other columns must represent pairs of event data**:<br>
    One column for the event status (censoring), with binary values: 1 (event occurred) or 0 (censored).
-   One corresponding column for the event time (in days), labelled with the same event name followed by .time.
-- For example: For Overall Survival (OS), use one column named OS for event status and use another column named OS.time for the number of days until the event or censoring. Similary, for other types of events (e.g., DSS, DFI, PFI), follow the same format. DSS and DSS.time, DFI and DFI.time, PFI and PFI.time, etc.
+   One corresponding column for the event time (in days), labelled with the same event name followed by `.time`. <br> 
+   For Example, when you have Overall Survival (OS) data, use one column named `OS` for event status and use another column named `OS.time` for the number of days until the event or censoring. Similary, for other types of events (e.g., DSS, DFI, PFI), follow the same format. `DSS` and `DSS.time`, `DFI` and `DFI.time`, `PFI` and `PFI.time`, etc.
+
 - You may include other columns in the dataset that do not follow the event/time pair format. These columns will be safely ignored and will not affect the analysis.
 
 ??? tip "Example"
     ![Example](img/3_clinical_example.png)
 
-#### 3. **Metadata**
+####  <u>**10.2.3. Metadata**</u>
 
 Please upload a tab-delimited (.tsv) table containing metadata for the samples (patients) in your cohort. This may include information such as treatment condition, gender, grade, or cancer subtype.
 
@@ -261,6 +330,26 @@ If you do not have any metadata to include, please upload a .tsv file that conta
 ??? tip "Example"
     ![Example](img/3_meta_example.png)
 
-#### 4. Mutation data
+#### <u>**10.2.4. Mutation data**</u>
+If you have information about which genes are mutated in which patients, you can upload this as a TSV file.
+    
+- Similar to the patient survival information and metadata, the first column must contain the sample IDs, with the header `sample` (all lowercase).
+- The second column contains gene names, with the header `id`.
+
+These two columns are sufficient. Any additional columns will be ignored.
+
+??? tip "Example"
+    ![Example](img/3_mutation_example.png)
 
 ### <u>**10-3. Edit or delete the cohort**</u>
+#### <u> **10.3.1. Editing**</u>
+
+1. Go to the "Registered cohort" table in the Cohort database section.
+2. Edit the table by double-clicking on the desired field.
+3. After making your changes, click the "Save changes" button. When you see the message "saved!", your edits have been successfully applied.
+
+#### <u> **10.3.2. Delete**</u>
+
+1. Go to the "Registered cohort" table in the Cohort database section.
+2. Select the row(s) you wish to delete.
+3. Click the "Delete selected data" button.

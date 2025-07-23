@@ -4,9 +4,9 @@ nav:
   - Database and Data Uplaod: Database.md
   - Data Overview: Data_Overview.md
   - Custom Genesets: Gene_set.md
-  - Comapre Across Datasets: Compare_acorss_datasets.md
-  - Cilinical Data Analysis: Cilinical_data.md
+  - Compare Across Datasets: Compare_across_datasets.md
   - Two Datasets Integration: integrate_two.md
+  - Clinical Data Analysis: Clinical_data.md
   - scRNA Data Overview: scRNA.md
   - Epigenome Visualisation: igv.md
   - Tools: Tools.md

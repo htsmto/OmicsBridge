@@ -1,7 +1,7 @@
 # **Dataset Integration**
 This section allows users to visualise two datasets side by side, making it easy to see how genes affected in one dataset relate to the other. Users can also merge the datasets to create integrated visualisations.
 
-## <u> **1. Data exchanging** </u>
+## <u> **1. Data exchanging (Side by Side comparison)** </u>
 This feature compares two datasets side by side and transfers information between them to visualise how genes affected in one dataset correspond to their behaviour in another dataset.
 
 1. Select the direction:
@@ -18,6 +18,24 @@ This feature compares two datasets side by side and transfers information betwee
 Important notes: Ensure the column containing gene names is labelled "id" for proper dataset merging. If selected genes aren't present in the other dataset, no highlighting will appear.
 
 ## <u> **2. Integration Plot** </u>
-Users can merge two datasets and plot them together. A common use case is plotting the log fold change (LFC) from Data1 on the X-axis and the LFC from Data2 on the Y-axis to assess consistency between datasets.
+This feature enables you to merge two datasets for integrated visualisation.
 
-To create a plot, select the X and Y axes. Column names from Data1 are prefixed with "Data1_XXX" and from Data2 with "Data2_XXX". You can also select another score to colour the dots. To highlight specific genes, enter their names in the "Enter gene(s)" text box. Detailed information appears on the right when you select an area in the plot with your mouse.
+0. (Select the two datasets in the "Side by Side comparison" section.)
+1. Select your data source for both X and Y axes to generate a scatter plot.
+    - Data1 columns are prefixed with "Data1_XXX" and Data2 columns with "Data2_XXX"
+    - X-axis typically represents scores from Data1
+    - Y-axis typically represents scores from Data2
+    - For example, plotting LFC from Data1 on the X-axis against LFC from Data2 on the Y-axis helps assess consistency between datasets
+2. Enter gene names line by line to highlight them in the plot.
+3. Select a region within the plot using your mouse to label dots with their gene names (IDs)
+    - Detailed information about the selected area appears in a table below
+4. Filtering options
+    - Set thresholds for x and y to highlight dots that exceed these values
+    - Select a gene set from HALLMARK or custom uploaded gene set lists ('Custom')
+    - Genes in the filtered area appear in a table below
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - Font size of x/y axis and title
+    - Dot size for all points and highlighted points
+    - Option to use a white background    
