@@ -617,7 +617,7 @@ ui <- fluidPage(
                             column(4, 
                               box(width=12, collapsible=TRUE, status='info', title=strong('Inputs and Settings'),
                                 fluidRow(
-                                  column(12, radioButtons('Data_Overview_heatmap_target_gene_type', 'Genes from', choices = c('Text input'='A', 'Custom Gene Sets'='B', 'HALLMARK (Human)'='C', 'HALLMARK (Mouse)'='D', 'input a gmt file'='E'), selected='A')),
+                                  column(12, radioButtons('Data_Overview_heatmap_target_gene_type', 'Genes from', choices = c('Text input'='A', 'Custom Gene Sets'='B', 'HALLMARK (Human)'='C', 'HALLMARK (Mouse)'='D', 'Input a gmt file'='E'), selected='A')),
                                   column(12, verbatimTextOutput('Data_Overview_heatmap_target_gene_type_status')),
                                   conditionalPanel(
                                     condition = "input.Data_Overview_heatmap_target_gene_type == 'A'",
@@ -950,7 +950,7 @@ ui <- fluidPage(
                                         condition = "input.How_to_filter == 'B'",
                                         column(6, materialSwitch('show_threhold_lines', 'Show the threshold lines', value=FALSE, status='info')),
                                       ),
-                                      column(12, materialSwitch("outlier_gene_colour", "change the colour", value=FALSE, status='info')),
+                                      column(12, materialSwitch("outlier_gene_colour", "Change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.outlier_gene_colour == true",
                                           column(6, colourpicker::colourInput('outlier_gene_colour_id', 'Positive side:', value='#0000CD')),
@@ -979,7 +979,7 @@ ui <- fluidPage(
                                     fluidRow(
                                       column(6, materialSwitch('hide_gene_label_pathway', 'Hide labels', value=FALSE, status='info')),
                                       column(6, materialSwitch('show_information_pathway', 'Show the genes information', value=FALSE, status='info')),
-                                      column(6, materialSwitch("pathway_gene_colour", "change the colour", value=FALSE, status='info')),
+                                      column(6, materialSwitch("pathway_gene_colour", "Change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.pathway_gene_colour == true",
                                           column(6, colourpicker::colourInput('pathway_gene_colour_id', 'select colour:', value='#FF00FF'))
@@ -1022,7 +1022,7 @@ ui <- fluidPage(
                                       column(12, htmlOutput("Plot_Gene_set_select_geneset")),
                                       column(6, materialSwitch('Plot_Gene_sethide_gene_label', 'Hide labels', value=FALSE, status='info')),
                                       column(6, materialSwitch('Plot_Gene_setshow_information', 'Show the genes information', value=FALSE, status='info')),
-                                      column(6, materialSwitch("Plot_Gene_set_pathway_gene_colour", "change the colour", value=FALSE, status='info')),
+                                      column(6, materialSwitch("Plot_Gene_set_pathway_gene_colour", "Change the colour", value=FALSE, status='info')),
                                       conditionalPanel(
                                         condition = "input.Plot_Gene_set_pathway_gene_colour == true",
                                           column(6, colourpicker::colourInput('Plot_Gene_set_pathway_gene_colour_id', 'select colour:', value='#fcc203'))
@@ -2650,7 +2650,7 @@ ui <- fluidPage(
                                           1. Set the input genes. Select a custom geneset or write down the genes list. <br>
                                           2. Choose a method.<br>
                                           3. Click the 'Calculate the signature score'. A result table with the score for each sample will be shown and a Kaplan-Meier cureve and a histogran will be automatically generated (in the Survival analysis section and the Distribution section). <br>
-                                          4. For the Score comparison part, select a group to compare and click 'Show Plot'.<br>
+                                          4. For the Score comparison part, select a group to compare and click 'Show a Plot'.<br>
                                         "))
                                       ),
                                     ), circle = TRUE, status = "danger", icon = icon("question"), width = "600px",  tooltip = tooltipOptions(title = "Quick guide"), right = TRUE
@@ -2722,7 +2722,7 @@ ui <- fluidPage(
                                     fluidRow(
                                       column(12, h3('')),
                                       column(12, h3('')),
-                                      column(12, actionButton('Signature_subtype_start', 'Show plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                                      column(12, actionButton('Signature_subtype_start', 'Show a plot',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
                                     )
                                   )
                                 ),
@@ -2800,7 +2800,7 @@ ui <- fluidPage(
                     ),
                   ###### Deconvolution
                     tabPanel(strong("Deconvolution analysis"),
-                      box(width=12, title='Deconvolution',collapsible=TRUE, status='primary',
+                      box(width=12, title=strong('Deconvolution'),collapsible=TRUE, status='primary',
                         fluidRow(
                           column(2,
                             fluidRow(
@@ -2820,7 +2820,7 @@ ui <- fluidPage(
                           )
                         )
                       ),
-                      box(width=12, title='Futher analysis', status='primary',
+                      box(width=12, title=strong('Futher analysis'), status='primary',
                         tabsetPanel(
                           tabPanel("Correlation with genes",
                             fluidRow(
@@ -2894,6 +2894,94 @@ ui <- fluidPage(
                                     ),
                                     column(12, withSpinner(plotOutput("Deconvodution_Gene_correlation_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
                                   )
+                                )
+                              )
+                            )
+                          ),
+                          tabPanel("Heatmap/Barplot",
+                            fluidRow(
+                              column(4,
+                                box(title='Inputs and Settings', width=12, status='info', collapsible=TRUE,
+                                  fluidRow(
+                                    column(12, h4('') ),
+                                    column(12, radioButtons('Deconvodution_Heatmap_sample_selection', 'Sample selection', choices=c('All samples'='A', 'Filter from meta data'='B', 'Text input'='C'), selected='A') ),
+                                    conditionalPanel(
+                                      condition = "input.Deconvodution_Heatmap_sample_selection == 'B'",
+                                      column(12, htmlOutput('Deconvodution_Heatmap_sample_selection_meta_data') ),
+                                      column(12, htmlOutput('Deconvodution_Heatmap_sample_selection_meta_data_group') ),
+                                      column(12, verbatimTextOutput('Deconvodution_Heatmap_sample_selection_meta_data_status') ),
+                                    ),
+                                    conditionalPanel(
+                                      condition = "input.Deconvodution_Heatmap_sample_selection == 'C'",
+                                      column(12, textAreaInput('Deconvodution_Heatmap_sample_selection_text_input', 'Enter sample IDs (line by line)') )
+                                    )
+                                  ),
+                                  fluidRow(
+                                    column(12, h4('') ),
+                                    column(12, radioButtons('Deconvodution_Heatmap_celltype_selection', 'Cell type selection', choices=c('All cell types'='A', 'Select cell types'='B'), selected='A') ),
+                                    conditionalPanel(
+                                      condition = "input.Deconvodution_Heatmap_celltype_selection == 'B'",
+                                      column(12,  dataTableOutput("Deconvodution_Heatmap_celltype_selection_table")),
+                                    )
+                                  ),
+                                  fluidRow(
+                                    column(12, h4('') ),
+                                    column(12, actionButton('Deconvodution_Heatmap_start', 'Show a heatmap',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" ) )
+                                  )
+                                )
+                              ),
+                              column(8,
+                                box(title='Plot', width=12, status='danger', collapsible=TRUE,
+                                  tabsetPanel(
+                                    tabPanel('Heatmap',
+                                      fluidRow(
+                                        column(12, h4('')),
+                                        column(10, verbatimTextOutput('Deconvodution_Heatmap_status') ),
+                                        column(2, 
+                                          dropdownButton( h4(strong("Plot Options")),
+                                            fluidRow(
+                                              column(6,sliderInput('Deconvodution_Heatmap_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
+                                              column(6,sliderInput('Deconvodution_Heatmap_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
+                                            ),
+                                            fluidRow(
+                                              column(6, sliderInput('Deconvodution_Heatmap_X_font.size', 'X-axis font size', min=0, max=10, value=3, step=0.1)),
+                                              column(6, sliderInput('Deconvodution_Heatmap_Y_font.size', 'Y-axis font size', min=0, max=10, value=2, step=0.1)),
+                                              column(6, sliderInput('Deconvodution_Heatmap_legend_font.size', 'Legend font size', min=1, max=10, value=3, step=0.1))
+                                            ),
+                                            fluidRow(
+                                              column(6, colourpicker::colourInput('Deconvodution_Heatmap_high_colour', 'Colour of the highest value:', value='red')),
+                                              column(6, colourpicker::colourInput('Deconvodution_Heatmap_zero_colour', 'Colour of 0:', value='white')),
+                                            ),
+                                            circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                          ) 
+                                        ),
+                                        column(12, withSpinner(plotOutput("Deconvodution_Heatmap_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
+                                      ),
+                                    ),
+                                    tabPanel('Barplot',
+                                      fluidRow(
+                                        column(12, h4('')),
+                                        column(10, verbatimTextOutput('Deconvodution_Barplot_status') ),
+                                        column(2, 
+                                          dropdownButton( h4(strong("Plot Options")),
+                                            fluidRow(
+                                              column(6,sliderInput('Deconvodution_Barplot_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
+                                              column(6,sliderInput('Deconvodution_Barplot_fig.height', 'Fig height', min=300, max=3000, value=800, step=10)),
+                                            ),
+                                            fluidRow(
+                                              column(6, sliderInput('Deconvodution_Barplot_X_font.size', 'X-axis font size', min=0, max=10, value=3, step=0.1)),
+                                              column(6, sliderInput('Deconvodution_Barplot_Y_font.size', 'Y-axis font size', min=0, max=10, value=2, step=0.1)),
+                                              column(6, sliderInput('Deconvodution_Barplot_legend_font.size', 'Legend font size', min=1, max=10, value=3, step=0.1))
+                                            ),
+                                            circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                          ) 
+                                        ),
+                                        column(12, materialSwitch('Deconvodution_Barplot_percentage', 'Percentile plot', value=FALSE, status = "success")),
+                                        column(12, withSpinner(plotOutput("Deconvodution_Barplot_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
+                                      )
+                                    )
+                                  )
+
                                 )
                               )
                             )
@@ -3807,7 +3895,7 @@ ui <- fluidPage(
                           column(12, 
                             helpText("This tool scans for motifs in the input peaks or sequences with the MotifDb database (PWMLogn.hg19.MotifDb.Hsap), identifying potential transcription factor binding sites within the specified genomic region.")
                           ),
-                          column(12, radioButtons('Motif_analysis_input_type', 'Input type', choices = c('Input peaks'='A', 'Input sequences'='B'), selected='A', inline=TRUE)),
+                          column(12, radioButtons('Motif_analysis_input_type', 'Input type', choices = c('Input genomic positions'='A', 'Input sequences'='B'), selected='A', inline=TRUE)),
                           conditionalPanel(
                             condition = "input.Motif_analysis_input_type == 'A'",
                             column(12, textAreaInput("Motif_analysis_input_peaks", "Enter peaks (line by line)", placeholder='chr1:1000000-2000000\nchr1:2000000-3000000')),
@@ -4223,8 +4311,8 @@ ui <- fluidPage(
                                   fluidRow(
                                   column(6, selectInput("Network_input_shape_from", "The shape of node (From)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='ellipse')),
                                   column(6, selectInput("Network_input_shape_to", "The shape of node (To)", c('ellipse', 'circle', 'database', 'box', 'text', 'dot', 'star', 'triangle', 'triangleDown', 'square'), selected='circle')),
-                                  column(6, colourpicker::colourInput("Network_input_color_from", "The color of node (From)", value='#F7AFAF' )),
-                                  column(6, colourpicker::colourInput("Network_input_color_to", "The color of node (To)", value='#B2E9FF' )),
+                                  column(6, colourpicker::colourInput("Network_input_color_from", "The colour of node (From)", value='#F7AFAF' )),
+                                  column(6, colourpicker::colourInput("Network_input_color_to", "The colour of node (To)", value='#B2E9FF' )),
                                   column(12, materialSwitch("Network_input_arrow", "Show direction", value=FALSE,  status='info' )),
                                 ),
                                 circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Graph Settings")
@@ -10121,6 +10209,9 @@ server <- function(input, output, session) {
       # show the details when it is selected
         output$Clinical_Dataset_detail <- renderText({
           df_tmp <- Cliniacal_dataset()
+          if(length(input$Clinical_data_select) == 0){
+            return('Please select a dataset.')
+          }
           if(input$Clinical_data_select != 'None'){
             paste0('Description: ' , as.character(df_tmp[df_tmp$Database.Name == input$Clinical_data_select, ]$Description), '\n' )
           }else{
@@ -11948,159 +12039,346 @@ server <- function(input, output, session) {
         outputOptions(output, "Deconvodution_Gene_correlation_select_celltype", suspendWhenHidden=FALSE)
 
       # calculate p and r
-      output$Deconvodution_Gene_correlation_status0 <- renderText({
-        "Please do the deconvolution first, and then, enter the input and choose the setting.\nCorrelations between the inputted genes' expressions and the estimated immune cell abandance level will be calculated."
-      })
-      output$Deconvodution_Gene_correlation_status <- renderText({"Please do the deconvolution first."})
-      Deconvodution_gene_correlation <- reactiveVal(NULL)
-      isCalculating_Deconvodution_gene_correlation <- reactiveVal(FALSE)
-      isTriggered_Deconvodution_gene_correlation <- reactiveVal(FALSE)
-      observeEvent(input$Deconvodution_Gene_correlation_start, {
-        isTriggered_Deconvodution_gene_correlation(TRUE)
-        isCalculating_Deconvodution_gene_correlation(TRUE)
-        if(input$Deconvodution_Gene_correlation_select_celltype == 'None'){
-          show_alert(title='Error.', text='Please select a cell type to compare.', type='error')
-          output$Deconvodution_Gene_correlation_status0 <- renderText({"Please choose the cell type"})
-          Deconvodution_gene_correlation(NULL)
-          isCalculating_Deconvodution_gene_correlation(FALSE)
-          return(NULL)
-        }
-        if(input$Deconvodution_Gene_correlation_from_custom_geneset){
-          if(input$Deconvodution_Gene_correlation_from_custom_geneset_select == 'None'){
-            show_alert(title='Error.', text='Please select a custom gene set.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please select a custom gene set."})
+        output$Deconvodution_Gene_correlation_status0 <- renderText({
+          "Please do the deconvolution first, and then, enter the input and choose the setting.\nCorrelations between the inputted genes' expressions and the estimated immune cell abandance level will be calculated."
+        })
+        output$Deconvodution_Gene_correlation_status <- renderText({"Please do the deconvolution first."})
+        Deconvodution_gene_correlation <- reactiveVal(NULL)
+        isCalculating_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+        isTriggered_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+        observeEvent(input$Deconvodution_Gene_correlation_start, {
+          isTriggered_Deconvodution_gene_correlation(TRUE)
+          isCalculating_Deconvodution_gene_correlation(TRUE)
+          if(input$Deconvodution_Gene_correlation_select_celltype == 'None'){
+            show_alert(title='Error.', text='Please select a cell type to compare.', type='error')
+            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please choose the cell type"})
             Deconvodution_gene_correlation(NULL)
             isCalculating_Deconvodution_gene_correlation(FALSE)
             return(NULL)
           }
-          genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-        }else{
-          if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
-            show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please enter genes (line by line)"})
+          if(input$Deconvodution_Gene_correlation_from_custom_geneset){
+            if(input$Deconvodution_Gene_correlation_from_custom_geneset_select == 'None'){
+              show_alert(title='Error.', text='Please select a custom gene set.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please select a custom gene set."})
+              Deconvodution_gene_correlation(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }
+            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+          }else{
+            if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
+              show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please enter genes (line by line)"})
+              Deconvodution_gene_correlation(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }
+            genes <- unlist(strsplit(input$Deconvodution_Gene_correlation_genes, '\n'))
+          }
+          # Cell abundunce
+          if(is.null(deconv_table())){
+            show_alert(title='Error.', text='Please do the deconvolution first.', type='error')
+            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please do deconvolution first."})
             Deconvodution_gene_correlation(NULL)
             isCalculating_Deconvodution_gene_correlation(FALSE)
             return(NULL)
           }
-          genes <- unlist(strsplit(input$Deconvodution_Gene_correlation_genes, '\n'))
-        }
-        # Cell abundunce
-        if(is.null(deconv_table())){
-          show_alert(title='Error.', text='Please do the deconvolution first.', type='error')
-          output$Deconvodution_Gene_correlation_status0 <- renderText({"Please do deconvolution first."})
-          Deconvodution_gene_correlation(NULL)
+          deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
+          cell_type <- input$Deconvodution_Gene_correlation_select_celltype # cell_type <- 'aDC'
+          deconv_table_cell <- deconv_table[cell_type,]
+          df_geneEx <- Clinical_gene_expression() # genes <- c('CXCL10', 'CXCL9')
+          sample_deconv <- gsub('\\.', '-', colnames(deconv_table))
+          sample_geneEx <- gsub('\\.', '-', colnames(df_geneEx))
+          if(length(intersect(sample_deconv, sample_geneEx))==0){
+            show_alert(title='Error.', text='The sample names in the gene expression data and the deconvolution data do not match. Please check the data.', type='error')
+            output$Deconvodution_Gene_correlation_status0 <- renderText({'Error. Please chech the expression data has a "sample" in its columns'})
+            Deconvodution_gene_correlation(NULL)
+            isCalculating_Deconvodution_gene_correlation(FALSE)
+            return(NULL)
+          }
+          genes <- intersect(genes, rownames(df_geneEx))
+          if(length(genes) == 0){
+            show_alert(title='Error.', text='The inputted gene is not in the dataset. Please make sure the gene name is correct and does not include unnecessary spaces.', type='error')
+            output$Deconvodution_Gene_correlation_status0 <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+            Deconvodution_gene_correlation(NULL)
+            isCalculating_Deconvodution_gene_correlation(FALSE)
+            return(NULL)
+          }
+          df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
+          if(length(input$Deconvodution_Gene_correlation_method)==0){
+            show_alert(title='Error.', text='Please select the method for correlation.', type='error')
+            output$Deconvodution_Gene_correlation_status0 <- renderText({'Please select the Method for correlation.'})
+            Deconvodution_gene_correlation(NULL)
+            isCalculating_Deconvodution_gene_correlation(FALSE)
+            return(NULL)
+          }
+          for ( gene2 in genes){ # gene2 = genes[1]
+            gene_ex <- unlist(df_geneEx[gene2,])
+            c <- cor.test(deconv_table_cell, gene_ex, method=input$Deconvodution_Gene_correlation_method)
+            r <- c$estimate
+            p <- c$p.value
+            df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
+            df_cor_out <- rbind(df_cor_out, df_cor_tmp)
+          }
+          df_cor_out <- df_cor_out[order(df_cor_out$p, decreasing=F),]
+          df_cor_out$cell_type <- cell_type
+          rownames(df_cor_out) <- NULL
+          output$Deconvodution_Gene_correlation_status0 <- renderText({NULL})
+          Deconvodution_gene_correlation(df_cor_out)
           isCalculating_Deconvodution_gene_correlation(FALSE)
           return(NULL)
-        }
-        deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
-        cell_type <- input$Deconvodution_Gene_correlation_select_celltype # cell_type <- 'aDC'
-        deconv_table_cell <- deconv_table[cell_type,]
-        df_geneEx <- Clinical_gene_expression() # genes <- c('CXCL10', 'CXCL9')
-        sample_deconv <- gsub('\\.', '-', colnames(deconv_table))
-        sample_geneEx <- gsub('\\.', '-', colnames(df_geneEx))
-        if(length(intersect(sample_deconv, sample_geneEx))==0){
-          show_alert(title='Error.', text='The sample names in the gene expression data and the deconvolution data do not match. Please check the data.', type='error')
-          output$Deconvodution_Gene_correlation_status0 <- renderText({'Error. Please chech the expression data has a "sample" in its columns'})
-          Deconvodution_gene_correlation(NULL)
-          isCalculating_Deconvodution_gene_correlation(FALSE)
-          return(NULL)
-        }
-        genes <- intersect(genes, rownames(df_geneEx))
-        if(length(genes) == 0){
-          show_alert(title='Error.', text='The inputted gene is not in the dataset. Please make sure the gene name is correct and does not include unnecessary spaces.', type='error')
-          output$Deconvodution_Gene_correlation_status0 <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
-          Deconvodution_gene_correlation(NULL)
-          isCalculating_Deconvodution_gene_correlation(FALSE)
-          return(NULL)
-        }
-        df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
-        if(length(input$Deconvodution_Gene_correlation_method)==0){
-          show_alert(title='Error.', text='Please select the method for correlation.', type='error')
-          output$Deconvodution_Gene_correlation_status0 <- renderText({'Please select the Method for correlation.'})
-          Deconvodution_gene_correlation(NULL)
-          isCalculating_Deconvodution_gene_correlation(FALSE)
-          return(NULL)
-        }
-        for ( gene2 in genes){ # gene2 = genes[1]
-          gene_ex <- unlist(df_geneEx[gene2,])
-          c <- cor.test(deconv_table_cell, gene_ex, method=input$Deconvodution_Gene_correlation_method)
-          r <- c$estimate
-          p <- c$p.value
-          df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
-          df_cor_out <- rbind(df_cor_out, df_cor_tmp)
-        }
-        df_cor_out <- df_cor_out[order(df_cor_out$p, decreasing=F),]
-        df_cor_out$cell_type <- cell_type
-        rownames(df_cor_out) <- NULL
-        output$Deconvodution_Gene_correlation_status0 <- renderText({NULL})
-        Deconvodution_gene_correlation(df_cor_out)
-        isCalculating_Deconvodution_gene_correlation(FALSE)
-        return(NULL)
-      })
+        })
 
       # show in table
-      output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-      output$Deconvodution_Gene_correlation_table <- DT::renderDataTable({
-        if(is.null(Deconvodution_gene_correlation())){
-          output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-          datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-        }else if(length(Deconvodution_gene_correlation()) == 0){
-          output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-          datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-        }else{
-          output$Deconvodution_Gene_correlation_status1 <- renderText(NULL)
-          datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-        }
-      })
+        output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+        output$Deconvodution_Gene_correlation_table <- DT::renderDataTable({
+          if(is.null(Deconvodution_gene_correlation())){
+            output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          }else if(length(Deconvodution_gene_correlation()) == 0){
+            output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          }else{
+            output$Deconvodution_Gene_correlation_status1 <- renderText(NULL)
+            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+          }
+        })
 
       # download
-      output$Deconvodution_Gene_correlation_table_download <- downloadHandler(
-        filename = function(){"deconvoluted_Cell_type_correlation.tsv"}, 
-        content = function(fname){ write.table(Deconvodution_gene_correlation(), fname, sep='\t', row.names=F, quote=F) }
-      )
+        output$Deconvodution_Gene_correlation_table_download <- downloadHandler(
+          filename = function(){"deconvoluted_Cell_type_correlation.tsv"}, 
+          content = function(fname){ write.table(Deconvodution_gene_correlation(), fname, sep='\t', row.names=F, quote=F) }
+        )
 
       # plot scatter
-      output$Deconvodution_Gene_correlation_plot <- renderPlot({
-        if(is.null(Deconvodution_gene_correlation())){
-          # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
-          return(ggplot())
-        }else{
-          if(length(input$Deconvodution_Gene_correlation_table_rows_selected)>0){
-            output$Deconvodution_Gene_correlation_status <- renderText({NULL})
-            cell_type <- Deconvodution_gene_correlation()$cell_type[1]
-            Gene2 <- Deconvodution_gene_correlation()[input$Deconvodution_Gene_correlation_table_rows_selected,]$Gene
-            df_geneEx <- Clinical_gene_expression()
-            deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
-            df_deconv_table_cell <- data.frame(deconv_table[cell_type,])
-            colnames(df_deconv_table_cell) <- 'cell_type' # head(df_deconv_table_cell)
-            df_deconv_table_cell$sample <- gsub('\\.', '-', rownames(df_deconv_table_cell))
-            df_geneEx_selected <- data.frame(unlist(df_geneEx[Gene2, ])) # Gene2="CXCL10"
-            colnames(df_geneEx_selected) <- 'Gene2' # head(df_geneEx_selected )
-            df_geneEx_selected$sample <- gsub('\\.', '-', rownames(df_geneEx_selected))
-            scatter_data <- merge(df_deconv_table_cell, df_geneEx_selected, by='sample') # head(df_out)
-            p <- ggplot(scatter_data, aes(x=Gene2, y=cell_type))
-            p <- p + geom_point(size=0.5, color=input$Deconvodution_Gene_correlation_colour, alpha=0.7)
-            if(input$Deconvodution_Gene_correlation_show_correlation_line){
-              p <- p + geom_smooth(method='lm', se=TRUE, color=input$Deconvodution_Gene_correlation_colour, size=0.4)
+        output$Deconvodution_Gene_correlation_plot <- renderPlot({
+          if(is.null(Deconvodution_gene_correlation())){
+            # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
+            return(ggplot())
+          }else{
+            if(length(input$Deconvodution_Gene_correlation_table_rows_selected)>0){
+              output$Deconvodution_Gene_correlation_status <- renderText({NULL})
+              cell_type <- Deconvodution_gene_correlation()$cell_type[1]
+              Gene2 <- Deconvodution_gene_correlation()[input$Deconvodution_Gene_correlation_table_rows_selected,]$Gene
+              df_geneEx <- Clinical_gene_expression()
+              deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
+              df_deconv_table_cell <- data.frame(deconv_table[cell_type,])
+              colnames(df_deconv_table_cell) <- 'cell_type' # head(df_deconv_table_cell)
+              df_deconv_table_cell$sample <- gsub('\\.', '-', rownames(df_deconv_table_cell))
+              df_geneEx_selected <- data.frame(unlist(df_geneEx[Gene2, ])) # Gene2="CXCL10"
+              colnames(df_geneEx_selected) <- 'Gene2' # head(df_geneEx_selected )
+              df_geneEx_selected$sample <- gsub('\\.', '-', rownames(df_geneEx_selected))
+              scatter_data <- merge(df_deconv_table_cell, df_geneEx_selected, by='sample') # head(df_out)
+              p <- ggplot(scatter_data, aes(x=Gene2, y=cell_type))
+              p <- p + geom_point(size=0.5, color=input$Deconvodution_Gene_correlation_colour, alpha=0.7)
+              if(input$Deconvodution_Gene_correlation_show_correlation_line){
+                p <- p + geom_smooth(method='lm', se=TRUE, color=input$Deconvodution_Gene_correlation_colour, size=0.4)
+              }
+              p <- p + labs(x=Gene2, y=cell_type)
+              p <- p + theme(axis.text = element_text(size = input$Deconvodution_Gene_correlation_label_size))
+              p <- p + theme(axis.title = element_text(size = input$Deconvodution_Gene_correlation_title_size))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              if(input$Deconvodution_Gene_correlation_white_background){
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              }
+              p
+            }else{
+              output$Deconvodution_Gene_correlation_status <- renderText('Please select a gene from the table.')
+              return(ggplot())
             }
-            p <- p + labs(x=Gene2, y=cell_type)
-            p <- p + theme(axis.text = element_text(size = input$Deconvodution_Gene_correlation_label_size))
-            p <- p + theme(axis.title = element_text(size = input$Deconvodution_Gene_correlation_title_size))
-            p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-            p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-            if(input$Deconvodution_Gene_correlation_white_background){
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+          }
+          p
+        }, width=reactive(input$Deconvodution_Gene_correlation_fig.width), height=reactive(input$Deconvodution_Gene_correlation_fig.height),res=300)
+      # heatmap plot
+        # cell type selection
+          output$Deconvodution_Heatmap_celltype_selection_table <- renderDataTable({
+            celltype_df_tmp <- data.frame(CellType=rownames(deconv_table()), stringsAsFactors = FALSE)
+            datatable( celltype_df_tmp, selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
+              options = list(
+                select=list(style="multi", items='row'),
+                scroller=TRUE, deferRender=TRUE, scrollY=200,
+                dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
+          },server = FALSE)
+        
+        # sample selection, group by drop-down menu
+          output$Deconvodution_Heatmap_sample_selection_meta_data <- renderUI({ 
+            selectInput('Deconvodution_Heatmap_sample_selection_meta_data', 'The group to filter the samples by:', c('None'='None', colnames(Clinical_meta()))) 
+          })
+          outputOptions(output, "Deconvodution_Heatmap_sample_selection_meta_data", suspendWhenHidden=FALSE)
+          output$Deconvodution_Heatmap_sample_selection_meta_data_group <- renderUI({
+            if(input$Deconvodution_Heatmap_sample_selection_meta_data == 'None'){
+              category_tmp <- c('None')
+            }else{
+              meta_tmp <- Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data]
+              category_tmp <- c('None', unique(meta_tmp))
+            }
+            selectInput('Deconvodution_Heatmap_sample_selection_meta_data_group', 'Select a category', c(category_tmp), selected='None')
+          })
+
+          output$Deconvodution_Heatmap_sample_selection_meta_data_status <- renderText({
+            if(length(input$Deconvodution_Heatmap_sample_selection_meta_data_group)==0){
+              return(NULL)
+            }
+            if(input$Deconvodution_Heatmap_sample_selection_meta_data_group == 'None'){
+              return(NULL)
+            }else{
+              selected_samples <- Clinical_meta()[Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data] == input$Deconvodution_Heatmap_sample_selection_meta_data_group,]$sample
+              return(paste('Number of selected samples: ', length(selected_samples), sep=''))
+              # return(selected_samples)
+            }
+          })
+
+        # generate a heamap plot
+          output$Deconvodution_Heatmap_status <- renderText({'Please do the deconvolution first.'})
+          output$Deconvodution_Barplot_status <- renderText({'Please do the deconvolution first.'})
+          deconv_long <- reactiveVal(NULL)
+          isCalculating_deconv_long <- reactiveVal(FALSE)
+          isTriggered_deconv_long <- reactiveVal(FALSE)
+          observeEvent(input$Deconvodution_Heatmap_start,{
+            isTriggered_deconv_long(TRUE)
+            isCalculating_deconv_long(TRUE)
+            deconv_table_tmp <- deconv_table()
+            # cell type selection
+            if(length(input$Deconvodution_Heatmap_sample_selection)==0){
+              show_alert(title='Error.', text='Please select one in the sample selection.', type='error')
+              output$Deconvodution_Heatmap_status <- renderText({'Please select one in the sample selection.'})
+              output$Deconvodution_Barplot_status <- renderText({'Please select one in the sample selection.'})
+              deconv_long(NULL)
+              isCalculating_deconv_long(FALSE)
+              return(NULL)
+            }else if(input$Deconvodution_Heatmap_celltype_selection == 'A'){
+              Selected_celltypes <- rownames(deconv_table_tmp)
+            }else{
+              Selected_celltypes <- rownames(deconv_table_tmp)[input$Deconvodution_Heatmap_celltype_selection_table_rows_selected]
+              if(length(Selected_celltypes)==0){
+                show_alert(title='Error.', text='Please select at least one cell type.', type='error')
+                output$Deconvodution_Heatmap_status <- renderText({'Please select at least one cell type.'})
+                output$Deconvodution_Barplot_status <- renderText({'Please select at least one cell type.'})
+                deconv_long(NULL)
+                isCalculating_deconv_long(FALSE)
+                return(NULL)
+              }
+            }
+            # sample selection
+            if(length(input$Deconvodution_Heatmap_sample_selection)==0){
+              show_alert(title='Error.', text='Please select one in the sample selection.', type='error')
+              output$Deconvodution_Heatmap_status <- renderText({'Please select one in the sample selection.'})
+              output$Deconvodution_Barplot_status <- renderText({'Please select one in the sample selection.'})
+              deconv_long(NULL)
+              isCalculating_deconv_long(FALSE)
+              return(NULL)
+            }else if(input$Deconvodution_Heatmap_sample_selection=='A'){
+              d <- dist(t(deconv_table_tmp))  # clustering
+              hc <- hclust(d)
+              ordered_samples <- hc$labels[hc$order]
+            }else if(input$Deconvodution_Heatmap_sample_selection=='B'){
+              if(input$Deconvodution_Heatmap_sample_selection_meta_data == 'None' | 
+                 input$Deconvodution_Heatmap_sample_selection_meta_data_group == 'None'){
+                show_alert(title='Error.', text='Please select a group/category to filter the samples by.', type='error')
+                output$Deconvodution_Heatmap_status <- renderText({'Please select a group/category to filter the samples by.'})
+                output$Deconvodution_Barplot_status <- renderText({'Please select a group/category to filter the samples by.'})
+                deconv_long(NULL)
+                isCalculating_deconv_long(FALSE)
+                return(NULL)
+              }
+              selected_samples <- Clinical_meta()[Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data] == input$Deconvodution_Heatmap_sample_selection_meta_data_group,]$sample
+              selected_samples <- intersect(selected_samples, colnames(deconv_table_tmp))
+              if(length(selected_samples)==0){
+                show_alert(title='Error.', text='There is no sample from the selected category in the gene expression data', type='error')
+                output$Deconvodution_Heatmap_status <- renderText({'There is no sample from the selected category in the gene expression data.'})
+                output$Deconvodution_Barplot_status <- renderText({'There is no sample from the selected category in the gene expression data.'})
+                deconv_long(NULL)
+                isCalculating_deconv_long(FALSE)
+                return(NULL)
+              }
+              d <- dist(t(deconv_table_tmp[,selected_samples, drop = FALSE]))  # clustering
+              hc <- hclust(d)
+              ordered_samples <- hc$labels[hc$order]
+            }else if(input$Deconvodution_Heatmap_sample_selection=='C'){
+              selected_samples <- intersect(unlist(strsplit(input$Deconvodution_Heatmap_sample_selection_text_input, split = "\n")), colnames(deconv_table_tmp)) 
+              if(length(selected_samples)==0){
+                show_alert(title='Error.', text='Please select at least one sample.', type='error')
+                output$Deconvodution_Heatmap_status <- renderText({'Please select at least one sample.'})
+                output$Deconvodution_Barplot_status <- renderText({'Please select at least one sample.'})
+                deconv_long(NULL)
+                isCalculating_deconv_long(FALSE)
+                return(NULL)
+              }
+              d <- dist(t(deconv_table_tmp[,selected_samples, drop = FALSE]))  # clustering
+              hc <- hclust(d)
+              ordered_samples <- hc$labels[hc$order]
+            }
+            deconv_mat <- as.matrix(deconv_table_tmp)
+            deconv_mat <- deconv_mat[Selected_celltypes, ordered_samples, drop = FALSE] # Selected_celltypes <- 'T cells'
+            cell_types <- rownames(deconv_mat)
+            samples <- colnames(deconv_mat)
+            df_long <- expand.grid(CellType = cell_types, Sample = samples)
+            df_long$Score <- as.vector(deconv_mat)
+            df_long$Sample <- factor(df_long$Sample, levels = rev(ordered_samples))  # ggplotでは下から上なのでrev()
+            deconv_long(df_long)
+            output$Deconvodution_Heatmap_status <- renderText({NULL})
+            output$Deconvodution_Barplot_status <- renderText({NULL})
+            isCalculating_deconv_long(FALSE)
+            return(NULL)
+            
+          })
+        # plot
+          output$Deconvodution_Heatmap_plot <- renderPlot({
+            if(is.null(deconv_long())){
+              return(ggplot())
+            }else{
+              df_long <- deconv_long()
+
+              p <- ggplot(df_long, aes(x = CellType, y = Sample, fill = Score)) + geom_tile()
+              p <- p + scale_fill_gradient2(low = "blue", high = input$Deconvodution_Heatmap_high_colour, mid = input$Deconvodution_Heatmap_zero_colour, midpoint = 0,  name = "Deconvolution Score")
+              p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+              p <- p + theme(axis.text.y = element_text(size = input$Deconvodution_Heatmap_Y_font.size), axis.text.x = element_text(size = input$Deconvodution_Heatmap_X_font.size))
+              p <- p + theme(axis.title = element_blank())
+              p <- p + theme(legend.key.height = unit(0.2, "cm"), legend.key.width  = unit(0.1, "cm"), legend.text = element_text(size = input$Deconvodution_Heatmap_legend_font.size), legend.title = element_text(size = input$Deconvodution_Heatmap_legend_font.size))
+              p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank())
               p <- p + theme(panel.background = element_rect(fill="white", size=0))
               p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              if(input$Deconvodution_Heatmap_Y_font.size == 0){
+                p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) 
+              }
+              return(p)
             }
-            p
-          }else{
-            output$Deconvodution_Gene_correlation_status <- renderText('Please select a gene from the table.')
+          }, width=reactive(input$Deconvodution_Heatmap_fig.width), height=reactive(input$Deconvodution_Heatmap_fig.height), res=300)
+
+      # bar plot
+        output$Deconvodution_Barplot_plot <- renderPlot({
+          if(is.null(deconv_long())){
             return(ggplot())
+          }else{
+            df_long <- deconv_long()
+            if(input$Deconvodution_Barplot_percentage){
+              df_long <- df_long %>%
+                group_by(Sample) %>%
+                mutate(prop = Score / sum(Score))
+            }
+            if(!input$Deconvodution_Barplot_percentage){
+              p <- ggplot(df_long, aes(x = Score, y = Sample, fill = CellType)) + geom_bar(stat = "identity")
+            }else{
+              p <- ggplot(df_long, aes(x = prop, y = Sample, fill = CellType)) + geom_bar(stat = "identity")
+            }
+            p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+            p <- p + theme(axis.title = element_blank())
+            p <- p + theme(axis.text.y = element_text(size = input$Deconvodution_Barplot_Y_font.size), axis.text.x = element_text(size = input$Deconvodution_Barplot_X_font.size))
+            p <- p + theme(legend.key.height = unit(0.2, "cm"), legend.key.width  = unit(0.1, "cm"), legend.text = element_text(size = input$Deconvodution_Barplot_legend_font.size), legend.title = element_text(size = input$Deconvodution_Barplot_legend_font.size))
+            p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank())
+            p <- p + theme(panel.background = element_rect(fill="white", size=0))
+            p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            if(input$Deconvodution_Barplot_Y_font.size == 0){
+              p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) 
+            }
+            return(p)
           }
-        }
-        p
-      }, width=reactive(input$Deconvodution_Gene_correlation_fig.width), height=reactive(input$Deconvodution_Gene_correlation_fig.height),res=300)
+        }, width=reactive(input$Deconvodution_Barplot_fig.width), height=reactive(input$Deconvodution_Barplot_fig.height), res=300)
 
     #### Mutation
       ## frequency
@@ -12133,7 +12411,7 @@ server <- function(input, output, session) {
             if(is.null(input$Clinical_data_select) || input$Clinical_data_select == 'None'){
               "Please select the dataset first"
             }else{
-              "Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"
+              "Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show a plot'"
             }
           })
           output$Clinical_Mutation_frequency_plot_status_table <- renderText({ "A table for Mutation counts (frequenceies) will be shown here." })
@@ -12201,7 +12479,7 @@ server <- function(input, output, session) {
             df_Mut <- Clinical_mutation()
             df_meta <- Clinical_meta()
             N_sample <- length(df_meta$sample)
-            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show plot'"})
+            output$Clinical_Mutation_frequency_plot_status <- renderText({"Please set 'Gene Input from' and 'Sample filtering' (if needed), and click 'Show a plot'"})
 
             # filtering the sample if a category was set
             if(input$Clinical_Mutation_frequency_filter == 'B'){
