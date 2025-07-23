@@ -4,7 +4,7 @@
 This section allows users to browse all datasets registered within the interface (i.e., custom database). Additionally, users can upload new datasets and modify information regarding existing datasets.
 
 
-## <u> **Available data types** </u>
+## <u> **1. Available data types** </u>
 
 The interface accommodates four distinct types of data and specifies the required formatting for each.
 
@@ -34,14 +34,14 @@ Users can browse their single-cell RNAseq data, but it must be properly processe
 Bam, bed, and bigwig files generated from ATACseq, ChIPseq, etc. can be browsed in the "Genome browser" section. 
 
 
-## <u> **How to upload a new dataset** </u>
+## <u> **2. How to upload a new dataset** </u>
 
 Users can upload new datasets in the 'Data upload' section by following these steps.
 
-### **1. Upload a file**. 
+### **2.1. Upload a file**. 
 A file can be selected or dragged and dropped into the file upload section. Make sure the file format and data format meet the requirements described above. The maximum data size to upload is 1 GB.
 
-### **2. Complete the dataset information**.
+### **2.2. Complete the dataset information**.
 <span style="color: red;">Do not use line breaks</span> in any text boxes, as the database will only keep the first line. Fields marked with an asterisk (*) are required. Also, avoid using special characters (such as /,!,?, etc.).
 
 | **Field**  | **Description**|
@@ -56,15 +56,15 @@ A file can be selected or dragged and dropped into the file upload section. Make
 | **Description** (Optional)    | Provides additional details regarding the dataset.|
 
 
-### **3. Click on ‘Add to the dataset’**.
+### **2.3. Click on ‘Add to the dataset’**.
 If the upload is successful, a message stating “Uploaded!” will appear adjacent to the upload button. Additionally, the newly added dataset will be displayed as the first entry in the table.
 
 
-## <u> **How to edit the database** </u>
+## <u> **3. How to edit the database** </u>
 
-### **Editing the database**
+### **3.1 Editing the database**
 Each cell can be edited by double-clicking. Upon the user making an edit, the change will be manifested below the table. The editing process is deemed successful once the user clicks “Save changes” and subsequently confirms the message “saved!”. 
 
-### **Deleting some data**
+### **3.2 Deleting some data**
 Each row of the database can be selected by simply clicking on it. It is possible to make multiple selections, and the number of selected rows is displayed at the bottom of the table. By clicking “Delete selected data”, all selected rows will be removed from the database.
 

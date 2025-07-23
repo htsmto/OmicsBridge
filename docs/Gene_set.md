@@ -2,9 +2,9 @@
 # **Gene set**
 In this section, users can create and save their own gene sets. Later, in the “Data Overview”, they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. 
 
-## <u> **Adding and editing the gene set** </u>
+## <u> **1. Adding and editing the gene set** </u>
 
-### **Adding a gene set**
+### <u> **1.1. Adding a gene set** </u>
 Users can add new gene sets in the "Add a Gene Set" section. Please note that users <span style="color: red;">cannot break lines</span> in any text boxes — entering multiple lines will result in only the first line being saved to the database. Sections marked with an asterisk (*) are mandatory. Additionally, avoid the use of special symbols (e.g., /,!,?, etc.).
 
 | **Field** | **Description**  |
@@ -22,5 +22,5 @@ Click "Add the geneset to the list", and the user can see the newly added gene s
     <source src="../videos/Custome_GeneSet_1_720.mp4" type="video/mp4"> 
     </video>
 
-### **Editing a gene set** 
+###<u> **1.2. Editing a gene set** </u>
 The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking. After making an edit, the changes will appear below the table. The edit is saved when you click "Save changes" and see the confirmation message "saved!" You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking "Delete selected data" removes all selected rows from the database.
