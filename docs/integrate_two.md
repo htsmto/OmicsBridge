@@ -17,6 +17,11 @@ This feature compares two datasets side by side and transfers information betwee
 
 Important notes: Ensure the column containing gene names is labelled "id" for proper dataset merging. If selected genes aren't present in the other dataset, no highlighting will appear.
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Integrated_two_1_720.mp4" type="video/mp4">
+    </video>
+
 ## <u> **2. Integration Plot** </u>
 This feature enables you to merge two datasets for integrated visualisation.
 
@@ -39,3 +44,8 @@ This feature enables you to merge two datasets for integrated visualisation.
     - Font size of x/y axis and title
     - Dot size for all points and highlighted points
     - Option to use a white background    
+  
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Integrated_two_2_720.mp4" type="video/mp4">
+    </video>

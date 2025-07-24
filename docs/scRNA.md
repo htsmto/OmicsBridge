@@ -22,6 +22,12 @@ This section provides a simple UMAP overview of your data.
     - The size of the XY axis/label, graph title and the legend font size.
     - The dot size
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_1_720.mp4" type="video/mp4"> 
+    </video>
+
+
 ## <u> **2. Feauter Plots** </u>
 
 ### <u> **2.1. Gene feature plot** </u>
@@ -34,6 +40,11 @@ This section provides a simple UMAP overview of your data.
     - Dot size
     - Colours for highest/lowest expression and background
     - Option to use a white background
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_2_720.mp4" type="video/mp4"> 
+    </video>
 
 ### <u> **2.2. Gene Signature feature plot** </u>
 The interface can also calculate gene set signature scores (AUC scores) and generate a feature plot for visualisation.
@@ -57,6 +68,12 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     - Option to rotate the X-axis labels
     - Option to hide the jitter plots
 
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_3_720.mp4" type="video/mp4"> 
+    </video>
+
 ## <u> **2. Other plots** </u>
 ### <u> **2.1 Dot plot** </u>
 
@@ -69,6 +86,11 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     - The size of the X/Y axis labels, graph title, and legend font
     - The scale of each dot
     - The colour of the highest/lowest expression.
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_4_720.mp4" type="video/mp4"> 
+    </video>
 
 ### <u> **2.2. Violin plot** </u>
 1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.
@@ -84,6 +106,11 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     - Option to use a white background
     - Option to rotate X-axis labels
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_5_720.mp4" type="video/mp4"> 
+    </video>
+
 ### <u> **2.3. Pie chart** </u>
 Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.
 
@@ -96,3 +123,8 @@ Users can visualise the fraction of cells expressing specific genes across diffe
     - the size of the label, group names, and legend
     - The colour for the expressing and non-expressing segments in the pie chart
     - Option to hide the labels/legend
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/scRNA_6_720.mp4" type="video/mp4"> 
+    </video>

@@ -104,6 +104,11 @@ This section helps you analyse gene mutations in the selected cohort.
         - Graph title and legend font size
         - Colours for wild-type and mutant groups
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_3_720.mp4" type="video/mp4"> 
+    </video>
+
 
 ## <u>**5. Gene expression across subtypes**</u>
 
@@ -122,6 +127,11 @@ When metadata for the cohort is provided and patients can be divided into subtyp
     - Graph title size
     - Colour palette for each subtype
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_4_720.mp4" type="video/mp4"> 
+    </video>
+
 ## <u>**6. Signature analysis**</u>
 
 This section performs signature analysis on gene expression data from the selected cohort to evaluate the activity or presence of specific biological processes.
@@ -131,14 +141,7 @@ This section performs signature analysis on gene expression data from the select
     - Entering gene names line by line
 2. Select the calculation method:
     - GSVA (Gene Set Variation Analysis) or ssGSEA (single-sample Gene Set Enrichment Analysis) is available.
-    - What is GSVA and ssGSEA?
-        
-        
-        GSVA (Gene Set Variation Analysis) calculates an enrichment score for each gene set by transforming gene expression data into a pathway activity score across samples. It uses kernel-based density estimation to assess the relative enrichment of a gene set, comparing it to the overall expression distribution in the dataset.
-        
-        ssGSEA (single-sample Gene Set Enrichment Analysis), on the other hand, ranks genes within each sample and calculates an enrichment score based on the ranked positions of genes in a gene set. It evaluates how consistently genes of a set are positioned at the top or bottom of the ranked gene list for each individual sample.
-        
-        In summary, GSVA works across samples to estimate pathway activity, while ssGSEA focuses on ranking genes within each sample to calculate enrichment scores.      
+           
 3. Click the start button. This generates a result table with scores for each sample.
 4. Three plots are generated:
     - **Survival analysis plot** tab:
@@ -150,6 +153,11 @@ This section performs signature analysis on gene expression data from the select
     - **Distribution** tab:
         - Generates a histogram of signature scores to help determine appropriate sample splitting criteria.
   
+??? info "What is GSVA and ssGSEA?"
+    GSVA (Gene Set Variation Analysis) calculates an enrichment score for each gene set by transforming gene expression data into a pathway activity score across samples. It uses kernel-based density estimation to assess the relative enrichment of a gene set, comparing it to the overall expression distribution in the dataset.
+    
+    ssGSEA (single-sample Gene Set Enrichment Analysis), on the other hand, ranks genes within each sample and calculates an enrichment score based on the ranked positions of genes in a gene set. It evaluates how consistently genes of a set are positioned at the top or bottom of the ranked gene list for each individual sample.
+
 ??? success  "Adjustable graph parameters"
     - **Survival analysis plot**
         - Figure size (width and height)
@@ -168,6 +176,12 @@ This section performs signature analysis on gene expression data from the select
         - Histogram bin color
         - Number of histogram bins
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_5_720.mp4" type="video/mp4"> 
+    </video>
+
+
 ## <u>**7. Deconvolution analysis**</u>
 
 This section provides deconvolution analysis from patients' gene expression data (typically bulk RNAseq). While several deconvolution tools exist, two are available here: [MCPcounter](https://github.com/ebecht/MCPcounter) and [xCell](https://comphealth.ucsf.edu/app/xcell).
@@ -176,6 +190,12 @@ This section provides deconvolution analysis from patients' gene expression data
 2. Choose either MCPcounter or xCell as your method, then click the start button. A deconvolution result table will appear on the right.
 
 The interface provides two additional analysis tabs. 
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_6_720.mp4" type="video/mp4"> 
+    </video>
+
 
 ### <u>**7.1. Generating a heatmap/barplot**</u>
 First, you can generate a heatmap or barplot to visualise cell type fractions across samples.
@@ -199,6 +219,11 @@ First, you can generate a heatmap or barplot to visualise cell type fractions ac
     - Legend font size
     - Colours for high and low deconvolution score (for the heatmap)
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_7_720.mp4" type="video/mp4"> 
+    </video>
+
 ### <u>**7.2. Exploring correlations between gene expression and cell type abundance**</u>
 
 This feature allows you to analyse the relationship between specific gene expression levels and cell type abundance.
@@ -216,6 +241,11 @@ This feature allows you to analyse the relationship between specific gene expres
     - Dot and correlation line colours
     - Option to display or hide the correlation line
     - Option to use a white background
+
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_8_720.mp4" type="video/mp4"> 
+    </video>
 
 ## <u>**8. Compare cohorts**</u>
 In this section, you can compare gene expression or mutation frequency across different cohorts.
@@ -236,13 +266,16 @@ In this section, you can compare gene expression or mutation frequency across di
     - Colour scheme for the bar plot (mutation frequency analysis)
     - Option to use a white background
 
-
 ## <u>**9. Cancer Gene Census (COSMOS)**</u>
 OmicsBridge includes a database of cancer predisposition genes sourced from [Cancer Gene Census from COSMIC](https://cancer.sanger.ac.uk/census). This feature helps you identify which genes from your input are known to be associated with cancer predisposition.
 
 1. Enter gene names line by line.
 2. If any of the genes you entered are associated with cancer predisposition, they will appear in the results table. If none match, the complete database will be displayed instead.
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_10_720.mp4" type="video/mp4"> 
+    </video>
 
 ## <u>**10. Manage the cohort database**</u>
 The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.
