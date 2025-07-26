@@ -1316,7 +1316,7 @@ ui <- fluidPage(
                                       tabPanel(strong('TF activity inference'),
                                         h4(''),
                                         fluidRow(
-                                          column(12, h4('(DecoupleR analysis. Available only for RNAseq DEG data processed from DESeq2)')),
+                                          column(12, h4('Available only for RNAseq DEG data processed from DESeq2')),
                                           column(4, 
                                             box(title='Settings', collapsible=TRUE, width=12, status='info',
                                               h3(),
@@ -1575,6 +1575,7 @@ ui <- fluidPage(
                           box(width=12, collapsible=TRUE, title=strong('Plot'), status='danger',
                             fluidRow(
                               column(12, verbatimTextOutput('Gene_comparing_status')),
+                              column(12, verbatimTextOutput('Gene_comparing_status2')),
                               column(10, radioButtons("bar_or_scatter", "Plot type", choices = c( "Scatter plot", "Bar plot"), selected='Bar plot', inline=TRUE)),
                               column(2,
                                 dropdownButton( h4(strong("Plot Options")),
@@ -3646,7 +3647,7 @@ ui <- fluidPage(
                           column(12, verbatimTextOutput('Profile_Plot_sample_selection_status')),
                           column(6, actionButton('Profile_Plot_sample_import', 'Import the selected sample',style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
                           column(12, h2('')),
-                          column(12, h5('List of imported dataset:')),
+                          column(12, h5(strong('List of imported dataset:'))),
                           column(12, helpText('The following samples are used for the profile plot.')),
                           column(12, withSpinner(DT::dataTableOutput("Profile_Plot_imported_sample_table"), type=5, color='#0dc5c1')),
                           column(6, actionButton('Profile_Plot_sample_remove', 'Remove the selected sample',style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
@@ -3693,6 +3694,84 @@ ui <- fluidPage(
                     )
                   )
                 ),
+                tabPanel('Genome visualisation',
+                  h4(''),
+                  fluidRow(
+                    column(4,
+                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
+                        fluidRow(
+                          column(12, htmlOutput('Gviz_data_select')),
+                          column(12, radioButtons('Gviz_data_type', 'Data type', choices=c('BigWig', 'BAM'), selected='BigWig', inline=TRUE)),
+                          column(12, actionButton('Gviz_data_add', 'Use this dataset', style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
+                          column(12, h2('')),
+                          column(12, verbatimTextOutput('Gviz_selected_dataset_status') ),
+                          column(12, h2('')),
+                          column(12, h5(strong('Selected datasets:'))),
+                          column(12, helpText('The following datasets are used for the genome visualisation.')),
+                          column(12, DT::dataTableOutput('Gviz_selected_dataset')),
+                          column(12, actionButton('Gviz_data_delete', 'Remove the dataset from the list', style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
+                          column(12, verbatimTextOutput('Gviz_selected_dataset_delete_status') ),
+                        )
+                      )
+                    ),
+                    column(8,
+                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
+                        fluidRow(
+                          column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19'), selected='hg38')),
+                          column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
+                          column(4, 
+                            fluidRow(
+                              column(12, h2('')),
+                              column(12, actionButton('Gviz_plot_start', 'Show a plot', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                            )
+                          ),
+                          column(12, verbatimTextOutput('Gviz_plot_status') ),
+                          column(10, 
+                            helpText(HTML("Note: <br>
+                              1. When using BAM files, a wide range (e.g., >100k–200k bp) can cause a memory error and stop the interface (This issue does not occur when using only BigWig files.) <br>
+                              2. If the sample label is missing, try increasing the height of the figure and re-plotting."))
+                          ),
+                          column(2, 
+                            dropdownButton( h4(strong("Plot Options")),
+                              fluidRow(
+                                column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
+                                column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
+                              ),
+                              fluidRow(
+                                column(12, h5(strong('For the following, please re-run the plot'))),
+                                column(6, colourpicker::colourInput('Gviz_plot_bw_col', 'The colour for the bigwig data', value="#3c6602")),
+                                column(6, colourpicker::colourInput('Gviz_plot_bam_col', 'The colour for the bam data', value="#f21392")),
+                                column(6, colourpicker::colourInput('Gviz_plot_refseq_col', 'The colour for the reference data', value="#311fbf")),
+                              ),
+                              fluidRow(
+                                column(6, numericInput('Gviz_plot_height_bw', 'The height of the bigwig data', min=1, value=20, step=1)),
+                                column(6, numericInput('Gviz_plot_height_bam', 'The height of the bam data', min=1, value=30, step=1)),
+                                column(6, numericInput('Gviz_plot_height_ref', 'The height of the reference data', min=1, value=20, step=1))
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Gviz_plot_ylim_bw', 'Use Y-axis limit for the bigwig data', value=FALSE, status = "success")),
+                                conditionalPanel(
+                                  condition = "input.Gviz_plot_ylim_bw == true",
+                                  column(6, numericInput('Gviz_plot_ylim_bw_max', 'Max Y-axis:', value=1, step=1)),
+                                )
+                              ),
+                              fluidRow(
+                                column(6, materialSwitch('Gviz_plot_ylim_bam', 'Use Y-axis limit for the bam data', value=FALSE, status = "success")),
+                                conditionalPanel(
+                                  condition = "input.Gviz_plot_ylim_bam == true",
+                                  column(6, numericInput('Gviz_plot_ylim_bam_max', 'Max Y-axis:', value=50, step=1)),
+                                )
+                              ),
+                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                            )
+                          ),
+                          column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") ),
+                          column(12, helpText(paste("Visualised by the Gviz library. Version: ", installed.packages()["Gviz", "Version"])))
+                        )
+                      )
+                    )
+                  )
+                ),
                 tabPanel( 'IGV',
                   h4(''),
                   fluidRow(
@@ -3706,10 +3785,10 @@ ui <- fluidPage(
                             div(id='filterin_dropdown',
                               dropdownButton( 
                                 fluidRow(
-                                  column(4, htmlOutput("igv_data_DataFrom")),
-                                  column(4, htmlOutput("igv_data_Experiment"))
+                                  column(6, htmlOutput("igv_data_DataFrom")),
+                                  column(6, htmlOutput("igv_data_Experiment"))
                                 ),
-                                label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "1000px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                                label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "500px",  tooltip = tooltipOptions(title = "Dataset filtering")
                               )
                             ) 
                           ),
@@ -3945,78 +4024,6 @@ ui <- fluidPage(
                               column(12, withSpinner(plotOutput('Motif_analysis_plot', width='100%', height='100%'), type = 5, color = "#0dc5c1") )
                             )
                           )
-                        )
-                      )
-                    )
-                  )
-                ),
-                tabPanel('Genome visualisation',
-                  h4(''),
-                  fluidRow(
-                    column(4,
-                      box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
-                        fluidRow(
-                          column(12, htmlOutput('Gviz_data_select')),
-                          column(12, radioButtons('Gviz_data_type', 'Data type', choices=c('BigWig', 'BAM'), selected='BigWig', inline=TRUE)),
-                          column(12, actionButton('Gviz_data_add', 'Use this dataset', style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
-                          column(12, h2('')),
-                          column(12, verbatimTextOutput('Gviz_selected_dataset_status') ),
-                          column(12, h2('')),
-                          column(12, h5(strong('Selected datasets:'))),
-                          column(12, DT::dataTableOutput('Gviz_selected_dataset')),
-                          column(12, actionButton('Gviz_data_delete', 'Remove the dataset from the list', style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
-                          column(12, verbatimTextOutput('Gviz_selected_dataset_delete_status') ),
-                        )
-                      )
-                    ),
-                    column(8,
-                      box(width=12, title='Plot', status='danger', collapsible = TRUE,
-                        fluidRow(
-                          column(4, selectInput('Gviz_genome_selection', 'Choose genome:', choices=c('hg38', 'hg19'), selected='hg38')),
-                          column(4, textInput('Gviz_chromosome_pos', 'Position', value='chr1:1000000-2000000')),
-                          column(4, 
-                            fluidRow(
-                              column(12, h2('')),
-                              column(12, actionButton('Gviz_plot_start', 'Show Plot', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
-                            )
-                          ),
-                          column(10, verbatimTextOutput('Gviz_plot_status') ),
-                          column(2, 
-                            dropdownButton( h4(strong("Plot Options")),
-                              fluidRow(
-                                column(6, sliderInput('Gviz_fig.width', 'Fig width', min=300, max=3000, value=900, step=10)),
-                                column(6, sliderInput('Gviz_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
-                              ),
-                              fluidRow(
-                                column(12, h5(strong('For the following, please re-run the plot'))),
-                                column(6, colourpicker::colourInput('Gviz_plot_bw_col', 'The colour for the bigwig data', value="#3c6602")),
-                                column(6, colourpicker::colourInput('Gviz_plot_bam_col', 'The colour for the bam data', value="#f21392")),
-                                column(6, colourpicker::colourInput('Gviz_plot_refseq_col', 'The colour for the reference data', value="#311fbf")),
-                              ),
-                              fluidRow(
-                                column(6, numericInput('Gviz_plot_height_bw', 'The height of the bigwig data', min=1, value=20, step=1)),
-                                column(6, numericInput('Gviz_plot_height_bam', 'The height of the bam data', min=1, value=30, step=1)),
-                                column(6, numericInput('Gviz_plot_height_ref', 'The height of the reference data', min=1, value=20, step=1))
-                              ),
-                              fluidRow(
-                                column(6, materialSwitch('Gviz_plot_ylim_bw', 'Use Y-axis limit for the bigwig data', value=FALSE, status = "success")),
-                                conditionalPanel(
-                                  condition = "input.Gviz_plot_ylim_bw == true",
-                                  column(6, numericInput('Gviz_plot_ylim_bw_max', 'Max Y-axis:', value=1, step=1)),
-                                )
-                              ),
-                              fluidRow(
-                                column(6, materialSwitch('Gviz_plot_ylim_bam', 'Use Y-axis limit for the bam data', value=FALSE, status = "success")),
-                                conditionalPanel(
-                                  condition = "input.Gviz_plot_ylim_bam == true",
-                                  column(6, numericInput('Gviz_plot_ylim_bam_max', 'Max Y-axis:', value=50, step=1)),
-                                )
-                              ),
-                              circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
-                            )
-                          ),
-                          column(12, withSpinner(plotOutput("Gviz_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1") ),
-                          column(12, helpText(paste("Visualised by the Gviz library. Version: ", installed.packages()["Gviz", "Version"])))
                         )
                       )
                     )
@@ -4359,8 +4366,9 @@ ui <- fluidPage(
               column(3, h2(' '))
             )
           )
+        #####
       ),
-      h4(tags$div("Last updated on 18. July, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 23. July, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -5737,24 +5745,6 @@ server <- function(input, output, session) {
               p
             }, width=reactive(input$Gene_ex_barplot_fig.width), height=reactive(input$Gene_ex_barplot_fig.height), res=300)
           # 
-
-                                          # fluidRow(
-                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.width', label='fig width', min=300, max=3000, value=500, step=10)),
-                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
-                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
-                                          #   column(6, sliderInput(inputId = 'Gene_ex_barplot_graph.title.font.size', label='Y title size', min=1, max=10, value=4, step=0.1))
-                                          # ),
-                                          # fluidRow( # colour for max, 0 and min values
-                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_max', label='Colour for the max value:', value='red')),
-                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_min', label='Colour for the min value:', value='blue')),
-                                          #   column(6, colourpicker::colourInput(inputId = 'Gene_ex_barplot_col_0', label='Colour for the 0 value:', value='white'))
-                                          # ),
-                                          # fluidRow(
-                                          #   # Rotate x axis lable in the bar plot
-                                          #   column(6, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable', value=FALSE, status = "success")),
-                                          #   column(6, materialSwitch('Gene_ex_barplot_white_background', 'Use white background', value=FALSE, status = "success"))
-                                          # ),
 
         ###### GO analysis ######
           # Choose the genes used in GO analysis
@@ -7136,36 +7126,68 @@ server <- function(input, output, session) {
           output$Gene_comparing_status <- renderText({NULL})
           Y_axis <- input$Choose_datasets_y
           undetected_genes <- c()
+          dataset_not_have_Yaxis <- c()
+          duplicated_gene_id_data <- c()
           # start extract the scores for each gene
           if(input$Choose_datasets_colour == 'None'){
             df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
             for (dataset in datasets_for_compare){
               df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
-              if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
-              df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
-              colnames(df_tmp_tmp_Y)[2] <- dataset 
-              df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
-              rm(df_tmp_tmp)
+              if(Y_axis %in% colnames(df_tmp_tmp)){
+                df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
+                if(length(unique(df_tmp_tmp_Y$id[duplicated(df_tmp_tmp_Y$id)])) == 0){
+                  colnames(df_tmp_tmp_Y)[2] <- dataset 
+                  df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
+                  rm(df_tmp_tmp)
+                }else{
+                  duplicated_ids <- unique(df_tmp_tmp_Y$id[duplicated(df_tmp_tmp_Y$id)])
+                  tmp <- paste(dataset, ': ', paste(duplicated_ids, collapse=', '), sep='') 
+                  duplicated_gene_id_data <- c(duplicated_gene_id_data, tmp)
+                  rm(df_tmp_tmp)
+                }
+
+              }else{
+                dataset_not_have_Yaxis <- c(dataset_not_have_Yaxis, dataset)
+                rm(df_tmp_tmp)
+              }
             }
             df_Y_tmp$type <- 'Y'
             df_Y_tmp$Y_axis_name <- Y_axis
             df_compare_prepare(df_Y_tmp)
             isCalculating_compare(FALSE)
+            if(length(dataset_not_have_Yaxis)>0){
+              output$Gene_comparing_status <- renderText({
+                paste0("The following datasets do not have the Y-axis you selected. Check the data frame structure: \n", paste(dataset_not_have_Yaxis, collapse=', '))
+              })
+            }
             return(NULL)
           }else{
             df_Y_tmp <- data.frame(id = Genes_to_be_shown_list) 
             df_col_tmp <- data.frame(id = Genes_to_be_shown_list)
             col <- input$Choose_datasets_colour
+            dataset_not_have_Yaxis_col <- c()
+            duplicated_gene_id_data <- c()
             for (dataset in datasets_for_compare){
               df_tmp_tmp <- read.table(Dataset()[Dataset()$Dataset == dataset,]$Path, sep='\t', header=T,check.names = FALSE)
-              if(colnames(df_tmp_tmp)[1] == 'X'){colnames(df_tmp_tmp)[1]='id'}
-              df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
-              df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
-              colnames(df_tmp_tmp_Y)[2] <- dataset 
-              colnames(df_tmp_tmp_col)[2] <- dataset 
-              df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
-              df_col_tmp <- merge(df_col_tmp, df_tmp_tmp_col, by='id', all.x=TRUE)
-              rm(df_tmp_tmp)
+              if( (Y_axis %in% colnames(df_tmp_tmp)) & (col %in% colnames(df_tmp_tmp))){
+                df_tmp_tmp_Y <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', Y_axis)]
+                df_tmp_tmp_col <- df_tmp_tmp[df_tmp_tmp$id %in% Genes_to_be_shown_list, c('id', col)]
+                if(length(unique(df_tmp_tmp_Y$id[duplicated(df_tmp_tmp_Y$id)])) == 0){
+                  colnames(df_tmp_tmp_Y)[2] <- dataset 
+                  colnames(df_tmp_tmp_col)[2] <- dataset 
+                  df_Y_tmp <- merge(df_Y_tmp, df_tmp_tmp_Y, by='id', all.x=TRUE)
+                  df_col_tmp <- merge(df_col_tmp, df_tmp_tmp_col, by='id', all.x=TRUE)
+                  rm(df_tmp_tmp)
+                }else{
+                  duplicated_ids <- unique(df_tmp_tmp_Y$id[duplicated(df_tmp_tmp_Y$id)])
+                  tmp <- paste(dataset, ': ', paste(duplicated_ids, collapse=', '), sep='') 
+                  duplicated_gene_id_data <- c(duplicated_gene_id_data, tmp)
+                  rm(df_tmp_tmp)
+                }
+              }else{
+                dataset_not_have_Yaxis_col <- c(dataset_not_have_Yaxis_col, dataset)
+                rm(df_tmp_tmp)
+              }
             }
             df_Y_tmp$type <- 'Y'
             df_col_tmp$type <- 'col'
@@ -7175,13 +7197,35 @@ server <- function(input, output, session) {
             df_Y_col_tmp$col_name <- col
             df_compare_prepare(df_Y_col_tmp)
             isCalculating_compare(FALSE)
+            if(length(dataset_not_have_Yaxis_col)>0){
+              output$Gene_comparing_status <- renderText({
+                paste0("The following datasets do not have the Y-axis or colour you selected. Check the data frame structure: \n", paste(dataset_not_have_Yaxis_col, collapse=', '))
+              })
+            }else{
+              output$Gene_comparing_status <- renderText({NULL})
+            }
+            if(length(duplicated_gene_id_data)>0){
+              output$Gene_comparing_status2 <- renderText({
+                paste0("The following genes are duplicated in the datasets: \n", paste(duplicated_gene_id_data, collapse='\n'))
+              })
+            }else{
+              output$Gene_comparing_status2 <- renderText({NULL})
+            }
             return(NULL)
           }        
         })
 
       # select a gene from a table
         output$Gene_comparing_gene_list_table <- DT::renderDataTable({
-          if(is.null(df_compare_prepare())){
+          if(!isTriger_compare()){
+            tmp <- data.frame('Input'=character(0))
+            rownames(tmp) <- NULL
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE))
+          }else if(isCalculating_compare()){
+            tmp <- data.frame('Input'=character(0))
+            rownames(tmp) <- NULL
+            datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE))
+          }else if(is.null(df_compare_prepare())){
             tmp <- data.frame('Input'=character(0))
             rownames(tmp) <- NULL
             datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE))
@@ -7195,7 +7239,11 @@ server <- function(input, output, session) {
       # table for the plot
         # output$Gene_comparing_plot_status <- renderText({'Please set the inputs and start analysis first.'})
         df_compare <- reactive({
-          if(is.null(df_compare_prepare())){
+          if(!isTriger_compare()){
+            return(NULL)
+          }else if(isCalculating_compare()){
+            return(NULL)
+          }else if(is.null(df_compare_prepare())){
             return(NULL)
           }
           tmp <- data.frame('Input'=unique(df_compare_prepare()$id))
@@ -9172,13 +9220,17 @@ server <- function(input, output, session) {
   ### igv ##########################################################################################
     #### data selection for IGV
       # data from who
-        output$igv_data_DataFrom <- renderUI({  selectInput('igv_data_DataFrom', 'Data from', c('None'='None', Dataset()[Dataset()$Data.Class == input$igv_data_type,]$Data.from)) })
+        output$igv_data_DataFrom <- renderUI({  
+          selectInput('igv_data_DataFrom', 'Data from', c('None'='None', Dataset()[Dataset()$Data.Class == 'D',]$Data.from)) 
+        })
         outputOptions(output, "igv_data_DataFrom", suspendWhenHidden=FALSE)
 
       # data from which experiment
         output$igv_data_Experiment <- renderUI({  
-          tmp <- Dataset()[Dataset()$Data.Class == input$igv_data_type,]
-          if(!is.null(input$igv_data_DataFrom) && input$igv_data_DataFrom != 'None'){ tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] }
+          tmp <- Dataset()[Dataset()$Data.Class == 'D',]
+          if(length(input$igv_data_DataFrom)>0 & input$igv_data_DataFrom != 'None'){ 
+            tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] 
+          }
           selectInput('igv_data_Experiment', 'Experiment', c('None'='None', tmp$Experiment)) 
         })
         outputOptions(output, "igv_data_Experiment", suspendWhenHidden=FALSE)
@@ -9194,30 +9246,38 @@ server <- function(input, output, session) {
         outputOptions(output, "igv_data_select", suspendWhenHidden=FALSE)
 
       # show the detail
-      output$igv_Dataset_detail <- renderText({
-        df_tmp <- Dataset()
-        if(!is.null(input$igv_data_select) && input$igv_data_select != 'None'){
-          paste0('Data.from: ', as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Data.from), '\n', 
-                'Experiment: ', as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Experiment), '\n', 
-                'Data.type: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Data.type), '\n', 
-                'When: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$When), '\n', 
-                'Description: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Description), '\n'
-                )
-        }else{
-          'Please select a dataset.'
-        }
-      })
+        output$igv_Dataset_detail <- renderText({
+          df_tmp <- Dataset()
+          if(!is.null(input$igv_data_select) && input$igv_data_select != 'None'){
+            paste0('Data.from: ', as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Data.from), '\n', 
+                  'Experiment: ', as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Experiment), '\n', 
+                  'Data.type: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Data.type), '\n', 
+                  'When: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$When), '\n', 
+                  'Description: ' , as.character(df_tmp[df_tmp$Dataset == input$igv_data_select, ]$Description), '\n'
+                  )
+          }else{
+            'Please select a dataset.'
+          }
+        })
 
       # change the header of the bed file
-      bed_data <- reactive({ 
-        path <- Dataset()[Dataset()$Dataset == input$igv_data_select, ]$Path
-        tmp <- read.table(path, sep='\t',check.names = FALSE) # head(bed_data)
-        colnames(tmp)[1] <- 'chrom'
-        colnames(tmp)[2] <- 'start'
-        colnames(tmp)[3] <- 'end'
-        colnames(tmp)[5] <- 'score'
-        return(tmp)
-      })
+        bed_data <- reactive({ 
+          if(is.null(input$igv_data_select) || input$igv_data_select == 'None'){
+            return(NULL)
+          }
+          path <- Dataset()[Dataset()$Dataset == input$igv_data_select, ]$Path
+          if(!file.exists(path)){
+            show_alert(title='Error.',text='The file does not exist.', type='error')
+            output$igv_Dataset_detail <- renderText({"The file does not exist. Please upload the dataset again."})
+            return(NULL)
+          }
+          tmp <- read.table(path, sep='\t',check.names = FALSE) # head(bed_data)
+          colnames(tmp)[1] <- 'chrom'
+          colnames(tmp)[2] <- 'start'
+          colnames(tmp)[3] <- 'end'
+          colnames(tmp)[5] <- 'score'
+          return(tmp)
+        })
       
     #### start igv
       
@@ -9229,11 +9289,12 @@ server <- function(input, output, session) {
 
       # add bed file to view
         observeEvent(input$igv_data_add, {
-          # Track information for the BAM file
+          if(is.null(input$igv_data_select) || input$igv_data_select == 'None'){
+            show_alert(title='Error.',text='Please select a dataset to view in IGV.', type='error')
+            output$igv_Dataset_detail <- renderText({'Please select a dataset to view in IGV.'})
+            return()
+          }
           loadBedTrack(session, id="igv", trackName=input$igv_data_select, tbl=bed_data())
-          
-          # Add the BAM track to the IGV viewer
-          # session$sendCustomMessage(type = "addTrack", track)
         })
     #### Profile plots
       # dataset selection
