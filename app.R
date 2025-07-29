@@ -72,7 +72,8 @@
   suppressMessages(library(visNetwork))
   if(!requireNamespace("MCPcounter", quietly = TRUE)) { devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source", force = TRUE, upgrade = "never") }
   if(!requireNamespace("xCell", quietly = TRUE)) { devtools::install_github('dviraran/xCell',upgrade = "never") }
-
+  if(!requireNamespace("reshape2", quietly = TRUE)) { install.packages("reshape2", dependencies = FALSE) }
+  suppressMessages(library(reshape2))
   options(shiny.maxRequestSize = 10000*1024^2)
   options(shiny.usecairo=TRUE)
   options(scipen = 10)
@@ -320,17 +321,35 @@ ui <- fluidPage(
                   fluidRow( 
                     column(12, h4(strong('1. Upload a file'))),
                     column(5, fileInput("upload_file", "")),
-                    column(6, h4('')),
+                    conditionalPanel(
+                      condition='input.upload_Data_Class == "F"',
+                      column(5, 
+                        tags$div(
+                          style='margin-top: 10px;',
+                          helpText(strong("Please upload the corresponding .bai file as well.")),
+                          fileInput("upload_bai_file", "Upload .bai file", accept = c(".bai"))
+                        )
+                      )
+                    ),
+                    conditionalPanel(
+                      condition='input.upload_Data_Class != "F"',
+                      column(5, h4(''))
+                    ),
+                    column(1, h4('')),
                     column(1, 
                       div(id='help',
                         dropdownButton( 
                           fluidRow(
                             column(12, h4(strong("Data upload quick guide"))),
-                            column(12, helpText(strong("- Make sure that the column name containing gene names is set 'id'."))),
-                            column(12, helpText("- The boxes with * are mandatory.")),
-                            column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots.")),
-                            column(12, helpText("- Dataset name must be unique.")),
-                            column(12, helpText("- In case uploading a count data, it is recommended that the columns are set to Sample_Rep#. See wiki for more information.")),
+                            column(12, 
+                              helpText(HTML("
+                                - Make sure that the column name containing gene names is set 'id'. <br>
+                                - The boxes with * are mandatory. <br>
+                                - Avoid special characters; use only alphabets, numbers, underscores and dots. <br>
+                                - Dataset name must be unique. <br>
+                                - In case uploading a count data, it is recommended that the columns are set to Sample_Rep#. See wiki for more information. <br>
+                              "))
+                            ),
                           ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE
                         ),
                       ) 
@@ -351,7 +370,7 @@ ui <- fluidPage(
                     column(4, textInput("upload_cell_line", HTML("Cell line, Data source <br/> Ex.) THP1, PBMC"))), 
                     column(4, textInput("upload_when", HTML("When <br/> Ex.) 2025-01"))) 
                   ),
-                  fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D', 'E: bigwig file'='E' ), selected='B')), 
+                  fluidRow( column(6, selectInput('upload_Data_Class', HTML('Data Class * <br/> Please choose one.'), c('A: Count data/Expression matrix'='A', 'B: Comparison data (Any table contain log fold change velues)'='B', 'C: single cell RNA'='C', 'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D', 'E: bigwig file'='E', 'F: bam file (and bai file)'='F' ), selected='B')), 
                     conditionalPanel(
                       condition = 'input.upload_Data_Class=="B"',
                       column(3, textInput("upload_Control_group", HTML("Control group name <br/> Ex.) Untreated, WT"))), 
@@ -526,14 +545,29 @@ ui <- fluidPage(
                           ),
                         ),
                       ####### two genes correlation #######    
-                        tabPanel(strong("Two genes correlation"),
+                        tabPanel(strong("Genes correlation"),
                           h4(''),
                           fluidRow(
                             column(4,
                               box(width=12, status='info', title=strong('Inputs and Settings'), collapsible = TRUE,
                                 fluidRow(
-                                  column(12, radioButtons('Two_gene_corr_corr_Input', "Choose one from below:", choices=c('Enter both X and Y-axis genes'='A', 'Enter Y-axis gene and explore the correlations'='B'), selected='A')),
-                                  column(12, textInput('Two_gene_corr_gene1', 'Gene1 (Y-axis)')),
+                                  column(12,
+                                    radioButtons(
+                                      inputId = "Two_gene_corr_corr_Input",
+                                      label = "Choose one from below:",
+                                      choiceNames = list(
+                                        HTML('Single Gene vs. Single Gene<br><span style="font-size:80%;"><em>(Enter one gene for X-axis and one for Y-axis)</em></span>'),
+                                        HTML('One Gene vs. Multiple Genes<br><span style="font-size:80%;"><em>(Enter one Y-axis gene and multiple X-axis genes to compute correlations)</em></span>'),
+                                        HTML('Pairwise Correlation<br><span style="font-size:80%;"><em>(Input a list of genes and compute all pairwise correlations)</em></span>')
+                                      ),
+                                      choiceValues = c("A", "B", "C"),
+                                      selected = "A"
+                                    )
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_corr_Input == 'A' || input.Two_gene_corr_corr_Input == 'B'",
+                                    column(12, textInput('Two_gene_corr_gene1', 'Gene1 (Y-axis)')),
+                                  ),
                                   conditionalPanel(
                                     condition = "input.Two_gene_corr_corr_Input == 'A'",
                                     column(12, textInput('Two_gene_corr_gene2', 'Gene2 (X-axis)')),
@@ -549,19 +583,36 @@ ui <- fluidPage(
                                       condition = "input.Two_gene_corr_gene2_list_Input == 'B'",
                                       column(12, htmlOutput('Two_gene_corr_gene2_Input_from_custom_geneset_select'))
                                     )
-
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_corr_Input == 'C'",
+                                    column(12, textAreaInput('Two_gene_corr_gene2_list_pairwise', 'List of genes to explore (line by line)')),
+                                    column(12, materialSwitch('Two_gene_corr_gene2_list_pairwise_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                    conditionalPanel(
+                                      condition = "input.Two_gene_corr_gene2_list_pairwise_from_custom_geneset == true",
+                                      column(12, htmlOutput('Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select'))
+                                    )
                                   ),
                                   column(12, radioButtons('Two_gene_corr_corr_method', "Correlation calculation method:", choices=c('pearson', 'spearman'), selected='pearson')),
                                   column(12, materialSwitch("Two_gene_corr_log", "Use log scale", value=FALSE, status='info')),
                                   column(12, h4('')),
                                   conditionalPanel(
                                     condition = "input.Two_gene_corr_corr_Input == 'B'",
-                                    column(12, actionButton('Two_gene_corr_start', 'Calculate the corralations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                    column(12, actionButton('Two_gene_corr_start', 'Calculate the correlations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
                                     column(12, h4('')),
                                     column(12, h4('Choose a row from below:')),
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_corr_Input == 'C'",
+                                    column(12, actionButton('Two_gene_corr_start_pairwise', 'Calculate the correlations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                    column(12, h2(''))
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.Two_gene_corr_corr_Input == 'B' || input.Two_gene_corr_corr_Input == 'C'",
                                     column(12, verbatimTextOutput('Two_gene_corr_table_status') ),
                                     column(12,  dataTableOutput("Two_gene_corr_table") ),
-                                  )
+                                  ),
+
                                 ),
                               ),
                             ),
@@ -570,17 +621,29 @@ ui <- fluidPage(
                                 fluidRow(
                                   column(12, verbatimTextOutput('Two_gene_corr_statusA') ),
                                   column(12, verbatimTextOutput('Two_gene_corr_statusB') ),
+                                  column(12, verbatimTextOutput('Two_gene_corr_statusC') ),
                                   column(10, verbatimTextOutput('Two_gene_corr_corr_score') ),
                                   column(2, 
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
                                         column(6, sliderInput('Two_gene_corr_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
                                         column(6, sliderInput('Two_gene_corr_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
-                                        column(6, sliderInput('Two_gene_corr_pt.size', 'Point size', min=0.01, max=5, value=1, step=0.01)),
-                                        column(6, sliderInput('Two_gene_corr_label.font.size', 'X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(6, sliderInput('Two_gene_corr_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
                                         column(6, sliderInput('Two_gene_corr_legend.font.size', 'Legend font size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(6, materialSwitch('Two_gene_corr_while_background', 'Use white background', value=FALSE, status = "success")),
+                                        column(6, sliderInput('Two_gene_corr_label.font.size', 'X/Y label font size', min=0, max=10, value=4, step=0.1)),
+                                        conditionalPanel(
+                                          condition = "input.Two_gene_corr_corr_Input == 'A' || input.Two_gene_corr_corr_Input == 'B'",
+                                          column(6, sliderInput('Two_gene_corr_title.font.size', 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                          column(6, sliderInput('Two_gene_corr_pt.size', 'Point size', min=0.01, max=5, value=1, step=0.01)),
+                                          column(6, materialSwitch('Two_gene_corr_while_background', 'Use white background', value=FALSE, status = "success"))
+                                        )
+                                      ),
+                                      conditionalPanel(
+                                        condition = "input.Two_gene_corr_corr_Input == 'C'",
+                                        fluidRow(
+                                          column(6, colourpicker::colourInput('Two_gene_corr_pairwise_col_high', 'Colour for the highest correlation (1)', value='red')),
+                                          column(6, colourpicker::colourInput('Two_gene_corr_pairwise_col_low', 'Colour for the lowest correlation (-1)', value='blue')),
+                                          column(6, colourpicker::colourInput('Two_gene_corr_pairwise_col_mid', 'Colour for zero', value='white'))
+                                        )
                                       ),
                                       circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                     )
@@ -590,21 +653,24 @@ ui <- fluidPage(
                                   column(12, withSpinner(plotOutput("Two_gene_corr_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
                                   column(12, h4(""))
                                 ),
-                                fluidRow(
-                                  column(3, materialSwitch('Two_gene_corr_plot_line', 'Show the correlation line', value=FALSE, status='danger') ),
-                                  column(7, materialSwitch("Two_gene_corr_colour_grorp", "Colour by groups", value=TRUE, status='danger'))
-                                ),
-                                fluidRow(
-                                  column(12, materialSwitch("Two_gene_corr_choose_sample", "Select samples", value=FALSE, status='danger')),
-                                  conditionalPanel(
-                                    condition = "input.Two_gene_corr_choose_sample",
-                                    column(12, verbatimTextOutput('Two_gene_corr_status_selectsample') ),
-                                    column(12, textAreaInput('Two_gene_corr_choose_sample_input', "Enter sample names (line by line)")),
-                                    column(12, 
-                                      h5('List of the sample names'),
-                                      verbatimTextOutput('Two_gene_corr_choose_sample_input_list')
-                                    )
+                                conditionalPanel(
+                                  condition = "input.Two_gene_corr_corr_Input == 'A' || input.Two_gene_corr_corr_Input == 'B'",
+                                  fluidRow(
+                                    column(3, materialSwitch('Two_gene_corr_plot_line', 'Show the correlation line', value=FALSE, status='danger') ),
+                                    column(7, materialSwitch("Two_gene_corr_colour_grorp", "Colour by groups", value=TRUE, status='danger'))
                                   ),
+                                  fluidRow(
+                                    column(12, materialSwitch("Two_gene_corr_choose_sample", "Select samples", value=FALSE, status='danger')),
+                                    conditionalPanel(
+                                      condition = "input.Two_gene_corr_choose_sample",
+                                      column(12, verbatimTextOutput('Two_gene_corr_status_selectsample') ),
+                                      column(12, textAreaInput('Two_gene_corr_choose_sample_input', "Enter sample names (line by line)")),
+                                      column(12, 
+                                        h5('List of the sample names'),
+                                        verbatimTextOutput('Two_gene_corr_choose_sample_input_list')
+                                      )
+                                    )
+                                  )
                                 )
                               )
                             ),
@@ -736,14 +802,14 @@ ui <- fluidPage(
                                   column(12,
                                     conditionalPanel(
                                       condition = "input.Data_Overview_PCA_Setting == 'B'",
-                                      helpText("Please specify the sample names and their group names that you want to use as the following example."),
-                                      helpText("Ex.)"),
-                                      helpText("    Sample1_rep1,Group1"),
-                                      helpText("    Sample1_rep2,Group1"),
-                                      helpText("    Sample2_rep1,Group2"),
-                                      helpText("    ..."),
-                                      textAreaInput("Data_Overview_PCA_Setting_group_define", "Enter the group description"),
-                                      h3(""),
+                                      helpText(HTML("
+                                        Please specify the sample names and their group names that you want to use as the following example.<br>
+                                        Ex.)<br>
+                                        \tSample1_rep1,Group1<br>
+                                        \tSample1_rep2,Group1<br>
+                                        \tSample2_rep1,Group2<br>
+                                        \t...<br>
+                                      ")),
                                       tags$details(
                                         tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
                                         div(
@@ -1124,7 +1190,7 @@ ui <- fluidPage(
                                     ## GO
                                       tabPanel(strong('GO/KEGG analysis'),
                                         fluidRow(column(12, h4(''))),
-                                        box(title=strong('Settings'), collapsible=TRUE, width=4,status='primary', 
+                                        box(title=strong('Settings'), collapsible=TRUE, width=4,status='info', 
                                           fluidRow(
                                             column(12, radioButtons("GO_input_type", "Input genes for GO analysis", choices = c("Text input"='A', "Use filtered genes (Results from 'Show outliers' above)"='B', "Use selected genes (Selected area in the Main plot)"='C'), selected="A")),
                                             conditionalPanel( 
@@ -1872,7 +1938,9 @@ ui <- fluidPage(
                             circle = FALSE, status = "success", icon = icon("gear"), width = "600px",   tooltip = tooltipOptions(title = "Plot Options")
                           )
                         ),
-                        column(12, withSpinner(plotOutput("Integrate_data1_plus_2_plot", brush = "Integrate_data1_plus_2_plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1'))
+                        column(12, withSpinner(plotOutput("Integrate_data1_plus_2_plot", brush = "Integrate_data1_plus_2_plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1')),
+                        column(4, materialSwitch('Integrate_data1_plus_2_draw_y_x', 'Draw y=x line', value=FALSE, status='primary')),
+                        column(4, materialSwitch('Integrate_data1_plus_2_draw_y_minusx', 'Draw y=-x line', value=FALSE, status='primary')),
                       )
                     )
                   ),
@@ -1938,7 +2006,12 @@ ui <- fluidPage(
                             column(12, radioButtons('Integrate_data1_plus_2_plot_yselect', 'Select how to filter Y', choices=c("None"= "E", "Y > Y1" = "A", "Y < Y2"="B", "Y2 < Y < Y1"="C", "Y < Y2 or Y > Y1"="D"), selected="E"))
                           )
                         ),
-                        column(12, materialSwitch('Integrate_data1_plus_2_plot_filter_label', 'Hide labels', value=FALSE, status='info') )
+                        column(12, materialSwitch('Integrate_data1_plus_2_plot_filter_label', 'Hide labels', value=FALSE, status='info') ),
+                        column(6, materialSwitch('Integrate_data1_plus_2_plot_filter_change_colour', 'Change colour', value=FALSE, status='info') ),
+                        conditionalPanel(
+                          condition = "input.Integrate_data1_plus_2_plot_filter_change_colour == true",
+                          column(6, colourpicker::colourInput('Integrate_data1_plus_2_plot_filter_colour', 'Colour of the filtered genes:', value='blue'))
+                        )
                       )
                     )
                   ),
@@ -2176,28 +2249,50 @@ ui <- fluidPage(
                             fluidPage(
                               column(7, 
                                 fluidRow(
-                                  column(12, radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', choices=c("Explore one gene's correlation with all the genes"='A', "Explore one gene's correlation with specific genes"='B'),selected='B')),
                                   column(12, 
-                                    conditionalPanel(
-                                      condition="input.Gene_correlation_genes_comparison_type == 'A'",
-                                      h5(span('This calculates the correlation with all the genes. It takes 2~4 minutes. Please be patient.', style="color: orange;"))
-                                    ) 
+                                    radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', 
+                                      choiceNames = list(
+                                        HTML('One Gene vs. Multiple Genes<br><span style="font-size:80%;"><em>(Enter one Y-axis gene and multiple X-axis genes to compute correlations)</em></span>'),
+                                        HTML('Pairwise Correlation<br><span style="font-size:80%;"><em>(Input a list of genes and compute all pairwise correlations)</em></span>')
+                                      ),
+                                      choiceValues = c("B", "C"),
+                                      selected = "B"
+                                    )
                                   )
                                 ),
                                 fluidRow(
                                   column(5, 
-                                    textInput('Gene_correlation_genes', 'Enter *ONE* gene (Y-axis)')
+                                    conditionalPanel(
+                                      condition="input.Gene_correlation_genes_comparison_type == 'A' | input.Gene_correlation_genes_comparison_type == 'B'",
+                                      textInput('Gene_correlation_genes', 'Enter *ONE* gene (Y-axis)')
+                                    )
                                   ),
                                   column(7, 
+                                    conditionalPanel(
+                                      condition="input.Gene_correlation_genes_comparison_type == 'A'",
+                                      textInput('Gene_correlation_genes_x', 'Enter *ONE* gene (X-axis)')
+                                    ),
                                     conditionalPanel(
                                       condition="input.Gene_correlation_genes_comparison_type == 'B'",
                                       fluidRow(
                                         column(9, textAreaInput('Gene_correlation_genes_y', 'Enter genes (X-axis) (line by line)')),
-                                        column(3, h3('')),
                                         column(12, materialSwitch('Gene_correlation_genes_y_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') ),
                                         conditionalPanel(
                                           condition = "input.Gene_correlation_genes_y_from_custom_geneset == true",
                                           column(12, htmlOutput('Gene_correlation_genes_y_from_custom_geneset_select'))
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  column(6,
+                                    conditionalPanel(
+                                      condition="input.Gene_correlation_genes_comparison_type == 'C'",
+                                      fluidRow(
+                                        column(12, textAreaInput('Gene_correlation_genes_pairwise', 'Enter genes (line by line)')),
+                                        column(12, materialSwitch('Gene_correlation_genes_pairwise_from_custom_geneset', 'or use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                        conditionalPanel(
+                                          condition = "input.Gene_correlation_genes_pairwise_from_custom_geneset == true",
+                                          column(12, htmlOutput('Gene_correlation_genes_pairwise_from_custom_geneset_select'))
                                         )
                                       )
                                     )
@@ -2265,13 +2360,31 @@ ui <- fluidPage(
                                     column(6,sliderInput('Gene_correlation_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
                                   ),
                                   fluidRow(
-                                    column(6,sliderInput('Gene_correlation_label_size', 'X/Y label size', min=0.1, max=10, value=5, step=0.1)),
-                                    column(6,sliderInput('Gene_correlation_title_size', 'X/Y title size', min=0.1, max=10, value=5, step=0.1)),
+                                    column(6,sliderInput('Gene_correlation_label_size', 'X/Y label size', min=0, max=10, value=5, step=0.1)),
+                                    conditionalPanel(
+                                      condition="input.Gene_correlation_genes_comparison_type != 'C'",
+                                      column(6,sliderInput('Gene_correlation_title_size', 'X/Y title size', min=0.1, max=10, value=5, step=0.1))
+                                    ),
+                                    conditionalPanel(
+                                      condition="input.Gene_correlation_genes_comparison_type != 'B'",
+                                      column(6,sliderInput('Gene_correlation_legend_size', 'Legend font size', min=0.1, max=10, value=5, step=0.1))
+                                    )
                                   ),
-                                  fluidRow(
-                                    column(4, colourpicker::colourInput('Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
-                                    column(4, materialSwitch('Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE, status = "success")),
-                                    column(4, materialSwitch('Gene_correlation_white_background', 'Use white background', value=FALSE, status = "success"))
+                                  conditionalPanel(
+                                    condition="input.Gene_correlation_genes_comparison_type != 'C'",
+                                    fluidRow(
+                                      column(4, colourpicker::colourInput('Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
+                                      column(4, materialSwitch('Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE, status = "success")),
+                                      column(4, materialSwitch('Gene_correlation_white_background', 'Use white background', value=FALSE, status = "success"))
+                                    )
+                                  ),
+                                  conditionalPanel(
+                                    condition="input.Gene_correlation_genes_comparison_type == 'C'",
+                                    fluidRow( 
+                                      column(4, colourpicker::colourInput('Gene_correlation_pairwise_col_low', 'Colour of the lowest correlation (-1):', value='#2e00fa')),
+                                      column(4, colourpicker::colourInput('Gene_correlation_pairwise_col_high', 'Colour of the highest correlation (1):', value='#ec00ec')),
+                                      column(4, colourpicker::colourInput('Gene_correlation_pairwise_col_mid', 'Colour of the mid correlation (0):', value='#ffffff'))
+                                    )
                                   ),
                                   circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "800px",  tooltip = tooltipOptions(title = "Plot Options")
                                 )
@@ -2378,7 +2491,7 @@ ui <- fluidPage(
                                   column(2,
                                     dropdownButton( h4(strong("Plot Options")),
                                       fluidRow(
-                                        column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=1000, step=10)),
+                                        column(6,sliderInput('Clinical_Mutation_frequency_fig.width', 'Fig width', min=300, max=3000, value=800, step=10)),
                                         column(6,sliderInput('Clinical_Mutation_frequency_fig.height', 'Fig height', min=300, max=3000, value=700, step=10)),
                                       ),
                                       fluidRow(
@@ -2461,8 +2574,8 @@ ui <- fluidPage(
                                       column(2, 
                                         dropdownButton( h4(strong("Plot Options")),
                                           fluidRow(
-                                            column(6,sliderInput('Clinical_Mutation_Gene_expression_fig.width', 'Fig width', min=300, max=3000, value=750, step=10)),
-                                            column(6,sliderInput('Clinical_Mutation_Gene_expression_fig.height', 'Fig height', min=300, max=3000, value=500, step=10)),
+                                            column(6,sliderInput('Clinical_Mutation_Gene_expression_fig.width', 'Fig width', min=300, max=3000, value=600, step=10)),
+                                            column(6,sliderInput('Clinical_Mutation_Gene_expression_fig.height', 'Fig height', min=300, max=3000, value=650, step=10)),
                                           ),                                  
                                           fluidRow(
                                             column(6, sliderInput('Clinical_Mutation_Gene_expression_dot.size', 'Dot size (swarm plot)', min=0.01, max=3, value=0.1, step=0.01)),
@@ -4384,8 +4497,6 @@ server <- function(input, output, session) {
       if(input$sidebar == 'scRNA'){
         if(!requireNamespace("Seurat", quietly = TRUE)) { install.packages("Seurat", dependencies = FALSE) }
         suppressMessages(library(Seurat))
-        if(!requireNamespace("reshape2", quietly = TRUE)) { install.packages("reshape2", dependencies = FALSE) }
-        suppressMessages(library(reshape2))
         if(!requireNamespace("cowplot", quietly = TRUE)) { install.packages("cowplot", dependencies = FALSE) }
         suppressMessages(library(cowplot))
         if(!requireNamespace("AUCell", quietly = TRUE)) { BiocManager::install("AUCell", ask = FALSE) }
@@ -4563,6 +4674,13 @@ server <- function(input, output, session) {
           }
           req(input$upload_file)
           uploaded_file <- input$upload_file
+          if(input$upload_Data_Class =='F'){
+            if(is.null(input$upload_bai_file)){
+              output$status_upload <- renderText('Please upload the corresponding .bai file!')
+              show_alert(title='Error.',text='Please upload the corresponding .bai file!', type='error')
+              return()
+            }
+          }
           # detail
           dataset.name.upload <- unlist(strsplit(input$upload_dataset_name, split = "\n"))[1]
           if(input$upload_data_type_select_select == 'Other'){
@@ -4650,9 +4768,9 @@ server <- function(input, output, session) {
   ### Gene sets Tab ################################################################################
 
     #### Show the data list ####
-      Original_geneset_lsit <- reactiveVal({data.frame(read.delim('data/Genesets_list.tsv', sep='\t', header=T))})
+      Original_geneset_list <- reactiveVal({data.frame(read.delim('data/Genesets_list.tsv', sep='\t', header=T))})
       output$Original_geneset_DataBaseTable <-  DT::renderDataTable({
-        data_table_tmp <- Original_geneset_lsit()[order(Original_geneset_lsit()$Added.When, decreasing =T),]
+        data_table_tmp <- Original_geneset_list()[order(Original_geneset_list()$Added.When, decreasing =T),]
         data_table_tmp <- data_table_tmp[,c('Geneset.name','Description','Cell.type','Data.source', 'Genes')]
         datatable(data_table_tmp, 
           selection='none', extensions=c('Select'), 
@@ -4674,17 +4792,17 @@ server <- function(input, output, session) {
     #### allow editing the information ####
       observeEvent(input$Original_geneset_DataBaseTable_cell_edit,{
         info <- input$Original_geneset_DataBaseTable_cell_edit
-        tmp <- Original_geneset_lsit()
+        tmp <- Original_geneset_list()
         tmp[info$row, info$col] <- info$value
         output$Original_geneset_status <- renderText(paste(info$row, info$col,info$value ))
         tmp <- tmp[order(tmp$Added.When,decreasing =T),]
-        Original_geneset_lsit(tmp)
-        replaceData(dataTableProxy('Original_geneset_lsit'), Original_geneset_lsit(), resetPaging=F)
+        Original_geneset_list(tmp)
+        replaceData(dataTableProxy('Original_geneset_list'), Original_geneset_list(), resetPaging=F)
       })
 
     #### save changes when you push the button ####
       observeEvent(input$Original_geneset_save_dt,{
-        write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+        write.table(Original_geneset_list(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
         output$Original_geneset_status <- renderText('saved!')
         show_alert(title='Change saved!',text='The custome gene sets were updated.', type='success')
         return()
@@ -4692,14 +4810,14 @@ server <- function(input, output, session) {
 
     #### delete the data when you push the button ####
       observeEvent(input$Original_geneset_delete_row, {
-        tmp <- Original_geneset_lsit()
-        tmp2 <- Original_geneset_lsit()
+        tmp <- Original_geneset_list()
+        tmp2 <- Original_geneset_list()
         selected_row <- input$Original_geneset_DataBaseTable_rows_selected
         if(!is.null(selected_row) && length(selected_row) > 0){
           tmp <- tmp[!tmp$Geneset.name %in% tmp2[selected_row,]$Geneset.name,]
-          Original_geneset_lsit(tmp)
-          replaceData(dataTableProxy('Original_geneset_lsit'), Original_geneset_lsit(), resetPaging=F)
-          write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+          Original_geneset_list(tmp)
+          replaceData(dataTableProxy('Original_geneset_list'), Original_geneset_list(), resetPaging=F)
+          write.table(Original_geneset_list(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
           output$status <- renderText('Deleted!')
         }else{
           output$status <- renderText('No row selecetd!')
@@ -4724,7 +4842,7 @@ server <- function(input, output, session) {
         }
         time_stamp <- as.character(Sys.time())  
         
-        if(geneset.name.upload %in% Original_geneset_lsit()$Geneset.name){
+        if(geneset.name.upload %in% Original_geneset_list()$Geneset.name){
           output$Original_geneset_status_upload <- renderText('The Geneset name is duplicated!')
           show_alert(title='Error!',text='The Geneset name is duplicated.', type='error')
           return()
@@ -4733,12 +4851,12 @@ server <- function(input, output, session) {
           show_alert(title='Error!',text='Please Enter the names of the genes.', type='error')
           return()
         }else{
-          tmp <- Original_geneset_lsit()
+          tmp <- Original_geneset_list()
           tmp <- add_row(tmp, Geneset.name=geneset.name.upload , Description=Description , Cell.type=Cell.type.upload , Data.source=data.source.upload , Genes=genes, Added.When=time_stamp)
           tmp <- tmp[order(tmp$Added.When, decreasing =T),]
-          Original_geneset_lsit(tmp)
-          replaceData(dataTableProxy('Original_geneset_lsit'), Original_geneset_lsit(), resetPaging=F)
-          write.table(Original_geneset_lsit(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+          Original_geneset_list(tmp)
+          replaceData(dataTableProxy('Original_geneset_list'), Original_geneset_list(), resetPaging=F)
+          write.table(Original_geneset_list(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
           output$Original_geneset_status_upload <- renderText('uploaded!')
           show_alert(title='Uploaded!',text='The gene set was successfully uploaded.', type='success')
           return()
@@ -5049,7 +5167,7 @@ server <- function(input, output, session) {
           # select a custom geneset
           output$Plot_Gene_set_select_geneset <- renderUI({
             gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
             selectInput('Plot_Gene_set_select_geneset', 'Select your custom geneset',  c('None'='None', gene_sets_names))  
           })
           outputOptions(output, "Plot_Gene_set_select_geneset", suspendWhenHidden=FALSE)
@@ -5058,7 +5176,7 @@ server <- function(input, output, session) {
           df_genes_custom_geneset <- reactive({
             df_main_plot <- df()
             if(input$Plot_Gene_set_select_geneset != 'None'){
-              target_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Plot_Gene_set_select_geneset, ]$Genes, split=', ')[[1]]
+              target_genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Plot_Gene_set_select_geneset, ]$Genes, split=', ')[[1]]
               df_tmp <- df_main_plot[df_main_plot$id %in% target_genes,] 
               if(input$Main_scatter_geneset_filter){
                 df_tmp <- df_main_plot[df_main_plot$id %in% target_genes,] 
@@ -5112,7 +5230,7 @@ server <- function(input, output, session) {
           # For count table matrix (RNA, protein), data frame of the expression of a specific gene for generating a swarmplot
           # select from a custom gene list
             output$target_gene_for_RNA_from_custom_geneset_select <- renderUI({
-              gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(Original_geneset_list()$Geneset.name)
               selectInput('target_gene_for_RNA_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
             outputOptions(output, "target_gene_for_RNA_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -5126,7 +5244,7 @@ server <- function(input, output, session) {
                   return(NULL)
                 }else{
                   output$Gene_ex_swarm_status_target_gene_for_RNA_table <- renderText({NULL})
-                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$target_gene_for_RNA_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$target_gene_for_RNA_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                   data.frame(Input=unique(unlist(strsplit(genes, split = "\n"))))
                 }
               }else{
@@ -6088,7 +6206,7 @@ server <- function(input, output, session) {
                   output$GSEA_analysis_status <- renderText({'Please select which pathway data to use.'})
                   gsc <- NULL 
                 }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'A'){
-                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
+                  genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
                   gsc <- list('Selected custom gene set' = genes)
                 }else if(input$GSEA_pathway_dataset_select_one_geneset_select == 'B'){
                   genes <- unlist(strsplit(input$GSEA_pathway_dataset_select_one_geneset_select_from_text, split = "\n"))
@@ -6101,7 +6219,7 @@ server <- function(input, output, session) {
           # when chooseing from the custom gene set
             output$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('GSEA_pathway_dataset_select_one_geneset_select_from_custom_set', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
             })
             outputOptions(output, "GSEA_pathway_dataset_select_one_geneset_select_from_custom_set", suspendWhenHidden=FALSE)
@@ -6353,7 +6471,7 @@ server <- function(input, output, session) {
               output$Data_Overview_heatmap_target_gene_type_status <- renderText({NULL})
               if(input$Data_Overview_heatmap_target_gene_type == 'B'){
                 gene_sets_names <- c()
-                gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+                gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
                 selectInput('Data_Overview_heatmap_target_select_geneset', 'Select a geneset',  c('None'='None', gene_sets_names))  
               }else if (input$Data_Overview_heatmap_target_gene_type == 'C') {
                 gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
@@ -6393,7 +6511,7 @@ server <- function(input, output, session) {
                 }
               }else if(input$Data_Overview_heatmap_target_gene_type == 'B') {
                 if(input$Data_Overview_heatmap_target_select_geneset != 'None'){
-                  unlist(strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', '))
+                  unlist(strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', '))
                 }else{
                   return(NULL)
                 }
@@ -6511,6 +6629,8 @@ server <- function(input, output, session) {
                   output$Data_Overview_heatmap_status <- renderText('The cluster number exceeds the number of genes. Please chosse a lower cluster number.')
                   output$Data_Overview_heatmap_expression_status <- renderText('Error. Please check the input')
                   return(ggplot())
+                }else{
+                  output$Data_Overview_heatmap_status <- renderText(NULL)
                 }
                 km <- kmeans(t(df_ex), centers = input$Cluster_num, nstart = 25)
                 clusters <- as.data.frame(km$cluster)
@@ -6535,12 +6655,17 @@ server <- function(input, output, session) {
                     scale_fill_gradient2(low=input$Data_Overview_heatmap_col_low, high=input$Data_Overview_heatmap_col_high,mid=input$Data_Overview_heatmap_col_mid, midpoint=0) +
                     theme(axis.text.y = element_text(size = input$Data_Overview_heatmap_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_heatmap_xlab.font.size))
                 p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-                p <- p + xlab('') + ylab('')
-                if(input$Data_Overview_heatmap_white_background){
-                    p <- p + theme(panel.background = element_rect(fill="white", color="darkgrey"), panel.grid.major = element_line(color="lightgrey"), panel.grid.minor = element_line(color="lightgrey"))
-                }
-                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
                 p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                if(input$Data_Overview_heatmap_xlab.font.size == 0){
+                  p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+                }
+                if(input$Data_Overview_heatmap_ylab.font.size == 0){
+                  p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+                }
+                p <- p + xlab('') + ylab('')
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_blank())
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                 p <- p + theme(legend.text = element_text(size = input$Data_Overview_heatmap_legend.size), legend.title = element_text(size = input$Data_Overview_heatmap_legend.size) )
                 p <- p + theme(legend.key.size = unit(1.5, "mm"))
                 p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
@@ -6739,7 +6864,7 @@ server <- function(input, output, session) {
                     output$Two_gene_corr_statusB <- renderText({"Please select a custom gene set."}) 
                     return(NULL)
                   }
-                  gene2s <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Two_gene_corr_gene2_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  gene2s <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Two_gene_corr_gene2_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                 }
                 gene2_not_in_data <- c() # gene2_not_in_data <- c('hoge', 'fuga')
                 df_out <- data.frame(Gene=c(), Correlation=c(), Pvalue=c(), log=c())
@@ -6776,7 +6901,6 @@ server <- function(input, output, session) {
                 return(NULL)
               }
             })
-
 
           # specify gene1 and gene2 (typeA)
             df_Two_gene_corr <- reactive({
@@ -6883,15 +7007,17 @@ server <- function(input, output, session) {
           # gene2 from custome genesets
             output$Two_gene_corr_gene2_Input_from_custom_geneset_select <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('Two_gene_corr_gene2_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
             outputOptions(output, "Two_gene_corr_gene2_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
           
           # table status
             output$Two_gene_corr_table_status <- renderText({
-              if(is.null(df_Two_gene_corr_inputB())){
+              if(input$Two_gene_corr_corr_Input == 'B' &  is.null(df_Two_gene_corr_inputB())){
                 "Please calculate the correlations first"
+              }else if(input$Two_gene_corr_corr_Input == 'C' &  is.null(Two_gene_corr_Pairwise_cor())){
+                "Please calculate the pairwise correlations first"
               }else{
                 return(NULL)
               }
@@ -6899,79 +7025,246 @@ server <- function(input, output, session) {
 
           # display a table
             output$Two_gene_corr_table <- renderDataTable({
-              if(is.null(df_Two_gene_corr_inputB())){
+              if(length(input$Two_gene_corr_corr_Input) == 0){
                 tmp <- data.frame(list('Gene'=character(0), 'Correlation'=character(0),'Pvalue'=character(0)), stringsAsFactors = FALSE)
-                datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
-              }else{
-                datatable( data.frame(df_Two_gene_corr_inputB()[, c('Gene', 'Correlation', 'Pvalue')]), selection = list(mode='single'),  options = list(scrollX = TRUE, scrollY = TRUE)) 
+                datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE))                 
+              }else if(input$Two_gene_corr_corr_Input == 'A' || input$Two_gene_corr_corr_Input == 'B'){
+                if(is.null(df_Two_gene_corr_inputB())){
+                  tmp <- data.frame(list('Gene'=character(0), 'Correlation'=character(0),'Pvalue'=character(0)), stringsAsFactors = FALSE)
+                  datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+                }else{
+                  datatable( data.frame(df_Two_gene_corr_inputB()[, c('Gene', 'Correlation', 'Pvalue')]), selection = list(mode='single'),  options = list(scrollX = TRUE, scrollY = TRUE)) 
+                }
+              }else if(input$Two_gene_corr_corr_Input == 'C'){
+                if(is.null(Two_gene_corr_Pairwise_cor())){
+                  tmp <- data.frame(list('Gene1'=character(0), 'Gene2'=character(0),'Correlation'=character(0)), stringsAsFactors = FALSE)
+                  datatable( tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+                }else{
+                  df_tmp <- melt(Two_gene_corr_Pairwise_cor())
+                  names(df_tmp) <- c("X", "Y", "Correlation")
+                  df_tmp <- df_tmp[order(df_tmp$Correlation, decreasing = TRUE),]
+                  datatable(df_tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
+                }
               }
             })
 
+          # Pairwise Correlation
+            # gene lists
+              output$Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select <- renderUI({
+                gene_sets_names <- c(Original_geneset_list()$Geneset.name)
+                selectInput('Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              })
+              outputOptions(output, "Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+
+              Two_gene_corr_Pairwise_gene <- reactive({ 
+                if(input$Two_gene_corr_gene2_list_pairwise_from_custom_geneset){
+                  if(input$Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select == 'None'){
+                    return(NULL)
+                  }else{
+                    Genes_to_be_shown_list <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Two_gene_corr_gene2_list_pairwise_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                    return(Genes_to_be_shown_list)
+                  }
+                }else if(nchar(input$Two_gene_corr_gene2_list_pairwise) == 0){
+                  return(NULL)
+                }else{
+                  return(unlist(strsplit(input$Two_gene_corr_gene2_list_pairwise, split = "\n")))
+                }
+              })
+
+            # calculate the pairwise correlation
+              Two_gene_corr_Pairwise_cor <- reactiveVal({NULL})
+              isCalculating_Two_gene_corr_Pairwise <- reactiveVal({FALSE})
+              isTriger_Two_gene_corr_Pairwise <- reactiveVal({FALSE})
+              sd_zero_genes <- reactiveVal({FALSE})
+              Genes_not_in_dataset_Pairwise <- reactiveVal({FALSE})
+              observeEvent(input$Two_gene_corr_start_pairwise, {
+                if(!is.null(Two_gene_corr_Pairwise_gene())){
+                  isCalculating_Two_gene_corr_Pairwise(TRUE)
+                  isTriger_Two_gene_corr_Pairwise(TRUE)
+                  # perform the calculation
+                  df_ex <- df()
+                  pairwise_gene <- Two_gene_corr_Pairwise_gene()
+                  pairwise_gene_intersect <- intersect(df_ex$id, pairwise_gene)
+                  pairwise_gene_diff <- setdiff(pairwise_gene, df_ex$id)
+                  if(length(pairwise_gene_intersect) == 0){
+                    show_alert(title='Error.',text='None of the inputted genes are in the data.', type='error')
+                    output$Two_gene_corr_statusC <- renderText('None of the inputted genes are in the data.')
+                    Two_gene_corr_Pairwise_cor(NULL)
+                    isCalculating_Two_gene_corr_Pairwise(FALSE)
+                    return()
+                  }
+                  if(length(pairwise_gene_intersect) == 1){
+                    show_alert(title='Error.',text='Please enter at least two genes for pairwise correlation.', type='error')
+                    output$Two_gene_corr_statusC <- renderText('Please enter at least two genes for pairwise correlation.')
+                    Two_gene_corr_Pairwise_cor(NULL)
+                    isCalculating_Two_gene_corr_Pairwise(FALSE)
+                    return()
+                  }
+                  if(length(pairwise_gene_diff) > 0){
+                    Genes_not_in_dataset_Pairwise(pairwise_gene_diff)
+                  }else{
+                    Genes_not_in_dataset_Pairwise(NULL)
+                  }
+                  sub <- df_ex[df_ex$id %in% pairwise_gene_intersect, ]
+                  rownames(sub) <- sub$id
+                  sub <- sub[ , -which(names(sub) == "id")]  # remove 'id' column
+                  if(input$Two_gene_corr_log){
+                    sub <- log2(sub + 1)  # log2 transformation
+                  }
+                  sd_vec <- apply(t(sub), 2, sd) # check if the sd is not 0
+                  sub_sd0 <- t(sub)[, sd_vec == 0, drop = FALSE]
+                  if(length(colnames(sub_sd0)) > 0){
+                    sd_zero_genes(colnames(sub_sd0))
+                  }else{
+                    sd_zero_genes(NULL)
+                  }
+                  cor_mat <- cor(t(sub)[, sd_vec > 0], method = input$Two_gene_corr_corr_method)  # transpose so genes are rows
+                  Two_gene_corr_Pairwise_cor(cor_mat)
+                  isCalculating_Two_gene_corr_Pairwise(FALSE)
+                  return()
+                }else{
+                  show_alert(title='Error.',text='Please enter the gene names for pairwise correlation.', type='error')
+                  output$Two_gene_corr_statusC <- renderText({"Please enter the gene names for pairwise correlation."})
+                  Two_gene_corr_Pairwise_cor(NULL)
+                  isCalculating_Two_gene_corr_Pairwise(FALSE)
+                  return()
+                }
+              })
+
+            #
+
           # plot
             output$Two_gene_corr_plot <- renderPlot({
-              if(is.null(df_Two_gene_corr())){
-                if(input$Two_gene_corr_corr_Input == 'B'){
-                  if(is.null(df_Two_gene_corr_inputB())){
-                    output$Two_gene_corr_corr_score <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
-                  }else{
-                    if(length(input$Two_gene_corr_table_rows_selected) == 0){
-                      output$Two_gene_corr_corr_score <- renderText({"Please select a row from the table."})
-                    }else{
-                      output$Two_gene_corr_corr_score <- renderText({NULL})
-                    }
-                  }
-                }else{
-                  output$Two_gene_corr_corr_score <- renderText({NULL})
-                }
+              if(length(input$Two_gene_corr_corr_Input) == 0){
+                output$Two_gene_corr_corr_score <- renderText({"Please choose the analysis type'"})
                 return(ggplot())
-              }else{
-                if(input$Two_gene_corr_corr_Input == 'A'){
-                  gene1 <- input$Two_gene_corr_gene1
-                  gene2 <- input$Two_gene_corr_gene2
-                  df_tmp <- df_Two_gene_corr()
-                }else{
-                  gene1 <- df_Two_gene_corr_inputB_gene1()
-                  gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
-                  df_tmp <- df_Two_gene_corr()
-                }
-                if(!is.null(df_tmp)){
-                  if(input$Two_gene_corr_colour_grorp){
-                    p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1, color='Group')) + geom_point(size=input$Two_gene_corr_pt.size)
-                  }else{
-                    p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1)) + geom_point(size=input$Two_gene_corr_pt.size)
-                  }
-                  if(input$Two_gene_corr_plot_line){
-                    p <- p + geom_smooth(method='lm', se=TRUE, size=0.2, color='black')
-                  }
-                  if(input$Two_gene_corr_corr_Input == 'A' & input$Two_gene_corr_log){
-                    p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
-                  }
+              }
+              if(input$Two_gene_corr_corr_Input == 'A' | input$Two_gene_corr_corr_Input == 'B'){
+                output$Two_gene_corr_statusC <- renderText({NULL}) 
+                if(is.null(df_Two_gene_corr())){
                   if(input$Two_gene_corr_corr_Input == 'B'){
-                    if(df_Two_gene_corr_inputB()$log[1] == 1){
+                    if(is.null(df_Two_gene_corr_inputB())){
+                      output$Two_gene_corr_corr_score <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
+                    }else{
+                      if(length(input$Two_gene_corr_table_rows_selected) == 0){
+                        output$Two_gene_corr_corr_score <- renderText({"Please select a row from the table."})
+                      }else{
+                        output$Two_gene_corr_corr_score <- renderText({NULL})
+                      }
+                    }
+                  }else{
+                    output$Two_gene_corr_corr_score <- renderText({NULL})
+                  }
+                  return(ggplot())
+                }else{
+                  if(input$Two_gene_corr_corr_Input == 'A'){
+                    gene1 <- input$Two_gene_corr_gene1
+                    gene2 <- input$Two_gene_corr_gene2
+                    df_tmp <- df_Two_gene_corr()
+                  }else{
+                    gene1 <- df_Two_gene_corr_inputB_gene1()
+                    gene2 <- df_Two_gene_corr_inputB()[input$Two_gene_corr_table_rows_selected,]$Gene
+                    df_tmp <- df_Two_gene_corr()
+                  }
+                  if(!is.null(df_tmp)){
+                    if(input$Two_gene_corr_colour_grorp){
+                      p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1, color='Group')) + geom_point(size=input$Two_gene_corr_pt.size)
+                    }else{
+                      p <- ggplot(df_tmp, aes_string(x=gene2, y=gene1)) + geom_point(size=input$Two_gene_corr_pt.size)
+                    }
+                    if(input$Two_gene_corr_plot_line){
+                      p <- p + geom_smooth(method='lm', se=TRUE, size=0.2, color='black')
+                    }
+                    if(input$Two_gene_corr_corr_Input == 'A' & input$Two_gene_corr_log){
                       p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
                     }
+                    if(input$Two_gene_corr_corr_Input == 'B'){
+                      if(df_Two_gene_corr_inputB()$log[1] == 1){
+                        p <- p + xlab(paste(gene2, 'log2(Expression+1)', sep='\n')) + ylab(paste(gene1, 'log2(Expression+1)', sep='\n'))
+                      }
+                    }
+                    # calculate R and p
+                    res <- cor.test(df_tmp[, gene1], df_tmp[, gene2], method=input$Two_gene_corr_corr_method)
+                    r <- res$estimate
+                    pval <- res$p.value
+                    output$Two_gene_corr_corr_score <- renderText({
+                      paste0('Correlation: ', r, '\n', 'P-value: ', pval)
+                    })
+                    p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                  }else{
+                    return(ggplot())
                   }
-                  # calculate R and p
-                  res <- cor.test(df_tmp[, gene1], df_tmp[, gene2], method=input$Two_gene_corr_corr_method)
-                  r <- res$estimate
-                  pval <- res$p.value
-                  output$Two_gene_corr_corr_score <- renderText({
-                    paste0('Correlation: ', r, '\n', 'P-value: ', pval)
-                  })
-                  p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-                }else{
-                  return(ggplot())
                 }
               }
-              p <- p + theme(axis.title = element_text(size=input$Two_gene_corr_title.font.size), axis.text = element_text(size=input$Two_gene_corr_label.font.size))
+              if(input$Two_gene_corr_corr_Input == 'C'){
+                output$Two_gene_corr_statusA <- renderText({NULL}) 
+                output$Two_gene_corr_statusB <- renderText({NULL}) 
+                output$Two_gene_corr_corr_score <- renderText({NULL})
+                output$Two_gene_corr_statusC <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
+                if(!isTriger_Two_gene_corr_Pairwise()){
+                  return(ggplot())
+                }else if(isCalculating_Two_gene_corr_Pairwise()){
+                  return(ggplot())
+                }else if(is.null(Two_gene_corr_Pairwise_cor())){
+                  output$Two_gene_corr_statusC <- renderText({"Please set the inputs and click 'Calculate the correlations'"})
+                  return(ggplot())
+                }else{
+                  cor_mat <- Two_gene_corr_Pairwise_cor()
+                  dist_rows <- as.dist(1 - cor_mat)
+                  dist_cols <- as.dist(1 - t(cor_mat)) 
+                  hc_rows <- hclust(dist_rows)
+                  hc_cols <- hclust(dist_cols)
+                  # Get dendrogram order
+                  row_order <- hc_rows$order
+                  col_order <- hc_cols$order
+                  # Reorder correlation matrix
+                  cor_mat_clustered <- cor_mat[row_order, col_order]
+                  cor_df <- melt(cor_mat_clustered)
+                  names(cor_df) <- c("Gene1", "Gene2", "Correlation") 
+                  if(is.null(Genes_not_in_dataset_Pairwise())){
+                    output$Two_gene_corr_statusC <- renderText({NULL})
+                    if(length(sd_zero_genes()) > 0){
+                      output$Two_gene_corr_statusC <- renderText({paste0("The following genes have zero standard deviation and are not shown in the plot: ", paste(sd_zero_genes(), collapse=', '))})
+                    }
+                  }else{
+                    if(length(sd_zero_genes()) > 0){
+                      output$Two_gene_corr_statusC <- renderText({
+                        paste0("The following genes have zero standard deviation and are not shown in the plot: ", paste(sd_zero_genes(), collapse=', '), "\n", "The following genes are not in the dataset: ", paste(Genes_not_in_dataset_Pairwise(), collapse=', '))
+                        })
+                    }else{
+                      output$Two_gene_corr_statusC <- renderText({paste0("The following genes are not in the dataset: ", paste(Genes_not_in_dataset_Pairwise(), collapse=', '))})
+                    }
+                  }
+                  p <- ggplot(cor_df, aes(x = Gene1, y = Gene2, fill = Correlation)) + 
+                    geom_tile(color = NA) + 
+                    # scale_fill_gradient2(low = input$Two_gene_corr_corr_col_low, high = input$Two_gene_corr_corr_col_high, mid = input$Two_gene_corr_corr_col_mid, midpoint = 0) +
+                    scale_fill_gradient2(low = input$Two_gene_corr_pairwise_col_low, high = input$Two_gene_corr_pairwise_col_high , mid=input$Two_gene_corr_pairwise_col_mid, midpoint=0, limits = c(-1,1)) +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=input$Two_gene_corr_label.font.size), axis.text.y = element_text(size=input$Two_gene_corr_label.font.size)) +
+                    labs(x = NULL, y = NULL) +
+                    theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_blank()) +
+                    theme(panel.background = element_rect(fill="white", size=0)) + 
+                    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+                    theme(axis.ticks = element_blank())
+                  if(input$Two_gene_corr_label.font.size==0){
+                    p <- p + theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+                  }
+
+                }
+              }
+              # parameter
+              if(!input$Two_gene_corr_corr_Input == 'C'){
+                p <- p + theme(axis.title = element_text(size=input$Two_gene_corr_title.font.size), axis.text = element_text(size=input$Two_gene_corr_label.font.size))
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              }
               p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
               p <- p + theme(legend.key.size = unit(2, "mm"))
               p <- p + theme(legend.title = element_blank(), legend.text = element_text(size=input$Two_gene_corr_legend.font.size))
-              if(input$Two_gene_corr_while_background){
-                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-                p <- p + theme(panel.background = element_rect(fill="white", size=0))
-                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              if(input$Two_gene_corr_corr_Input != 'C'){
+                if(input$Two_gene_corr_while_background){
+                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                }
               }
               p
             }, width=reactive(input$Two_gene_corr_fig.width), height=reactive(input$Two_gene_corr_fig.height), res=300)
@@ -7035,7 +7328,7 @@ server <- function(input, output, session) {
     #### Dataset comparison
       # when using the custom geneset
         output$target_gene_for_comparing_Input_from_custom_geneset_select <- renderUI({
-          gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(Original_geneset_list()$Geneset.name)
           selectInput('target_gene_for_comparing_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
         })
         outputOptions(output, "target_gene_for_comparing_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -7102,7 +7395,7 @@ server <- function(input, output, session) {
               isCalculating_compare(FALSE)
               return(NULL)
             }else{
-              Genes_to_be_shown_list <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$target_gene_for_comparing_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              Genes_to_be_shown_list <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$target_gene_for_comparing_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
             } 
           }else{
             if(nchar(input$target_gene_for_comparing) == 0){ # when no genes are specified
@@ -8126,7 +8419,7 @@ server <- function(input, output, session) {
         # plot
           # for highlight genes from the custome genes 
             output$Integrate_data1_plus_2_target_gene_from_custom_geneset_select <- renderUI({
-                  gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+                  gene_sets_names <- c(Original_geneset_list()$Geneset.name)
                   selectInput('Integrate_data1_plus_2_target_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 })
             outputOptions(output, "Integrate_data1_plus_2_target_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -8197,14 +8490,14 @@ server <- function(input, output, session) {
                   p <- p + geom_hline(yintercept=input$Integrate_data1_plus_2_plot_ythr2, linetype='dotted', size=0.2)
                 }
                 
-                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color='blue' , size = input$Integrate_data1_plus_2_highlight_dot_size)
+                p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,], color=input$Integrate_data1_plus_2_plot_filter_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
                 if(!input$Integrate_data1_plus_2_plot_filter_label){
-                  p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = "blue", aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
+                  p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% Integrate_outliers$id,],  color = input$Integrate_data1_plus_2_plot_filter_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2)   
                 }
               } 
               if(input$Integrate_data1_plus_2_target_gene_from_custom_geneset){
                 if(input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select != 'None'){
-                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                   p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% genes,], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
                   if(input$Integrate_data1_plus_2_show_gene_name){
                     p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% genes,],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
@@ -8229,6 +8522,12 @@ server <- function(input, output, session) {
                 p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               }
               p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              if(input$Integrate_data1_plus_2_draw_y_x){
+                p <- p + geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 0.2)
+              }
+              if(input$Integrate_data1_plus_2_draw_y_minusx){
+                p <- p + geom_abline(intercept = 0, slope = -1, color = "black", linetype = "dashed", linewidth = 0.2)
+              }
               p
             }, width=reactive(input$Integrate_data1_plus_2_fig.width), height=reactive(input$Integrate_data1_plus_2_fig.height), res=300)
 
@@ -8453,7 +8752,7 @@ server <- function(input, output, session) {
       # when selecting from custom genesets
         output$scRNA_UMAP2_gene_from_custom_geneset_select <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('scRNA_UMAP2_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
         outputOptions(output, "scRNA_UMAP2_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -8467,7 +8766,7 @@ server <- function(input, output, session) {
                 return(NULL)
               }else{
                 output$scRNA_UMAP2_gene_input_status <- renderText({NULL})
-                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_UMAP2_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$scRNA_UMAP2_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
               }
             }else{
               if(nchar(input$scRNA_UMAP2_gene) >0){
@@ -8544,7 +8843,7 @@ server <- function(input, output, session) {
       # select a gene set
         output$scRNA_UMAP2_gene_signature_from_custom_geneset_select <- renderUI({
           gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
           selectInput('scRNA_UMAP2_gene_signature_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
         })
         outputOptions(output, "scRNA_UMAP2_gene_signature_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -8580,7 +8879,7 @@ server <- function(input, output, session) {
                 isCalculating(FALSE)
                 return()
               }else{
-                genesets <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_UMAP2_gene_signature_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                genesets <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$scRNA_UMAP2_gene_signature_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
               }
             }else{
               # gene from input
@@ -8783,7 +9082,7 @@ server <- function(input, output, session) {
 
       # when selecting genes from custom gene sets
         output$scRNA_VlnPlot_gene_from_custom_geneset_select <- renderUI({
-          gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(Original_geneset_list()$Geneset.name)
           selectInput('scRNA_VlnPlot_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
         })
         outputOptions(output, "scRNA_VlnPlot_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -8799,7 +9098,7 @@ server <- function(input, output, session) {
                 return(NULL)
               }else{
                 output$scRNA_VlnPlot_vln_inputsetting1 <- renderText({NULL})
-                gene_features <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_VlnPlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                gene_features <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$scRNA_VlnPlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
               }
             }else{
               if(nchar(input$scRNA_VlnPlot_gene)==0){
@@ -8948,7 +9247,7 @@ server <- function(input, output, session) {
 
       # when selecting genes from custom gene sets
         output$scRNA_DotPlot_gene_from_custom_geneset_select <- renderUI({
-              gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(Original_geneset_list()$Geneset.name)
               selectInput('scRNA_DotPlot_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
         outputOptions(output, "scRNA_DotPlot_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -8972,7 +9271,7 @@ server <- function(input, output, session) {
               output$scRNA_DotPlot_dot_status <- renderText({"Please select a custom gene set."})
               return()
             }else{
-              gene_features <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_DotPlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              gene_features <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$scRNA_DotPlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
             }
           }else{
             if(nchar(input$scRNA_DotPlot_gene)==0){
@@ -9052,7 +9351,7 @@ server <- function(input, output, session) {
       # choose from custom genesets
         output$scRNA_fraction_Input_from_custom_geneset_select <- renderUI({
           gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
           selectInput('scRNA_fraction_Input_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
         })
         outputOptions(output, "scRNA_fraction_Input_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -9066,7 +9365,7 @@ server <- function(input, output, session) {
                 return(NULL)
               }else{
                 output$scRNA_fraction_gene_input_status1 <- renderText({NULL})
-                genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$scRNA_fraction_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$scRNA_fraction_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
               }
             }else{
               if(nchar(input$scRNA_fraction_gene) >0){
@@ -9228,7 +9527,9 @@ server <- function(input, output, session) {
       # data from which experiment
         output$igv_data_Experiment <- renderUI({  
           tmp <- Dataset()[Dataset()$Data.Class == 'D',]
-          if(length(input$igv_data_DataFrom)>0 & input$igv_data_DataFrom != 'None'){ 
+          if(length(input$igv_data_DataFrom) == 0){
+            selectInput('igv_data_Experiment', 'Experiment', c('None'='None'))   
+          }else if(length(input$igv_data_DataFrom)>0 & input$igv_data_DataFrom != 'None'){ 
             tmp <-tmp[tmp$Data.from == input$igv_data_DataFrom,] 
           }
           selectInput('igv_data_Experiment', 'Experiment', c('None'='None', tmp$Experiment)) 
@@ -9827,7 +10128,7 @@ server <- function(input, output, session) {
         })
       # when using custom geneset
         output$Enhancer_Find_custom_geneset_select <- renderUI({
-          gene_sets_names <- c(Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(Original_geneset_list()$Geneset.name)
           selectInput('Enhancer_Find_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
         })
         outputOptions(output, "Enhancer_Find_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -9878,7 +10179,7 @@ server <- function(input, output, session) {
               isCalculating_Enhancer_Find(FALSE)
               return(NULL)
             }
-            target_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes, split=', ')[[1]]
+            target_genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes, split=', ')[[1]]
           }else{
             if(nchar(input$Enhancer_Find_input_gene) == 0){
               show_alert(title='Error.',text='Please input genes.', type='error')
@@ -10398,7 +10699,7 @@ server <- function(input, output, session) {
         # when using a custom gene set
           output$Clinical_Survival_genes_from_custom_geneset_select <- renderUI({
             gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
             selectInput('Clinical_Survival_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
           })
           outputOptions(output, "Clinical_Survival_genes_from_custom_geneset_select", suspendWhenHidden=FALSE)
@@ -10464,7 +10765,7 @@ server <- function(input, output, session) {
                     df_Suv_p_and_HR(NULL)
                     return()
                   }
-                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                 }else{  # gene selection (from text input)
                   if(nchar(input$Clinical_Survival_genes)== 0 ){
                     show_alert(title='Error.',text='Please enter genes (line by line)', type='error')
@@ -10786,11 +11087,16 @@ server <- function(input, output, session) {
       ##### Calculate the correlation #####
         # when using a custom gene set
           output$Gene_correlation_genes_y_from_custom_geneset_select <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            gene_sets_names <- c(Original_geneset_list()$Geneset.name)
             selectInput('Gene_correlation_genes_y_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
           })
           outputOptions(output, "Gene_correlation_genes_y_from_custom_geneset_select", suspendWhenHidden=FALSE)
+
+          output$Gene_correlation_genes_pairwise_from_custom_geneset_select <- renderUI({
+            gene_sets_names <- c(Original_geneset_list()$Geneset.name)
+            selectInput('Gene_correlation_genes_pairwise_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+          })
+          outputOptions(output, "Gene_correlation_genes_pairwise_from_custom_geneset_select", suspendWhenHidden=FALSE)
 
         # initial status of the error message
           output$Gene_correlation_all_status <- renderText({"Please select a cohort, set the input genes and click 'Calculate the correlation'."})
@@ -10800,11 +11106,12 @@ server <- function(input, output, session) {
         # calculate the correlation after clicking the button
           df_gene_correlation <- reactiveVal(NULL)
           selected_cohort_cor <- reactiveVal(NULL)
-
+          Genes_not_in_dataset_Pairwise_cohort <- reactiveVal(NULL)
+          sd_zero_genes_cohort <- reactiveVal(NULL)
           observeEvent(input$Gene_correlation_start, {
             selected_cohort_cor(input$Clinical_data_select)
 
-            if(input$Clinical_data_select == 'None'){
+            if(input$Clinical_data_select == 'None'){ # No cohort selected
               show_alert(title='Error.',text='Please select a cohort', type='error')
               output$Gene_correlation_all_status <- renderText({'Please select a cohort'})
               output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
@@ -10812,33 +11119,7 @@ server <- function(input, output, session) {
               df_gene_correlation(NULL)
               return()
             }
-            if(nchar(input$Gene_correlation_genes)==0){
-              show_alert(title='Error.',text='Please enter a gene name for the Y axis.', type='error')
-              output$Gene_correlation_all_status <- renderText({'Please enter a gene name for the Y axis.'})
-              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
-              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
-              df_gene_correlation(NULL)
-              return()
-            }
-            gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
-            df_geneEx <- Clinical_gene_expression()
-            if(!gene %in% rownames(df_geneEx)){
-              show_alert(title='Error.',text='The inputted gene for the Y-axis is not in the selected dataset.', type='error')
-              output$Gene_correlation_all_status <- renderText({'The inputted gene for the Y-axis is not in the selected dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
-              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
-              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
-              df_gene_correlation(NULL)
-              return()
-            }
-            if(length(input$Gene_correlation_Corralation_method) == 0){
-              show_alert(title='Error.',text='Please choose the Method for correlation.', type='error')
-              output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
-              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
-              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
-              df_gene_correlation(NULL)
-              return()
-            }
-            if(length(input$Gene_correlation_genes_comparison_type)==0){
+            if(length(input$Gene_correlation_genes_comparison_type)==0){ # No explore type selected
               show_alert(title='Error.',text='Please choose the "Explore type".', type='error')
               output$Gene_correlation_all_status <- renderText({'Please choose the "Explore type"'})
               output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
@@ -10846,11 +11127,85 @@ server <- function(input, output, session) {
               df_gene_correlation(NULL)
               return()
             }
-            if(input$Gene_correlation_genes_comparison_type == 'A'){
-              genes_to_compare <- rownames(df_geneEx)
-            }else if(input$Gene_correlation_genes_comparison_type == 'B'){
-              if(input$Gene_correlation_genes_y_from_custom_geneset){
-                if(input$Gene_correlation_genes_y_from_custom_geneset_select == 'None'){
+            if(length(input$Gene_correlation_Corralation_method) == 0){ # No correlation method specified
+              show_alert(title='Error.',text='Please choose the Method for correlation.', type='error')
+              output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
+              output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+              output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+              df_gene_correlation(NULL)
+              return()
+            }
+            # B
+            df_geneEx <- Clinical_gene_expression()
+            if(input$Gene_correlation_genes_comparison_type == 'B'){
+              if(nchar(input$Gene_correlation_genes)==0){ # No input
+                show_alert(title='Error.',text='Please enter a gene name for the Y axis.', type='error')
+                output$Gene_correlation_all_status <- renderText({'Please enter a gene name for the Y axis.'})
+                output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                df_gene_correlation(NULL)
+                return()
+              }
+              gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
+              if(!gene %in% rownames(df_geneEx)){ # input is not in the dataset
+                show_alert(title='Error.',text='The inputted gene for the Y-axis is not in the selected dataset.', type='error')
+                output$Gene_correlation_all_status <- renderText({'The inputted gene for the Y-axis is not in the selected dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+                output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                df_gene_correlation(NULL)
+                return()
+              }
+              if(input$Gene_correlation_genes_comparison_type == 'B'){
+                if(input$Gene_correlation_genes_y_from_custom_geneset){
+                  if(input$Gene_correlation_genes_y_from_custom_geneset_select == 'None'){
+                    show_alert(title='Error.',text='Please select a custom gene set.', type='error')
+                    output$Gene_correlation_all_status <- renderText({"Please select a custom gene set."})
+                    output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                    output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                    df_gene_correlation(NULL)
+                    return()
+                  }
+                  genes_to_compare <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                }else{
+                  if(nchar(input$Gene_correlation_genes_y)== 0 ){
+                    show_alert(title='Error.',text='Please enter genes for the X axis (line by line).', type='error')
+                    output$Gene_correlation_all_status <- renderText({"Please enter genes for the X axis (line by line)"})
+                    output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                    output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                    df_gene_correlation(NULL)
+                    return()
+                  }
+                  genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
+                }
+                genes_to_compare <- intersect(genes_to_compare, rownames(df_geneEx))
+                if(length(genes_to_compare) == 0){
+                  show_alert(title='Error.',text='The inputted genes (for X-axis) are not in the selected dataset.', type='error')
+                  output$Gene_correlation_all_status <- renderText({'The inputted genes (for X-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
+                  output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                  output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                  df_gene_correlation(NULL)
+                  return()
+                }
+              }
+              df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
+              a <- unlist(df_geneEx[gene,])
+              for ( gene2 in genes_to_compare){
+                b <- unlist(df_geneEx[gene2,])
+                c <- cor.test(a, b, method=input$Gene_correlation_Corralation_method)
+                r <- c$estimate
+                p <- c$p.value
+                df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
+                df_cor_out <- rbind(df_cor_out, df_cor_tmp)
+              }
+              df_cor_out <- df_cor_out[order(df_cor_out$r, decreasing = T),] # head(df_cor_out)
+              rownames(df_cor_out) <- NULL
+              df_cor_out$target <- gene
+              output$Gene_correlation_table_status <- renderText({NULL})
+              df_gene_correlation(df_cor_out)
+              return()
+            }else if(input$Gene_correlation_genes_comparison_type == 'C'){
+              if(input$Gene_correlation_genes_pairwise_from_custom_geneset){
+                if(input$Gene_correlation_genes_pairwise_from_custom_geneset_select == 'None'){
                   show_alert(title='Error.',text='Please select a custom gene set.', type='error')
                   output$Gene_correlation_all_status <- renderText({"Please select a custom gene set."})
                   output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
@@ -10858,50 +11213,74 @@ server <- function(input, output, session) {
                   df_gene_correlation(NULL)
                   return()
                 }
-                genes_to_compare <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                pairwise_genes_cohort <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Gene_correlation_genes_pairwise_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
               }else{
-                if(nchar(input$Gene_correlation_genes_y)== 0 ){
-                  show_alert(title='Error.',text='Please enter genes for the X axis (line by line).', type='error')
-                  output$Gene_correlation_all_status <- renderText({"Please enter genes for the X axis (line by line)"})
+                if(nchar(input$Gene_correlation_genes_pairwise)== 0 ){
+                  show_alert(title='Error.',text='Please enter genes for the pairwise correlation (line by line).', type='error')
+                  output$Gene_correlation_all_status <- renderText({"Please enter genes for the pairwise correlation (line by line)"})
                   output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                   output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                   df_gene_correlation(NULL)
                   return()
                 }
-                genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
+                pairwise_genes_cohort <- unlist(strsplit(input$Gene_correlation_genes_pairwise, '\n'))
               }
-              genes_to_compare <- intersect(genes_to_compare, rownames(df_geneEx))
-              if(length(genes_to_compare) == 0){
-                show_alert(title='Error.',text='The inputted genes (for X-axis) are not in the selected dataset.', type='error')
-                output$Gene_correlation_all_status <- renderText({'The inputted genes (for X-axis) are not in the dataset.\nPlease make sure the gene names are correct and do not include unnecessary spaces.'})
+              pairwise_genes_cohort_intersect <- intersect(pairwise_genes_cohort, rownames(df_geneEx))
+              pairwise_genes_cohort_diff <- setdiff(pairwise_genes_cohort, rownames(df_geneEx))
+              if(length(pairwise_genes_cohort_intersect) == 1){
+                show_alert(title='Error.',text='Please input at least two genes for the pairwise correlation.', type='error')
+                output$Gene_correlation_all_status <- renderText({'Please input at least two genes for the pairwise correlation.'})
                 output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
-                output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
+                output$Gene_correlation_error_catch <- renderText({"Please calculate the correlation first" })
                 df_gene_correlation(NULL)
                 return()
               }
+              if(length(pairwise_genes_cohort_intersect) == 0){
+                show_alert(title='Error.',text='None of the inputted genes are in the data.', type='error')
+                output$Gene_correlation_all_status <- renderText('None of the inputted genes are in the data.')
+                output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                output$Gene_correlation_error_catch <- renderText({"Please calculate the correlation first"})
+                df_gene_correlation(NULL)
+                return()
+              }
+              if(length(pairwise_genes_cohort_diff) > 0){
+                Genes_not_in_dataset_Pairwise_cohort(pairwise_genes_cohort_diff)
+              }else{
+                Genes_not_in_dataset_Pairwise_cohort(NULL)
+              }
+              sub <- df_geneEx[pairwise_genes_cohort_intersect, ]
+              sd_vec <- apply(t(sub), 2, sd) 
+              sub_sd0 <- t(sub)[, sd_vec == 0, drop = FALSE]
+              if(length(colnames(sub_sd0)) > 0){
+                sd_zero_genes_cohort(colnames(sub_sd0))
+              }else{
+                sd_zero_genes_cohort(NULL)
+              }
+              cor_mat <- cor(t(sub)[, sd_vec > 0], method = input$Gene_correlation_Corralation_method)  # transpose so genes are rows
+              dist_rows <- as.dist(1 - cor_mat)
+              dist_cols <- as.dist(1 - t(cor_mat)) 
+              hc_rows <- hclust(dist_rows)
+              hc_cols <- hclust(dist_cols)
+              row_order <- hc_rows$order
+              col_order <- hc_cols$order
+              cor_mat_clustered <- cor_mat[row_order, col_order]
+              cor_df <- melt(cor_mat_clustered)
+              names(cor_df) <- c("Gene1", "Gene2", "Correlation") 
+              df_gene_correlation(cor_df)
+              return()
             }
-            df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
-            a <- unlist(df_geneEx[gene,])
-            for ( gene2 in genes_to_compare){
-              b <- unlist(df_geneEx[gene2,])
-              c <- cor.test(a, b, method=input$Gene_correlation_Corralation_method)
-              r <- c$estimate
-              p <- c$p.value
-              df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
-              df_cor_out <- rbind(df_cor_out, df_cor_tmp)
-            }
-            df_cor_out <- df_cor_out[order(df_cor_out$r, decreasing = T),] # head(df_cor_out)
-            rownames(df_cor_out) <- NULL
-            df_cor_out$target <- gene
-            output$Gene_correlation_table_status <- renderText({NULL})
-            df_gene_correlation(df_cor_out)
-            return()
+
           })
         #
       ##### Plot the correlation by a scatter plot #####
         output$Gene_correlation_table <- DT::renderDataTable({
           if(!is.null(df_gene_correlation())){
-            datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            if(input$Gene_correlation_genes_comparison_type == 'B'){
+              datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else if(input$Gene_correlation_genes_comparison_type == 'C'){
+              datatable(df_gene_correlation()[,c('Gene1', 'Gene2', 'Correlation')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }
+            
           }else{
             tmp <- data.frame('Gene'=character(0), 'r'=numeric(0), 'p'=numeric(0), stringsAsFactors = FALSE)
             datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
@@ -10920,31 +11299,50 @@ server <- function(input, output, session) {
           if(is.null(df_gene_correlation())){
             return(ggplot())
           }else{
-            if(length(input$Gene_correlation_table_rows_selected)>0){
-              output$Gene_correlation_error_catch <- renderText({NULL})
-              Gene2 <- df_gene_correlation()$target[1]
-              Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene
-              df_geneEx <- Clinical_gene_expression()
-              scatter_data <- data.frame(Gene1=unlist(df_geneEx[Gene1, ]), Gene2=unlist(df_geneEx[Gene2, ]), Sample=colnames(df_geneEx)) # head(scatter_data)
-              p <- ggplot(scatter_data, aes(x=Gene1, y=Gene2))
-              p <- p + geom_point(size=0.3, color=input$Gene_correlation_colour, alpha=0.7)
-              if(input$Gene_correlation_show_correlation_line){
-                p <- p + geom_smooth(method='lm', se=TRUE, color=input$Gene_correlation_colour, size=0.4)
+            if(input$Gene_correlation_genes_comparison_type == 'B'){
+              if(length(input$Gene_correlation_table_rows_selected)>0){
+                output$Gene_correlation_error_catch <- renderText({NULL})
+                Gene2 <- df_gene_correlation()$target[1]
+                Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene
+                df_geneEx <- Clinical_gene_expression()
+                scatter_data <- data.frame(Gene1=unlist(df_geneEx[Gene1, ]), Gene2=unlist(df_geneEx[Gene2, ]), Sample=colnames(df_geneEx)) # head(scatter_data)
+                p <- ggplot(scatter_data, aes(x=Gene1, y=Gene2))
+                p <- p + geom_point(size=0.3, color=input$Gene_correlation_colour, alpha=0.7)
+                if(input$Gene_correlation_show_correlation_line){
+                  p <- p + geom_smooth(method='lm', se=TRUE, color=input$Gene_correlation_colour, size=0.4)
+                }
+                p <- p + labs(x=Gene1, y=Gene2)
+                p <- p + theme(axis.text.y = element_text(size = input$Gene_correlation_label_size), axis.text.x = element_text(size = input$Gene_correlation_label_size))
+                p <- p + theme(axis.title.y = element_text(size = input$Gene_correlation_title_size), axis.title.x = element_text(size = input$Gene_correlation_title_size))
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                if(input$Gene_correlation_white_background){
+                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                }
+                p
+              }else{
+                output$Gene_correlation_error_catch <- renderText('Please select a gene from the correlation table.')
+                return(ggplot())
               }
-              p <- p + labs(x=Gene1, y=Gene2)
-              p <- p + theme(axis.text.y = element_text(size = input$Gene_correlation_label_size), axis.text.x = element_text(size = input$Gene_correlation_label_size))
-              p <- p + theme(axis.title.y = element_text(size = input$Gene_correlation_title_size), axis.title.x = element_text(size = input$Gene_correlation_title_size))
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+            }else if(input$Gene_correlation_genes_comparison_type == 'C'){
+              cor_df <- df_gene_correlation()
+              p <- ggplot(cor_df, aes(x = Gene1, y = Gene2, fill = Correlation)) + geom_tile(color = NA)
+              p <- p + scale_fill_gradient2(low = input$Gene_correlation_pairwise_col_low, high = input$Gene_correlation_pairwise_col_high, mid=input$Gene_correlation_pairwise_col_mid, midpoint=0,  limits = c(-1,1), na.value = 'gray', name = "Correlation")
+              p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=input$Gene_correlation_label_size), axis.text.y = element_text(size=input$Gene_correlation_label_size))
+              p <- p + labs(x = NULL, y = NULL)
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_blank())
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              if(input$Gene_correlation_white_background){
-                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-                p <- p + theme(panel.background = element_rect(fill="white", size=0))
-                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              if(input$Gene_correlation_label_size==0){
+                p <- p + theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+                p <- p + theme(axis.ticks =element_blank())
               }
-              p
-            }else{
-              output$Gene_correlation_error_catch <- renderText('Please select a gene from the correlation table.')
-              return(ggplot())
+              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+              p <- p + theme(legend.key.size = unit(2, "mm"))
+              p <- p + theme(legend.title =element_text(size=input$Gene_correlation_legend_size), legend.text = element_text(size=input$Gene_correlation_legend_size))
             }
           }
           p
@@ -10980,7 +11378,7 @@ server <- function(input, output, session) {
       # when selecting from custom genesets
         output$Expression_subtype_genes_from_custom_geneset_select <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('Expression_subtype_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
         outputOptions(output, "Expression_subtype_genes_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -11018,7 +11416,7 @@ server <- function(input, output, session) {
               isCalculating_Expression_subtype(FALSE)
               return(NULL)
             }
-            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]] 
+            genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]] 
           }else{
             if(nchar(input$Expression_subtype_genes)==0){ # when no entey in the gene input
               show_alert(title='Error.',text='Please enter genes (line by line).', type='error')
@@ -11065,6 +11463,9 @@ server <- function(input, output, session) {
           df_tmp <- merge(df_gene_EX_gene, df_meta_subtype, by='sample') # head(df_tmp)
           df_out <- df_tmp %>% pivot_longer(cols=all_of(genes), names_to='Genes', values_to='Expression') # head(df_out)
           Expression_subtype_for_test(df_out)
+          if(length(unique(unlist(df_out[,group_by]))) == 1){
+            show_alert(title='Error.',text='There is no sub groups for the selected category. Please try with other categories.', type='error')
+          }
           isCalculating_Expression_subtype(FALSE)
           return(df_out)
 
@@ -11111,6 +11512,7 @@ server <- function(input, output, session) {
               output$Expression_subtype_status <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
               output$Expression_subtype_table_status <- renderText({'Error. Please check the input and settings.'})
               output$Expression_subtype_error_catch <- renderText({'Error. Please check the input and settings.'})
+
               return(NULL)
             }
             rownames(df_test) <- NULL
@@ -11570,7 +11972,7 @@ server <- function(input, output, session) {
         output$Signature_input_selection_custom_geneset_select <- renderUI({
           req(input$Signature_input_selection=='A')
           gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
           selectInput('Signature_input_selection_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
         })
         output$Signature_input_selection_status <- renderText({"Please set the input, choose the method and click 'Calculate the signature score'.\nSignature scores using the selected input genes will be calculated for each sample in the cohort."})
@@ -11602,7 +12004,7 @@ server <- function(input, output, session) {
               isCalculating_singature_table(FALSE)
               return(NULL)
             }else{
-              genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Signature_input_selection_custom_geneset_select, ]$Genes, split=', ')[[1]]
+              genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Signature_input_selection_custom_geneset_select, ]$Genes, split=', ')[[1]]
               genes <- intersect(genes, rownames(df_geneEx))
               if(length(genes)==0){
                 show_alert(title='Error.', text='None of the genes in the selected gene set are in the dataset.', type='error')
@@ -12083,7 +12485,7 @@ server <- function(input, output, session) {
       # when using a custom gene set
         output$Deconvodution_Gene_correlation_from_custom_geneset_select <- renderUI({
           gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
           selectInput('Deconvodution_Gene_correlation_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
         })
         outputOptions(output, "Deconvodution_Gene_correlation_from_custom_geneset_select", suspendWhenHidden=FALSE)
@@ -12126,7 +12528,7 @@ server <- function(input, output, session) {
               isCalculating_Deconvodution_gene_correlation(FALSE)
               return(NULL)
             }
-            genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+            genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
           }else{
             if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
               show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
@@ -12463,7 +12865,7 @@ server <- function(input, output, session) {
         # when selecting genes from custom genesets
           output$Clinical_Mutation_gene_from_custom <- renderUI({
             gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+            gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
             selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
           })
           outputOptions(output, "Clinical_Mutation_gene_from_custom", suspendWhenHidden=FALSE)
@@ -12606,7 +13008,7 @@ server <- function(input, output, session) {
                 isCalculating_mutation(FALSE)
                 return()
               }
-              input_genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_gene_from_custom, ]$Genes, split=', ')[[1]]
+              input_genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Clinical_Mutation_gene_from_custom, ]$Genes, split=', ')[[1]]
               input_genes <- intersect(rownames(Clinical_gene_expression()), input_genes)
               if(length(input_genes) == 0){
                 show_alert(title='Error.', text='None of the inputted genes are included in the cohort.', type='error')
@@ -12839,7 +13241,7 @@ server <- function(input, output, session) {
           # when selecting from custom genesets
             output$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
             outputOptions(output, "Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -12851,7 +13253,7 @@ server <- function(input, output, session) {
                   # output$Clinical_Survial_table_status <- renderText({"Please select a custom gene set."})
                   data.frame(Input=unique(unlist(strsplit(input$Clinical_Mutation_Gene_expression_geneInput, split = "\n"))))
                 }else{
-                  genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                  genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                   data.frame(Input=unique(unlist(strsplit(genes, split = "\n"))))
                 }
               }else{
@@ -12957,6 +13359,7 @@ server <- function(input, output, session) {
                 values = c('Mutation' = input$Clinical_Mutation_Gene_expression_col_mut, 'Wild.type' = input$Clinical_Mutation_Gene_expression_col_wt )
               ) 
             }
+            p <- p + theme(legend.position = "top", legend.box.margin = margin(t = -10, b = 0))
             p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Gene_expression_XY_label.font.size))
             p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Gene_expression_XY_title.font.size))
             p <- p + ggtitle(gene_ex) + theme(plot.title = element_text(size = input$Clinical_Mutation_Gene_expression_title.font.size))
@@ -12980,7 +13383,7 @@ server <- function(input, output, session) {
       CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = FALSE)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
         gene_sets_names <- c()
-        gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+        gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
         selectInput('CGC_input_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
       })
       outputOptions(output, "CGC_input_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -12991,7 +13394,7 @@ server <- function(input, output, session) {
             output$CGC_table_status <- renderText({"Please select a custom gene set. \nAll genes in the database are now shown."})
             return(NULL)
           }
-          genes <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$CGC_input_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+          genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$CGC_input_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
         }else{
           if(nchar(input$CGC_input_gene) == 0){ # No input
             output$CGC_table_status <- renderText({"Please enter gene names. \nAll genes in the database are now shown."})
@@ -13040,7 +13443,7 @@ server <- function(input, output, session) {
           # select from custom gene sets
             output$Compare_across_cohorts_gene_from_custom_geneset_select <- renderUI({
               gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_lsit()$Geneset.name)
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
               selectInput('Compare_across_cohorts_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
             })
             outputOptions(output, "Compare_across_cohorts_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
@@ -13051,7 +13454,7 @@ server <- function(input, output, session) {
                   output$Compare_across_cohorts_gene_table_status <- renderText({"Please select a custom gene set."})
                   return(NULL)
                 }
-                gene_list <- strsplit(Original_geneset_lsit()[Original_geneset_lsit()$Geneset.name %in% input$Compare_across_cohorts_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                gene_list <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Compare_across_cohorts_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                 return(data.frame(Gene=gene_list))
               }else{
                 if(nchar(input$Compare_across_cohorts_gene) == 0){
