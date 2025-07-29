@@ -13,7 +13,7 @@ The read count tables derived from RNA sequencing, proteomics, and various other
 
 - The table must be in <span style="color: red;"> tab-delimited </span> format (either tsv or .txt file), featuring gene names in the index and sample names in the columns.
 - The header name (column name) containing gene names <span style="color: red;">should be designated as "id" </span>.
-- The sample names must conclude with <span style="color: red;">*_Rep# or *_rep#</span>.
+- The samples must be named using the format <span style="color: red;">$(Group.Name)_RepX</span> or <span style="color: red;">${Group.Name}_repX</span>, such as THP1_STK11KO_Rep1, THP1_STK11KO_Rep2, THP1_WT_Rep1, etc.
 
 ??? tip "Example"
     ![Example](img/1_expression_table.png)
@@ -28,11 +28,20 @@ Any dataset containing log fold changes and statistical scores, including differ
     ![Example](img/1_log_table.png)
 
 ### **C. scRNAseq data**: 
-Users can browse their single-cell RNAseq data, but it must be properly processed and saved as an RDS file. See the "scRNA" section for more details. 
+scRNA data properly processed by Seurat and saved as an RDS file can be input to the interface. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.
 
-### **D. Epigenetic data (bam, bed, bigwig file, etc)**:
-Bam, bed, and bigwig files generated from ATACseq, ChIPseq, etc. can be browsed in the "Genome browser" section. 
+??? note "Seurat object preprocess"
+    The Seurat object must be loaded from an RDS file. Ensure that `Reductions(Seurat_object)` returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
+    ![Example](img/1_Seurat.png)
 
+### **D. Epigenome data (bed, bigwig and bam file)**:
+Bed, bigwig and bam files from ATACseq, ChIPseq, and similar analyses can be viewed in the "Epigenome Visualisation" section. <br>
+
+- Bed files must not contain headers and must be tab-delimited. They should include at least five columns: chromosome name, start and end positions, feature name/identifier, and score (ranging from 0 to 1000). Any columns beyond the sixth will be ignored. Please refer to the example bed file below.
+- For bam files, you must also provide the corresponding index file (bai file). When you select bam as a Data Class, an upload option will appear. If the bai file doesn't match the bam file, you'll receive an error message.<br>
+
+??? tip "Example(bed file)"
+    ![Example](img/1_bed.png)
 
 ## <u> **2. How to upload a new dataset** </u>
 
