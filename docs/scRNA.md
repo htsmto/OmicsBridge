@@ -5,6 +5,10 @@ Here, users can visualise the registered scRNAseq dataset and investigate their 
 ## <u> **0. Pre-processing** </u>
 The interface accepts an RDS file as input for the scRNA section. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.
 
+??? note "Seurat object preprocess"
+    The Seurat object must be loaded from an RDS file. Ensure that `Reductions(Seurat_object)` returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
+    ![Example](img/1_Seurat.png)
+
 ## <u> **1. Data overview** </u>
 
 This section provides a simple UMAP overview of your data.

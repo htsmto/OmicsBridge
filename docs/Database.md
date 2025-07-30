@@ -28,7 +28,7 @@ Any dataset containing log fold changes and statistical scores, including differ
     ![Example](img/1_log_table.png)
 
 ### **C. scRNAseq data**: 
-scRNA data properly processed by Seurat and saved as an RDS file can be input to the interface. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.
+scRNA data properly processed by Seurat and saved as an RDS file can be input to the interface. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type.
 
 ??? note "Seurat object preprocess"
     The Seurat object must be loaded from an RDS file. Ensure that `Reductions(Seurat_object)` returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
