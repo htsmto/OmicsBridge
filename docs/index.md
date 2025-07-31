@@ -1,6 +1,6 @@
 # OmicsBridge
 
-## **Overview**
+## <u>**Overview**</u>
 
 OmicsBrige is an intuitive platform that integrates and visualises diverse omics datasets. Our tool assists researchers in identifying key genes with functional and clinical relevance, supporting hypothesis generation. It also functions as a centralised database for efficient data storage and access, minimising scattered datasets and enhancing overall data accessibility.
 
@@ -11,7 +11,7 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ![Interface overview](img/interface_overview.png)
 
-## **Installation**
+## <u>**Installation**</u>
 
 Please clone this repository first. In the terminal:
 
@@ -47,7 +47,7 @@ tar -xzvf 00_Expression_data_all.tar.gz
 
 Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.
 
-## Dependencies
+## <u>**Dependencies**</u>
 
 ### Docker Image
 We provide a Docker image available from Docker Hub:
@@ -55,7 +55,7 @@ We provide a Docker image available from Docker Hub:
 docker pull htsmto/omicsbridge:latest
 ```
 
-## Manual Installation of Required Libraries
+### Manual Installation of Required Libraries
 OmicsBridge requires R version **4.4.0 or higher**. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version **3.20 or higher**.
 ```R
 ## CRAN dependent packages
@@ -70,7 +70,7 @@ devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 devtools::install_github('dviraran/xCell')
 ```
 
-## Launching the App
+## <u>**Launching the interface**</u>
 Open your terminal. If you are using a Docker image:
 ```bash
 docker run -it --rm \
@@ -97,5 +97,5 @@ Rscript -e "shiny::runApp('app.R')"
 
 A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
-## Usage Guide
-We provide a comprehensive Wiki for the interface at [https://htsmto.github.io/OmicsBridge/](https://htsmto.github.io/OmicsBridge/). The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
+## <u>**Usage Guide**</u>
+We provide a comprehensive Wiki for the interface at [https://htsmto.github.io/OmicsBridge/](https://htsmto.github.io/OmicsBridge/) (This site). The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
