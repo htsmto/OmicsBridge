@@ -801,18 +801,27 @@ ui <- fluidPage(
                                   column(12,
                                     conditionalPanel(
                                       condition = "input.Data_Overview_PCA_Setting == 'B'",
-                                      helpText(HTML("
-                                        Please specify the sample names and their group names that you want to use as the following example.<br>
-                                        Ex.)<br>
-                                        \tSample1_rep1,Group1<br>
-                                        \tSample1_rep2,Group1<br>
-                                        \tSample2_rep1,Group2<br>
-                                        \t...<br>
-                                      ")),
-                                      tags$details(
-                                        tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
-                                        div(
-                                          verbatimTextOutput('Data_Overview_PCA_Sample_list')
+                                      fluidRow(
+                                        column(12,
+                                          helpText(HTML("
+                                            Please specify the sample names and their group names that you want to use as the following example.<br>
+                                            Ex.)<br>
+                                            \tSample1_rep1,Group1<br>
+                                            \tSample1_rep2,Group1<br>
+                                            \tSample2_rep1,Group2<br>
+                                            \t...<br>
+                                          "))
+                                        ),
+                                        column(12,
+                                          textAreaInput("Data_Overview_PCA_Setting_group_define", "Enter the group description")
+                                        ),
+                                        column(12,
+                                          tags$details(
+                                            tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
+                                            div(
+                                              verbatimTextOutput('Data_Overview_PCA_Sample_list')
+                                            )
+                                          )
                                         )
                                       ),
                                       h3("")
