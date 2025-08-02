@@ -3,7 +3,6 @@
     stop("Please make sure that the directories '00_Clinical_dataset' and '00_Expression_data_all' are downloaded and deployed in the working directory.")
   }
 
-
 #### Load packages and setting ####
   options(install.packages.check.source = "no")
   options(ask = FALSE)
