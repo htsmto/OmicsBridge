@@ -19,7 +19,32 @@ Click on "Generate a plot" to create the visualisation. The profile plot will di
     - Heatmap color range (maximum and minimum values)
     - Color scheme for the intensity graph
 
-## <u>**2. IGV**</u>
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Epi_1_720.mp4" type="video/mp4"> 
+    </video>
+
+## <u>**2. Genome visualisation**</u>
+
+This section visualises genomic read coverage from bigwig or bam files using the [Gviz library](https://bioconductor.org/packages/devel/bioc/html/Gviz.html). It displays coverage data across specified genomic regions.
+
+1. **Select the datasets**<br>
+Choose datasets from the drop-down menu and click 'Use this dataset'. The selected datasets are listed in the table below and will be included in the plot. To remove a dataset, select it in the table and click 'Remove the dataset from the list'.
+2. **Set the chromatin positions and generate the plot**<br>
+Select either hg38 or hg19 genome, then specify the position to visualise using the format `chr:start-end`. Note that specifying too wide a range will result in an error.
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - Track height for bigwig data, bam data, or reference genome display
+    - Colour settings for bigwig data, bam data, or reference genome tracks
+    - Group y-axis scaling options for bigwig or bam datavisualisationn
+  
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Epi_2_720.mp4" type="video/mp4"> 
+    </video>
+
+## <u>**3. IGV**</u>
 
 The IGV (Integrated Genome Viewer) section embeds a genome browser within the interface, allowing users to view data from bed files directly in the browser. [IGV](https://igv.org/) is a widely used tool for visualising genomic data. It supports a variety of file formats, including BAM, BED, and BigWig, and provides an interactive platform for exploring genomic alignments, annotations, and datasets. <br>
 In this section, due to memory limitations, only bed files can be viewed. For visualisation of bigwig or bam files, please refer to the 'Genome visualisation' section.
@@ -31,7 +56,12 @@ Choose a dataset to view in IGV from the drop-down menu. You can filter the data
 3. **Click the 'View in IGV' button**<br>
 The selected dataset will be displayed in the IGV section on the right. Like the original IGV, you can specify chromosome positions, change color settings, and more. For detailed instructions, please refer to the original IGV documentation.
 
-## <u> **3. Fing Enhancer/Promoter**</u>
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Epi_3_720.mp4" type="video/mp4"> 
+    </video>
+
+## <u> **4. Fing Enhancer/Promoter**</u>
 
 This section identifies potential enhancers or promoters for each gene by analysing the correlation between gene expression from RNAseq and peak intensity from ATACseq. Using a normalised read count table with matched RNAseq and ATACseq data, it calculates the correlation for peaks located around each gene's genomic region (default range: ±100K, adjustable). Peaks with a high correlation coefficient or significant results are highlighted as potential enhancers or promoters for the corresponding gene.
 
@@ -48,7 +78,12 @@ The default range is ±100kb. By adjusting this value, the interface calculates 
 6. **Start calculation**<br>
 Click the "Find enhancers/promoters" button to begin the calculation. The correlation results will appear on the right, along with the gene expression and peak intensity (chromatin accessibility) data used in the calculation. At the bottom of the results table, you can adjust the P-value threshold to display a list of peaks highly correlated with the selected gene—these are the potential enhancers/promoters.
 
-## <u> **4. Motif scan** </u>
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Epi_4_720.mp4" type="video/mp4"> 
+    </video>
+
+## <u> **5. Motif scan** </u>
 
 This tool scans for transcription factor motifs in the input chromatin positions or sequences using the [MotifDb](https://bioconductor.org/packages/release/bioc/html/MotifDb.html) database (PWMLogn.hg19.MotifDb.Hsap), identifying potential binding sites within specified genomic regions.
 
@@ -60,17 +95,7 @@ The results table includes:
     - raw.score: Raw enrichment score for the motif across input regions
     - top.motif.prop: Proportion of top-scoring regions where the motif was found
 
-## <u>**5. Genome visualisation**</u>
-
-This section visualises genomic read coverage from bigwig or bam files using the [Gviz library](https://bioconductor.org/packages/devel/bioc/html/Gviz.html). It displays coverage data across specified genomic regions.
-
-1. **Select the datasets**<br>
-Choose datasets from the drop-down menu and click 'Use this dataset'. The selected datasets are listed in the table below and will be included in the plot. To remove a dataset, select it in the table and click 'Remove the dataset from the list'.
-2. **Set the chromatin positions and generate the plot**<br>
-Select either hg38 or hg19 genome, then specify the position to visualise using the format `chr:start-end`. Note that specifying too wide a range will result in an error.
-
-??? success  "Adjustable graph parameters"
-    - Figure size (width and height)
-    - Track height for bigwig data, bam data, or reference genome display
-    - Colour settings for bigwig data, bam data, or reference genome tracks
-    - Group y-axis scaling options for bigwig or bam datavisualisationn
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Epi_5_720.mp4" type="video/mp4"> 
+    </video>

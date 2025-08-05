@@ -11,6 +11,7 @@ nav:
   - Custom Genesets: Gene_set.md
   - Tools: Tools.md
   - FAQ: FAQ.md
+  - Case study: Case_study.md
 theme:
   name: material
 markdown_extensions:

@@ -98,4 +98,26 @@ Rscript -e "shiny::runApp('app.R')"
 A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
 ## <u>**Usage Guide**</u>
-We provide a comprehensive Wiki for the interface at [https://htsmto.github.io/OmicsBridge/](https://htsmto.github.io/OmicsBridge/) (This site). The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
+We provide a comprehensive Wiki for the interface at [https://htsmto.github.io/OmicsBridge/](https://htsmto.github.io/OmicsBridge/) (this site). The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
+
+
+## <u>**Version**</u>
+
+Current version: v1.0 <br>
+Release date: August 2025
+
+## <u>**Citation**</u>
+
+A permanent DOI and citation will be provided upon publication.
+
+## <u>**Contact**</u>
+
+For questions, feature requests, or bug reports, please contact:
+
+  ```
+  Hitoshi Matsuo
+  German Cancer Research Center (DKFZ) Heidelberg
+  Division Immune Regulation in Cancer
+  Im Neuenheimer Feld 280, 69120 Heidelberg, Germany
+  Email: hitoshi.matsuo[at]dkfz-heidelberg.de
+  ```
