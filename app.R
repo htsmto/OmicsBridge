@@ -773,7 +773,7 @@ ui <- fluidPage(
                                       ),
                                       fluidRow(
                                         column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.font.size', label='X/Y label size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='Y/Y title size', min=0.1, max=10, value=4, step=0.1))
+                                        column(6, sliderInput(inputId = 'Data_Overview_PCA_xy.title.size', label='X/Y title size', min=0.1, max=10, value=4, step=0.1))
                                       ),
                                       fluidRow(
                                         column(6, sliderInput(inputId = 'Data_Overview_PCA_point_size', 'Points size', min=0.1, max=5, value=1, step=0.1)),
@@ -824,6 +824,7 @@ ui <- fluidPage(
                                           )
                                         )
                                       ),
+                                      
                                       h3("")
                                     ),
                                   ),
@@ -880,7 +881,7 @@ ui <- fluidPage(
                                             ),
                                             fluidRow(
                                               column(5, materialSwitch('while_background', 'Use white background', value=FALSE, status='success')),
-                                              column(5, materialSwitch('main_plot_white_back_label', 'Use white background for labels', value=TRUE, status='success'))
+                                              column(5, materialSwitch('main_plot_white_back_label', 'Use white background for labels', value=FALSE, status='success'))
                                             ),
                                             circle = FALSE,
                                             status = "success", 
@@ -1212,7 +1213,10 @@ ui <- fluidPage(
                                             column(6, radioButtons("GO_database", "Select Database", choices = c("GO", "KEGG")), selecetd='GO'),
                                             conditionalPanel( condition = "input.GO_database == 'GO'", column(6, radioButtons("GO_ontology", "Select Ontology", choices = c("BP", "MF", "CC")), selected="BP") )
                                           ),
-                                          fluidRow( column(4, actionButton("GO_start", "Start GO/KEGG Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")) ),
+                                          fluidRow( 
+                                            column(4, actionButton("GO_start", "Start GO/KEGG Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
+                                            column(4, actionButton("GO_start_reset", "Reset", style="color: #ffffff; background-color: #615B59; border-color: #000000")), 
+                                          ),
                                           fluidRow( 
                                             column(12, h5(span('This takes 1~3 minutes depending on the size of the input. Please be patient.', style="color: red;"))) ,
                                             column(12, h5('')) 
@@ -1290,6 +1294,7 @@ ui <- fluidPage(
                                                 tabPanel(strong("Network plot"), 
                                                   fluidRow(
                                                     column(12, h4('')),
+                                                    column(12, helpText("Note: If the plot fails to generate due to insufficient width, click the reset button and increase the width.")),
                                                     column(10, verbatimTextOutput('GO_netPlot_status_status') ),
                                                     column(2, 
                                                       dropdownButton( h4(strong("Plot Options")),
@@ -1316,7 +1321,12 @@ ui <- fluidPage(
                                                         circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                                                       ),
                                                     ),
-                                                    column(12, withSpinner(plotOutput("GO_netPlot",  brush = "plot_brush", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                                    column(12, 
+                                                      div(style='position: relative;',
+                                                        withSpinner(plotOutput("GO_netPlot",  brush = "plot_brush", width="100%", height="100%"), 
+                                                        type=5, color='#0dc5c1')
+                                                      )
+                                                    )
                                                   )
                                                 )
                                               ) 
@@ -3756,7 +3766,7 @@ ui <- fluidPage(
         #### IGV ####
           tabItem( tabName='igv',
             h2(' Epigenome Visualisation'),
-            box( width=12, title='IGV', status='primary',  solidHeader = TRUE,
+            box( width=12, title='', status='primary',  solidHeader = TRUE,
               tabsetPanel(
                 tabPanel( 'Prifile plot',
                   h4(''),
@@ -4117,7 +4127,18 @@ ui <- fluidPage(
                             fluidRow(
                               column(12, verbatimTextOutput('Motif_analysis_status') ),
                               column(12, withSpinner(DT::dataTableOutput('Motif_analysis_table'), type = 5, color = "#0dc5c1") ),
-                              column(12, downloadButton('Motif_analysis_table_download', 'Download motif table', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") )
+                              column(3, downloadButton('Motif_analysis_table_download', 'Download motif table', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
+                              column(5,
+                                box(width=12, title='Significant motifs', collapsible = TRUE, collapsed = TRUE, status='success',
+                                  fluidRow(
+                                    column(12, h5('')),
+                                    column(10, numericInput('Motif_analysis_significant_threshold', 'Significant threshold', value=0.05, min=0, step=0.001)),
+                                    column(2, h4('')),
+                                    column(11, verbatimTextOutput('Motif_analysis_significant_motif_list')),
+                                  )
+
+                                )
+                              )
                             )
                           )
                         )
@@ -4489,7 +4510,7 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Last updated on 23. July, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 06. Aug, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -4826,9 +4847,10 @@ server <- function(input, output, session) {
           Original_geneset_list(tmp)
           replaceData(dataTableProxy('Original_geneset_list'), Original_geneset_list(), resetPaging=F)
           write.table(Original_geneset_list(), 'data/Genesets_list.tsv', row.names=F, sep='\t', quote=F)
+          show_alert(title='Success!', text='The selected row(s) are deleted.', type='success')
           output$status <- renderText('Deleted!')
         }else{
-          output$status <- renderText('No row selecetd!')
+          output$status <- renderText('No row selected!')
         }
       })
 
@@ -6001,6 +6023,11 @@ server <- function(input, output, session) {
               isCalculating(FALSE)
             })  
 
+            observeEvent(input$GO_start_reset, {
+              goResult(NULL)
+              isCalculating(FALSE)
+              output$GO_go_status <- renderText({'Please enter inputs and select other settings, and click "Start GO/KEGG Analysis"'})
+            })
 
 
           # output$GO_go_status <- renderText({NULL})
@@ -8474,7 +8501,7 @@ server <- function(input, output, session) {
                 expr = {
                   res <- brushedPoints(df_main_plot, input$Integrate_data1_plus_2_plot_brush,
                     xvar = input$Integrate_data1_plus_2_Scat.X, yvar = input$Integrate_data1_plus_2_Scat.Y)
-                  p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2)
+                  p <- p + geom_text_repel(data = res,  color = 'black', aes(label = id), size=input$Integrate_data1_plus_2_id_size, segment.size=0.2, max.overlaps = 70)
                 },
                 error = function(e){NULL}
               )
@@ -8508,7 +8535,7 @@ server <- function(input, output, session) {
                   genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Integrate_data1_plus_2_target_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                   p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% genes,], color=input$Integrate_data1_plus_2_target_gene_colour , size = input$Integrate_data1_plus_2_highlight_dot_size)
                   if(input$Integrate_data1_plus_2_show_gene_name){
-                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% genes,],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=20, segment.size=0.2) 
+                    p <- p + geom_text_repel(data = df_main_plot[df_main_plot$id %in% genes,],  color = input$Integrate_data1_plus_2_target_gene_colour, aes(label = id), size = input$Integrate_data1_plus_2_id_size, max.overlaps=50, segment.size=0.2) 
                   }
                 }
               }else{
@@ -10565,7 +10592,24 @@ server <- function(input, output, session) {
           p
 
         }, width = reactive(input$Motif_analysis_fig.width), height = reactive(input$Motif_analysis_fig.height), res=300)
-
+      # show the significant motif list
+                                    # column(10, numericInput('Motif_analysis_significant_threshold', 'Significant threshold', value=0.05, min=0, step=0.001)),
+                                    # column(2, h4('')),
+                                    # column(11, verbatimTextOutput('Motif_analysis_significant_motif_list')),
+        output$Motif_analysis_significant_motif_list <- renderText({
+          if(is.null(Motif_scan_result()) || !isTriggered_Motif_analysis() || isCalculating_Motif_analysis()){
+            return(NULL)
+          }else{
+            p_thr <- input$Motif_analysis_significant_threshold
+            tmp <- Motif_scan_result()[Motif_scan_result()$p.value < p_thr, ]
+            if(dim(tmp)[1] == 0){
+              return("No significant motifs found with the selected threshold.")
+            }
+            tmp <- tmp[order(tmp$p.value), ]
+            return(paste(tmp$id, collapse = "\n"))
+          }
+          
+        })
     ####
   ###
 
@@ -11283,10 +11327,13 @@ server <- function(input, output, session) {
       ##### Plot the correlation by a scatter plot #####
         output$Gene_correlation_table <- DT::renderDataTable({
           if(!is.null(df_gene_correlation())){
-            if(input$Gene_correlation_genes_comparison_type == 'B'){
+            if(input$Gene_correlation_genes_comparison_type == 'B' & 'Gene' %in% colnames(df_gene_correlation())){
               datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-            }else if(input$Gene_correlation_genes_comparison_type == 'C'){
+            }else if(input$Gene_correlation_genes_comparison_type == 'C' & 'Gene1' %in% colnames(df_gene_correlation())){
               datatable(df_gene_correlation()[,c('Gene1', 'Gene2', 'Correlation')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else{
+              tmp <- data.frame('Gene'=character(0), 'r'=numeric(0), 'p'=numeric(0), stringsAsFactors = FALSE)
+              datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))              
             }
             
           }else{
@@ -11307,7 +11354,7 @@ server <- function(input, output, session) {
           if(is.null(df_gene_correlation())){
             return(ggplot())
           }else{
-            if(input$Gene_correlation_genes_comparison_type == 'B'){
+            if(input$Gene_correlation_genes_comparison_type == 'B' & 'Gene' %in% colnames(df_gene_correlation())){
               if(length(input$Gene_correlation_table_rows_selected)>0){
                 output$Gene_correlation_error_catch <- renderText({NULL})
                 Gene2 <- df_gene_correlation()$target[1]
@@ -11334,7 +11381,7 @@ server <- function(input, output, session) {
                 output$Gene_correlation_error_catch <- renderText('Please select a gene from the correlation table.')
                 return(ggplot())
               }
-            }else if(input$Gene_correlation_genes_comparison_type == 'C'){
+            }else if(input$Gene_correlation_genes_comparison_type == 'C' & 'Gene1' %in% colnames(df_gene_correlation())){
               cor_df <- df_gene_correlation()
               p <- ggplot(cor_df, aes(x = Gene1, y = Gene2, fill = Correlation)) + geom_tile(color = NA)
               p <- p + scale_fill_gradient2(low = input$Gene_correlation_pairwise_col_low, high = input$Gene_correlation_pairwise_col_high, mid=input$Gene_correlation_pairwise_col_mid, midpoint=0,  limits = c(-1,1), na.value = 'gray', name = "Correlation")
@@ -11351,6 +11398,9 @@ server <- function(input, output, session) {
               p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
               p <- p + theme(legend.key.size = unit(2, "mm"))
               p <- p + theme(legend.title =element_text(size=input$Gene_correlation_legend_size), legend.text = element_text(size=input$Gene_correlation_legend_size))
+            }else{
+              output$Gene_correlation_all_status <- renderText({'Please re-start the analysis.'})
+              return(ggplot())
             }
           }
           p
