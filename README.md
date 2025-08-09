@@ -1,6 +1,6 @@
 # OmicsBridge
 
-## Overview
+## <u>**Overview**</u>
 
 OmicsBridge is an intuitive platform that integrates and visualizes diverse omics datasets. Our tool helps researchers identify key genes with functional and clinical relevance, supporting hypothesis generation. It also serves as a centralized database for efficient data storage and access, reducing scattered datasets and improving overall data accessibility.
 
@@ -10,7 +10,7 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ![Interface overview](docs/img/interface_overview.png)
 
-## Installation
+## <u>**Installation**</u>
 
 Please clone this repository first. In the terminal:
 
@@ -44,7 +44,7 @@ tar -xzvf 00_Expression_data_all.tar.gz
 
 Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.
 
-## Dependencies
+## <u>**Dependencies**</u>
 
 ### Docker Image
 
@@ -71,7 +71,7 @@ devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 devtools::install_github('dviraran/xCell')
 ```
 
-## Launching the App
+## <u>**Launching the App**</u>
 If you are using a Docker image, open your termiank and
 
 ```bash
@@ -107,6 +107,27 @@ Rscript -e "shiny::runApp('app.R')"
 
 A new browser tab should open automatically. If it doesn't, check your terminal for a message like Listening on `http://X.X.X.X:YYYY` and navigate to that URL in your browser.
 
-## Usage Guide
+## <u>**Usage Guide**</u>
 We provide a comprehensive Wiki for the interface at https://htsmto.github.io/OmicsBridge/.
 The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
+
+## <u>**Version**</u>
+
+Current version: v1.0 <br>
+Release date: August 2025
+
+## <u>**Citation**</u>
+
+A permanent DOI and citation will be provided upon publication.
+
+## <u>**Contact**</u>
+
+For questions, feature requests, or bug reports, please contact:
+
+  ```
+  Hitoshi Matsuo
+  German Cancer Research Center (DKFZ) Heidelberg
+  Division Immune Regulation in Cancer
+  Im Neuenheimer Feld 280, 69120 Heidelberg, Germany
+  Email: hitoshi.matsuo[at]dkfz-heidelberg.de
+  ```
