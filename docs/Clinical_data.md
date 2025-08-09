@@ -32,7 +32,7 @@ The survival events available for analysis (such as overall survival or progress
   
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**3. Gene correlation**</u>
@@ -59,7 +59,7 @@ This section allows you to analyse gene expression correlations within a selecte
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_2_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**4. Mutation analysis**</u>
@@ -106,7 +106,7 @@ This section helps you analyse gene mutations in the selected cohort.
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_3_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -129,7 +129,7 @@ When metadata for the cohort is provided and patients can be divided into subtyp
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_4_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**6. Signature analysis**</u>
@@ -178,7 +178,7 @@ This section performs signature analysis on gene expression data from the select
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_5_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_5_annot.mp4" type="video/mp4"> 
     </video>
 
 
@@ -193,7 +193,7 @@ The interface provides two additional analysis tabs.
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_6_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_6_annot.mp4" type="video/mp4"> 
     </video>
 
 
