@@ -902,7 +902,7 @@ ui <- fluidPage(
                                             fluidRow(
                                               column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.width', label='fig width', min=300, max=3000, value=500, step=10)),
                                               column(6, sliderInput(inputId = 'Gene_ex_barplot_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
-                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
+                                              column(6, sliderInput(inputId = 'Gene_ex_barplot_xlab.font.size', label='X label size', min=0, max=10, value=4, step=0.1)),
                                               column(6, sliderInput(inputId = 'Gene_ex_barplot_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
                                               column(6, sliderInput(inputId = 'Gene_ex_barplot_graph.title.font.size', label='Y title size', min=1, max=10, value=4, step=0.1))
                                             ),
@@ -913,7 +913,7 @@ ui <- fluidPage(
                                             ),
                                             fluidRow(
                                               # Rotate x axis lable in the bar plot
-                                              column(6, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable', value=FALSE, status = "success")),
+                                              column(6, materialSwitch('show_outliers_rotate_x', 'Rotate x axis lable', value=TRUE, status = "success")),
                                               column(6, materialSwitch('Gene_ex_barplot_white_background', 'Use white background', value=FALSE, status = "success"))
                                             ),
                                             circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
@@ -2099,9 +2099,33 @@ ui <- fluidPage(
                         ),
                         tabPanel("Meta data", 
                           box(width=12,
-                            fluidRow(column(12, h5(''))),
-                            fluidRow(column(12, verbatimTextOutput('Clinical_View_MetaData_status') )), 
-                            fluidRow(column(12, DT::dataTableOutput("Clinical_View_MetaData") ))
+                            fluidRow(
+                              column(12, h4("")),
+                              column(12, materialSwitch('Clinical_view_edit_metadata', strong('Add a new metadata column'), value=FALSE, status='primary')),
+                              column(12, 
+                                conditionalPanel(
+                                  condition = "input.Clinical_view_edit_metadata == true",
+                                  fluidRow(
+                                    column(4, textInput('Clinical_view_new_metadata_column', 'New metadata column name')),
+                                    column(6, textAreaInput('Clinical_view_new_metadata_column_values', 'New metadata column values', placeholder = 'Enter values as: sample1,value1\nsample2,value2\n(sample id and value separated by a comma)'))
+                                  ),
+                                  fluidRow(
+                                    column(10, verbatimTextOutput('Clinical_view_new_metadata_column_status')),
+                                    column(12, actionButton('Clinical_view_add_metadata', 'Add a new column', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                                    column(12, h3(''))
+                                  )
+                                )
+                              )
+
+                            ),
+                            fluidRow(
+                              column(12, h5('')),
+                              column(12, verbatimTextOutput('Clinical_View_MetaData_status') ),
+                              column(12, DT::dataTableOutput("Clinical_View_MetaData") ),
+                              column(12, h2('')),
+                              column(3, actionButton('Clinical_view_delete_metadata', 'Delete a new column', style="color: #ffffff; background-color: #4666E8; border-color: #1C3BBA")),
+                              column(3, htmlOutput('Clinical_view_delete_metadata_select')),
+                            )
                           )
                         ),
                         tabPanel("Mutation data", 
@@ -4954,7 +4978,8 @@ server <- function(input, output, session) {
         output$Dataset_detail <- renderText({
           df_tmp <- Dataset()
           if(!is.null(input$Dataset_select) && input$Dataset_select != 'None'){
-            paste0('Data.from: ', as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$Data.from), '\n', 
+            paste0('Dataset Name: ', as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$Dataset), '\n', 
+                  'Data.from: ', as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$Data.from), '\n', 
                   'Experiment: ', as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$Experiment), '\n', 
                   'Data.type: ' , as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$Data.type), '\n', 
                   'When: ' , as.character(df_tmp[df_tmp$Dataset == input$Dataset_select, ]$When), '\n', 
@@ -5889,7 +5914,11 @@ server <- function(input, output, session) {
                 p <- p + theme(panel.background = element_rect(fill="white", size=0))
                 p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               }
-              p <- p + theme(legend.key.size = unit(0.5, "mm"))
+              if(input$Gene_ex_barplot_xlab.font.size == 0){
+                p <- p + theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+                p <- p + theme(axis.ticks.x = element_blank())
+              }
+              p <- p +   theme(legend.key.height = unit(3, "mm"), legend.key.width = unit(1, "mm"), legend.spacing.x = unit(0.2, "mm"), legend.spacing.y = unit(0.2, "mm"))
               p
             }, width=reactive(input$Gene_ex_barplot_fig.width), height=reactive(input$Gene_ex_barplot_fig.height), res=300)
           # 
@@ -7714,6 +7743,16 @@ server <- function(input, output, session) {
             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
           }
           p <- p + theme(legend.key.size = unit(1, "mm"))
+          if(input$bar_or_scatter == "Scatter plot"){
+            if(min(df_compare[,Y_axis]) > 0){
+              p <- p + ylim(c(0, max(df_compare[,Y_axis])))
+            }else if(max(df_compare[,Y_axis]) < 0){
+              p <- p + ylim(c(min(df_compare[,Y_axis]), 0))
+            }else{
+              p <- p + ylim(c(min(df_compare[,Y_axis]), max(df_compare[,Y_axis])))
+            }
+
+          }
           p
         }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
 
@@ -9675,13 +9714,12 @@ server <- function(input, output, session) {
           bw_list <- imported_bw_data()
           bw_list <- append(bw_list, list(import(path))) #  ex. tmp <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.24/THP1_LPS.IFNg.0.5h_Rep1.bw')
           # check if the chr names are chrX or X.
-          # unique(tmp@seqnames)
           tmp <- imported_sample()
           tmp <- c(tmp , input$Profile_Plot_sample_selection)
           imported_sample(tmp)
           imported_bw_data(bw_list)
           isCalculating_import(FALSE)
-          # output$Profile_Plot_sample_selection_status <- renderText({print(length(imported_bw_data()))})
+          output$Profile_Plot_sample_selection_status <- renderText({NULL})
           return()
         })
 
@@ -10533,7 +10571,32 @@ server <- function(input, output, session) {
           }
 
           # scan
-          res = motifEnrichment(seq_region_clean, PWMLogn.hg19.MotifDb.Hsap)
+          max_length <- min(nchar(seq_region_clean))
+          if(max_length < 6){
+            show_alert(title='Error.',text='The length of the sequences is too short. Please input sequences with a length of at least 6.', type='error')
+            output$Motif_analysis_status <- renderText({'The length of the sequences is too short. Please input sequences with a length of at least 6.'})
+            output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
+            isCalculating_Motif_analysis(FALSE)
+            return(NULL)
+          }else if(max_length < 23){
+            show_alert(title='Warning.',text='The length of the sequences is very short. Only the motifs longer than the input sequences are used.', type='warning')
+            seq_len_less_than_thr <- c()
+            pwms <- PWMLogn.hg19.MotifDb.Hsap$pwms
+            for (i in seq_along(pwms)){
+                    seq_len_less_than_thr <- c(seq_len_less_than_thr, dim(pwms[[i]]$pwm)[2] <= max_length)
+            }
+            pwms_small <- pwms[seq_len_less_than_thr]
+            pwms_small_names <- names(pwms_small)
+            PWMLogn.hg19.MotifDb.Hsap_small <- PWMLogn.hg19.MotifDb.Hsap
+            PWMLogn.hg19.MotifDb.Hsap_small@pwms <- pwms_small
+            PWMLogn.hg19.MotifDb.Hsap_small@bg.source <- PWMLogn.hg19.MotifDb.Hsap@bg.source
+            PWMLogn.hg19.MotifDb.Hsap_small@bg.len <- PWMLogn.hg19.MotifDb.Hsap@bg.len[,pwms_small_names]
+            PWMLogn.hg19.MotifDb.Hsap_small@bg.mean <- PWMLogn.hg19.MotifDb.Hsap@bg.mean[,pwms_small_names]
+            PWMLogn.hg19.MotifDb.Hsap_small@bg.sd <- PWMLogn.hg19.MotifDb.Hsap@bg.sd[,pwms_small_names]
+            res = motifEnrichment(seq_region_clean, PWMLogn.hg19.MotifDb.Hsap_small)
+          }else{
+            res = motifEnrichment(seq_region_clean, PWMLogn.hg19.MotifDb.Hsap)
+          }
           report = groupReport(res)
           output$Motif_analysis_plot_status <- renderText({'Please select a row in the motif scan table.'})
           Motif_scan_result(df_report <- as.data.frame(report))
@@ -10718,32 +10781,147 @@ server <- function(input, output, session) {
       #
 
     #### display the table of the data (gene expression, survival, metadata) ####
-      output$Clinical_View_Geneexpression <- DT::renderDataTable({
-        # radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
-        if(is.null( Clinical_gene_expression())){
-          return(NULL)
-        }
-        if(input$Clinical_View_EX_show_number == 'B'){
-          tmp <- Clinical_gene_expression()
-        }else{
-          tmp <- head(Clinical_gene_expression(),1000)
-        }
-        datatable(tmp, options = list(scrollX = TRUE, pageLength = 10, server=TRUE))
-      })
-      outputOptions(output, "Clinical_View_Geneexpression", suspendWhenHidden=FALSE)
-      output$Clinical_View_Survival <- DT::renderDataTable({
-        datatable(Clinical_surival(), options = list(scrollX = TRUE, pageLength = 10))
-      })
-      outputOptions(output, "Clinical_View_Survival", suspendWhenHidden=FALSE)
-      output$Clinical_View_MetaData <- DT::renderDataTable({
-        datatable(Clinical_meta(), options = list(scrollX = TRUE, pageLength = 10))
-      })
-      outputOptions(output, "Clinical_View_MetaData", suspendWhenHidden=FALSE)
-      output$Clinical_View_Mutation <- DT::renderDataTable({
-        datatable(Clinical_mutation(), options = list(scrollX = TRUE, pageLength = 10))
-      })
-      outputOptions(output, "Clinical_View_Mutation", suspendWhenHidden=FALSE)
+      # display the tables
+        output$Clinical_View_Geneexpression <- DT::renderDataTable({
+          # radioButtons('Clinical_View_EX_show_number', '', c("Show the first 1000 headers"='A', 'Show everything (the server will be overloaded depending on the size of the data)'='B'), selected='A'),
+          if(is.null( Clinical_gene_expression())){
+            return(NULL)
+          }
+          if(input$Clinical_View_EX_show_number == 'B'){
+            tmp <- Clinical_gene_expression()
+          }else{
+            tmp <- head(Clinical_gene_expression(),1000)
+          }
+          datatable(tmp, options = list(scrollX = TRUE, pageLength = 10, server=TRUE))
+        })
+        outputOptions(output, "Clinical_View_Geneexpression", suspendWhenHidden=FALSE)
+        output$Clinical_View_Survival <- DT::renderDataTable({
+          datatable(Clinical_surival(), options = list(scrollX = TRUE, pageLength = 10))
+        })
+        outputOptions(output, "Clinical_View_Survival", suspendWhenHidden=FALSE)
+        output$Clinical_View_MetaData <- DT::renderDataTable({
+          datatable(Clinical_meta(), options = list(scrollX = TRUE, pageLength = 10))
+        })
+        outputOptions(output, "Clinical_View_MetaData", suspendWhenHidden=FALSE)
+        output$Clinical_View_Mutation <- DT::renderDataTable({
+          datatable(Clinical_mutation(), options = list(scrollX = TRUE, pageLength = 10))
+        })
+        outputOptions(output, "Clinical_View_Mutation", suspendWhenHidden=FALSE)
 
+      # Add a column to the metadata
+        Clinical_view_new_column <- reactive(
+          if(nchar(input$Clinical_view_new_metadata_column)==0){
+            NULL
+          }else{
+            input$Clinical_view_new_metadata_column
+          }
+        )
+
+        Clinical_view_new_column_values <- reactive(
+          if(!nchar(input$Clinical_view_new_metadata_column_values)==0){
+            lines <- trimws(unlist(strsplit(input$Clinical_view_new_metadata_column_values, "\n")))
+            lines
+          }else{
+            NULL
+          }
+        )
+
+        output$Clinical_view_new_metadata_column_status <- renderText({
+          if(is.null(Clinical_view_new_column())){
+            return("Please enter the new metadata column name.")
+          }else if(is.null(Clinical_view_new_column_values())){
+            return("Please enter the new metadata column values.")
+          }else{
+            lines <- Clinical_view_new_column_values()
+            if(!all(nchar(gsub("[^,]", "", lines)) == 1)){
+              return("Each line must contain exactly one comma separating sample ID and value.")
+            }else{
+              df_column <- read.csv(text = lines, header = FALSE, stringsAsFactors = FALSE)
+              sample_ids <- df_column[[1]]
+              new_values <- df_column[[2]]
+              # if there are duplicates in sample_ids
+              if(any(duplicated(sample_ids))){
+                return("Duplicate sample IDs found.")
+              }
+              # check the ids not in the metadata
+              sample_ids_intersect <- intersect(sample_ids, Clinical_meta()$sample)
+              sample_ids_diff <- setdiff(sample_ids, Clinical_meta()$sample)
+              if(length(sample_ids_diff) > 0){
+                paste("The following sample IDs are not in the metadata:", paste(sample_ids_diff, collapse = ", "))
+              }else{
+                NULL
+              }
+            }
+          }
+        })
+
+        observeEvent(input$Clinical_view_add_metadata, {
+          if(is.null(Clinical_view_new_column())){
+            show_alert(title='Error.', text='Please enter the new metadata column name.', type='error')
+            return()
+          }else if(is.null(Clinical_view_new_column_values())){
+            show_alert(title='Error.', text='Please enter the new metadata column values.', type='error')
+            return()
+          }else{
+            lines <- Clinical_view_new_column_values()
+            if(!all(nchar(gsub("[^,]", "", lines)) == 1)){
+              show_alert(title='Error.', text='Each line must contain exactly one comma separating sample ID and value.', type='error')
+              return()
+            }else{
+              df_column <- read.csv(text = lines, header = FALSE, stringsAsFactors = FALSE)
+              sample_ids <- df_column[[1]]
+              new_values <- df_column[[2]]
+              # if there are duplicates in sample_ids
+              if(any(duplicated(sample_ids))){
+                show_alert(title='Error.', text='Duplicate sample IDs found.', type='error')
+                return()
+              }
+              # check the ids not in the metadata
+              sample_ids_intersect <- intersect(sample_ids, Clinical_meta()$sample)
+              sample_ids_diff <- setdiff(sample_ids, Clinical_meta()$sample)
+              if(length(sample_ids_intersect)==0){
+                show_alert(title='Error.', text='None of the input samples are found in the metadata', type='error')
+                return()
+              }
+              Clinical_meta_tmp <- Clinical_meta()
+              # new column name
+              new_col_name <- input$Clinical_view_new_metadata_column
+              Clinical_meta_tmp[[new_col_name]] <- ""
+              common_ids <- sample_ids_intersect
+              for (sid in common_ids) {
+                value <- new_values[sample_ids == sid][1]  # 同じIDが複数行あっても最初を使う
+                Clinical_meta_tmp[Clinical_meta_tmp$sample == sid, new_col_name] <- value
+              }
+              Clinical_meta(Clinical_meta_tmp)
+            }
+          }
+
+        })
+
+      # delete the selected column
+                              # column(3, actionButton('Clinical_view_delete_metadata', 'Delete a new column', style="color: #ffffff; background-color: #4666E8; border-color: #1C3BBA")),
+                              # column(3, htmlOutput('Clinical_view_delete_metadata_select', 'Select a column you want to delete')),
+        output$Clinical_view_delete_metadata_select <- renderUI({
+          selection <- colnames(Clinical_meta())
+          # delete 'sample' from selection
+          selection <- selection[selection != "sample"]
+          selectInput('Clinical_view_delete_metadata_select', 'Select a column to delete', choices = c('None'='None', selection), selected = NULL)
+        })
+
+        observeEvent(input$Clinical_view_delete_metadata, {
+          if(length(input$Clinical_view_delete_metadata_select != 0)){
+            if(input$Clinical_view_delete_metadata_select == 'None'){
+              show_alert(title='Error.', text='Please select a column to delete.', type='error')
+              return()
+            }else{
+              Clinical_meta_tmp <- Clinical_meta()
+              Clinical_meta_tmp[[input$Clinical_view_delete_metadata_select]] <- NULL
+              Clinical_meta(Clinical_meta_tmp)
+            }
+          }
+        })
+
+      #
 
     #### Survival analysis ####
 
@@ -11254,6 +11432,7 @@ server <- function(input, output, session) {
               df_cor_out$target <- gene
               output$Gene_correlation_table_status <- renderText({NULL})
               df_gene_correlation(df_cor_out)
+              output$Gene_correlation_all_status <- renderText({NULL})
               return()
             }else if(input$Gene_correlation_genes_comparison_type == 'C'){
               if(input$Gene_correlation_genes_pairwise_from_custom_geneset){
@@ -11319,6 +11498,7 @@ server <- function(input, output, session) {
               cor_df <- melt(cor_mat_clustered)
               names(cor_df) <- c("Gene1", "Gene2", "Correlation") 
               df_gene_correlation(cor_df)
+              output$Gene_correlation_all_status <- renderText({NULL})
               return()
             }
 
@@ -11352,10 +11532,12 @@ server <- function(input, output, session) {
             return(ggplot())
           }
           if(is.null(df_gene_correlation())){
+            output$Gene_correlation_all_status <- renderText({'Please start the analysis first.'})
             return(ggplot())
           }else{
             if(input$Gene_correlation_genes_comparison_type == 'B' & 'Gene' %in% colnames(df_gene_correlation())){
               if(length(input$Gene_correlation_table_rows_selected)>0){
+                output$Gene_correlation_all_status <- renderText({NULL})
                 output$Gene_correlation_error_catch <- renderText({NULL})
                 Gene2 <- df_gene_correlation()$target[1]
                 Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene
@@ -11398,6 +11580,8 @@ server <- function(input, output, session) {
               p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
               p <- p + theme(legend.key.size = unit(2, "mm"))
               p <- p + theme(legend.title =element_text(size=input$Gene_correlation_legend_size), legend.text = element_text(size=input$Gene_correlation_legend_size))
+              output$Gene_correlation_all_status <- renderText({NULL})
+              output$Gene_correlation_error_catch <- renderText({NULL})
             }else{
               output$Gene_correlation_all_status <- renderText({'Please re-start the analysis.'})
               return(ggplot())
