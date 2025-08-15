@@ -4784,12 +4784,32 @@ server <- function(input, output, session) {
             show_alert(title='Error.',text='Avoid special characters; use only alphabets, numbers, underscores and dots.', type='error')
             return()
           }else{
+            flag <- 0
+            non_matching_cols <- c('')
             if(Data.Class.upload == 'A' | Data.Class.upload == 'B'){
               gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
               if(!'id' %in% colnames(gx_table)){
                 output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
                 show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
                 return()
+              }
+              if(Data.Class.upload == 'A' ){
+                pattern <- "^[^\\s]+_Rep[0-9]+$"
+                col_names <- colnames(gx_table)
+                matches <- grepl(pattern, col_names) & col_names != "id"
+                non_matching_cols <- setdiff(col_names[!matches], "id")
+                if (!any(matches)) {
+                  output$status_upload <- renderText("Error: No sample columns match the expected format '<sample_name>_RepN'.")            
+                  show_alert(title='Error.',text="Error: No sample columns match the expected format '<sample_name>_RepN'.", type='error')
+                  return()
+                } else if (!all(matches | col_names == "id")) {
+                  output$status_upload <- renderText("Warning: Some columns do not match '<sample_name>_RepN' and will be ignored.")
+                  flag <- 1
+                  gx_table <- gx_table[, col_names == "id" | matches, drop = FALSE]
+                } else {
+                  flag <- 0
+                  gx_table <- gx_table[, col_names == "id" | matches, drop = FALSE]
+                }                
               }
             }
             time_stamp <- as.character(Sys.time())  
@@ -4801,8 +4821,14 @@ server <- function(input, output, session) {
             save_path <- file.path('00_Expression_data_all', Year, date, filname)
             dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
             # save
-            file.copy(uploaded_file$datapath, save_path)
-
+            if(flag==0){
+              file.copy(uploaded_file$datapath, save_path)
+            }else{
+              # save the file with non-matching columns removed
+              gx_table <- gx_table[, colnames(gx_table) %in% c('id', col_names[matches])]
+              write.table(gx_table, save_path, sep='\t', row.names=F, quote=F)
+            }
+            
             tmp <- Dataset()
             tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
             tmp <- tmp[order(tmp$Added.When, decreasing =T),]
@@ -4810,7 +4836,17 @@ server <- function(input, output, session) {
             replaceData(dataTableProxy('Dataset'), Dataset(), resetPaging=F)
             write.table(Dataset(), 'data/Database.tsv', row.names=F, sep='\t', quote=F)
             output$status_upload <- renderText('uploaded!')
-            show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
+            if(flag == 1){
+              output$upload_data_preview_status <- renderText(
+                paste('The input file has been uploaded, but some columns do not match the expected format and will be ignored:',
+                  paste(non_matching_cols, collapse=', '), sep='\n'
+                )
+              )
+              show_alert(title='Warning!',text='The input file has been uploaded, but some columns do not match the expected format and will be ignored.', type='warning')
+            }else{
+              output$upload_data_preview_status <- renderText('The input file has been uploaded.')
+              show_alert(title='Success!!',text='The file was uploaded to OmicsBridge', type='success')
+            }
             return()
           }
         })
@@ -5792,6 +5828,11 @@ server <- function(input, output, session) {
                 p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
               }
               p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              xlim1 <- ifelse(is.numeric(input$main_plot_xlim_1), input$main_plot_xlim_1, NA)
+              xlim2 <- ifelse(is.numeric(input$main_plot_xlim_2), input$main_plot_xlim_2, NA)
+              ylim1 <- ifelse(is.numeric(input$main_plot_ylim_1), input$main_plot_ylim_1, NA)
+              ylim2 <- ifelse(is.numeric(input$main_plot_ylim_2), input$main_plot_ylim_2, NA)
+              p <- p + coord_cartesian(xlim = c(xlim1, xlim2), ylim=c(ylim1, ylim2))
               p
             }, width=reactive(input$fig.width), height=reactive(input$fig.height), res=300)
 
