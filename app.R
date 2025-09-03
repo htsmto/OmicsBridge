@@ -11344,7 +11344,7 @@ server <- function(input, output, session) {
                         show_alert(title='Error.',text='Please enter the sample names for the groups.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the sample names for the groups.'})
                         return()
-                      }
+                      } 
                       if(length(intersect(group1_sample,group2_sample )) > 0){
                         show_alert(title='Error.',text='The sample names for the groups are not unique. \nPlease check the input.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'The sample names for the groups are not unique. \nPlease check the input.'})
