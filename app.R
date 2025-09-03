@@ -2143,7 +2143,7 @@ ui <- fluidPage(
                         column(12,
                           box(width=12, status='info', title='Inputs and Settings',
                             fluidRow(
-                              column(4, 
+                              column(3,
                                 fluidRow(
                                   column(12, textAreaInput('Clinical_Survival_genes', 'Enter genes (line by line)') ),
                                   column(12, materialSwitch('Clinical_Survival_genes_from_custom_geneset', 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
@@ -2153,9 +2153,9 @@ ui <- fluidPage(
                                       htmlOutput('Clinical_Survival_genes_from_custom_geneset_select')
                                     )
                                   )
-                                )                            
+                                )
                               ),
-                              column(5,
+                              column(3,
                                 fluidRow(
                                   column(12, radioButtons('Clinical_Survival_Split_way', 'Split the samples by:', choices = c('Median'='A', 'Top 25% vs Bottom 25%'='B', 'Top X% vs Bottom Y%'='D' ,'Custom grouping (No need to enter/set genes)'='C'),selected='A') ),
                                   column(12, 
@@ -2174,6 +2174,21 @@ ui <- fluidPage(
                                         column(6, numericInput('Clinical_Survival_Split_Group1_perc', 'Top X%:', value=25, min=0, max=100, step=1) ),
                                         column(6, numericInput('Clinical_Survival_Split_Group2_perc', 'Bottom Y%:', value=25, min=0, max=100, step=1) )
                                       )
+                                    )
+                                  )
+                                )
+                              ),
+                              column(3,
+                                fluidRow(
+                                  column(12, radioButtons('Clinical_Survival_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Survival_frequency_filter == "B"',
+                                      fluidRow(
+                                        column(12, htmlOutput('Clinical_Survival_frequency_filter_selection')),
+                                        column(12, htmlOutput('Clinical_Survival_frequency_filter_selection_category')),
+                                        column(12, verbatimTextOutput('Clinical_Survival_frequency_filter_selection_number')),
+                                      ),  
                                     )
                                   )
                                 )
@@ -10985,7 +11000,7 @@ server <- function(input, output, session) {
 
       # load all the data
         Clinical_gene_expression <- reactiveVal(NULL)
-        Clinical_surival <- reactiveVal(NULL)
+        Clinical_survival <- reactiveVal(NULL)
         Clinical_meta <- reactiveVal(NULL)
         Clinical_mutation <- reactiveVal(NULL)
 
@@ -10998,7 +11013,7 @@ server <- function(input, output, session) {
               output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
               output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
               Clinical_gene_expression(NULL)
-              Clinical_surival(NULL)
+              Clinical_survival(NULL)
               Clinical_meta(NULL)
               Clinical_mutation(NULL)
               return(NULL)
@@ -11022,10 +11037,10 @@ server <- function(input, output, session) {
                 path=Cliniacal_dataset()[Cliniacal_dataset()$Database.Name == input$Clinical_data_select, ]$Survival_path
                 if(!file.exists(path)){
                   output$Clinical_View_Survival_status <- renderText({'The file does not exsit. \nDid you successfully upload the data? '})  
-                  Clinical_surival(NULL)
+                  Clinical_survival(NULL)
                 }else{
                   tmp_suv <- read.table(path, header=T, check.names = FALSE, sep='\t')
-                  Clinical_surival(tmp_suv)
+                  Clinical_survival(tmp_suv)
                 }
 
               # meta
@@ -11060,7 +11075,7 @@ server <- function(input, output, session) {
               output$Clinical_View_MetaData_status <- renderText({'Please select a dataset.'})
               output$Clinical_View_mutation_status <- renderText({'Please select a dataset.'})
               Clinical_gene_expression(NULL)
-              Clinical_surival(NULL)
+              Clinical_survival(NULL)
               Clinical_meta(NULL)
               Clinical_mutation(NULL)
             }
@@ -11083,7 +11098,7 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "Clinical_View_Geneexpression", suspendWhenHidden=FALSE)
         output$Clinical_View_Survival <- DT::renderDataTable({
-          datatable(Clinical_surival(), options = list(scrollX = TRUE, pageLength = 10))
+          datatable(Clinical_survival(), options = list(scrollX = TRUE, pageLength = 10))
         })
         outputOptions(output, "Clinical_View_Survival", suspendWhenHidden=FALSE)
         output$Clinical_View_MetaData <- DT::renderDataTable({
@@ -11213,6 +11228,56 @@ server <- function(input, output, session) {
     #### Survival analysis ####
 
       ##### Calculate the p and HR #####
+        # filtering the cohort by metadata (optional)
+          output$Clinical_Survival_frequency_filter_selection <- renderUI({
+            if(is.null(Clinical_meta())){
+              selectInput("Clinical_Survival_frequency_filter_selection", "Filtering by:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Survival_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+            }
+          })
+          output$Clinical_Survival_frequency_filter_selection_category <- renderUI({
+            if(length(input$Clinical_Survival_frequency_filter_selection)==0 || input$Clinical_Survival_frequency_filter_selection == 'None'){
+              selectInput("Clinical_Survival_frequency_filter_selection_category", "Category:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Survival_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Survival_frequency_filter_selection])))
+            }
+          })
+        
+        # Show the number of patients after filtering the sample if a category was set
+          output$Clinical_Survival_frequency_filter_selection_number <- renderText({
+            df_Surv <- Clinical_survival()
+            df_meta <- Clinical_meta()
+            df_geneEx <- Clinical_gene_expression()
+            if(is.null(df_Surv)){
+              "Please select a clinical data first."
+            }else{
+              N_sample <- length(df_meta$sample)
+              if(input$Clinical_Survival_frequency_filter == 'B'){
+                if(length(input$Clinical_Survival_frequency_filter_selection_category)!= 0){
+                  if(input$Clinical_Survival_frequency_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Clinical_Survival_frequency_filter_selection] == input$Clinical_Survival_frequency_filter_selection_category, ]$sample
+                    # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
+                    filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
+                    df_Surv <- df_Surv[df_Surv$sample %in% filtered_sample, ]
+                    if(dim(df_Surv)[1] == 0){
+                      "None of the selected samples are in the survival dataset. \nPlease check if the sample names in the meta data and in the survival data are unique."
+                    }else{
+                      paste0("Number of samples(patients): ", length(filtered_sample))
+                    }
+                  }else{
+                    paste0("Number of samples(patients): (Please select the category)")
+                  }
+                }
+              }else if(input$Clinical_Survival_frequency_filter == 'A'){
+                N_sample <- length(df_meta$sample)
+                paste0("Number of samples(patients): ", N_sample)
+              }
+            }
+          })
+          outputOptions(output, "Clinical_Survival_frequency_filter_selection_number", suspendWhenHidden=FALSE)
+
+
         # when using a custom gene set
           output$Clinical_Survival_genes_from_custom_geneset_select <- renderUI({
             gene_sets_names <- c()
@@ -11230,8 +11295,8 @@ server <- function(input, output, session) {
         # calculate p and HR
           # choose which event to evaluate (OS, PFS, etc)
           output$Clinical_Survival_choose_score_type <- renderUI({
-            if(!is.null(Clinical_surival())){
-              suv_colnames <- colnames(Clinical_surival())
+            if(!is.null(Clinical_survival())){
+              suv_colnames <- colnames(Clinical_survival())
               col_tmp <- suv_colnames[grepl("\\.time", suv_colnames, ignore.case = TRUE)]
               col_first_parts <- sapply(strsplit(col_tmp, "\\."), `[`, 1)
             }else{
@@ -11249,7 +11314,12 @@ server <- function(input, output, session) {
           df_Suv_p_and_HR <- reactiveVal(NULL)
           topX_perc <- reactiveVal(NULL) # for df_Suv_p_and_HR()$method[1] == 'C'
           topY_perc <- reactiveVal(NULL) # for df_Suv_p_and_HR()$method[1] == 'C'
+          filtered_sample_survival <- reactiveVal(NULL)
+          isCalculating_Suv_p_and_HR <- reactiveVal(FALSE)
+          isTriggered_Suv_p_and_HR <- reactiveVal(FALSE)
           observeEvent(input$Clinical_Survival_start, {
+            isTriggered_Suv_p_and_HR(TRUE)
+            isCalculating_Suv_p_and_HR(TRUE)
             # After clicking the button, the table for p and HR (df_Suv_p_and_HR) will be updated.
             # update the selected cohort name and event type
               selected_cohort_suv(input$Clinical_data_select)
@@ -11263,12 +11333,31 @@ server <- function(input, output, session) {
                 output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
                 output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
                 df_Suv_p_and_HR(NULL)
+                isCalculating_Suv_p_and_HR(FALSE)
                 return()
               }
 
             # load data
               df_geneEx <- Clinical_gene_expression()
-              df_OS <- Clinical_surival()
+              df_OS <- Clinical_survival()
+              df_meta <- Clinical_meta()
+              if(length(input$Clinical_Survival_frequency_filter_selection)> 0){
+                if(length(input$Clinical_Survival_frequency_filter_selection_category) > 0){
+                  if(input$Clinical_Survival_frequency_filter_selection != 'None' & input$Clinical_Survival_frequency_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Clinical_Survival_frequency_filter_selection] == input$Clinical_Survival_frequency_filter_selection_category, ]$sample
+                    df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample]
+                    df_OS <- df_OS[df_OS$sample %in% filtered_sample, ]
+                    filtered_sample_survival(filtered_sample)
+                  }else{
+                    filtered_sample_survival(NULL)
+                  }
+                }else{
+                  filtered_sample_survival(NULL)
+                }
+              }else{
+                filtered_sample_survival(NULL)
+              }
+
 
             # gene selection for input
               if(input$Clinical_Survival_Split_way != 'C'){
@@ -11280,6 +11369,7 @@ server <- function(input, output, session) {
                     output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
                     output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
                     df_Suv_p_and_HR(NULL)
+                    isCalculating_Suv_p_and_HR(FALSE)
                     return()
                   }
                   genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
@@ -11291,6 +11381,7 @@ server <- function(input, output, session) {
                     output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
                     output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
                     df_Suv_p_and_HR(NULL)
+                    isCalculating_Suv_p_and_HR(FALSE)
                     return()
                   }
                   genes <- unlist(strsplit(input$Clinical_Survival_genes, '\n'))
@@ -11306,6 +11397,7 @@ server <- function(input, output, session) {
                 output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
                 output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
                 df_Suv_p_and_HR(NULL)
+                isCalculating_Suv_p_and_HR(FALSE)
                 return()
               }
               if(input$Clinical_Survival_choose_score_type == 'None'){
@@ -11315,6 +11407,7 @@ server <- function(input, output, session) {
                 output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
                 output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
                 df_Suv_p_and_HR(NULL)
+                isCalculating_Suv_p_and_HR(FALSE)
                 return()
               }
 
@@ -11343,11 +11436,13 @@ server <- function(input, output, session) {
                       if(length(group1_sample) == 0 | length(group2_sample) == 0){
                         show_alert(title='Error.',text='Please enter the sample names for the groups.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the sample names for the groups.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
-                      } 
+                      }
                       if(length(intersect(group1_sample,group2_sample )) > 0){
                         show_alert(title='Error.',text='The sample names for the groups are not unique. \nPlease check the input.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'The sample names for the groups are not unique. \nPlease check the input.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                       df_high_sample <-  intersect(group1_sample, colnames(df_geneEx))
@@ -11355,6 +11450,7 @@ server <- function(input, output, session) {
                       if(length(df_high_sample) == 0 | length(df_low_sample) == 0){
                         show_alert(title='Error.',text='The sample names for the groups are not in the dataset. \nPlease check the input.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'The sample names for the groups are not in the dataset. \nPlease check the input.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                     }else if(input$Clinical_Survival_Split_way == 'D'){
@@ -11362,21 +11458,25 @@ server <- function(input, output, session) {
                       if(is.numeric(input$Clinical_Survival_Split_Group1_perc) == FALSE | is.numeric(input$Clinical_Survival_Split_Group2_perc) == FALSE){
                         show_alert(title='Error.',text='Please enter the percentage of the top and bottom groups.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the top and bottom groups.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                       if(input$Clinical_Survival_Split_Group1_perc < 0 | input$Clinical_Survival_Split_Group1_perc > 100){
                         show_alert(title='Error.',text='Please enter the percentage of the top group between 0 and 100.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the top group between 0 and 100.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                       if(input$Clinical_Survival_Split_Group2_perc < 0 | input$Clinical_Survival_Split_Group2_perc > 100){
                         show_alert(title='Error.',text='Please enter the percentage of the bottom group between 0 and 100.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'Please enter the percentage of the bottom group between 0 and 100.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                       if(input$Clinical_Survival_Split_Group1_perc+input$Clinical_Survival_Split_Group2_perc > 100){
                         show_alert(title='Error.',text='The sum of the percentage of the top and bottom groups should be less than or equal to 100.', type='error')
                         output$Clinical_Survial_plot_error_catch <- renderText({'The sum of the percentage of the top and bottom groups should be less than or equal to 100.'})
+                        isCalculating_Suv_p_and_HR(FALSE)
                         return()
                       }
                       topX <- quantile(unlist(df_geneEx[gene,]), (100-input$Clinical_Survival_Split_Group1_perc)/100 , na.rm = T)
@@ -11437,13 +11537,16 @@ server <- function(input, output, session) {
                 df_out$method <- input$Clinical_Survival_Split_way
                 output$Clinical_Survial_all_status <- renderText({NULL})
                 df_Suv_p_and_HR(df_out)
+                isCalculating_Suv_p_and_HR(FALSE)
                 return()
               }
           })
 
           # show as a table
           output$Clinical_Survial_table <- DT::renderDataTable({
-            if(is.null(df_Suv_p_and_HR())){
+          # isCalculating_Suv_p_and_HR <- reactiveVal(FALSE)
+          # isTriggered_Suv_p_and_HR <- reactiveVal(FALSE)
+            if(!isTriggered_Suv_p_and_HR() | isCalculating_Suv_p_and_HR() | is.null(df_Suv_p_and_HR())){
               tmp <- data.frame('Gene'=character(0), 'P.value'=numeric(0), 'Hazard.Ratio'=numeric(0), stringsAsFactors = FALSE)
             }else{
               tmp <- df_Suv_p_and_HR()[, c('Gene', 'P.value', 'Hazard.Ratio')]
@@ -11478,7 +11581,13 @@ server <- function(input, output, session) {
             return(ggplot())
           }
           df_geneEx <- Clinical_gene_expression()
-          df_OS <- Clinical_surival()
+          df_OS <- Clinical_survival()
+          df_meta <- Clinical_meta()
+          if(!is.null(filtered_sample_survival())){
+            filtered_sample <- filtered_sample_survival()
+            df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample]
+            df_OS <- df_OS[df_OS$sample %in% filtered_sample, ]
+          }
           # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(is.null(df_Suv_p_and_HR())){
             return(ggplot())
@@ -11550,10 +11659,10 @@ server <- function(input, output, session) {
           p <- p + theme(axis.text.y = element_text(size = input$Clinical_Survial_label_size), axis.text.x = element_text(size = input$Clinical_Survial_label_size))
           p <- p + theme(axis.title.y = element_text(size = input$Clinical_Survial_title_size), axis.title.x = element_text(size = input$Clinical_Survial_title_size))
           # p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-          p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+          p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
           p <- p + theme(legend.key.size = unit(2, "mm"))
-          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
-          p <- p + theme(panel.background = element_rect(fill="white", size=0))
+          p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
+          p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))
           p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
           p <- p + labs(title=NULL)
           p
@@ -11599,6 +11708,7 @@ server <- function(input, output, session) {
           p
         }, width=reactive(input$Clinical_Survial_distribution_fig.width), height=reactive(input$Clinical_Survial_distribution_fig.height),res=300)
       #### 
+        
 
     #### Gene corralation ####
       ##### Calculate the correlation #####
@@ -12642,7 +12752,7 @@ server <- function(input, output, session) {
           }else{
             singature_table <- singature_table()
           }
-          df_OS <- Clinical_surival()
+          df_OS <- Clinical_survival()
           df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(is.null(singature_table)){
             output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
@@ -12914,7 +13024,7 @@ server <- function(input, output, session) {
           }else{
             singature_table <- singature_table()
           }
-          df_OS <- Clinical_surival()
+          df_OS <- Clinical_survival()
           df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(is.null(singature_table)){
             output$Signature_score_distribution_status <- renderText({"Please Calulate the signature score first."})
@@ -13667,8 +13777,8 @@ server <- function(input, output, session) {
       ## Kaplan-meier
         # choose the event type
           output$Clinical_Mutation_Kaplan_choose_score_type <- renderUI({
-            if(!is.null(Clinical_surival())){
-              suv_colnames <- colnames(Clinical_surival())
+            if(!is.null(Clinical_survival())){
+              suv_colnames <- colnames(Clinical_survival())
               col_tmp <- suv_colnames[grepl("\\.time", suv_colnames, ignore.case = TRUE)]
               col_first_parts <- sapply(strsplit(col_tmp, "\\."), `[`, 1)
             }else{
@@ -13694,7 +13804,7 @@ server <- function(input, output, session) {
               return(ggplot())
             }
             df_geneEx <- Clinical_gene_expression()
-            df_OS <- Clinical_surival()
+            df_OS <- Clinical_survival()
             # if samples were filtered by meta data
             if(input$Clinical_Mutation_frequency_filter == 'B'){
               df_OS <- df_OS[df_OS$sample %in% sub_sample_list(),]
