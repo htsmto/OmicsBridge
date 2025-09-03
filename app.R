@@ -3792,13 +3792,29 @@ ui <- fluidPage(
             h2(' Epigenome Visualisation'),
             box( width=12, title='', status='primary',  solidHeader = TRUE,
               tabsetPanel(
-                tabPanel( 'Prifile plot',
+                tabPanel( 'Profile plot',
                   h4(''),
                   fluidRow(
                     column(4,
                       box(title='Inputs and Settings', width=12, status='info',
                         fluidRow(
-                          column(12, htmlOutput('Profile_Plot_sample_selection')),
+                          column(10, htmlOutput('Profile_Plot_sample_selection')),
+                          column(2,
+                            fluidRow(
+                              column(12, h2('') ),
+                              column(12, 
+                                div(id='filterin_dropdown',
+                                  dropdownButton( 
+                                    fluidRow(
+                                      column(12, h4(strong("Dataset filtering"))),
+                                      column(12, htmlOutput("Profile_Plot_sample_selection_Seuqenced_by")), 
+                                      column(12, htmlOutput("Profile_Plot_sample_selection_Experiments")), 
+                                    ), circle = FALSE, status = "info", icon = icon("sliders"), width = "300px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                                  )
+                                ) 
+                              )
+                            )
+                          ),
                           column(12, verbatimTextOutput('Profile_Plot_sample_selection_status')),
                           column(6, actionButton('Profile_Plot_sample_import', 'Import the selected sample',style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
                           column(12, h2('')),
@@ -3832,7 +3848,7 @@ ui <- fluidPage(
                                 column(6, sliderInput(inputId = 'Profile_Plot_legend_font_size', label='Legend size', min=0.1, max=10, value=3, step=0.1)),
                                 column(6, sliderInput(inputId = 'Profile_Plot_label_size_up', label='Y label size (upper part)', min=0.1, max=10, value=3, step=0.1)),
                                 column(6, sliderInput(inputId = 'Profile_Plot_label_size_main', label='X label size (heatmap part)', min=0.1, max=10, value=3, step=0.1)),
-                                column(6, sliderInput(inputId = 'Profile_Plot_top_annot_height', label='Fig height (upper part)', min=0.1, max=5, value=1, step=0.1))
+                                column(6, sliderInput(inputId = 'Profile_Plot_top_annot_height', label='Fig height (upper part)', min=0.1, max=4, value=0.6, step=0.1))
                                 
                               ),  
                               fluidRow(
@@ -4015,9 +4031,9 @@ ui <- fluidPage(
                                       dropdownButton( 
                                         fluidRow(
                                           column(12, h4(strong("Dataset filtering"))),
-                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Seuqenced_by")), 
-                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Experiments")), 
-                                          column(12, htmlOutput("Enhancer_Find_data_select_RNAseq_Data_type")) 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_ATACseq_Seuqenced_by")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_ATACseq_Experiments")), 
+                                          column(12, htmlOutput("Enhancer_Find_data_select_ATACseq_Data_type")) 
                                         ), circle = FALSE, status = "info", icon = icon("sliders"), width = "300px",  tooltip = tooltipOptions(title = "Dataset filtering")
                                       ),
                                     ) 
@@ -4283,6 +4299,7 @@ ui <- fluidPage(
                           fluidRow(
                             column(12, radioButtons("Find_genome_loci_direction", "Choose the method", choices = c('Input genes and find the coordinates' = 'A', 'Input coordinates and find the genes' = 'B'), selected='A')),
                             column(12, textAreaInput('Find_genome_loci_input', 'Enter gene names or coordinates (line by line)')),
+                            column(12, radioButtons("Choose_genome", "Choose genome", choices = c("hg38"))),
                             column(12, h4('')),
                             column(12, verbatimTextOutput('Find_genome_loci_status') ),
                             column(4, actionButton('Find_genome_loci_start', 'Search', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
@@ -4301,6 +4318,63 @@ ui <- fluidPage(
                         box(width=12, title='List of genes/coordinates', status='warning',collapsible = TRUE,
                           fluidRow(
                             column(12, verbatimTextOutput('Find_genome_loci_table_gene_names') )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  box(width=12, status='primary', solidHeader = TRUE, title='Peak annotation',
+                    fluidRow(
+                      column(4,
+                        box(width=12, status='info', title='Inputs and Settings',
+                          fluidRow(
+                            column(12, textAreaInput("Peak_annotation_input", "Enter peak regions (chr:start-end)",placeholder = 'chr1:100000-100100')),
+                            column(12, radioButtons("Peak_annotation_genome", "Choose genome", choices = c("hg38"))),
+                            column(12, h3('')),
+                            column(12, actionButton('Peak_annotation_start', "Annotate the genomic locations", style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                            column(12, h3('')),
+                            column(12, verbatimTextOutput('Peak_annotation_input_status'))
+                          )
+                        )
+                      ),
+                      column(8,
+                        box(width=12, status='warning', title='Annotation result',
+                          column(12, verbatimTextOutput('Peak_annotation_status')),
+                          column(12, h4('')),
+                          column(12,
+                            tabsetPanel(
+                              tabPanel("Table", 
+                                fluidRow(
+                                  column(12, h4('')),
+                                  column(12, withSpinner(DT::dataTableOutput('Peak_annotation_table'), type = 5, color = "#0dc5c1") ),
+                                  column(12, downloadButton('Peak_annotation_table_download',"Download this table"))
+                                )
+                              ),
+                              tabPanel("Plots",
+                                fluidRow(
+                                  column(12, h4('')),
+                                  # column(9, radioButtons('Peak_annotation_plot_type', 'Choose plot type', choices = c('Pieplot'='A', 'Barplot'='B', 'Vennpie'='C', 'upsetplot'='D'), inline=TRUE)),
+                                  column(9, radioButtons('Peak_annotation_plot_type', 'Choose plot type', choices = c('Pieplot'='A', 'Barplot'='B'), inline=TRUE)),
+                                  column(3,
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6, sliderInput('Peak_annotation_plot.width', 'Fig width', min=300, max=3000, value=900, step=10) ),
+                                        column(6, sliderInput('Peak_annotation_plot.height', 'Fig height', min=300, max=3000, value=700, step=10) ),
+                                        column(6, sliderInput('Peak_annotation_plot.XY_label', 'Graph font size', min=0.1, max=10, value=4, step=0.1) ),
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), width = "700px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
+                                    ),
+                                  ),
+                                  column(12, withSpinner(plotOutput("Peak_annotation_plot",  width="100%", height="100%"), type=5, color='#0dc5c1') )
+                                )),
+                              tabPanel("Nearest gene names list",
+                                fluidRow(
+                                  column(12, h4('')),
+                                  column(12, radioButtons('Peak_annotation_genes_list_type', 'Gene name type:', choices = c('GeneID'='A', 'Symbol'='B'), inline=TRUE)),
+                                  column(6,   withSpinner(verbatimTextOutput('Peak_annotation_genes_list')), type=5, color='#0dc5c1')
+                                )
+                              )
+                            )
                           )
                         )
                       )
@@ -4794,7 +4868,7 @@ server <- function(input, output, session) {
                 return()
               }
               if(Data.Class.upload == 'A' ){
-                pattern <- "^[^\\s]+_Rep[0-9]+$"
+                pattern <- "^\\S+_Rep[0-9]+$"
                 col_names <- colnames(gx_table)
                 matches <- grepl(pattern, col_names) & col_names != "id"
                 non_matching_cols <- setdiff(col_names[!matches], "id")
@@ -5513,17 +5587,6 @@ server <- function(input, output, session) {
               }
             })
 
-          # list of sample (in case you wnat to exclude some samples)
-                                    # fluidRow(
-                                    #   column(12, materialSwitch("Gene_ex_swarm_exclude_sample", "Want to exclude specific samples?", value = FALSE, status='danger')),
-                                    #   conditionalPanel(
-                                    #     condition = "input.Gene_ex_swarm_exclude_sample == true",
-                                    #     column(12, verbatimTextOutput('Gene_ex_swarm_status3') ),
-                                    #     column(12, textAreaInput("Gene_ex_swarm_exclude_sample_input", "Enter sample names (line by line)")),
-                                    #     column(12, h5('List of the sample names')),
-                                    #     column(12, verbatimTextOutput('Gene_ex_swarm_exclude_sample_input_list') )
-                                    #   )
-                                    # )
             output$Gene_ex_swarm_exclude_sample_input_list <- renderText({
               df_ex <- df()
               # sample names in the columns are XXX_Rep1, XXX_Rep2, etc. Choose these.
@@ -6354,7 +6417,11 @@ server <- function(input, output, session) {
           # main part of GSEA calculation
             GSEA_results <- reactiveVal(NULL)
             GSEA_Gene_set_after_start <- reactiveVal(NULL)
+            isCalculating_GSEA <- reactiveVal(FALSE)
+            isTrigger_GSEA <- reactiveVal(FALSE)
             observeEvent(input$GSEA_start, {
+              isCalculating_GSEA(TRUE)
+              isTrigger_GSEA(TRUE)
               GSEA_Gene_set_after_start(GSEA_Gene_set())
               # when the ranking score is not selected
               if(input$GSEA_select_score=='None'){
@@ -6362,6 +6429,7 @@ server <- function(input, output, session) {
                 output$GSEA_analysis_status <- renderText({'Please choose the score for the analysis'})
                 output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
                 GSEA_results(NULL)
+                isCalculating_GSEA(FALSE)
                 return(NULL)
               }
               # when the ranking score is not numeric
@@ -6371,6 +6439,7 @@ server <- function(input, output, session) {
                 output$GSEA_analysis_status <- renderText({'The selected score is not numeric, and cannot be used for the GSEA analysis. Please choose another.'})
                 output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
                 GSEA_results(NULL)
+                isCalculating_GSEA(FALSE)
                 return(NULL)
               }
               output$GSEA_analysis_status <- renderText({NULL})
@@ -6379,6 +6448,7 @@ server <- function(input, output, session) {
               # output$GSEA_status <- renderText({ 'AAA' })
               if(is.null(GSEA_Gene_set())){
                 GSEA_results(NULL)
+                isCalculating_GSEA(FALSE)
                 return(NULL)
               }
               fgseaRes2 <- fgsea(pathways = GSEA_Gene_set(), stats = ranked_genes, minSize = 1, maxSize = 5000)
@@ -6395,6 +6465,7 @@ server <- function(input, output, session) {
                 show_alert(title='Error.',text='Please check the input.', type='error')
                 output$GSEA_goTable_status <- renderText({'Error. Please check the input'})
                 GSEA_results(NULL)
+                isCalculating_GSEA(FALSE)
                 return(NULL)
               }
               fgseaRes2 <- data.frame(fgseaRes2[order(pval), ])
@@ -6408,6 +6479,14 @@ server <- function(input, output, session) {
 
           # dispaly the table
             output$GSEA_goTable <- DT::renderDataTable({
+              if(!isTrigger_GSEA()){
+                tmp <- as.data.frame(list('pathway'=character(0), 'pval'=character(0), 'ES'=character(0), 'NES'=character(0), 'size'=character(0), 'log2err'=character(0), 'padj'=character(0)))
+                datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))                
+              }
+              if(isCalculating_GSEA()){
+                tmp <- as.data.frame(list('pathway'=character(0), 'pval'=character(0), 'ES'=character(0), 'NES'=character(0), 'size'=character(0), 'log2err'=character(0), 'padj'=character(0)))
+                datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))                
+              }
               if(is.null(GSEA_results())){ 
                 tmp <- as.data.frame(list('pathway'=character(0), 'pval'=character(0), 'ES'=character(0), 'NES'=character(0), 'size'=character(0), 'log2err'=character(0), 'padj'=character(0)))
                 datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
@@ -6824,7 +6903,11 @@ server <- function(input, output, session) {
           # calculate PCA
             output$Data_Overview_PCA_status <- renderText({"Please go to the Settings on the right and click 'Generate a PCA plot'."})
             PCA_table <- reactiveVal(NULL)
+            isCalculating_PCA <- reactiveVal(FALSE)
+            isTriggered_PCA  <- reactiveVal(FALSE)
             observeEvent(input$Data_Overview_PCA_Start, {
+              isCalculating_PCA(TRUE)
+              isTriggered_PCA(TRUE)
               output$Data_Overview_PCA_status <- renderText({NULL})
               df_ex <- df()
               # df_ex <- read.table('/home/h023o/ShinyApps/in_house_screening/00_Expression_data_all/Helena/Human_T_cell_activation_Vora/all_cnt_FeatureCounts_cpm_gene.tsv', sep='\t', header=T)
@@ -6836,6 +6919,7 @@ server <- function(input, output, session) {
                   show_alert(title='Error.',text='Please enter the group description.', type='error')
                   output$Data_Overview_PCA_status <- renderText({"Please fill in the 'Enter the group descriptions' box."})
                   PCA_table(NULL)
+                  isCalculating_PCA(FALSE)
                   return(NULL)
                 }
                 df_sample_group <- data.frame('Sample'=c(), 'Grounp'=c())
@@ -6850,6 +6934,7 @@ server <- function(input, output, session) {
                   show_alert(title='Error.',text='There are duplicated sample names.', type='error')
                   output$Data_Overview_PCA_status <- renderText({"There are duplicated sample names."})
                   PCA_table(NULL)
+                  isCalculating_PCA(FALSE)
                   return(NULL)
                 }
                 output$Data_Overview_PCA_plot_tmp <- renderDataTable({
@@ -6861,6 +6946,7 @@ server <- function(input, output, session) {
                   show_alert(title='Error.',text='Please set the group description correctly.', type='error')
                   output$Data_Overview_PCA_status <- renderText({"Non of the inputted sample names are in the dataset. \nPlease check the sample names are correct and do not contain unnecessary spaces."})
                   PCA_table(NULL)
+                  isCalculating_PCA(FALSE)
                   return()
                 }
                 df_ex <- df_ex[,samples_intersect]
@@ -6892,10 +6978,17 @@ server <- function(input, output, session) {
                 pca_df$Group <- Group
               }
               PCA_table(pca_df)
+              isCalculating_PCA(FALSE)
             })
 
           # show the PCA plot
             output$Data_Overview_PCA_plot <- renderPlot({
+              if(!isTriggered_PCA()){
+                return(ggplot())
+              }
+              if(isCalculating_PCA()){
+                return(ggplot())
+              }
               pca_df <- PCA_table()
               if(is.null(pca_df)){
                 return(ggplot())
@@ -9717,11 +9810,36 @@ server <- function(input, output, session) {
         output$Profile_Plot_sample_selection <- renderUI({ 
           df_tmp <- Dataset()
           df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
-          # if(!is.null(input$Data_type)) { if(input$Data_type!='None'){ df_tmp <- df_tmp[df_tmp$Data.type == input$Data_type,]}}
-          # if(!is.null(input$Seuqenced_by)) { if(input$Seuqenced_by!='None'){ df_tmp <- df_tmp[df_tmp$Data.from == input$Seuqenced_by,]}}
-          # if(!is.null(input$Experiments)) { if(input$Experiments!='None'){ df_tmp <- df_tmp[df_tmp$Experiment == input$Experiments,]}}
+          if(length(input$Profile_Plot_sample_selection_Seuqenced_by)>0){
+            if(input$Profile_Plot_sample_selection_Seuqenced_by!='None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Profile_Plot_sample_selection_Seuqenced_by,]
+            }
+          }
+          if(length(input$Profile_Plot_sample_selection_Experiments)>0){
+            if(input$Profile_Plot_sample_selection_Experiments!='None'){
+              df_tmp <- df_tmp[df_tmp$Experiment == input$Profile_Plot_sample_selection_Experiments,]
+            }
+          }
           selectInput('Profile_Plot_sample_selection', 'Dataset select', c('None'='None', unique(df_tmp$Dataset)) )
         })
+
+        output$Profile_Plot_sample_selection_Seuqenced_by <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          selectInput('Profile_Plot_sample_selection_Seuqenced_by', 'Data from', c('None'='None', unique(df_tmp$Data.from)) )
+        })
+        
+        output$Profile_Plot_sample_selection_Experiments <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'E',]
+          if(length(input$Profile_Plot_sample_selection_Seuqenced_by)>0){
+            if(input$Profile_Plot_sample_selection_Seuqenced_by!='None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Profile_Plot_sample_selection_Seuqenced_by,]
+            }
+          }
+          selectInput('Profile_Plot_sample_selection_Experiments', 'Experiment name', c('None'='None', unique(df_tmp$Experiment)) )
+        })
+
 
       # Imported samples
         imported_sample <- reactiveVal(NULL) # list of the imported sample names
@@ -10162,17 +10280,114 @@ server <- function(input, output, session) {
         output$Enhancer_Find_data_select_RNAseq <- renderUI({
           df_tmp <- Dataset()
           df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_RNAseq_Seuqenced_by,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_RNAseq_Experiments) > 0){
+            if(input$Enhancer_Find_data_select_RNAseq_Experiments != 'None'){
+              df_tmp <- df_tmp[df_tmp$Experiment == input$Enhancer_Find_data_select_RNAseq_Experiments,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_RNAseq_Data_type) > 0){
+            if(input$Enhancer_Find_data_select_RNAseq_Data_type != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.type == input$Enhancer_Find_data_select_RNAseq_Data_type,]
+            }
+          }
           selectInput('Enhancer_Find_data_select_RNAseq', 'Select a RNAseq count dataset', c('None'='None', unique(df_tmp$Dataset)) )
         })
         outputOptions(output, "Enhancer_Find_data_select_RNAseq", suspendWhenHidden=FALSE)
+
+        output$Enhancer_Find_data_select_RNAseq_Seuqenced_by <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          selectInput('Enhancer_Find_data_select_RNAseq_Seuqenced_by', 'Data from', c('None'='None', unique(df_tmp$Data.from)) )
+        })
+
+        output$Enhancer_Find_data_select_RNAseq_Experiments <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_RNAseq_Seuqenced_by,]
+            }
+          }
+          selectInput('Enhancer_Find_data_select_RNAseq_Experiments', 'Experiment', c('None'='None', unique(df_tmp$Experiment)) )
+        })
+
+        output$Enhancer_Find_data_select_RNAseq_Data_type <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_RNAseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_RNAseq_Seuqenced_by,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_RNAseq_Experiments) > 0){
+            if(input$Enhancer_Find_data_select_RNAseq_Experiments != 'None'){
+              df_tmp <- df_tmp[df_tmp$Experiment == input$Enhancer_Find_data_select_RNAseq_Experiments,]
+            }
+          }
+          selectInput('Enhancer_Find_data_select_RNAseq_Data_type', 'Data type', c('None'='None', unique(df_tmp$Data.type)) )
+        })
 
       # select ATACseq data
         output$Enhancer_Find_data_select_ATACseq <- renderUI({
           df_tmp <- Dataset()
           df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_ATACseq_Seuqenced_by,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_ATACseq_Experiments) > 0){
+            if(input$Enhancer_Find_data_select_ATACseq_Experiments != 'None'){
+              df_tmp <- df_tmp[df_tmp$Experiment == input$Enhancer_Find_data_select_ATACseq_Experiments,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_ATACseq_Data_type) > 0){
+            if(input$Enhancer_Find_data_select_ATACseq_Data_type != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.type == input$Enhancer_Find_data_select_ATACseq_Data_type,]
+            }
+          }
           selectInput('Enhancer_Find_data_select_ATACseq', 'Select a ATACseq count dataset', c('None'='None', unique(df_tmp$Dataset)) )
         })
         outputOptions(output, "Enhancer_Find_data_select_ATACseq", suspendWhenHidden=FALSE)
+
+        output$Enhancer_Find_data_select_ATACseq_Seuqenced_by <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          selectInput('Enhancer_Find_data_select_ATACseq_Seuqenced_by', 'Data from', c('None'='None', unique(df_tmp$Data.from)) )
+        })
+
+        output$Enhancer_Find_data_select_ATACseq_Experiments <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_ATACseq_Seuqenced_by,]
+            }
+          }
+          selectInput('Enhancer_Find_data_select_ATACseq_Experiments', 'Experiment', c('None'='None', unique(df_tmp$Experiment)) )
+        })
+
+        output$Enhancer_Find_data_select_ATACseq_Data_type <- renderUI({
+          df_tmp <- Dataset()
+          df_tmp <- df_tmp[df_tmp$Data.Class == 'A',]
+          if(length(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by)>0){
+            if(input$Enhancer_Find_data_select_ATACseq_Seuqenced_by != 'None'){
+              df_tmp <- df_tmp[df_tmp$Data.from == input$Enhancer_Find_data_select_ATACseq_Seuqenced_by,]
+            }
+          }
+          if(length(input$Enhancer_Find_data_select_ATACseq_Experiments) > 0){
+            if(input$Enhancer_Find_data_select_ATACseq_Experiments != 'None'){
+              df_tmp <- df_tmp[df_tmp$Experiment == input$Enhancer_Find_data_select_ATACseq_Experiments,]
+            }
+          }
+          selectInput('Enhancer_Find_data_select_ATACseq_Data_type', 'Data type', c('None'='None', unique(df_tmp$Data.type)) )
+        })
+
 
       # load RNAseq data
         output$Enhancer_Find_data_select_RNAseq_SampleNames <- renderText({"Please select a dataset."})
@@ -10323,8 +10538,11 @@ server <- function(input, output, session) {
           Sample_name_df <- read.csv(text = input$Enhancer_Find_sample_select, header = FALSE)
           RNAseq_sample <- Sample_name_df[,1]
           ATACseq_sample <- Sample_name_df[,2]
-          RNAseq_sample_intersect <- intersect(RNAseq_sample, colnames(Enhancer_Find_RNAseq_data()))
-          ATACseq_sample_intersect <- intersect(ATACseq_sample, colnames(Enhancer_Find_ATACseq_data()))
+          df_tmp <- data.frame(rna=RNAseq_sample, atac=ATACseq_sample)
+          df_tmp_intersect <- df_tmp[df_tmp$rna %in% colnames(Enhancer_Find_RNAseq_data()) & df_tmp$atac %in% colnames(Enhancer_Find_ATACseq_data()), ]
+          RNAseq_sample_intersect <- df_tmp_intersect$rna
+          ATACseq_sample_intersect <- df_tmp_intersect$atac
+
           if(length(RNAseq_sample_intersect) <= 2 || length(ATACseq_sample_intersect) <= 2){
             show_alert(title='Error.',text='Please input more than three samples.', type='error')
             output$Enhancer_Find_table_status <- renderText({"Please input more than three samples"})
@@ -10536,13 +10754,14 @@ server <- function(input, output, session) {
         isTriggered_Motif_analysis <- reactiveVal(FALSE)
 
         observeEvent(input$Motif_analysis_start,{
+          isCalculating_Motif_analysis(TRUE)
+          isTriggered_Motif_analysis(TRUE)
           if(input$Motif_analysis_input_genome_type == 'hg38'){
             genome <- BSgenome.Hsapiens.UCSC.hg38
           }else if(input$Motif_analysis_input_genome_type == 'hg19'){
             genome <- BSgenome.Hsapiens.UCSC.hg19
           }
-          isCalculating_Motif_analysis(TRUE)
-          isTriggered_Motif_analysis(TRUE)
+          available_chr <- unique(genome@seqinfo@seqnames)
 
           # creat the input
           if(input$Motif_analysis_input_type == 'A'){
@@ -10554,11 +10773,12 @@ server <- function(input, output, session) {
               return(NULL)
             }
             peaks <- unlist(strsplit(input$Motif_analysis_input_peaks, split = "\n"))
+            peaks <- peaks[!peaks=='']
             peaks <- unique(peaks)
             # if the selected data is not an ATACseq data: (the value in the tmp$id is not the format of chr:start-end)
             if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", peaks))){
               show_alert(title='Error.',text='The input peaks are not in the format of "chr:start-end". Please input the peaks in the correct format.', type='error')
-              output$Motif_analysis_status <- renderText({ "The input peaks are not in the format of 'chr:start-end'. Please input the peaks in the correct format." })
+              output$Motif_analysis_status <- renderText({ "Some input peaks are not in the correct format (‘chr:start-end’). Please enter peaks using the required format." })
               output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
               isCalculating_Motif_analysis(FALSE)
               return(NULL)
@@ -10566,9 +10786,21 @@ server <- function(input, output, session) {
             chromosome <- sapply(strsplit(peaks, ":"), function(x) x[1])
             start <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][1])))
             end <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][2])))
-            seq_region <- getSeq(genome, names=chromosome, start=start, end=end)
+            df_tmp <- data.frame(peaks=peaks, chr=chromosome, start=start, end=end)
+            df_tmp_in <- df_tmp[df_tmp$chr %in% available_chr, ]
+            df_tmp_out <- df_tmp[!df_tmp$chr %in% available_chr, ]
+            if(dim(df_tmp_in)[1] == 0){
+              show_alert(title='Error.',text='The selected locations do not exist in the genome.', type='error')
+              output$Motif_analysis_status <- renderText({ "The selected locations do not exist in the genome." })
+              output$Motif_analysis_plot_status <- renderText({'Please do the motif scan first.'})
+              isCalculating_Motif_analysis(FALSE)
+              return(NULL)
+            }
+            seq_region <- getSeq(genome, names=df_tmp_in$chr, start=df_tmp_in$start, end=df_tmp_in$end)
             seq_region_clean <- seq_region[grepl("^[ACGT]+$", as.character(seq_region))]
             seq_region_with_non_acgt <- seq_region[!grepl("^[ACGT]+$", as.character(seq_region))] # the selected region dose not contain A,T,G,C (or not defined)
+            error_msg_atcg <- NULL
+            error_msg_out <- NULL
             if(length(seq_region_with_non_acgt) > 0 ){
               if(length(seq_region_clean) == 0){ 
                 show_alert(title='Error.',text='The selected region does not contain A,T,G,C. Please select another region.', type='error')
@@ -10577,9 +10809,23 @@ server <- function(input, output, session) {
                 isCalculating_Motif_analysis(FALSE)
                 return(NULL)
               }else{
-                error_peak <- peaks[!grepl("^[ACGT]+$", as.character(seq_region))]
-                output$Motif_analysis_status <- renderText({ paste("The following peaks do not contain A,T,G,C and will be ignored:\n", paste(error_peak, collapse = "\n")) })
+                error_peak <- df_tmp_in$peaks[!grepl("^[ACGT]+$", as.character(seq_region))]
+                error_msg_atcg <- paste("The following peaks do not contain A,T,G,C and will be ignored:\n", paste(error_peak, collapse = "\n"))
               }
+            }else{
+              output$Motif_analysis_status <- renderText({NULL})
+            }
+            if(dim(df_tmp_out)[1] > 0){
+              error_msg_out <- paste("The following peaks do not exist in the genome and will be ignored:\n", paste(df_tmp_out$peaks, collapse = "\n"))
+            }
+            if(!is.null(error_msg_atcg)){
+              if(!is.null(error_msg_out)){
+                output$Motif_analysis_status <- renderText({ paste(c(error_msg_out, error_msg_atcg), collapse = "\n") })
+              }else{
+                output$Motif_analysis_status <- renderText({ error_msg_atcg })
+              }
+            }else if(!is.null(error_msg_out)){
+              output$Motif_analysis_status <- renderText({ error_msg_out })
             }else{
               output$Motif_analysis_status <- renderText({NULL})
             }
@@ -12121,19 +12367,21 @@ server <- function(input, output, session) {
                   error= 1
                   return()
                 }
-                mut_table <- mut_table()
-                if(!'sample' %in% colnames(mut_table)){
-                  show_alert(title='Error.',text='The mutation data tabke does not have "sample" in its header.', type='error' )
-                  output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "sample" in its header.')
-                  error= 1
-                  return()
-                }
-                mut_table <- mut_table()
-                if(!'id' %in% colnames(mut_table)){
-                  show_alert(title='Error.',text='The mutation data tabke does not have "id" in its header.', type='error' )
-                  output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "id" in its header.')
-                  error= 1
-                  return()
+                if(!is.null(mut_table())){
+                  mut_table <- mut_table()
+                  if(!'sample' %in% colnames(mut_table)){
+                    show_alert(title='Error.',text='The mutation data table does not have "sample" in its header.', type='error' )
+                    output$new_cohort_status <- renderText('Error: The mutation data table does not have "sample" in its header.')
+                    error= 1
+                    return()
+                  }
+                  mut_table <- mut_table()
+                  if(!'id' %in% colnames(mut_table)){
+                    show_alert(title='Error.',text='The mutation data tabke does not have "id" in its header.', type='error' )
+                    output$new_cohort_status <- renderText('Error: The mutation data tabke does not have "id" in its header.')
+                    error= 1
+                    return()
+                  }
                 }
                 if(error == 0){
                   time_stamp <- as.character(Sys.time()) 
@@ -14225,8 +14473,158 @@ server <- function(input, output, session) {
             output$Find_genome_loci_table_status <- renderText({NULL})
           }
         })
+      # Peak annotation
+          # library(GenomicFeatures)
+          library(ChIPseeker)
+          
+        # Setting
+          output$Peak_annotation_status <- renderText({'Please fill in the input fields and click the start button.'})
+          # txdb <- makeTxDbFromGFF("/home/h023o/Tools/ref/hg38/gencode.v41.primary_assembly.annotation.gtf", format = "gtf")
+          # saveDb(txdb, file = "/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
+          Peak_annotation_txdb <- reactive({
+            if(input$Peak_annotation_genome == 'hg38'){
+              loadDb("/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
+            }
+          })
+          
+        # do annotation
+          Peak_annotation <- reactiveVal(NULL)
+          Peak_annotation_res <- reactiveVal(NULL)
+          input_peaks <- reactiveVal(NULL)
+          isCalculating_Peak_annotation <- reactiveVal(FALSE)
+          isTriggered_Peak_annotation <- reactiveVal(FALSE)
+          observeEvent(input$Peak_annotation_start, {
+            isTriggered_Peak_annotation(TRUE)
+            isCalculating_Peak_annotation(TRUE)
+
+            # when no peak was input
+            if(nchar(input$Peak_annotation_input) == 0){
+              show_alert(title='Error.',text='Please input the peaks in the format of chr:start-end.', type='error')
+              output$Peak_annotation_status <- renderText({'Please input the peaks in the format of chr:start-end.'})
+              isCalculating_Peak_annotation(FALSE)
+              return(NULL)
+            }
+            peaks <- unlist(strsplit(input$Peak_annotation_input, split = "\n"))
+            peaks <- peaks[!peaks==''] # remove empty lines
+            peaks <- unique(peaks) # remove duplicates # ex. peaks <- c('chr4:76021118-76023497', 'chr10:8045378-8075198', 'greg:123-134')
+
+
+            # check the format of the input. 
+            if(!all(grepl("^[^\\s:]+:[0-9]+-[0-9]+$", peaks))){
+              show_alert(title='Error.',text='Some input peaks are not in the correct format ("chr:start-end"). Please enter peaks using the required format.', type='error')
+              output$Peak_annotation_status <- renderText({ "Some input peaks are not in the correct format ('chr:start-end'). Please enter peaks using the required format." })
+              isCalculating_Peak_annotation(FALSE)
+              return(NULL)
+            } 
+            chromosome <- sapply(strsplit(peaks, ":"), function(x) x[1])
+            start <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][1])))
+            end <- as.numeric(sapply(strsplit(peaks, ":"), function(x) as.numeric(strsplit(x[2], "-")[[1]][2])))
+
+            # Convert peaks to GRanges object
+            peaks_gr <- GRanges(seqnames = chromosome, ranges = IRanges(start = start, end = end))
+            available_chr <- Peak_annotation_txdb()$user_seqlevels
+            peaks_gr_filtered <- peaks_gr[seqnames(peaks_gr) %in% available_chr]
+            peaks_gr_not_detected <- peaks_gr[!(seqnames(peaks_gr) %in% available_chr)]
+            peaks_gr_not_detected_ids <- paste0(seqnames(peaks_gr_not_detected), ":", start(peaks_gr_not_detected), "-", end(peaks_gr_not_detected))
+
+            # when there are some peaks that are not in the txdb, show the peak id
+            if(length(peaks_gr_not_detected) > 0){
+              output$Peak_annotation_input_status <- renderText({ paste("The following peaks are not detected:", paste0(peaks_gr_not_detected_ids, collapse = ", ")) })
+            }else{
+              output$Peak_annotation_input_status <- renderText({NULL})
+            }
+
+
+            # when no Grange object
+            if(length(peaks_gr_filtered)==0){
+              show_alert(title='Error.',text='None of the selected locations exist in the genome.', type='error')
+              output$Peak_annotation_status <- renderText({ "None of the selected locations exist in the genome." })
+              isCalculating_Peak_annotation(FALSE)
+              return(NULL)
+            } 
+
+            # Do annotation
+            annodb <- if(input$Peak_annotation_genome == 'hg38'){
+              "org.Hs.eg.db"
+            }
+            peakAnno <- annotatePeak(peaks_gr_filtered,  TxDb = Peak_annotation_txdb(), annoDb = annodb)
+            res <- as.data.frame(peakAnno) # head(res)
+            # Add peakID (chr:start-end)
+            res$PeakID <- paste0(seqnames(peaks_gr_filtered), ":", start(peaks_gr_filtered), "-", end(peaks_gr_filtered))
+            res <- res[,c('PeakID', colnames(res)[1:length(colnames(res))-1])]
+
+            Peak_annotation(peakAnno)
+            Peak_annotation_res(res)
+            output$Peak_annotation_status <- renderText({ NULL })
+            isCalculating_Peak_annotation(FALSE)
+            return(NULL)
+          })
+
+        # show a table
+          output$Peak_annotation_table <- renderDataTable({
+            if(!isTriggered_Peak_annotation()){
+              tmp <- data.frame(list('PeakID'=character(0), 'Annotation'=character(0)), stringsAsFactors = FALSE )
+              datatable( tmp, options = list(scrollX = TRUE, pageLength = 10 )) 
+            }
+            if(isCalculating_Peak_annotation()){
+              tmp <- data.frame(list('PeakID'=character(0), 'Annotation'=character(0)), stringsAsFactors = FALSE )
+              datatable( tmp, options = list(scrollX = TRUE, pageLength = 10 )) 
+            }
+            if(is.null(Peak_annotation_res())){
+              tmp <- data.frame(list('PeakID'=character(0), 'Annotation'=character(0)), stringsAsFactors = FALSE )
+              datatable( tmp, options = list(scrollX = TRUE, pageLength = 10 )) 
+            }else{
+              datatable(Peak_annotation_res(), options = list(scrollX = TRUE, pageLength = 10 ))
+            }
+            
+          })
+
+        # download the table
+          output$Peak_annotation_table_download <- downloadHandler(
+            filename = function(){"Peak_annotation.tsv"}, 
+            content = function(fname){ write.table(Peak_annotation_res(), fname, sep='\t', row.names=F, quote=F) }
+          ) 
+
+        # plot
+          output$Peak_annotation_plot <- renderPlot({
+            if(!isTriggered_Peak_annotation() || isCalculating_Peak_annotation() || is.null(Peak_annotation())){
+              return(ggplot())
+            }else{
+              if(input$Peak_annotation_plot_type=='A'){
+                p <- plotAnnoPie(Peak_annotation(), cex=input$Peak_annotation_plot.XY_label/10)
+              }else if(input$Peak_annotation_plot_type=='B'){
+                p <- plotAnnoBar(Peak_annotation())
+              }else if(input$Peak_annotation_plot_type=='C'){
+                p <- vennpie(Peak_annotation(), cex=input$Peak_annotation_plot.XY_label/10, r=input$Peak_annotation_plot.width/1000)
+              }else if(input$Peak_annotation_plot_type=='D'){
+                p <- upsetplot(Peak_annotation(), text.scale=input$Peak_annotation_plot.XY_label/10)
+              }
+              p <- p + theme(text = element_text(size = input$Peak_annotation_plot.XY_label))
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", size=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(legend.key.size = unit(0.4, "cm"), legend.key.height = unit(0.3, "cm"), legend.key.width  = unit(0.3, "cm"))
+              p <- p + theme(legend.text = element_text(size = input$Peak_annotation_plot.XY_label))
+              p
+            }
+          }, width=reactive(input$Peak_annotation_plot.width), height=reactive(input$Peak_annotation_plot.height), res=300)
+
+        # show a list of genes
+          output$Peak_annotation_genes_list <- renderText({
+            if(!isTriggered_Peak_annotation() || isCalculating_Peak_annotation() || is.null(Peak_annotation_res())){
+              return("The list of the genes closest to the input peaks will be shown here.")
+            }else{
+              if(input$Peak_annotation_genes_list_type == 'A'){
+                return(paste(Peak_annotation_res()$geneId, collapse='\n'))
+              }else{
+                return(paste(Peak_annotation_res()$SYMBOL, collapse='\n'))
+              }
+            }
+          })
+        # 
+
       #
-    
     ### Cross_tabulation analysis
       # input the parameter for the contingency table
         cross_table <- reactive({
