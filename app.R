@@ -790,7 +790,8 @@ ui <- fluidPage(
                                       circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                     )
                                   ),
-                                  column(12, withSpinner(plotOutput("Data_Overview_PCA_plot", width="100%", height="100%"), type=5, color='#0dc5c1') ),
+                                  column(12, withSpinner(plotOutput("Data_Overview_PCA_plot", width="100%", height="100%", brush = "plot_brush_PCA"), type=5, color='#0dc5c1') ),
+                                  column(4, verbatimTextOutput('Data_Overview_PCA_plot_selected_names') )
                                 )
                               )
                             ),
@@ -2304,7 +2305,7 @@ ui <- fluidPage(
                         column(12, 
                           box(width=12, status='info', title='Inputs and Settings',
                             fluidPage(
-                              column(7, 
+                              column(6, 
                                 fluidRow(
                                   column(12, 
                                     radioButtons('Gene_correlation_genes_comparison_type', 'Explore type', 
@@ -2355,16 +2356,30 @@ ui <- fluidPage(
                                     )
                                   )
                                 )
-                              ), 
+                              ),
+                              column(3, 
+                                fluidRow(
+                                  column(12, radioButtons('Clinical_Gene_correlation_frequency_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'input.Clinical_Gene_correlation_frequency_filter == "B"',
+                                      fluidRow(
+                                        column(12, htmlOutput('Clinical_Gene_correlation_frequency_filter_selection')),
+                                        column(12, htmlOutput('Clinical_Gene_correlation_frequency_filter_selection_category')),
+                                        column(12, verbatimTextOutput('Clinical_Gene_correlation_frequency_filter_selection_number')),
+                                      ),  
+                                    )
+                                  )
+                                )
+                              ),
                               column(2, 
                                 fluidRow(
-                                  column(12, radioButtons('Gene_correlation_Corralation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson')),
+                                  column(12, radioButtons('Gene_correlation_Correlation_method', 'Method for correlation', choices = c('pearson', 'spearman'),selected='pearson')),
                                   column(12, h4('')),
                                   column(12, h4('')),
                                   column(12, actionButton("Gene_correlation_start", "Calculate the correlation",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                                 )
                               ),
-                              column(2, h4('')),
                               column(1,
                                 div(id='help',
                                   dropdownButton( 
@@ -2419,16 +2434,17 @@ ui <- fluidPage(
                                   fluidRow(
                                     column(6,sliderInput('Gene_correlation_label_size', 'X/Y label size', min=0, max=10, value=5, step=0.1)),
                                     conditionalPanel(
-                                      condition="input.Gene_correlation_genes_comparison_type != 'C'",
+                                      condition="input.Gene_correlation_genes_comparison_type == 'B' || input.Gene_correlation_table_rows_selected.length > 0",
                                       column(6,sliderInput('Gene_correlation_title_size', 'X/Y title size', min=0.1, max=10, value=5, step=0.1))
+                                      #  | input.Gene_correlation_table.length > 0
                                     ),
                                     conditionalPanel(
-                                      condition="input.Gene_correlation_genes_comparison_type != 'B'",
+                                      condition="input.Gene_correlation_genes_comparison_type == 'C' & input.Gene_correlation_table_rows_selected.length == 0",
                                       column(6,sliderInput('Gene_correlation_legend_size', 'Legend font size', min=0.1, max=10, value=5, step=0.1))
                                     )
                                   ),
                                   conditionalPanel(
-                                    condition="input.Gene_correlation_genes_comparison_type != 'C'",
+                                    condition="input.Gene_correlation_genes_comparison_type == 'B' || input.Gene_correlation_table_rows_selected.length > 0",
                                     fluidRow(
                                       column(4, colourpicker::colourInput('Gene_correlation_colour', 'Colour of the dots:', value='#ec00ec')),
                                       column(4, materialSwitch('Gene_correlation_show_correlation_line', 'Show the correlation line', value=TRUE, status = "success")),
@@ -2436,7 +2452,7 @@ ui <- fluidPage(
                                     )
                                   ),
                                   conditionalPanel(
-                                    condition="input.Gene_correlation_genes_comparison_type == 'C'",
+                                    condition="input.Gene_correlation_genes_comparison_type == 'C' & input.Gene_correlation_table_rows_selected.length == 0",
                                     fluidRow( 
                                       column(4, colourpicker::colourInput('Gene_correlation_pairwise_col_low', 'Colour of the lowest correlation (-1):', value='#2e00fa')),
                                       column(4, colourpicker::colourInput('Gene_correlation_pairwise_col_high', 'Colour of the highest correlation (1):', value='#ec00ec')),
@@ -2465,7 +2481,8 @@ ui <- fluidPage(
                                   column(12, 
                                     conditionalPanel(
                                       condition = 'input.Clinical_Mutation_gene_input == "A"',
-                                      textAreaInput('Clinical_Mutation_gene', 'Enter genes (line by line)')
+                                      htmlOutput('Clinical_Mutation_gene')
+                                      # textAreaInput('Clinical_Mutation_gene', 'Enter genes (line by line)')
                                     ),
                                   ),
                                   column(12, 
@@ -2785,9 +2802,9 @@ ui <- fluidPage(
                         column(12,
                           box(width=12, title='Inputs and Settings', collapsible = TRUE, status='info',
                             fluidRow(
-                              column(2, radioButtons('Signature_input_selection', 'Input', choices = c('Choose from the custom gene sets'='A', 'Text input'='B'), selected='A') ),
-                              column(4,
+                              column(3, 
                                 fluidRow(
+                                  column(12, radioButtons('Signature_input_selection', 'Input', choices = c('Choose from the custom gene sets'='A', 'Text input'='B'), selected='A')),
                                   column(12, 
                                     conditionalPanel(
                                       condition = "input.Signature_input_selection == 'A'",
@@ -2797,13 +2814,29 @@ ui <- fluidPage(
                                   column(12, 
                                     conditionalPanel(
                                       condition = "input.Signature_input_selection == 'B'",
-                                      textAreaInput('Signature_input_selection_text_input', "Enter genes (line by line)")
+                                      htmlOutput('Signature_input_selection_text_input')
+                                      # textAreaInput('Signature_input_selection_text_input', "Enter genes (line by line)")
+                                    )
+                                  )
+                                )
+                              ),
+                              column(3,
+                                fluidRow(
+                                  column(12, radioButtons('Clinical_Signature_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                  column(12, 
+                                    conditionalPanel(
+                                      condition = 'typeof input.Clinical_Signature_filter !== "undefined" && input.Clinical_Signature_filter == "B"',
+                                      fluidRow(
+                                        column(12, htmlOutput('Clinical_Signature_filter_selection')),
+                                        column(12, htmlOutput('Clinical_Signature_filter_selection_category')),
+                                        column(12, verbatimTextOutput('Clinical_Signature_filter_selection_number')),
+                                      )
                                     )
                                   )
                                 )
                               ),
                               column(2, radioButtons('Signature_input_score_type', 'Calculation method', choices = c('GSVA', 'ssGSEA'), selected='GSVA') ),
-                              column(3, 
+                              column(2, 
                                 fluidRow(
                                   column(12, h2('')),
                                   column(12, actionButton('Signature_start', 'Calculate the signature score', style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000") ),
@@ -3008,7 +3041,8 @@ ui <- fluidPage(
                                     ),
                                     conditionalPanel(
                                       condition = "input.Deconvodution_Heatmap_sample_selection == 'C'",
-                                      column(12, textAreaInput('Deconvodution_Heatmap_sample_selection_text_input', 'Enter sample IDs (line by line)') )
+                                      column(12, htmlOutput('Deconvodution_Heatmap_sample_selection_text_input') ),
+                                      # column(12, textAreaInput('Deconvodution_Heatmap_sample_selection_text_input', 'Enter sample IDs (line by line)') )
                                     )
                                   ),
                                   fluidRow(
@@ -3084,7 +3118,7 @@ ui <- fluidPage(
                           tabPanel("Correlation with genes",
                             fluidRow(
                               column(12, 
-                                box(width=12, title='Input and Setting', status='info',collapsible=TRUE,
+                                box(width=12, title='Inputs and Settings', status='info',collapsible=TRUE,
                                   fluidRow(
                                     column(4, 
                                       fluidRow(
@@ -3107,13 +3141,27 @@ ui <- fluidPage(
                                     ),
                                     column(3,
                                       fluidRow(
+                                        column(12, radioButtons('Deconvodution_filter', 'Sample filtering:', choices=c("Use all samples"='A', "Use the selected samples by a specific category"='B'), selected='A') ),
+                                        column(12, 
+                                          conditionalPanel(
+                                            condition = 'input.Deconvodution_filter == "B"',
+                                            fluidRow(
+                                              column(12, htmlOutput('Deconvodution_filter_selection')),
+                                              column(12, htmlOutput('Deconvodution_filter_selection_category')),
+                                              column(12, verbatimTextOutput('Deconvodution_filter_selection_number')),
+                                            )
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    column(2,
+                                      fluidRow(
                                         column(12, h4('') ),
                                         column(12, radioButtons('Deconvodution_Gene_correlation_method', 'Method for correlation', choices=c('pearson', 'spearman'), selected='pearson')  ),
                                         column(12, h4('') ),
                                         column(12, actionButton('Deconvodution_Gene_correlation_start', 'Calculate the correlation',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" ) )
                                       )
                                     ),
-                                    column(2, h4(''))
                                   ),
                                   fluidRow(
                                     column(6, verbatimTextOutput('Deconvodution_Gene_correlation_status0') )
@@ -4623,13 +4671,12 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Last updated on 06. Aug, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 10. Sep, 2025 ", style = "text-align: right;"))
     )
   )
 )
 
 
-rm(tags, envir = .GlobalEnv)
 
 ##############################################################################
 server <- function(input, output, session) {
@@ -4687,6 +4734,7 @@ server <- function(input, output, session) {
       }else if(input$sidebar == 'Tools'){
         suppressMessages(library(visNetwork))
         suppressMessages(library(eulerr))
+        suppressMessages(library(ChIPseeker))
 
       }
     })
@@ -4775,6 +4823,13 @@ server <- function(input, output, session) {
 
     #### data upload ####
       # show a preview
+        make_unique <- function(x) {
+          ave(x, x, FUN = function(y) {
+            if(length(y) == 1) return(y)
+            paste0(y, '.', seq_along(y))
+          })
+        }
+
         output$upload_data_preview_status <- renderText({"Please upload the file. The top 10 lines of the file (header) will be displayed here."})
         output$upload_data_preview <- renderDataTable({ 
           req(input$upload_file)
@@ -4783,8 +4838,16 @@ server <- function(input, output, session) {
             gx_table <- read.table(input$upload_file$datapath, sep='\t', header=T,check.names = FALSE)
             if(!'id' %in% colnames(gx_table)){
               output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")
+              show_alert(title='Error.',text='The column name containing gene names in the input file has to be set "id"', type='error')
+              return(NULL)
             }else{
-              output$status_upload <- renderText({NULL})
+              if(gx_table$id %>% duplicated() %>% sum() > 0){
+                gx_table$id <- make_unique(gx_table$id)
+                show_alert(title='Warning.',text='Duplicate gene names detected. Unique IDs have been assigned with suffixes (.1, .2, …)', type='warning')
+                output$status_upload <- renderText({"Duplicate gene names detected. Unique IDs have been assigned with suffixes (.1, .2, …)"})
+              }else{
+                output$status_upload <- renderText({NULL})
+              }
             }
             output$upload_data_preview_status <- renderText({NULL})
             return(datatable( head(gx_table, 10), options = list(scrollX = TRUE, scrollY = TRUE )))
@@ -4881,6 +4944,9 @@ server <- function(input, output, session) {
                 output$status_upload <- renderText("The column name containing gene names in the input file has to be set 'id'.")            
                 show_alert(title='Error.',text="The column name containing gene names in the input file has to be set 'id'.", type='error')
                 return()
+              }
+              if(gx_table$id %>% duplicated() %>% sum() > 0){
+                gx_table$id <- make_unique(gx_table$id)
               }
               if(Data.Class.upload == 'A' ){
                 pattern <- "^\\S+_Rep[0-9]+$"
@@ -5154,6 +5220,9 @@ server <- function(input, output, session) {
             return(NULL)
           }
         })
+
+
+        
         # when nothing is selected
         output$Data_Overview_plot <- renderText({"Please select a dataset above"})  
 
@@ -6466,6 +6535,7 @@ server <- function(input, output, session) {
                 isCalculating_GSEA(FALSE)
                 return(NULL)
               }
+              ranked_genes <- ranked_genes[!is.na(names(ranked_genes)) & names(ranked_genes) != ""]
               fgseaRes2 <- fgsea(pathways = GSEA_Gene_set(), stats = ranked_genes, minSize = 1, maxSize = 5000)
               if(dim(fgseaRes2)[1] == 0){
                 output$GSEA_analysis_status <- renderText({
@@ -7037,6 +7107,22 @@ server <- function(input, output, session) {
               samples <- samples[order(samples)]
               paste(unlist(samples), collapse='\n')
             })
+
+          # Selected sample names
+            output$Data_Overview_PCA_plot_selected_names <- renderText({
+              if(length(PCA_table())==0){
+                return(NULL)
+              }else if(is.null(PCA_table())){
+                return(NULL)
+              }else{
+                res <- brushedPoints(PCA_table(), input$plot_brush_PCA, xvar = input$PC1, yvar = input$PC2)
+                if(nrow(res) == 0){
+                  return("No samples selected.")
+                }
+                paste(unlist(res$sample), collapse='\n')
+              }
+            })
+
           # 
 
         ###### two genes correlation #######    
@@ -11243,6 +11329,8 @@ server <- function(input, output, session) {
               selectInput("Clinical_Survival_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Survival_frequency_filter_selection])))
             }
           })
+          outputOptions(output, "Clinical_Survival_frequency_filter_selection", suspendWhenHidden=FALSE)
+          outputOptions(output, "Clinical_Survival_frequency_filter_selection_category", suspendWhenHidden=FALSE)
         
         # Show the number of patients after filtering the sample if a category was set
           output$Clinical_Survival_frequency_filter_selection_number <- renderText({
@@ -11260,8 +11348,8 @@ server <- function(input, output, session) {
                     # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
                     filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
                     df_Surv <- df_Surv[df_Surv$sample %in% filtered_sample, ]
-                    if(dim(df_Surv)[1] == 0){
-                      "None of the selected samples are in the survival dataset. \nPlease check if the sample names in the meta data and in the survival data are unique."
+                    if(dim(df_Surv)[1] <= 1){
+                      "At least 2 samples are needed to calculate correlations. Please reselect the category."
                     }else{
                       paste0("Number of samples(patients): ", length(filtered_sample))
                     }
@@ -11341,13 +11429,27 @@ server <- function(input, output, session) {
               df_geneEx <- Clinical_gene_expression()
               df_OS <- Clinical_survival()
               df_meta <- Clinical_meta()
-              if(length(input$Clinical_Survival_frequency_filter_selection)> 0){
-                if(length(input$Clinical_Survival_frequency_filter_selection_category) > 0){
-                  if(input$Clinical_Survival_frequency_filter_selection != 'None' & input$Clinical_Survival_frequency_filter_selection_category != 'None'){
-                    filtered_sample <- df_meta[df_meta[,input$Clinical_Survival_frequency_filter_selection] == input$Clinical_Survival_frequency_filter_selection_category, ]$sample
-                    df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample]
-                    df_OS <- df_OS[df_OS$sample %in% filtered_sample, ]
-                    filtered_sample_survival(filtered_sample)
+              if(input$Clinical_Survival_frequency_filter == 'B'){
+                if(length(input$Clinical_Survival_frequency_filter_selection)> 0){
+                  if(length(input$Clinical_Survival_frequency_filter_selection_category) > 0){
+                    if(input$Clinical_Survival_frequency_filter_selection != 'None' & input$Clinical_Survival_frequency_filter_selection_category != 'None'){
+                      filtered_sample <- df_meta[df_meta[,input$Clinical_Survival_frequency_filter_selection] == input$Clinical_Survival_frequency_filter_selection_category, ]$sample
+                      df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample]
+                      df_OS <- df_OS[df_OS$sample %in% filtered_sample, ]
+                      filtered_sample_survival(filtered_sample)
+                      if(length(filtered_sample) <= 1){
+                        show_alert(title='Error.',text='At least 2 samples are needed to calculate correlations. Please reselect the category.', type='error')
+                        output$Clinical_Survial_all_status <- renderText({"At least 2 samples are needed to calculate correlations. Please reselect the category."})
+                        output$Clinical_Survial_table_status <- renderText({"A table of hazard ratios and p-values for the inputted genes will be shown here."})
+                        output$Clinical_Survial_plot_error_catch <- renderText({"Please calculate the p value and the hazard ratios first." })
+                        output$Clinical_Survial_plot_distribution_status  <- renderText({ "Please calculate the hazard ratios first." })
+                        df_Suv_p_and_HR(NULL)
+                        isCalculating_Suv_p_and_HR(FALSE)
+                        return()
+                      }
+                    }else{
+                      filtered_sample_survival(NULL)
+                    }
                   }else{
                     filtered_sample_survival(NULL)
                   }
@@ -11357,6 +11459,7 @@ server <- function(input, output, session) {
               }else{
                 filtered_sample_survival(NULL)
               }
+
 
 
             # gene selection for input
@@ -11712,6 +11815,58 @@ server <- function(input, output, session) {
 
     #### Gene corralation ####
       ##### Calculate the correlation #####
+        # filtering the cohort by metadata (optional)
+          output$Clinical_Gene_correlation_frequency_filter_selection <- renderUI({
+            if(is.null(Clinical_meta())){
+              selectInput("Clinical_Gene_correlation_frequency_filter_selection", "Filtering by:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Gene_correlation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+            }
+          })
+          output$Clinical_Gene_correlation_frequency_filter_selection_category <- renderUI({
+            if(length(input$Clinical_Gene_correlation_frequency_filter_selection)==0 || input$Clinical_Gene_correlation_frequency_filter_selection == 'None'){
+              selectInput("Clinical_Gene_correlation_frequency_filter_selection_category", "Category:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Gene_correlation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Gene_correlation_frequency_filter_selection])))
+            }
+          })
+          outputOptions(output, "Clinical_Gene_correlation_frequency_filter_selection", suspendWhenHidden=FALSE)
+          outputOptions(output, "Clinical_Gene_correlation_frequency_filter_selection_category", suspendWhenHidden=FALSE)
+
+        # Show the number of patients after filtering the sample if a category was set
+          output$Clinical_Gene_correlation_frequency_filter_selection_number <- renderText({
+            df_meta <- Clinical_meta()
+            df_geneEx <- Clinical_gene_expression()
+            if(is.null(df_geneEx)){
+              "Please select a clinical data first."
+            }else{
+              N_sample <- length(df_meta$sample)
+              if(input$Clinical_Gene_correlation_frequency_filter == 'B'){
+                if(length(input$Clinical_Gene_correlation_frequency_filter_selection_category)!= 0){
+                  if(input$Clinical_Gene_correlation_frequency_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Clinical_Gene_correlation_frequency_filter_selection] == input$Clinical_Gene_correlation_frequency_filter_selection_category, ]$sample
+                    # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
+                    # filtered_sample <- df_meta[df_meta[,'sample'] == 'MB.0000', ]$sample
+                    filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
+                    df_geneEx <- df_geneEx[, filtered_sample, drop=FALSE]
+                    if(length(filtered_sample) <= 1){
+                      "At least 2 samples are needed to calculate correlations. Please reselect the category."
+                    }else{
+                      paste0("Number of samples(patients): ", length(filtered_sample))
+                    }
+                  }else{
+                    paste0("Number of samples(patients): (Please select the category)")
+                  }
+                }
+              }else if(input$Clinical_Gene_correlation_frequency_filter == 'A'){
+                N_sample <- length(df_meta$sample)
+                paste0("Number of samples(patients): ", N_sample)
+              }
+            }
+          })
+          outputOptions(output, "Clinical_Gene_correlation_frequency_filter_selection_number", suspendWhenHidden=FALSE)
+
+        
         # when using a custom gene set
           output$Gene_correlation_genes_y_from_custom_geneset_select <- renderUI({
             gene_sets_names <- c(Original_geneset_list()$Geneset.name)
@@ -11735,8 +11890,13 @@ server <- function(input, output, session) {
           selected_cohort_cor <- reactiveVal(NULL)
           Genes_not_in_dataset_Pairwise_cohort <- reactiveVal(NULL)
           sd_zero_genes_cohort <- reactiveVal(NULL)
+          filtered_sample_correlation <- reactiveVal(NULL)
+          isCalculating_correlation <- reactiveVal(FALSE)
+          isTriggered_correlation <- reactiveVal(FALSE)
           observeEvent(input$Gene_correlation_start, {
             selected_cohort_cor(input$Clinical_data_select)
+            isTriggered_correlation(TRUE)
+            isCalculating_correlation(TRUE)
 
             if(input$Clinical_data_select == 'None'){ # No cohort selected
               show_alert(title='Error.',text='Please select a cohort', type='error')
@@ -11744,6 +11904,7 @@ server <- function(input, output, session) {
               output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
               output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
               df_gene_correlation(NULL)
+              isCalculating_correlation(FALSE)
               return()
             }
             if(length(input$Gene_correlation_genes_comparison_type)==0){ # No explore type selected
@@ -11752,18 +11913,51 @@ server <- function(input, output, session) {
               output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
               output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
               df_gene_correlation(NULL)
+              isCalculating_correlation(FALSE)
               return()
             }
-            if(length(input$Gene_correlation_Corralation_method) == 0){ # No correlation method specified
+            if(length(input$Gene_correlation_Correlation_method) == 0){ # No correlation method specified
               show_alert(title='Error.',text='Please choose the Method for correlation.', type='error')
               output$Gene_correlation_all_status <- renderText({'Please choose the Method for correlation'})
               output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
               output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
               df_gene_correlation(NULL)
+              isCalculating_correlation(FALSE)
               return()
             }
             # B
             df_geneEx <- Clinical_gene_expression()
+            df_meta <- Clinical_meta()
+            if(input$Clinical_Gene_correlation_frequency_filter == 'B'){
+              if(length(input$Clinical_Gene_correlation_frequency_filter_selection)> 0){
+                if(length(input$Clinical_Gene_correlation_frequency_filter_selection_category) > 0){
+                  if(input$Clinical_Gene_correlation_frequency_filter_selection != 'None' & input$Clinical_Gene_correlation_frequency_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Clinical_Gene_correlation_frequency_filter_selection] == input$Clinical_Gene_correlation_frequency_filter_selection_category, ]$sample
+                    df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample]
+                    filtered_sample_correlation(filtered_sample)
+                    if(length(filtered_sample) <= 1){
+                      show_alert(title='Error.',text='At least 2 samples are needed to calculate correlations. Please reselect the category.', type='error')
+                      output$Clinical_Gene_correlation_all_status <- renderText({"At least 2 samples are needed to calculate correlations. Please reselect the category."})
+                      output$Clinical_Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
+                      output$Clinical_Gene_correlation_error_catch <- renderText({"Please calculate the correlation first."})
+                      df_gene_correlation(NULL)
+                      isCalculating_correlation(FALSE)
+                      return()
+                    }
+                  }else{
+                    filtered_sample_correlation(NULL)
+                  }
+                }else{
+                  filtered_sample_correlation(NULL)
+                }
+              }else{
+                filtered_sample_correlation(NULL)
+              }
+            }else{
+              filtered_sample_correlation(NULL)
+            }
+
+
             if(input$Gene_correlation_genes_comparison_type == 'B'){
               if(nchar(input$Gene_correlation_genes)==0){ # No input
                 show_alert(title='Error.',text='Please enter a gene name for the Y axis.', type='error')
@@ -11771,6 +11965,7 @@ server <- function(input, output, session) {
                 output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                 output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                 df_gene_correlation(NULL)
+                isCalculating_correlation(FALSE)
                 return()
               }
               gene <-  unlist(strsplit(input$Gene_correlation_genes, split = "\n"))[1]
@@ -11780,6 +11975,7 @@ server <- function(input, output, session) {
                 output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                 output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                 df_gene_correlation(NULL)
+                isCalculating_correlation(FALSE)
                 return()
               }
               if(input$Gene_correlation_genes_comparison_type == 'B'){
@@ -11790,6 +11986,7 @@ server <- function(input, output, session) {
                     output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                     output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                     df_gene_correlation(NULL)
+                    isCalculating_correlation(FALSE)
                     return()
                   }
                   genes_to_compare <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Gene_correlation_genes_y_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
@@ -11800,6 +11997,7 @@ server <- function(input, output, session) {
                     output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                     output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                     df_gene_correlation(NULL)
+                    isCalculating_correlation(FALSE)
                     return()
                   }
                   genes_to_compare <- unlist(strsplit(input$Gene_correlation_genes_y, '\n'))
@@ -11811,6 +12009,7 @@ server <- function(input, output, session) {
                   output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                   output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                   df_gene_correlation(NULL)
+                  isCalculating_correlation(FALSE)
                   return()
                 }
               }
@@ -11818,7 +12017,7 @@ server <- function(input, output, session) {
               a <- unlist(df_geneEx[gene,])
               for ( gene2 in genes_to_compare){
                 b <- unlist(df_geneEx[gene2,])
-                c <- cor.test(a, b, method=input$Gene_correlation_Corralation_method)
+                c <- cor.test(a, b, method=input$Gene_correlation_Correlation_method)
                 r <- c$estimate
                 p <- c$p.value
                 df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
@@ -11830,6 +12029,7 @@ server <- function(input, output, session) {
               output$Gene_correlation_table_status <- renderText({NULL})
               df_gene_correlation(df_cor_out)
               output$Gene_correlation_all_status <- renderText({NULL})
+              isCalculating_correlation(FALSE)
               return()
             }else if(input$Gene_correlation_genes_comparison_type == 'C'){
               if(input$Gene_correlation_genes_pairwise_from_custom_geneset){
@@ -11839,6 +12039,7 @@ server <- function(input, output, session) {
                   output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                   output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                   df_gene_correlation(NULL)
+                  isCalculating_correlation(FALSE)
                   return()
                 }
                 pairwise_genes_cohort <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Gene_correlation_genes_pairwise_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
@@ -11849,6 +12050,7 @@ server <- function(input, output, session) {
                   output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                   output$Gene_correlation_error_catch <- renderText({ "Please calculate the correlation first" })
                   df_gene_correlation(NULL)
+                  isCalculating_correlation(FALSE)
                   return()
                 }
                 pairwise_genes_cohort <- unlist(strsplit(input$Gene_correlation_genes_pairwise, '\n'))
@@ -11861,6 +12063,7 @@ server <- function(input, output, session) {
                 output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                 output$Gene_correlation_error_catch <- renderText({"Please calculate the correlation first" })
                 df_gene_correlation(NULL)
+                isCalculating_correlation(FALSE)
                 return()
               }
               if(length(pairwise_genes_cohort_intersect) == 0){
@@ -11869,6 +12072,7 @@ server <- function(input, output, session) {
                 output$Gene_correlation_table_status <- renderText({"A correlation table will be shown here."})
                 output$Gene_correlation_error_catch <- renderText({"Please calculate the correlation first"})
                 df_gene_correlation(NULL)
+                isCalculating_correlation(FALSE)
                 return()
               }
               if(length(pairwise_genes_cohort_diff) > 0){
@@ -11884,7 +12088,7 @@ server <- function(input, output, session) {
               }else{
                 sd_zero_genes_cohort(NULL)
               }
-              cor_mat <- cor(t(sub)[, sd_vec > 0], method = input$Gene_correlation_Corralation_method)  # transpose so genes are rows
+              cor_mat <- cor(t(sub)[, sd_vec > 0], method = input$Gene_correlation_Correlation_method)  # transpose so genes are rows
               dist_rows <- as.dist(1 - cor_mat)
               dist_cols <- as.dist(1 - t(cor_mat)) 
               hc_rows <- hclust(dist_rows)
@@ -11896,6 +12100,7 @@ server <- function(input, output, session) {
               names(cor_df) <- c("Gene1", "Gene2", "Correlation") 
               df_gene_correlation(cor_df)
               output$Gene_correlation_all_status <- renderText({NULL})
+              isCalculating_correlation(FALSE)
               return()
             }
 
@@ -11903,7 +12108,7 @@ server <- function(input, output, session) {
         #
       ##### Plot the correlation by a scatter plot #####
         output$Gene_correlation_table <- DT::renderDataTable({
-          if(!is.null(df_gene_correlation())){
+          if(!isTriggered_correlation() | isCalculating_correlation() | !is.null(df_gene_correlation())){
             if(input$Gene_correlation_genes_comparison_type == 'B' & 'Gene' %in% colnames(df_gene_correlation())){
               datatable(df_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
             }else if(input$Gene_correlation_genes_comparison_type == 'C' & 'Gene1' %in% colnames(df_gene_correlation())){
@@ -11939,6 +12144,9 @@ server <- function(input, output, session) {
                 Gene2 <- df_gene_correlation()$target[1]
                 Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene
                 df_geneEx <- Clinical_gene_expression()
+                if(input$Clinical_Gene_correlation_frequency_filter == 'B' & !is.null(filtered_sample_correlation())){
+                  df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample_correlation()]
+                }
                 scatter_data <- data.frame(Gene1=unlist(df_geneEx[Gene1, ]), Gene2=unlist(df_geneEx[Gene2, ]), Sample=colnames(df_geneEx)) # head(scatter_data)
                 p <- ggplot(scatter_data, aes(x=Gene1, y=Gene2))
                 p <- p + geom_point(size=0.3, color=input$Gene_correlation_colour, alpha=0.7)
@@ -11961,24 +12169,51 @@ server <- function(input, output, session) {
                 return(ggplot())
               }
             }else if(input$Gene_correlation_genes_comparison_type == 'C' & 'Gene1' %in% colnames(df_gene_correlation())){
-              cor_df <- df_gene_correlation()
-              p <- ggplot(cor_df, aes(x = Gene1, y = Gene2, fill = Correlation)) + geom_tile(color = NA)
-              p <- p + scale_fill_gradient2(low = input$Gene_correlation_pairwise_col_low, high = input$Gene_correlation_pairwise_col_high, mid=input$Gene_correlation_pairwise_col_mid, midpoint=0,  limits = c(-1,1), na.value = 'gray', name = "Correlation")
-              p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=input$Gene_correlation_label_size), axis.text.y = element_text(size=input$Gene_correlation_label_size))
-              p <- p + labs(x = NULL, y = NULL)
-              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_blank())
-              p <- p + theme(panel.background = element_rect(fill="white", size=0))
-              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-              if(input$Gene_correlation_label_size==0){
-                p <- p + theme(axis.text.x = element_blank(), axis.text.y = element_blank())
-                p <- p + theme(axis.ticks =element_blank())
+              if(length(input$Gene_correlation_table_rows_selected)> 0){
+                output$Gene_correlation_all_status <- renderText({NULL})
+                output$Gene_correlation_error_catch <- renderText({NULL})
+                Gene2 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene2
+                Gene1 <- df_gene_correlation()[input$Gene_correlation_table_rows_selected,]$Gene1
+                df_geneEx <- Clinical_gene_expression()
+                if(input$Clinical_Gene_correlation_frequency_filter == 'B' & !is.null(filtered_sample_correlation())){
+                  df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample_correlation()]
+                }
+                scatter_data <- data.frame(Gene1=unlist(df_geneEx[Gene1, ]), Gene2=unlist(df_geneEx[Gene2, ]), Sample=colnames(df_geneEx)) # head(scatter_data)
+                p <- ggplot(scatter_data, aes(x=Gene1, y=Gene2))
+                p <- p + geom_point(size=0.3, color=input$Gene_correlation_colour, alpha=0.7)
+                if(input$Gene_correlation_show_correlation_line){
+                  p <- p + geom_smooth(method='lm', se=TRUE, color=input$Gene_correlation_colour, size=0.4)
+                }
+                p <- p + labs(x=Gene1, y=Gene2)
+                p <- p + theme(axis.text.y = element_text(size = input$Gene_correlation_label_size), axis.text.x = element_text(size = input$Gene_correlation_label_size))
+                p <- p + theme(axis.title.y = element_text(size = input$Gene_correlation_title_size), axis.title.x = element_text(size = input$Gene_correlation_title_size))
+                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                if(input$Gene_correlation_white_background){
+                  p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                  p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                  p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                }
+              }else{
+                cor_df <- df_gene_correlation()
+                p <- ggplot(cor_df, aes(x = Gene1, y = Gene2, fill = Correlation)) + geom_tile(color = NA)
+                p <- p + scale_fill_gradient2(low = input$Gene_correlation_pairwise_col_low, high = input$Gene_correlation_pairwise_col_high, mid=input$Gene_correlation_pairwise_col_mid, midpoint=0,  limits = c(-1,1), na.value = 'gray', name = "Correlation")
+                p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=input$Gene_correlation_label_size), axis.text.y = element_text(size=input$Gene_correlation_label_size))
+                p <- p + labs(x = NULL, y = NULL)
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_blank())
+                p <- p + theme(panel.background = element_rect(fill="white", size=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                if(input$Gene_correlation_label_size==0){
+                  p <- p + theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+                  p <- p + theme(axis.ticks =element_blank())
+                }
+                p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
+                p <- p + theme(legend.key.size = unit(2, "mm"))
+                p <- p + theme(legend.title =element_text(size=input$Gene_correlation_legend_size), legend.text = element_text(size=input$Gene_correlation_legend_size))
+                output$Gene_correlation_all_status <- renderText({NULL})
+                output$Gene_correlation_error_catch <- renderText({NULL}) 
               }
-              p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
-              p <- p + theme(legend.key.size = unit(2, "mm"))
-              p <- p + theme(legend.title =element_text(size=input$Gene_correlation_legend_size), legend.text = element_text(size=input$Gene_correlation_legend_size))
-              output$Gene_correlation_all_status <- renderText({NULL})
-              output$Gene_correlation_error_catch <- renderText({NULL})
             }else{
               output$Gene_correlation_all_status <- renderText({'Please re-start the analysis.'})
               return(ggplot())
@@ -12016,10 +12251,11 @@ server <- function(input, output, session) {
 
       # when selecting from custom genesets
         output$Expression_subtype_genes_from_custom_geneset_select <- renderUI({
-              gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
-              selectInput('Expression_subtype_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
-            })
+          req(input$Expression_subtype_genes_from_custom_geneset)
+          gene_sets_names <- c()
+          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
+          selectInput('Expression_subtype_genes_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+        })
         outputOptions(output, "Expression_subtype_genes_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
       # pivot table for test
@@ -12079,11 +12315,11 @@ server <- function(input, output, session) {
             return(NULL)
           }
           df_gene_EX_gene <- data.frame(t(df_geneEx[genes,])) # head(df_gene_EX_gene)genes='CXCL10'
-          df_gene_EX_gene$sample <- gsub('\\.', '-', rownames(df_gene_EX_gene)) 
-          colnames(df_gene_EX_gene) <- gsub('\\.', '-', colnames(df_gene_EX_gene)) 
+          df_gene_EX_gene$sample <- rownames(df_gene_EX_gene)
+          colnames(df_gene_EX_gene) <- colnames(df_gene_EX_gene)
           # meta, subtype
           df_meta <- Clinical_meta()
-          df_meta$sample <- gsub('\\.', '-', df_meta$sample)
+          # df_meta$sample <- gsub('\\.', '-', df_meta$sample)
           group_by <- input$Expression_subtype_groupBy # group_by <- 'GRADE'
           if(group_by == 'None'){
             show_alert(title='Error.',text='Please select a group to compare.', type='error')
@@ -12199,23 +12435,28 @@ server <- function(input, output, session) {
         output$Expression_subtype_plot <- renderPlot({
           if(!isTriggered_Expression_subtype()){
             output$Expression_subtype_status <- renderText({'Please set the input and settings, and start "Start comparing".'})
+            output$Expression_subtype_note <- renderText({NULL})
             return(ggplot())
           }
           if(isCalculating_Expression_subtype()){
             output$Expression_subtype_status <- renderText({'Calculating...'})
+            output$Expression_subtype_note <- renderText({NULL})
             return(ggplot())
           }
           if(length(selected_cohort_ex_sub()) > 0){
             if(selected_cohort_ex_sub() != input$Clinical_data_select){
               output$Expression_subtype_error_catch <- renderText({'You changed a dataset. Please re-start the analysis.'})
+              output$Expression_subtype_note <- renderText({NULL})
               return(ggplot())
             }
           }
           if(is.null(Expression_subtype_test())){
+            output$Expression_subtype_note <- renderText({NULL})
             return(ggplot())
           }
           if(length(input$Expression_subtype_table_rows_selected)==0){
             output$Expression_subtype_error_catch <- renderText({'Please select a gene (row) from the test result table.'})
+            output$Expression_subtype_note <- renderText({NULL})
             return(ggplot())
           }
           # output$Expression_subtype_error_catch <- renderText({NULL})
@@ -12609,6 +12850,32 @@ server <- function(input, output, session) {
         }
       })
     #### Signature analysis
+      # filtering the cohort by metadata (optional)
+        output$Clinical_Signature_filter_selection <- renderUI({
+          if(input$Clinical_Signature_filter == "B"){
+            if(is.null(Clinical_meta())){
+              selectInput("Clinical_Signature_filter_selection", "Filtering by:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Signature_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+            }
+          }else{
+            NULL
+          }
+        })
+        output$Clinical_Signature_filter_selection_category <- renderUI({
+          if(input$Clinical_Signature_filter == "B"){
+            if(length(input$Clinical_Signature_filter_selection)==0 || input$Clinical_Signature_filter_selection == 'None'){
+              selectInput("Clinical_Signature_filter_selection_category", "Category:", c('None'='None'))
+            }else{
+              selectInput("Clinical_Signature_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Signature_filter_selection])))
+            }
+          }else{
+            NULL
+          }
+        })
+        # outputOptions(output, "Clinical_Signature_filter_selection", suspendWhenHidden=FALSE)
+        # outputOptions(output, "Clinical_Signature_filter_selection_category", suspendWhenHidden=FALSE)
+
       # select a geneset
         output$Signature_input_selection_custom_geneset_select <- renderUI({
           req(input$Signature_input_selection=='A')
@@ -12616,10 +12883,59 @@ server <- function(input, output, session) {
           gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
           selectInput('Signature_input_selection_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
         })
+        # outputOptions(output, "Signature_input_selection_custom_geneset_select", suspendWhenHidden=FALSE)
         output$Signature_input_selection_status <- renderText({"Please set the input, choose the method and click 'Calculate the signature score'.\nSignature scores using the selected input genes will be calculated for each sample in the cohort."})
         output$Signature_analysis_status <- renderText({"The signature scores for the samples will be shown here."})
 
+        # text input
+        output$Signature_input_selection_text_input <- renderUI({
+          req(input$Signature_input_selection=='B')
+          textAreaInput('Signature_input_selection_text_input', "Enter genes (line by line)", height = '100px')
+        })
+
+
+      # Show the number of patients after filtering the sample if a category was set
+        filtered_sample_Signature <- reactiveVal(NULL)
+        output$Clinical_Signature_filter_selection_number <- renderText({
+          df_Surv <- Clinical_survival()
+          df_meta <- Clinical_meta()
+          df_geneEx <- Clinical_gene_expression()
+          if(is.null(df_Surv)){
+            "Please select a clinical data first."
+          }else{
+            N_sample <- length(df_meta$sample)
+            if(input$Clinical_Signature_filter == 'B'){
+              if(length(input$Clinical_Signature_filter_selection_category)!= 0){
+                if(input$Clinical_Signature_filter_selection_category != 'None'){
+                  filtered_sample <- df_meta[df_meta[,input$Clinical_Signature_filter_selection] == input$Clinical_Signature_filter_selection_category, ]$sample
+                  # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
+                  filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
+                  filtered_sample <- filtered_sample[filtered_sample %in% df_Surv$sample]
+                  filtered_sample_Signature(filtered_sample)
+                  # df_Surv <- df_Surv[df_Surv$sample %in% filtered_sample, ]
+                  if(length(filtered_sample) == 0){
+                    filtered_sample_Signature(NULL)
+                    "None of the selected samples are in the survival data and gene expression data. \nPlease make sure that the sample names in the meta data and in the survival/gene expression data are correctly matched."
+                  }else{
+                    paste0("Number of samples(patients): ", length(filtered_sample))
+                  }
+                }else{
+                  filtered_sample_Signature(NULL)
+                  paste0("Number of samples(patients): (Please select the category)")
+                }
+              }
+            }else if(input$Clinical_Signature_filter == 'A'){
+              N_sample <- length(df_meta$sample)
+              filtered_sample_Signature(NULL)
+              paste0("Number of samples(patients): ", N_sample)
+            }
+          }
+        })
+        outputOptions(output, "Clinical_Signature_filter_selection_number", suspendWhenHidden=FALSE)
+
       # signature score calculation
+
+
         singature_table <- reactiveVal({ NULL })
         selected_cohort_sig <- reactiveVal('None')
         isCalculating_singature_table <- reactiveVal(FALSE)
@@ -12628,6 +12944,7 @@ server <- function(input, output, session) {
           selected_cohort_sig(input$Clinical_data_select)
           isTriggered_singature_table(TRUE)
           isCalculating_singature_table(TRUE)
+
           if(input$Clinical_data_select == 'None'){
             show_alert(title='Error.', text='Please select a dataset first.', type='error')
             output$Signature_input_selection_status <- renderText({'Please select a dataset first.'})
@@ -12635,8 +12952,55 @@ server <- function(input, output, session) {
             isCalculating_singature_table(FALSE)
             return(NULL)
           }
+          if(!is.null(filtered_sample_Signature()) & length(filtered_sample_Signature()) <= 1){
+            show_alert(title='Error.',text='At least 2 samples are needed to calculate correlations. Please reselect the category.', type='error')
+            output$Signature_input_selection_status <- renderText({"At least 2 samples are needed to calculate correlations. Please reselect the category."})
+            singature_table(NULL)
+            isCalculating_singature_table(FALSE)
+            filtered_sample_Signature(NULL)
+            return()
+          }
           # when no proper input
           df_geneEx <- Clinical_gene_expression() 
+          df_OS <- Clinical_survival()
+          df_meta <- Clinical_meta()
+          if(input$Clinical_Signature_filter == 'B'){
+            if(length(input$Clinical_Signature_filter_selection)> 0){
+              if(length(input$Clinical_Signature_filter_selection_category) > 0){
+                if(input$Clinical_Signature_filter_selection != 'None' & input$Clinical_Signature_filter_selection_category != 'None'){
+                  filtered_sample <- df_meta[df_meta[,input$Clinical_Signature_filter_selection] == input$Clinical_Signature_filter_selection_category, ]$sample
+                  # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
+                  # filtered_sample <- df_meta[df_meta[,'sample'] == 'TCGA-OR-A5J1-01', ]$sample
+                  filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
+                  filtered_sample <- filtered_sample[filtered_sample %in% df_OS$sample] # length(filtered_sample)
+                  df_geneEx <- df_geneEx[, colnames(df_geneEx) %in% filtered_sample,drop=FALSE] # dim(df_geneEx3)
+                  df_OS <- df_OS[df_OS$sample %in% filtered_sample, ,drop=FALSE] # dim(df_OS2)
+                  filtered_sample_Signature(filtered_sample)
+                  if(length(filtered_sample) <= 1){
+                    show_alert(title='Error.',text='There is no samples in the selected category. Please reselect the category.', type='error')
+                    output$Signature_input_selection_status <- renderText({"There is no samples in the selected category. Please reselect the category."})
+                    singature_table(NULL)
+                    isCalculating_singature_table(FALSE)
+                    filtered_sample_Signature(NULL)
+                    return()
+                  }
+                }else{
+                  filtered_sample_Signature(NULL)
+                }
+              }else{
+                filtered_sample_Signature(NULL)
+              }
+            }else{
+              filtered_sample_Signature(NULL)
+            }
+          }else{
+            filtered_sample_Signature(NULL)
+          }
+
+          # if(dim(df_geneEx)[2] <= 1){
+
+          # }
+
           if(input$Signature_input_selection=='A'){
             if(input$Signature_input_selection_custom_geneset_select == 'None'){
               show_alert(title='Error.', text='Please select a gene set.', type='error')
@@ -12693,7 +13057,7 @@ server <- function(input, output, session) {
           }
           signature_gsva <- gsva(signaturePar)
           signature_gsva_table <- data.frame(t(data.frame(signature_gsva)))
-          signature_gsva_table$Sample <- gsub('\\.', '-', rownames(signature_gsva_table))
+          signature_gsva_table$Sample <- rownames(signature_gsva_table)
           signature_gsva_table <- signature_gsva_table[order(signature_gsva_table$selected_gene_set, decreasing = T),]
           signature_gsva_table <- signature_gsva_table[, c('Sample', 'selected_gene_set')]
           colnames(signature_gsva_table)[2] <- 'Signature.score'
@@ -12748,12 +13112,13 @@ server <- function(input, output, session) {
             return(ggplot())
           }
           if(is.null(singature_table())){
+            output$Signature_Survival_detail <- renderText({"Please calulate the signature score first."})
             return(ggplot())
           }else{
             singature_table <- singature_table()
           }
           df_OS <- Clinical_survival()
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(is.null(singature_table)){
             output$Signature_Survival_detail <- renderText({"Please start calulating the score first."})
             return(ggplot())
@@ -12762,13 +13127,13 @@ server <- function(input, output, session) {
           Sig_scores <- singature_table[,'Signature.score']
           if(input$Signature_Survival_cutoff_method == 'A'){
             med <- median(Sig_scores)
-            df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= med, ]$Sample)
-            df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] < med, ]$Sample)
+            df_high_sample <- singature_table[singature_table[,'Signature.score'] >= med, ]$Sample
+            df_low_sample <- singature_table[singature_table[,'Signature.score'] < med, ]$Sample
           }else{
             top25 <- quantile(Sig_scores, 0.75, na.rm = T)
             bottom25 <- quantile(Sig_scores, 0.25, na.rm = T)
-            df_high_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] >= top25,]$Sample)
-            df_low_sample <- gsub('\\.', '-', singature_table[singature_table[,'Signature.score'] <= bottom25,]$Sample)
+            df_high_sample <- singature_table[singature_table[,'Signature.score'] >= top25,]$Sample
+            df_low_sample <- singature_table[singature_table[,'Signature.score'] <= bottom25,]$Sample
           }
           if(length(df_high_sample)==0 | length(df_low_sample)==0){
             output$Signature_Survival_detail <- renderText({"The samples cannot divide into two using the selected split method."})
@@ -12846,6 +13211,7 @@ server <- function(input, output, session) {
           if(input$Clinical_data_select == 'None'){
             show_alert(title='Error.', text='Please select a dataset first.', type='error')
             output$Signature_subtype_note <- renderText({'Please select a dataset first.'})
+            output$Signature_subtype_subtype_number <- renderText({NULL})
             Signature_subtype_test(NULL)
             isCalculating_subtype_test(FALSE)
             return(NULL)
@@ -12853,6 +13219,7 @@ server <- function(input, output, session) {
           if(is.null(singature_table())){
             show_alert(title='Error.', text='Please calculate the signature score first.', type='error')
             output$Signature_subtype_note <- renderText({"Please start calulating the score first."})
+            output$Signature_subtype_subtype_number <- renderText({NULL})
             Signature_subtype_test(NULL)
             isCalculating_subtype_test(FALSE)  
             return(NULL)
@@ -12860,11 +13227,12 @@ server <- function(input, output, session) {
           singature_table <- singature_table() # head(singature_table)
           # meta, subtype
           df_meta <- Clinical_meta()
-          df_meta$sample <- gsub('\\.', '-', df_meta$sample)
+          # df_meta$sample <- gsub('\\.', '-', df_meta$sample)
           group_by <- input$Signature_subtype_groupBy # group_by <- 'gender'
           if(group_by == 'None'){
             show_alert(title='Error.', text='Please select a group to compare.', type='error')
             output$Signature_subtype_note <- renderText({"Please select a group to compare."})
+            output$Signature_subtype_subtype_number <- renderText({NULL})
             Signature_subtype_test(NULL)
             isCalculating_subtype_test(FALSE)
             return(NULL)
@@ -12897,6 +13265,7 @@ server <- function(input, output, session) {
           }else{
             show_alert(title='Error.', text='There is no sub groups for the selected category. Please try with other categories.', type='error')
             output$Signature_subtype_note <- renderText({"There is no sub groups for the selected category. Please try with other categories."})
+            output$Signature_subtype_subtype_number <- renderText({NULL})
             Signature_subtype_test(NULL)
             isCalculating_subtype_test(FALSE)
             return(NULL)
@@ -13025,7 +13394,7 @@ server <- function(input, output, session) {
             singature_table <- singature_table()
           }
           df_OS <- Clinical_survival()
-          df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+          # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
           if(is.null(singature_table)){
             output$Signature_score_distribution_status <- renderText({"Please Calulate the signature score first."})
             return(ggplot())
@@ -13080,7 +13449,7 @@ server <- function(input, output, session) {
           }else if(input$Deconvodution_tool_select == 'xCell'){
             deconv_table_tmp <- xCellAnalysis(df_geneEx) # deconv_table[1:3, 1:3]
           }
-          colnames(deconv_table_tmp) <- gsub('\\.', '-', colnames(deconv_table_tmp))
+          # colnames(deconv_table_tmp) <- gsub('\\.', '-', colnames(deconv_table_tmp))
           # output$Deconvodution_results <- renderDataTable({
           #   datatable(deconv_table, selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
           # })
@@ -13123,139 +13492,221 @@ server <- function(input, output, session) {
         )
 
       # gene correlation
-      # when using a custom gene set
-        output$Deconvodution_Gene_correlation_from_custom_geneset_select <- renderUI({
-          gene_sets_names <- c()
-          gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
-          selectInput('Deconvodution_Gene_correlation_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
-        })
-        outputOptions(output, "Deconvodution_Gene_correlation_from_custom_geneset_select", suspendWhenHidden=FALSE)
-
-      # select the cell type to compare
-        output$Deconvodution_Gene_correlation_select_celltype <- renderUI({
-          gene_sets_names <- c()
-          tryCatch({
-            gene_sets_names <- c(gene_sets_names, rownames(deconv_table()))  
-            selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None', gene_sets_names))  
-          },error=function(e){
-            selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None'))  
+        # filtering the cohort by metadata (optional)
+          output$Deconvodution_filter_selection <- renderUI({
+            if(input$Deconvodution_filter == 'B'){
+              if(is.null(Clinical_meta())){
+                selectInput("Deconvodution_filter_selection", "Filtering by:", c('None'='None'))
+              }else{
+                selectInput("Deconvodution_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+              }
+            }else{
+              NULL
+            }
           })
-        })
-        outputOptions(output, "Deconvodution_Gene_correlation_select_celltype", suspendWhenHidden=FALSE)
+          output$Deconvodution_filter_selection_category <- renderUI({
+            if(input$Deconvodution_filter == 'B'){
+              if(length(input$Deconvodution_filter_selection)==0 || input$Deconvodution_filter_selection == 'None'){
+                selectInput("Deconvodution_filter_selection_category", "Category:", c('None'='None'))
+              }else{
+                selectInput("Deconvodution_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Deconvodution_filter_selection])))
+              }
+            }else{
+              NULL
+            }
+          })
 
-      # calculate p and r
-        output$Deconvodution_Gene_correlation_status0 <- renderText({
-          "Please do the deconvolution first, and then, enter the input and choose the setting.\nCorrelations between the inputted genes' expressions and the estimated immune cell abandance level will be calculated."
-        })
-        output$Deconvodution_Gene_correlation_status <- renderText({"Please do the deconvolution first."})
-        Deconvodution_gene_correlation <- reactiveVal(NULL)
-        isCalculating_Deconvodution_gene_correlation <- reactiveVal(FALSE)
-        isTriggered_Deconvodution_gene_correlation <- reactiveVal(FALSE)
-        observeEvent(input$Deconvodution_Gene_correlation_start, {
-          isTriggered_Deconvodution_gene_correlation(TRUE)
-          isCalculating_Deconvodution_gene_correlation(TRUE)
-          if(input$Deconvodution_Gene_correlation_select_celltype == 'None'){
-            show_alert(title='Error.', text='Please select a cell type to compare.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please choose the cell type"})
-            Deconvodution_gene_correlation(NULL)
-            isCalculating_Deconvodution_gene_correlation(FALSE)
-            return(NULL)
-          }
-          if(input$Deconvodution_Gene_correlation_from_custom_geneset){
-            if(input$Deconvodution_Gene_correlation_from_custom_geneset_select == 'None'){
-              show_alert(title='Error.', text='Please select a custom gene set.', type='error')
-              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please select a custom gene set."})
+          filtered_sample_deconvolution <- reactiveVal(NULL)
+          output$Deconvodution_filter_selection_number <- renderText({
+            df_meta <- Clinical_meta()
+            df_geneEx <- Clinical_gene_expression()
+            if(is.null(df_meta)){
+              "Please select a clinical data first."
+            }else{
+              N_sample <- length(df_meta$sample)
+              if(input$Deconvodution_filter == 'B'){
+                if(length(input$Deconvodution_filter_selection_category)!= 0){
+                  if(input$Deconvodution_filter_selection_category != 'None'){
+                    filtered_sample <- df_meta[df_meta[,input$Deconvodution_filter_selection] == input$Deconvodution_filter_selection_category, ]$sample
+                    # filtered_sample <- df_meta[df_meta[,'clinical_M'] == 'M0', ]$sample
+                    filtered_sample <- filtered_sample[filtered_sample %in% colnames(df_geneEx)]
+                    # df_Surv <- df_Surv[df_Surv$sample %in% filtered_sample, ]
+                    if(length(filtered_sample) == 0){
+                      filtered_sample_deconvolution(NULL)
+                      paste0("None of the selected samples are in the survival data or gene expression data. \nPlease make sure that the sample names in the meta data and in the survival/gene expression data are correctly matched.")
+                    }else{
+                      filtered_sample_deconvolution(filtered_sample)
+                      paste0("Number of samples(patients): ", length(filtered_sample))
+                    }
+                  }else{
+                    filtered_sample_deconvolution(NULL)
+                    paste0("Number of samples(patients): (Please select the category)")
+                  }
+                }
+              }else if(input$Deconvodution_filter == 'A'){
+                N_sample <- length(df_meta$sample)
+                filtered_sample_deconvolution(NULL)
+                paste0("Number of samples(patients): ", N_sample)
+              }
+            }
+          })
+          outputOptions(output, "Deconvodution_filter_selection_number", suspendWhenHidden=FALSE)
+
+
+        # when using a custom gene set
+          output$Deconvodution_Gene_correlation_from_custom_geneset_select <- renderUI({
+            if(input$Deconvodution_Gene_correlation_from_custom_geneset){
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
+              selectInput('Deconvodution_Gene_correlation_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+            }else{
+              NULL
+            }
+          })
+          outputOptions(output, "Deconvodution_Gene_correlation_from_custom_geneset_select", suspendWhenHidden=FALSE)
+
+        # select the cell type to compare
+          output$Deconvodution_Gene_correlation_select_celltype <- renderUI({
+            gene_sets_names <- c()
+            tryCatch({
+              gene_sets_names <- c(gene_sets_names, rownames(deconv_table()))  
+              selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None', gene_sets_names))  
+            },error=function(e){
+              selectInput('Deconvodution_Gene_correlation_select_celltype', 'Select a Cell type',  c('None'='None'))  
+            })
+          })
+          outputOptions(output, "Deconvodution_Gene_correlation_select_celltype", suspendWhenHidden=FALSE)
+
+        # calculate p and r
+          output$Deconvodution_Gene_correlation_status0 <- renderText({
+            "Please do the deconvolution first, and then, enter the input and choose the setting.\nCorrelations between the inputted genes' expressions and the estimated immune cell abandance level will be calculated."
+          })
+          output$Deconvodution_Gene_correlation_status <- renderText({"Please do the deconvolution first."})
+          Deconvodution_gene_correlation <- reactiveVal(NULL)
+          isCalculating_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+          isTriggered_Deconvodution_gene_correlation <- reactiveVal(FALSE)
+          filtered_sample_deconvolution2 <- reactiveVal(NULL)
+          observeEvent(input$Deconvodution_Gene_correlation_start, {
+            isTriggered_Deconvodution_gene_correlation(TRUE)
+            isCalculating_Deconvodution_gene_correlation(TRUE)
+            if(input$Deconvodution_Gene_correlation_select_celltype == 'None'){
+              show_alert(title='Error.', text='Please select a cell type to compare.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please choose the cell type"})
               Deconvodution_gene_correlation(NULL)
               isCalculating_Deconvodution_gene_correlation(FALSE)
               return(NULL)
             }
-            genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
-          }else{
-            if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
-              show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
-              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please enter genes (line by line)"})
+            if(input$Deconvodution_Gene_correlation_from_custom_geneset){
+              if(input$Deconvodution_Gene_correlation_from_custom_geneset_select == 'None'){
+                show_alert(title='Error.', text='Please select a custom gene set.', type='error')
+                output$Deconvodution_Gene_correlation_status0 <- renderText({"Please select a custom gene set."})
+                Deconvodution_gene_correlation(NULL)
+                isCalculating_Deconvodution_gene_correlation(FALSE)
+                return(NULL)
+              }
+              genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Deconvodution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+            }else{
+              if(nchar(input$Deconvodution_Gene_correlation_genes)== 0 ){
+                show_alert(title='Error.', text='Please input the genes to calculate the correlation.', type='error')
+                output$Deconvodution_Gene_correlation_status0 <- renderText({"Please enter genes (line by line)"})
+                Deconvodution_gene_correlation(NULL)
+                isCalculating_Deconvodution_gene_correlation(FALSE)
+                return(NULL)
+              }
+              genes <- unlist(strsplit(input$Deconvodution_Gene_correlation_genes, '\n'))
+            }
+            # Cell abundunce
+            if(is.null(deconv_table())){
+              show_alert(title='Error.', text='Please do the deconvolution first.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({"Please do deconvolution first."})
               Deconvodution_gene_correlation(NULL)
               isCalculating_Deconvodution_gene_correlation(FALSE)
               return(NULL)
             }
-            genes <- unlist(strsplit(input$Deconvodution_Gene_correlation_genes, '\n'))
-          }
-          # Cell abundunce
-          if(is.null(deconv_table())){
-            show_alert(title='Error.', text='Please do the deconvolution first.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({"Please do deconvolution first."})
-            Deconvodution_gene_correlation(NULL)
+            if(!is.null(filtered_sample_deconvolution()) & length(filtered_sample_deconvolution()) <= 1){
+              show_alert(title='Error.', text='At least 2 samples are needed to calculate correlations. Please reselect the category.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({"At least 2 samples are needed to calculate correlations. Please reselect the category."})
+              Deconvodution_gene_correlation(NULL)
+              filtered_sample_deconvolution2(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }else{
+              filtered_sample_deconvolution2(filtered_sample_deconvolution())
+            }
+            deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
+            cell_type <- input$Deconvodution_Gene_correlation_select_celltype # cell_type <- 'T cells'
+            deconv_table_cell <- deconv_table[cell_type,, drop=FALSE]
+            df_geneEx <- Clinical_gene_expression() # genes <- c('CXCL10', 'CXCL9')
+            # when filtering samples
+            if(!is.null(filtered_sample_deconvolution2())){
+              deconv_table_cell <- deconv_table_cell[, colnames(deconv_table_cell) %in% filtered_sample_deconvolution2(), drop=FALSE]
+              df_geneEx <- df_geneEx[,colnames(df_geneEx) %in% filtered_sample_deconvolution2(), drop=FALSE]
+            }
+            sample_deconv <- colnames(deconv_table_cell)
+            sample_geneEx <- colnames(df_geneEx)
+            if(length(intersect(sample_deconv, sample_geneEx))==0){
+              show_alert(title='Error.', text='The sample names in the gene expression data and the deconvolution data do not match. Please check the data.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({'Error. Please chech the expression data has a "sample" in its columns'})
+              Deconvodution_gene_correlation(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }
+            genes <- intersect(genes, rownames(df_geneEx))
+            if(length(genes) == 0){
+              show_alert(title='Error.', text='The inputted gene is not in the dataset. Please make sure the gene name is correct and does not include unnecessary spaces.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
+              Deconvodution_gene_correlation(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }
+            df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
+            if(length(input$Deconvodution_Gene_correlation_method)==0){
+              show_alert(title='Error.', text='Please select the method for correlation.', type='error')
+              output$Deconvodution_Gene_correlation_status0 <- renderText({'Please select the Method for correlation.'})
+              Deconvodution_gene_correlation(NULL)
+              isCalculating_Deconvodution_gene_correlation(FALSE)
+              return(NULL)
+            }
+            deconv_table_cell <- deconv_table_cell[cell_type,]
+            for ( gene2 in genes){ # gene2 = genes[1]
+              gene_ex <- unlist(df_geneEx[gene2,])
+              c <- cor.test(deconv_table_cell, gene_ex, method=input$Deconvodution_Gene_correlation_method)
+              r <- c$estimate
+              p <- c$p.value
+              df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
+              df_cor_out <- rbind(df_cor_out, df_cor_tmp)
+            }
+            df_cor_out <- df_cor_out[order(df_cor_out$p, decreasing=F),]
+            df_cor_out$cell_type <- cell_type
+            rownames(df_cor_out) <- NULL
+            output$Deconvodution_Gene_correlation_status0 <- renderText({NULL})
+            Deconvodution_gene_correlation(df_cor_out)
             isCalculating_Deconvodution_gene_correlation(FALSE)
             return(NULL)
-          }
-          deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
-          cell_type <- input$Deconvodution_Gene_correlation_select_celltype # cell_type <- 'aDC'
-          deconv_table_cell <- deconv_table[cell_type,]
-          df_geneEx <- Clinical_gene_expression() # genes <- c('CXCL10', 'CXCL9')
-          sample_deconv <- gsub('\\.', '-', colnames(deconv_table))
-          sample_geneEx <- gsub('\\.', '-', colnames(df_geneEx))
-          if(length(intersect(sample_deconv, sample_geneEx))==0){
-            show_alert(title='Error.', text='The sample names in the gene expression data and the deconvolution data do not match. Please check the data.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({'Error. Please chech the expression data has a "sample" in its columns'})
-            Deconvodution_gene_correlation(NULL)
-            isCalculating_Deconvodution_gene_correlation(FALSE)
-            return(NULL)
-          }
-          genes <- intersect(genes, rownames(df_geneEx))
-          if(length(genes) == 0){
-            show_alert(title='Error.', text='The inputted gene is not in the dataset. Please make sure the gene name is correct and does not include unnecessary spaces.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({'The inputted gene is not in the dataset.\nPlease make sure the gene name is correct and does not include unnecessary spaces.'})
-            Deconvodution_gene_correlation(NULL)
-            isCalculating_Deconvodution_gene_correlation(FALSE)
-            return(NULL)
-          }
-          df_cor_out <- data.frame(Gene=c(), r=c(), p=c())
-          if(length(input$Deconvodution_Gene_correlation_method)==0){
-            show_alert(title='Error.', text='Please select the method for correlation.', type='error')
-            output$Deconvodution_Gene_correlation_status0 <- renderText({'Please select the Method for correlation.'})
-            Deconvodution_gene_correlation(NULL)
-            isCalculating_Deconvodution_gene_correlation(FALSE)
-            return(NULL)
-          }
-          for ( gene2 in genes){ # gene2 = genes[1]
-            gene_ex <- unlist(df_geneEx[gene2,])
-            c <- cor.test(deconv_table_cell, gene_ex, method=input$Deconvodution_Gene_correlation_method)
-            r <- c$estimate
-            p <- c$p.value
-            df_cor_tmp <- data.frame(Gene=gene2, r=r, p=p)
-            df_cor_out <- rbind(df_cor_out, df_cor_tmp)
-          }
-          df_cor_out <- df_cor_out[order(df_cor_out$p, decreasing=F),]
-          df_cor_out$cell_type <- cell_type
-          rownames(df_cor_out) <- NULL
-          output$Deconvodution_Gene_correlation_status0 <- renderText({NULL})
-          Deconvodution_gene_correlation(df_cor_out)
-          isCalculating_Deconvodution_gene_correlation(FALSE)
-          return(NULL)
-        })
+          })
 
-      # show in table
-        output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-        output$Deconvodution_Gene_correlation_table <- DT::renderDataTable({
-          if(is.null(Deconvodution_gene_correlation())){
-            output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-          }else if(length(Deconvodution_gene_correlation()) == 0){
-            output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
-            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-          }else{
-            output$Deconvodution_Gene_correlation_status1 <- renderText(NULL)
-            datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
-          }
-        })
+        # show in table
+          output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+          output$Deconvodution_Gene_correlation_table <- DT::renderDataTable({
+            if(is.null(Deconvodution_gene_correlation())){
+              output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+              datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else if(length(Deconvodution_gene_correlation()) == 0){
+              output$Deconvodution_Gene_correlation_status1 <- renderText({"The correlation table will be shown here."})
+              datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }else{
+              output$Deconvodution_Gene_correlation_status1 <- renderText(NULL)
+              datatable(Deconvodution_gene_correlation()[,c('Gene', 'r', 'p')], selection = list(mode='single'), options = list(scrollX = TRUE, pageLength = 10))
+            }
+          })
 
-      # download
-        output$Deconvodution_Gene_correlation_table_download <- downloadHandler(
-          filename = function(){"deconvoluted_Cell_type_correlation.tsv"}, 
-          content = function(fname){ write.table(Deconvodution_gene_correlation(), fname, sep='\t', row.names=F, quote=F) }
-        )
+        # download
+          output$Deconvodution_Gene_correlation_table_download <- downloadHandler(
+            filename = function(){"deconvoluted_Cell_type_correlation.tsv"}, 
+            content = function(fname){ write.table(Deconvodution_gene_correlation(), fname, sep='\t', row.names=F, quote=F) }
+          )
 
-      # plot scatter
+        # plot scatter
         output$Deconvodution_Gene_correlation_plot <- renderPlot({
           if(is.null(Deconvodution_gene_correlation())){
             # output$Gene_correlation_error_catch <- renderText({'Please start the analysis.'})
@@ -13267,12 +13718,17 @@ server <- function(input, output, session) {
               Gene2 <- Deconvodution_gene_correlation()[input$Deconvodution_Gene_correlation_table_rows_selected,]$Gene
               df_geneEx <- Clinical_gene_expression()
               deconv_table <- deconv_table() # deconv_table[1:3, 1:3]
+              # when filtering samples
+              if(!is.null(filtered_sample_deconvolution2())){
+                deconv_table <- deconv_table[, colnames(deconv_table) %in% filtered_sample_deconvolution2(), drop=FALSE]
+                df_geneEx <- df_geneEx[,colnames(df_geneEx) %in% filtered_sample_deconvolution2(), drop=FALSE]
+              }
               df_deconv_table_cell <- data.frame(deconv_table[cell_type,])
               colnames(df_deconv_table_cell) <- 'cell_type' # head(df_deconv_table_cell)
-              df_deconv_table_cell$sample <- gsub('\\.', '-', rownames(df_deconv_table_cell))
+              df_deconv_table_cell$sample <- rownames(df_deconv_table_cell)
               df_geneEx_selected <- data.frame(unlist(df_geneEx[Gene2, ])) # Gene2="CXCL10"
               colnames(df_geneEx_selected) <- 'Gene2' # head(df_geneEx_selected )
-              df_geneEx_selected$sample <- gsub('\\.', '-', rownames(df_geneEx_selected))
+              df_geneEx_selected$sample <- rownames(df_geneEx_selected)
               scatter_data <- merge(df_deconv_table_cell, df_geneEx_selected, by='sample') # head(df_out)
               p <- ggplot(scatter_data, aes(x=Gene2, y=cell_type))
               p <- p + geom_point(size=0.5, color=input$Deconvodution_Gene_correlation_colour, alpha=0.7)
@@ -13300,27 +13756,39 @@ server <- function(input, output, session) {
       # heatmap plot
         # cell type selection
           output$Deconvodution_Heatmap_celltype_selection_table <- renderDataTable({
-            celltype_df_tmp <- data.frame(CellType=rownames(deconv_table()), stringsAsFactors = FALSE)
-            datatable( celltype_df_tmp, selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
-              options = list(
-                select=list(style="multi", items='row'),
-                scroller=TRUE, deferRender=TRUE, scrollY=200,
-                dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
+            if(input$Deconvodution_Heatmap_celltype_selection == 'B'){
+              celltype_df_tmp <- data.frame(CellType=rownames(deconv_table()), stringsAsFactors = FALSE)
+              datatable( celltype_df_tmp, selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
+                options = list(
+                  select=list(style="multi", items='row'),
+                  scroller=TRUE, deferRender=TRUE, scrollY=200,
+                  dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
+            }else{
+              NULL
+            }
           },server = FALSE)
         
         # sample selection, group by drop-down menu
           output$Deconvodution_Heatmap_sample_selection_meta_data <- renderUI({ 
-            selectInput('Deconvodution_Heatmap_sample_selection_meta_data', 'The group to filter the samples by:', c('None'='None', colnames(Clinical_meta()))) 
+            if(input$Deconvodution_Heatmap_sample_selection == 'B'){
+              selectInput('Deconvodution_Heatmap_sample_selection_meta_data', 'The group to filter the samples by:', c('None'='None', colnames(Clinical_meta()))) 
+            }else{
+              NULL
+            }
           })
           outputOptions(output, "Deconvodution_Heatmap_sample_selection_meta_data", suspendWhenHidden=FALSE)
           output$Deconvodution_Heatmap_sample_selection_meta_data_group <- renderUI({
-            if(input$Deconvodution_Heatmap_sample_selection_meta_data == 'None'){
-              category_tmp <- c('None')
+            if(input$Deconvodution_Heatmap_sample_selection == 'B'){
+              if(input$Deconvodution_Heatmap_sample_selection_meta_data == 'None'){
+                category_tmp <- c('None')
+              }else{
+                meta_tmp <- Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data]
+                category_tmp <- c('None', unique(meta_tmp))
+              }
+              selectInput('Deconvodution_Heatmap_sample_selection_meta_data_group', 'Select a category', c(category_tmp), selected='None')
             }else{
-              meta_tmp <- Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data]
-              category_tmp <- c('None', unique(meta_tmp))
+              NULL
             }
-            selectInput('Deconvodution_Heatmap_sample_selection_meta_data_group', 'Select a category', c(category_tmp), selected='None')
           })
 
           output$Deconvodution_Heatmap_sample_selection_meta_data_status <- renderText({
@@ -13333,6 +13801,15 @@ server <- function(input, output, session) {
               selected_samples <- Clinical_meta()[Clinical_meta()[,input$Deconvodution_Heatmap_sample_selection_meta_data] == input$Deconvodution_Heatmap_sample_selection_meta_data_group,]$sample
               return(paste('Number of selected samples: ', length(selected_samples), sep=''))
               # return(selected_samples)
+            }
+          })
+
+          # when text input
+          output$Deconvodution_Heatmap_sample_selection_text_input <- renderUI({
+            if(input$Deconvodution_Heatmap_sample_selection == 'C'){
+              textAreaInput('Deconvodution_Heatmap_sample_selection_text_input', 'Enter sample IDs (line by line)', width='100%', height='100px')
+            }else{
+              NULL
             }
           })
 
@@ -13470,7 +13947,7 @@ server <- function(input, output, session) {
             }else{
               p <- ggplot(df_long, aes(x = prop, y = Sample, fill = CellType)) + geom_bar(stat = "identity")
             }
-            p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+            # p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
             p <- p + theme(axis.title = element_blank())
             p <- p + theme(axis.text.y = element_text(size = input$Deconvodution_Barplot_Y_font.size), axis.text.x = element_text(size = input$Deconvodution_Barplot_X_font.size))
             p <- p + theme(legend.key.height = unit(0.2, "cm"), legend.key.width  = unit(0.1, "cm"), legend.text = element_text(size = input$Deconvodution_Barplot_legend_font.size), legend.title = element_text(size = input$Deconvodution_Barplot_legend_font.size))
@@ -13484,32 +13961,54 @@ server <- function(input, output, session) {
             return(p)
           }
         }, width=reactive(input$Deconvodution_Barplot_fig.width), height=reactive(input$Deconvodution_Barplot_fig.height), res=300)
-
+      #
+      
     #### Mutation
       ## frequency
         # filtering the cohort by metadata (optional)
           output$Clinical_Mutation_frequency_filter_selection <- renderUI({
-            if(is.null(Clinical_meta())){
-              selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None'))
+            if(input$Clinical_Mutation_frequency_filter == "B"){
+              if(is.null(Clinical_meta())){
+                selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None'))
+              }else{
+                selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+              }
             }else{
-              selectInput("Clinical_Mutation_frequency_filter_selection", "Filtering by:", c('None'='None', colnames(Clinical_meta())))
+              NULL
             }
           })
           output$Clinical_Mutation_frequency_filter_selection_category <- renderUI({
-            if(length(input$Clinical_Mutation_frequency_filter_selection)==0 || input$Clinical_Mutation_frequency_filter_selection == 'None'){
-              selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None'))
+            if(input$Clinical_Mutation_frequency_filter == "B"){
+              if(length(input$Clinical_Mutation_frequency_filter_selection)==0 || input$Clinical_Mutation_frequency_filter_selection == 'None'){
+                selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None'))
+              }else{
+                selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Mutation_frequency_filter_selection])))
+              }
             }else{
-              selectInput("Clinical_Mutation_frequency_filter_selection_category", "Category:", c('None'='None', unique(Clinical_meta()[,input$Clinical_Mutation_frequency_filter_selection])))
+              NULL
             }
           })
         
         # when selecting genes from custom genesets
           output$Clinical_Mutation_gene_from_custom <- renderUI({
-            gene_sets_names <- c()
-            gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
-            selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+            if(input$Clinical_Mutation_gene_input == "C"){
+              gene_sets_names <- c()
+              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
+              selectInput('Clinical_Mutation_gene_from_custom', 'Select a custom geneset',  c('None'='None', gene_sets_names))  
+            }else{
+              NULL
+            }
           })
           outputOptions(output, "Clinical_Mutation_gene_from_custom", suspendWhenHidden=FALSE)
+
+        # text input
+          output$Clinical_Mutation_gene <- renderUI({
+            if(input$Clinical_Mutation_gene_input == "A"){
+              textAreaInput('Clinical_Mutation_gene', 'Enter genes (line by line)', width='100%', height='100px')
+            }else{
+              NULL
+            }
+          })
         
         # message before starting
           output$Clinical_Mutation_frequency_plot_status <- renderText({
@@ -13810,14 +14309,14 @@ server <- function(input, output, session) {
               df_OS <- df_OS[df_OS$sample %in% sub_sample_list(),]
             }
             df_mut <- Clinical_mutation()
-            df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+            # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
             if(length(input$Clinical_Mutation_frequency_table_rows_selected)==0){
               output$Clinical_Mutation_Kaplan_plot_status <- renderText({'Please select a gene from the table.'})
               return(ggplot())
             }
             gene_kaplan <- df_mut_num()[input$Clinical_Mutation_frequency_table_rows_selected,]$gene
-            df_OS$sample <- gsub('\\.', '-', df_OS$sample)
-            df_mut$sample <- gsub('\\.', '-', df_mut$sample)
+            # df_OS$sample <- gsub('\\.', '-', df_OS$sample)
+            # df_mut$sample <- gsub('\\.', '-', df_mut$sample)
             df_mut_sample <- intersect(df_OS$sample, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
             df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample) 
             if(length(df_mut_sample) == 0){
@@ -13946,12 +14445,12 @@ server <- function(input, output, session) {
             if(input$Clinical_Mutation_frequency_filter == 'B'){
               df_mut <- df_mut[df_mut$sample %in% sub_sample_list(),]
             }
-            colnames(df_geneEx) <- gsub('\\.', '-', colnames(df_geneEx))
+            # colnames(df_geneEx) <- gsub('\\.', '-', colnames(df_geneEx))
             # if samples were filtered by meta data
             if(input$Clinical_Mutation_frequency_filter == 'B'){
               df_geneEx <- df_geneEx[, intersect(colnames(df_geneEx), sub_sample_list())]
             }
-            df_mut$sample <- gsub('\\.', '-', df_mut$sample)
+            # df_mut$sample <- gsub('\\.', '-', df_mut$sample)
             df_mut_sample <- intersect(colnames(df_geneEx), unique(df_mut[df_mut$id == gene_compare,]$sample))
             df_wt_sample <- setdiff(colnames(df_geneEx), unique(df_mut[df_mut$id == gene_compare,]$sample)) 
             if(length(df_mut_sample) == 0){
@@ -14023,6 +14522,7 @@ server <- function(input, output, session) {
     #### Cacner Gene Census (COSMIC)
       CGC_Database <- read.table('data/Cancer_Gene_Census_30_Mar_2025.tsv', sep='\t', header=T,check.names = FALSE)
       output$CGC_input_gene_from_custom_geneset_select <- renderUI({
+        req(input$CGC_input_gene_from_custom_geneset)
         gene_sets_names <- c()
         gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
         selectInput('CGC_input_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
@@ -14083,15 +14583,19 @@ server <- function(input, output, session) {
         # gene selection table
           # select from custom gene sets
             output$Compare_across_cohorts_gene_from_custom_geneset_select <- renderUI({
-              gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
-              selectInput('Compare_across_cohorts_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              if(input$Compare_across_cohorts_gene_from_custom_geneset){
+                gene_sets_names <- c()
+                gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
+                selectInput('Compare_across_cohorts_gene_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              }else{
+                NULL
+              }
             })
             outputOptions(output, "Compare_across_cohorts_gene_from_custom_geneset_select",  suspendWhenHidden=FALSE)
           # gene table
             gene_list <- reactive({
               if(input$Compare_across_cohorts_gene_from_custom_geneset){
-                if(input$Compare_across_cohorts_gene_from_custom_geneset_select == 'None'){
+                if(length(input$Compare_across_cohorts_gene_from_custom_geneset_select) == 0 || input$Compare_across_cohorts_gene_from_custom_geneset_select == 'None'){
                   output$Compare_across_cohorts_gene_table_status <- renderText({"Please select a custom gene set."})
                   return(NULL)
                 }
@@ -14585,7 +15089,7 @@ server <- function(input, output, session) {
         })
       # Peak annotation
           # library(GenomicFeatures)
-          library(ChIPseeker)
+          # library(ChIPseeker)
           
         # Setting
           output$Peak_annotation_status <- renderText({'Please fill in the input fields and click the start button.'})
