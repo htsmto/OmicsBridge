@@ -88,6 +88,7 @@
 
 ##############################################################################
 ui <- fluidPage(
+  useShinyjs(),
 
   # Setting for put the login object in the center of the page
   tags$head(
@@ -798,6 +799,11 @@ ui <- fluidPage(
                             column(4, 
                               box(width=12, title=strong("Settings"), collapsible = TRUE,  status='info',
                                 fluidRow(
+                                  column(12, radioButtons('Data_Overview_PCA_plot_type', 'Plot type', choices = c('PCA'='A', 'tSNE'='B', 'Umap'='C'), selected='A')),
+                                  conditionalPanel(
+                                    condition = "input.Data_Overview_PCA_plot_type == 'B'",
+                                    column(12, sliderInput('Data_Overview_PCA_tSNE_perplexity', 'tSNE perplexity', min=1, max=100, value=30, step=1)),
+                                  ),
                                   column(12, radioButtons('Data_Overview_PCA_Setting', 'Please chosse', choices = c('Default setting'='A', 'Define the groups'='B'), selected='A')),
                                   column(12,
                                     conditionalPanel(
@@ -870,7 +876,8 @@ ui <- fluidPage(
                                               column(6, sliderInput('high.pt.size', 'Highlighted points size', min=0.01, max=5, value=0.25, step=0.01)),
                                               column(6, sliderInput('high.label.size', 'Highlighted labels size', min=0.1, max=5, value=0.9, step=0.1)),
                                               column(6, sliderInput('label.font.size', 'X/Y label font size', min=1, max=15, value=4, step=0.1)),
-                                              column(6, sliderInput('title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1))
+                                              column(6, sliderInput('title.font.size', 'X/Y title font size', min=1, max=15, value=4, step=0.1)),
+                                              column(6, sliderInput('label.overlap.level', 'Label overlap level', min=0, max=300, value=50, step=1))
                                               # column(4, sliderInput('graph.title.font.size', 'Graph title font size', min=1, max=40, value=10, step=1))
                                             ),
                                             fluidRow(
@@ -3850,7 +3857,7 @@ ui <- fluidPage(
               )
             ###
           ),
-        #### IGV ####
+        #### Epigenome ####
           tabItem( tabName='igv',
             h2(' Epigenome Visualisation'),
             box( width=12, title='', status='primary',  solidHeader = TRUE,
@@ -4133,7 +4140,7 @@ ui <- fluidPage(
                           column(12,
                             fluidRow(
                               column(12, h2('')),
-                              column(12, radioButtons("Enhancer_Find_calculation_type", "Calculation type", choices = c('pearson', 'spearm'), selected='pearson', inline=TRUE )), 
+                              column(12, radioButtons("Enhancer_Find_calculation_type", "Calculation type", choices = c('pearson', 'spearman'), selected='spearman', inline=TRUE )), 
                               column(6, numericInput('Enhancer_Find_extend_length', 'See ±Xbp around the gene', value=100000, min=0, step=100)),
                               column(6, h3(''))
                             ),
@@ -4157,21 +4164,85 @@ ui <- fluidPage(
                                 h4(''),
                                 fluidRow(
                                   column(12, verbatimTextOutput('Enhancer_Find_table_status') ),
-                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_table'), type = 5, color = "#0dc5c1") )
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_table'), type = 5, color = "#0dc5c1") ),
+                                  column(12, h4('')),
+                                  column(12, downloadButton('Enhancer_Find_table_status_download',"Download this table")),
+                                  column(12, h4('')),
+                                  column(10, verbatimTextOutput('Enhancer_Find_table_plot_status')),
+                                  column(2,
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_fig.width', label='Fig width', min=300, max=3000, value=600, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_fig.height', label='Fig height (heatmap part)', min=300, max=3000, value=600, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_font_size', label='X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_label_font_size', label='X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_title_size', label='Graph title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_table_plot_legend_font_size', label='Label size', min=0.1, max=5, value=1, step=0.1))
+                                      ),  
+                                      fluidRow(
+                                        column(6, materialSwitch('Enhancer_Find_table_plot_label', 'Hide labels',  status = "success")),
+                                        column(6, materialSwitch('Enhancer_Find_table_plot_correlation', 'Show the correlation line',  status = "success")),
+                                        column(6, colourpicker::colourInput('Enhancer_Find_table_plot_point_col', 'Point colour', value='blue')),
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                    )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Enhancer_Find_table_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                                 )
                               ),
                               tabPanel('RNAseq data table',
                                 h4(''),
                                 fluidRow(
                                   column(12, verbatimTextOutput('Enhancer_Find_RNAseq_data_status') ),
-                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_RNAseq_data_table'), type = 5, color = "#0dc5c1") )
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_RNAseq_data_table'), type = 5, color = "#0dc5c1") ),
+                                  column(12, h4('')),
+                                  column(10, verbatimTextOutput('Enhancer_Find_RNAseq_data_plot_status')),
+                                  column(2,
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_plot_fig.width', label='Fig width', min=300, max=3000, value=1000, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_plot_fig.height', label='Fig height (heatmap part)', min=300, max=3000, value=900, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_plot_font_size', label='X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_plot_label_font_size', label='X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_plot_title_size', label='Graph title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_RNAseq_data_legend_size', label='Legend size', min=0.1, max=10, value=4, step=0.1))
+                                      ),  
+                                      fluidRow(
+                                        column(4, colourpicker::colourInput('Enhancer_Find_RNAseq_data_plot_max_col', 'Point colour', value='red')),
+                                        column(4, colourpicker::colourInput('Enhancer_Find_RNAseq_data_plot_min_col', 'Point colour', value='blue')),
+                                        column(4, colourpicker::colourInput('Enhancer_Find_RNAseq_data_plot_mid_col', 'Point colour', value='white')),
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                    )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Enhancer_Find_RNAseq_data_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                                 )
                               ),
                               tabPanel('ATACseq data table',
                                 h4(''),
                                 fluidRow(
                                   column(12, verbatimTextOutput('Enhancer_Find_ATACseq_data_status') ),
-                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_ATACseq_data_table'), type = 5, color = "#0dc5c1") )
+                                  column(12, withSpinner(DT::dataTableOutput('Enhancer_Find_ATACseq_data_table'), type = 5, color = "#0dc5c1") ),
+                                  column(10, verbatimTextOutput('Enhancer_Find_ATACseq_data_plot_status')),
+                                  column(2,
+                                    dropdownButton( h4(strong("Plot Options")),
+                                      fluidRow(
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_plot_fig.width', label='Fig width', min=300, max=3000, value=1000, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_plot_fig.height', label='Fig height (heatmap part)', min=300, max=3000, value=900, step=10)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_plot_font_size', label='X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_plot_label_font_size', label='X/Y label font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_plot_title_size', label='Graph title font size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Enhancer_Find_ATACseq_data_legend_size', label='Legend size', min=0.1, max=10, value=4, step=0.1))
+                                      ),  
+                                      fluidRow(
+                                        column(4, colourpicker::colourInput('Enhancer_Find_ATACseq_data_plot_max_col', 'Point colour', value='red')),
+                                        column(4, colourpicker::colourInput('Enhancer_Find_ATACseq_data_plot_min_col', 'Point colour', value='blue')),
+                                        column(4, colourpicker::colourInput('Enhancer_Find_ATACseq_data_plot_mid_col', 'Point colour', value='white')),
+                                      ),
+                                      circle = FALSE, status = "success", icon = icon("gear"), right = TRUE, width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                    )
+                                  ),
+                                  column(12, withSpinner(plotOutput("Enhancer_Find_ATACseq_data_plot", width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                                 )
                               )
                             )
@@ -4543,9 +4614,10 @@ ui <- fluidPage(
                             column(12, textInput("Venn_Diagram_Group2_name", "Group 2 title")),
                             column(12, textAreaInput("Venn_Diagram_Group2_element", "Group 2 element")),
                             conditionalPanel(
-                              condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',  
-                              column(12, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
-                              column(12, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element")),
+                              condition = 'input.Venn_Diagram_method == "B"',  
+                              column(12, htmlOutput('Venn_Diagram_Group3')),
+                              # column(12, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
+                              # column(12, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element")),
                             )
                           ),
                           h3(),
@@ -4554,6 +4626,7 @@ ui <- fluidPage(
                             conditionalPanel(
                               condition = 'input.Venn_Diagram_method == "A"',  
                               column(12, selectInput('Venn_Diagram_show_overlap_2D', 'Choose a category',  c('None'='None', 'in Group1 & Group2', 'only in Group1', 'only in Group2'), selected = 'None')),
+                              # column(12, htmlOutput('Venn_Diagram_show_overlap_2D')),
                               column(12, verbatimTextOutput("Venn_Diagram_show_overlap_2D_list")),
                             ),
                             conditionalPanel(
@@ -4561,6 +4634,7 @@ ui <- fluidPage(
                               column(12, selectInput('Venn_Diagram_show_overlap_3D', 'Choose a category',  c('None'='None', 'in Group1 & Group2 & Group3', 'in Group1 & Group2', 
                                 'in Group2 & Group3', 'in Group3 and Group1', 'in Group1 & Group2 but not in Group3', 'in Group2 & Group3 but not in Group1',
                                 'in Group3 and Group1 but not in Group2', 'Only in Group1','Only in Group2','Only in Group3'), selected = 'None')),
+                              # column(12, htmlOutput('Venn_Diagram_show_overlap_3D')),
                               column(12, verbatimTextOutput("Venn_Diagram_show_overlap_3D_list")),
                             ),
                           )
@@ -4580,8 +4654,8 @@ ui <- fluidPage(
                                   column(6, colourpicker::colourInput('Venn_Diagram_plot_col1_colour', 'Colour for Column-Group 1', value='#AEECF5')),
                                   column(6, colourpicker::colourInput('Venn_Diagram_plot_col2_colour', 'Colour for Column-Group 2', value='#FFF5AB')),
                                   conditionalPanel(
-                                    condition = 'input.Venn_Diagram_method == "B" ||  input.Venn_Diagram_method == "C"',
-                                    column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5')),
+                                    condition = 'input.Venn_Diagram_method == "B"',
+                                    column(6, colourpicker::colourInput('Venn_Diagram_plot_col3_colour', 'Colour for Column-Group 3', value='#F0A6F5'))
                                   )
                                 ),
                                 circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
@@ -4671,7 +4745,7 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Last updated on 10. Sep, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 23. Sep, 2025 ", style = "text-align: right;"))
     )
   )
 )
@@ -5826,11 +5900,11 @@ server <- function(input, output, session) {
                     p <- p + geom_point(data = outliers[outliers[input$scat.x]<=0,], color=input$outlier_gene_colour_id_negative , size = input$high.pt.size)
                     if(input$hide_gene_label == FALSE){
                       if(input$main_plot_white_back_label){
-                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps =input$label.overlap.level, segment.size=0.2) # input$label.overlap.level
+                        p <- p + geom_label_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2)
                       }else{
-                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
-                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = 50, segment.size=0.2)
+                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]>=0,],  color = input$outlier_gene_colour_id, aes(label = id), size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2)
+                        p <- p + geom_text_repel(data = outliers[outliers[input$scat.x]<=0,],  color = input$outlier_gene_colour_id_negative, aes(label = id), size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2)
                       }
                     }
                     if(input$show_threhold_lines & input$How_to_filter == 'B'){
@@ -5855,9 +5929,9 @@ server <- function(input, output, session) {
                       p <- p + geom_point(data = outliers_pathway, color=input$pathway_gene_colour_id , size = input$high.pt.size)
                       if(input$hide_gene_label_pathway==FALSE){ 
                         if(input$main_plot_white_back_label){
-                          p <- p + geom_label_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                          p <- p + geom_label_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2)
                         }else{
-                          p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                          p <- p + geom_text_repel(data = outliers_pathway,  color = input$pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2) 
                         }
                       }
                       if(input$Main_scatter_pathway_filter){
@@ -5884,9 +5958,9 @@ server <- function(input, output, session) {
                       p <- p + geom_point(data = custom_geneset, color=input$Plot_Gene_set_pathway_gene_colour_id , size = input$high.pt.size)
                       if(input$Plot_Gene_sethide_gene_label==FALSE){ 
                         if(input$main_plot_white_back_label){
-                          p <- p + geom_label_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2)
+                          p <- p + geom_label_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2)
                         }else{
-                          p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = 40, segment.size=0.2) 
+                          p <- p + geom_text_repel(data = custom_geneset,  color = input$Plot_Gene_set_pathway_gene_colour_id, aes(label = id), size = input$high.label.size, size = input$high.label.size, max.overlaps = input$label.overlap.level, segment.size=0.2) 
                         }
                       }
                       if(input$Main_scatter_geneset_filter){
@@ -6536,6 +6610,7 @@ server <- function(input, output, session) {
                 return(NULL)
               }
               ranked_genes <- ranked_genes[!is.na(names(ranked_genes)) & names(ranked_genes) != ""]
+              set.seed(1234) 
               fgseaRes2 <- fgsea(pathways = GSEA_Gene_set(), stats = ranked_genes, minSize = 1, maxSize = 5000)
               if(dim(fgseaRes2)[1] == 0){
                 output$GSEA_analysis_status <- renderText({
@@ -6815,11 +6890,11 @@ server <- function(input, output, session) {
               data.frame(Sample_name=samples[order(samples)])
             })
             output$Data_Overview_heatmap_sample_table <- renderDataTable({
-              datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons', 'Scroller'), rownames=F,
+              datatable( Data_Overview_heatmap_sample_table_tmp(), selection='none', extensions=c('Select', 'Buttons', 'Scroller', 'RowReorder'),
                 options = list(
-                  select=list(style="multi", items='row'),
+                  select=list(style="multi", items='row'), rowReorder = TRUE, order = list(c(0 , 'asc')),
                   scroller=TRUE, deferRender=TRUE, scrollY=200,
-                  dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 5)) 
+                  dom='Blfrtip', buttons=c('selectAll', 'selectNone'), pageLength = 10)) 
             },server = FALSE)
 
           # function for standardise the table
@@ -6864,9 +6939,29 @@ server <- function(input, output, session) {
                   return()
                 }else{
                   df_ex <- df_ex[df_ex$id %in% genes_for_heatmap(),] 
+                  # reorder according to  genes_for_heatmap()
+                  desired_order <- genes_for_heatmap()
+                  desired_order <- desired_order[desired_order %in% df_ex$id]
+                  df_ex <- df_ex[df_ex$id %in% desired_order, ]
+                  df_ex <- df_ex[match(desired_order, df_ex$id), ]
+                  # when there are duplicated id, add sufix of .1, .2...
+                  if(any(duplicated(df_ex$id))){
+                    dup_ids <- df_ex$id[duplicated(df_ex$id)]
+                    for(dup_id in dup_ids){
+                      rows <- which(df_ex$id == dup_id)
+                      for(i in 1:length(rows)){
+                        if(i == 1){
+                          next
+                        }else{
+                          df_ex$id[rows[i]] <- paste0(df_ex$id[rows[i]], '.', i-1)
+                        }
+                      }
+                    }
+                  }
                   rownames(df_ex) <- df_ex$id
-                  df_ex <- df_ex[,2:dim(df_ex)[2]] ## select which samples are included
-                  selected_samples <- Data_Overview_heatmap_sample_table_tmp()[input$Data_Overview_heatmap_sample_table_rows_selected,]
+                  # remove the column containing id. 'id' is NOT always in the first column
+                  df_ex <- df_ex[, -which(colnames(df_ex) == "id")]
+                  selected_samples <- Data_Overview_heatmap_sample_table_tmp()$Sample_name[input$Data_Overview_heatmap_sample_table_rows_selected]
                   if(length(selected_samples)<=1){
                     show_alert(title='Error.',text='Please select at least two samples.', type='error')
                     output$Data_Overview_heatmap_status <- renderText("Please select at least two samples.")
@@ -6878,7 +6973,8 @@ server <- function(input, output, session) {
                     # standardise
                     df_ex <- sd_table(df_ex)
                     df_ex <- df_ex %>% select_if(~ !any(is.na(.)))
-                    ex_datafreme_for_heatmap(df_ex)
+                    ex_datafreme_for_heatmap(NULL)   # 一旦 NULL にリセット
+                    ex_datafreme_for_heatmap(df_ex) 
                     isCalculating(FALSE)   
                     return()
                   }
@@ -6911,8 +7007,8 @@ server <- function(input, output, session) {
                 gene_expression_matrix <- gene_expression_matrix[,new_colnames]
                 clustered_heatmap_ex(gene_expression_matrix)
                 cols <- colnames(gene_expression_matrix)
-                cols <- cols[2:length(cols)]
-                cols <- cols[order(cols)]
+                cols <- rev(cols[2:length(cols)])
+                # cols <- cols[order(cols)]
                 df_2 <- t(gene_expression_matrix[,cols]) # head(df_2)
                 df5 <- data.frame(df_2)
                 df5$sample <- rownames(df5) 
@@ -6997,7 +7093,9 @@ server <- function(input, output, session) {
               df_ex <- df()
               # df_ex <- read.table('/home/h023o/ShinyApps/in_house_screening/00_Expression_data_all/Helena/Human_T_cell_activation_Vora/all_cnt_FeatureCounts_cpm_gene.tsv', sep='\t', header=T)
               rownames(df_ex) <- df_ex$id
-              df_ex <- df_ex[,2:dim(df_ex)[2]] # df_ex[1:3, 1:3]
+              # exclude the column names id
+              df_ex <- df_ex[,(colnames(df_ex) != 'id')]
+              # df_ex <- df_ex[,2:dim(df_ex)[2]] # df_ex[1:3, 1:3]
               df_ex[is.na(df_ex)] <- 0
               if(input$Data_Overview_PCA_Setting=='B'){
                 if(nchar(input$Data_Overview_PCA_Setting_group_define)==0){
@@ -7038,11 +7136,45 @@ server <- function(input, output, session) {
               }
               df2 <- df_ex[(rowSums(df_ex) > 5*dim(df_ex)[2]),] # dim(df2)
               df3 <- data.frame(t(df2)) # df3[1:3, 1:3]
-              df3$sample <- rownames(df3)
-              df3 <- df3[order(df3$sample),] 
-              pca_res <- prcomp(df3[, colnames(df3) != 'sample'], scale. = TRUE) 
-              pca_df <- data.frame(pca_res[5]$x[, 1:2]) # head(pca_df)
-              pca_df$sample <- rownames(pca_df)
+              if(input$Data_Overview_PCA_plot_type == 'A'){
+                df3$sample <- rownames(df3)
+                df3 <- df3[order(df3$sample),] # head(df3)
+                pca_res <- prcomp(df3[, colnames(df3) != 'sample'], scale. = TRUE) 
+                pca_df <- data.frame(pca_res[5]$x[, 1:2]) # head(pca_df)
+                pca_df$sample <- rownames(pca_df)
+              }else if(input$Data_Overview_PCA_plot_type == 'B'){
+                library(Rtsne)
+                set.seed(42)
+                tsne_res <- tryCatch(
+                  {
+                    Rtsne(df3, perplexity = input$Data_Overview_PCA_tSNE_perplexity)
+                  },
+                  error = function(e) {
+                    message("t-SNE failed: ", e$message)
+                    NULL   # return NULL if it fails
+                  }
+                )
+                # Put into a dataframe
+                if(is.null(tsne_res)){
+                  show_alert(title='Error.',text='tSNE failed. Please try changing the perplexity value.', type='error')
+                  output$Data_Overview_PCA_status <- renderText({"tSNE failed. Please try changing the perplexity value."})
+                  PCA_table(NULL)
+                  isCalculating_PCA(FALSE)
+                  return(NULL)
+                }
+                tsne_df <- data.frame( PC1 = tsne_res$Y[,1], PC2 = tsne_res$Y[,2], sample = rownames(df3))
+                rownames(tsne_df) <- rownames(df3)
+                pca_df <- tsne_df
+              }else if(input$Data_Overview_PCA_plot_type == 'C'){
+                library(umap)
+                # Run UMAP
+                umap_res <- umap(df3)
+
+                # Put into a dataframe for ggplot
+                umap_df <- data.frame(PC1 = umap_res$layout[,1], PC2 = umap_res$layout[,2], sample = rownames(df3))
+                pca_df <- umap_df
+              }
+
               if(input$Data_Overview_PCA_Setting=='B'){
                 Group <- c()
                 for (i in rownames(pca_df)){
@@ -7086,6 +7218,13 @@ server <- function(input, output, session) {
               }
               if(!input$Data_Overview_PCA_label_hide){
                 p <- p + geom_text_repel(data = pca_df,  color = 'black', aes(label = sample), size = input$Data_Overview_PCA_label_size, max.overlaps = Inf, segment.size=0.2)
+              }
+              if(input$Data_Overview_PCA_plot_type == 'A'){
+                p <- p + xlab('PC1') + ylab('PC2')
+              }else if(input$Data_Overview_PCA_plot_type == 'B'){
+                p <- p + xlab('tSNE1') + ylab('tSNE2')
+              }else if(input$Data_Overview_PCA_plot_type == 'C'){
+                p <- p + xlab('UMAP1') + ylab('UMAP2')
               }
               p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
               p <- p + theme(axis.text = element_text(size = input$Data_Overview_PCA_xy.font.size), axis.title = element_text(size = input$Data_Overview_PCA_xy.title.size))
@@ -9825,7 +9964,7 @@ server <- function(input, output, session) {
 
   ###
 
-  ### igv ##########################################################################################
+  ### Epigenomics data ##########################################################################################
     #### data selection for IGV
       # data from who
         output$igv_data_DataFrom <- renderUI({  
@@ -10558,8 +10697,10 @@ server <- function(input, output, session) {
         })
       # when using custom geneset
         output$Enhancer_Find_custom_geneset_select <- renderUI({
-          gene_sets_names <- c(Original_geneset_list()$Geneset.name)
-          selectInput('Enhancer_Find_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+          if(input$Enhancer_Find_use_custom_geneset){
+            gene_sets_names <- c(Original_geneset_list()$Geneset.name)
+            selectInput('Enhancer_Find_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+          }
         })
         outputOptions(output, "Enhancer_Find_custom_geneset_select",  suspendWhenHidden=FALSE)
       # Calculate the correlated peaks (MAIN part)
@@ -10571,6 +10712,7 @@ server <- function(input, output, session) {
         Enhancer_Find_table_result <- reactiveVal(NULL)
         isCalculating_Enhancer_Find <- reactiveVal(FALSE)
         isTriggered_Enhancer_Find <- reactiveVal(FALSE)
+        Enhancer_Find_cor_all_data <- reactiveVal(FALSE)
         observeEvent(input$Enhancer_Find_start, {
           isTriggered_Enhancer_Find(TRUE)
           isCalculating_Enhancer_Find(TRUE)
@@ -10583,6 +10725,7 @@ server <- function(input, output, session) {
             ATACseq_data_table(NULL)  
             Enhancer_Find_table_result(NULL)
             isCalculating_Enhancer_Find(FALSE)
+            Enhancer_Find_cor_all_data(FALSE)
             return(NULL)
           }
           if(input$Enhancer_Find_data_select_RNAseq == 'None' || input$Enhancer_Find_data_select_ATACseq == 'None'){ # when the data is not loaded
@@ -10594,6 +10737,7 @@ server <- function(input, output, session) {
             ATACseq_data_table(NULL)  
             Enhancer_Find_table_result(NULL)
             isCalculating_Enhancer_Find(FALSE)
+            Enhancer_Find_cor_all_data(FALSE)
             return(NULL)
           }
           # when no genes are inputted
@@ -10607,6 +10751,7 @@ server <- function(input, output, session) {
               ATACseq_data_table(NULL)
               Enhancer_Find_table_result(NULL)
               isCalculating_Enhancer_Find(FALSE)
+              Enhancer_Find_cor_all_data(FALSE)
               return(NULL)
             }
             target_genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes, split=', ')[[1]]
@@ -10620,6 +10765,7 @@ server <- function(input, output, session) {
               ATACseq_data_table(NULL)
               Enhancer_Find_table_result(NULL)
               isCalculating_Enhancer_Find(FALSE)
+              Enhancer_Find_cor_all_data(FALSE)
               return(NULL)
             }
             target_genes <- unlist(strsplit(input$Enhancer_Find_input_gene, split = "\n")) # ex. target_genes=c('gene1', 'gene2', 'gene3')
@@ -10633,6 +10779,7 @@ server <- function(input, output, session) {
             ATACseq_data_table(NULL)
             Enhancer_Find_table_result(NULL)
             isCalculating_Enhancer_Find(FALSE)  
+            Enhancer_Find_cor_all_data(FALSE)
             return(NULL)
           }
           # take the samples
@@ -10653,6 +10800,7 @@ server <- function(input, output, session) {
             ATACseq_data_table(NULL)
             Enhancer_Find_table_result(NULL)
             isCalculating_Enhancer_Find(FALSE)
+            Enhancer_Find_cor_all_data(FALSE)
             return(NULL)
           }
           RNAseq_sample_diff <- setdiff(RNAseq_sample, RNAseq_sample_intersect)
@@ -10683,6 +10831,7 @@ server <- function(input, output, session) {
           # calculate the correlation
           df_cor_tmp <- data.frame(list('Gene'=character(0), 'Peak'=character(0), 'Correlation'=numeric(0), 'P.value'=numeric(0)), stringsAsFactors = FALSE)
           ATACseq_Peak_all <- c()
+          df_cor_all_data <- data.frame(list('Gene_id'=character(0), 'Peak_id'=character(0), 'Gene'=numeric(0), 'Peak'=numeric(0), 'Sample'=numeric(0)), stringsAsFactors = FALSE)
           for (each_gene in intersect(target_genes, Enhancer_Find_RNAseq_data()$id)){
             if(each_gene %in% RNAseq_df$id == FALSE){
               next # if the gene is not in the RNAseq data, skip to the next gene
@@ -10728,6 +10877,7 @@ server <- function(input, output, session) {
               for (each_peak in ATACseq_df_tmp$id){
                 ATACseq_df_peak <- ATACseq_df_tmp[ATACseq_df_tmp$id == each_peak, ]
                 ATACseq_df_peak <- as.numeric(ATACseq_df_peak[1, -c(1,2,3,4 )]) # remove the id, chr, start
+                sample_annotation <- colnames(ATACseq_df_tmp[ATACseq_df_tmp$id == each_peak, -c(1,2,3,4), drop=FALSE]) 
                 if(length(RNAseq_df_gene) != length(ATACseq_df_peak)){
                   next # if the length of the RNAseq and ATACseq data is not the same
                 }
@@ -10744,16 +10894,15 @@ server <- function(input, output, session) {
                     next
                   }
                 )
+                df_cor_all_data <- rbind(df_cor_all_data, data.frame(Gene_id=each_gene, Peak_id=each_peak,  Gene=RNAseq_df_gene, Peak=ATACseq_df_peak, Sample=sample_annotation, stringsAsFactors = FALSE))
                 if (!is.null(cor_test)){
                   df_cor_tmp <- rbind(df_cor_tmp, data.frame(Gene=each_gene, Peak=each_peak,  Correlation=cor_test$estimate, P.value=cor_test$p.value,stringsAsFactors = FALSE))
                 }
               }
-
             }
-
-            
           }
           ATACseq_data_table(ATACseq_df[ATACseq_df$id %in% ATACseq_Peak_all, ])
+          Enhancer_Find_cor_all_data(df_cor_all_data)
           output$Enhancer_Find_table_status <- renderText({NULL})
           output$Enhancer_Find_RNAseq_data_status <- renderText({NULL})
           output$Enhancer_Find_ATACseq_data_status <- renderText({NULL})
@@ -10764,27 +10913,112 @@ server <- function(input, output, session) {
 
       # show the RNA/ATACseq table
         # RNAseq_data_table
-        output$Enhancer_Find_RNAseq_data_table <- renderDataTable({
-          if(is.null(RNAseq_data_table())){
-            tmp <- data.frame(list('Gene'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
-            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
-          }else{
-            tmp <- RNAseq_data_table()
-            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
-          }
-        })
+          output$Enhancer_Find_RNAseq_data_table <- renderDataTable({
+            if(!isTriggered_Enhancer_Find() | isCalculating_Enhancer_Find() | is.null(RNAseq_data_table())){
+              tmp <- data.frame(list('Gene'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
+              return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+            }else{
+              tmp <- RNAseq_data_table()
+              return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+            }
+          })
 
+        # bar plot of the correlation score
+          output$Enhancer_Find_RNAseq_data_plot <- renderPlot({
+            if(!isTriggered_Enhancer_Find() | isCalculating_Enhancer_Find() | is.null(Enhancer_Find_table_result())){
+              output$Enhancer_Find_RNAseq_data_plot_status <- renderText({NULL})
+              return(NULL)
+            }else{
+              if(length(input$Enhancer_Find_RNAseq_data_table_rows_selected) == 0){
+                output$Enhancer_Find_RNAseq_data_plot_status <- renderText({"Please select a row. A bar plot will be shown here."})
+                return(NULL)
+              }else{
+                output$Enhancer_Find_RNAseq_data_plot_status <- renderText({NULL})
+                Gene <- RNAseq_data_table()[input$Enhancer_Find_RNAseq_data_table_rows_selected, ]$id
+                if(length(Gene) == 0){
+                  return(NULL)
+                }
+                Enhancer_corr_results <- Enhancer_Find_table_result()
+                Enhancer_corr_results_gene <- Enhancer_corr_results[Enhancer_corr_results$Gene == Gene, c('Peak', 'Correlation', 'P.value')]
+                Enhancer_corr_results_gene$Correlation <- as.numeric(Enhancer_corr_results_gene$Correlation)
+                Enhancer_corr_results_gene$ypos <- ifelse(
+                  Enhancer_corr_results_gene$Correlation >= 0,
+                  Enhancer_corr_results_gene$Correlation + 0.02,  # above
+                  Enhancer_corr_results_gene$Correlation - 0.02 # below
+                )
+                # bar plot, sorted by Correlation. Check a star if P.vale is < 0.05
+                Enhancer_corr_results_gene$label <- ifelse(Enhancer_corr_results_gene$P.value < input$Enhancer_Find_show_list_threshold, "*", "")
+                p <- ggplot(Enhancer_corr_results_gene, aes(x=reorder(Peak, Correlation), y=Correlation, fill=Correlation))
+                p <- p + geom_text(aes(label=label, y=ypos), vjust=ifelse(Enhancer_corr_results_gene$Correlation >= 0, 0, 1),  size=1.5)
+                p <- p + geom_bar(stat='identity')
+                p <- p + scale_fill_gradient2( low=input$Enhancer_Find_RNAseq_data_plot_min_col, mid=input$Enhancer_Find_RNAseq_data_plot_mid_col, high=input$Enhancer_Find_RNAseq_data_plot_max_col, midpoint=0, limits=c(-max(abs(Enhancer_corr_results_gene$Correlation)), max(abs(Enhancer_corr_results_gene$Correlation))))
+                p <- p + xlab('Peak') + ylab('Correlation') + ggtitle(paste0('Correlation of peaks with gene: ', Gene))
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
+                p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))
+                p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+                p <- p + theme(plot.title = element_text(hjust = 0.5))
+                p <- p + theme(axis.title=element_text(size=input$Enhancer_Find_RNAseq_data_plot_font_size), axis.text=element_text(size=input$Enhancer_Find_RNAseq_data_plot_label_font_size), plot.title=element_text(size=input$Enhancer_Find_RNAseq_data_plot_title_size))
+                # legend bar plot size
+                p <- p + guides(fill = guide_colourbar(barwidth = unit(0.1, "cm"), barheight = unit(1.2, "cm")))
+                p <- p + theme(legend.text=element_text(size=input$Enhancer_Find_RNAseq_data_legend_size), legend.title=element_text(size=input$Enhancer_Find_RNAseq_data_legend_size))
+                p
+              }
+            }
+          }, width = reactive(input$Enhancer_Find_RNAseq_data_plot_fig.width), height = reactive(input$Enhancer_Find_RNAseq_data_plot_fig.height), res=300)
 
         # ATACseq data table
-        output$Enhancer_Find_ATACseq_data_table <- renderDataTable({
-          if(is.null(ATACseq_data_table())){
-            tmp <- data.frame(list('id'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
-            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
-          }else{
-            tmp <- ATACseq_data_table()
-            return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
-          }
-        })
+          output$Enhancer_Find_ATACseq_data_table <- renderDataTable({
+            if(is.null(ATACseq_data_table())){
+              tmp <- data.frame(list('id'=character(0), 'Sample'=character(0)), stringsAsFactors = FALSE)
+              return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+            }else{
+              tmp <- ATACseq_data_table()
+              return(datatable(tmp, selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE,pageLength=5)))
+            }
+          })
+
+        # bar plot of the correlation score
+          output$Enhancer_Find_ATACseq_data_plot <- renderPlot({
+            if(!isTriggered_Enhancer_Find() | isCalculating_Enhancer_Find() | is.null(Enhancer_Find_table_result())){
+              output$Enhancer_Find_ATACseq_data_plot_status <- renderText({NULL})
+              return(NULL)
+            }else{
+              output$Enhancer_Find_RNAseq_data_plot_status <- renderText({NULL})
+              Peak <- ATACseq_data_table()[input$Enhancer_Find_ATACseq_data_table_rows_selected, ]$id
+              if(length(Peak) == 0){
+                return(NULL)
+              }
+              Enhancer_corr_results <- Enhancer_Find_table_result()
+              Enhancer_corr_results_gene <- Enhancer_corr_results[Enhancer_corr_results$Peak == Peak, c('Gene', 'Correlation', 'P.value')]
+              Enhancer_corr_results_gene$Correlation <- as.numeric(Enhancer_corr_results_gene$Correlation)
+              Enhancer_corr_results_gene$ypos <- ifelse(
+                Enhancer_corr_results_gene$Correlation >= 0,
+                Enhancer_corr_results_gene$Correlation + 0.02,  # above
+                Enhancer_corr_results_gene$Correlation - 0.02 # below
+              )
+              # bar plot, sorted by Correlation. Check a star if P.vale is < 0.05
+              Enhancer_corr_results_gene$label <- ifelse(Enhancer_corr_results_gene$P.value < input$Enhancer_Find_show_list_threshold, "*", "")
+              p <- ggplot(Enhancer_corr_results_gene, aes(x=reorder(Gene, Correlation), y=Correlation, fill=Correlation))
+              p <- p + geom_text(aes(label=label, y=ypos), vjust=ifelse(Enhancer_corr_results_gene$Correlation >= 0, 0, 1),  size=8)
+              p <- p + geom_bar(stat='identity')
+              p <- p + scale_fill_gradient2( low=input$Enhancer_Find_RNAseq_data_plot_min_col, mid=input$Enhancer_Find_RNAseq_data_plot_mid_col, high=input$Enhancer_Find_RNAseq_data_plot_max_col, midpoint=0, limits=c(-max(abs(Enhancer_corr_results_gene$Correlation)), max(abs(Enhancer_corr_results_gene$Correlation))))
+              p <- p + xlab('Gene') + ylab('Correlation') + ggtitle(paste0('Correlation of genes with peak: ', Peak))
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+              p <- p + theme(plot.title = element_text(hjust = 0.5))
+              p <- p + theme(axis.title=element_text(size=input$Enhancer_Find_RNAseq_data_plot_font_size), axis.text=element_text(size=input$Enhancer_Find_RNAseq_data_plot_label_font_size), plot.title=element_text(size=input$Enhancer_Find_RNAseq_data_plot_title_size))
+              # legend bar plot size
+              p <- p + guides(fill = guide_colourbar(barwidth = unit(0.1, "cm"), barheight = unit(1.2, "cm")))
+              p <- p + theme(legend.text=element_text(size=input$Enhancer_Find_RNAseq_data_legend_size), legend.title=element_text(size=input$Enhancer_Find_RNAseq_data_legend_size))
+              p
+            }
+          }, width = reactive(input$Enhancer_Find_ATACseq_data_plot_fig.width), height = reactive(input$Enhancer_Find_ATACseq_data_plot_fig.height), res=300)
+
 
       # show the correlation table
         output$Enhancer_Find_table <- renderDataTable({
@@ -10804,6 +11038,61 @@ server <- function(input, output, session) {
           }
         })
         outputOptions(output, "Enhancer_Find_table", suspendWhenHidden=FALSE)
+
+        output$Enhancer_Find_table_plot <- renderPlot({
+          if(!isTriggered_Enhancer_Find() | isCalculating_Enhancer_Find() | is.null(Enhancer_Find_table_result())){
+            output$Enhancer_Find_table_plot_status <- renderText({NULL})
+            return(NULL)
+          }else{
+            if(length(input$Enhancer_Find_table_rows_selected) == 0){
+              output$Enhancer_Find_table_plot_status <- renderText({"Please select a row. A correlation scatter plot will be shown here."})
+              return(NULL)
+            }else{
+              output$Enhancer_Find_table_plot_status <- renderText({NULL})
+              Gene <- Enhancer_Find_table_result()[input$Enhancer_Find_table_rows_selected, ]$Gene
+              Peak <- Enhancer_Find_table_result()[input$Enhancer_Find_table_rows_selected, ]$Peak
+              if(length(Gene) == 0 | length(Peak) == 0){
+                return(NULL)
+              }
+              # take the samples
+              if(is.null(Enhancer_Find_cor_all_data())){
+                return(NULL)
+              }
+              df_cor_all_data <- Enhancer_Find_cor_all_data()
+              if(dim(df_cor_all_data)[1] == 0){
+                return(NULL)
+              } 
+              df_cor_all_data_extract <- df_cor_all_data[df_cor_all_data$Gene_id == Gene & df_cor_all_data$Peak_id == Peak, c('Gene','Peak', 'Sample') ]
+              if(dim(df_cor_all_data_extract)[1] == 0){
+                return(NULL)
+              }
+              # make a scatter plot
+              p <- ggplot(df_cor_all_data_extract, aes(x=Gene, y=Peak))
+              p <- p + geom_point(color=input$Enhancer_Find_table_plot_point_col, size=1) 
+              if(input$Enhancer_Find_table_plot_correlation){
+                p <- p + geom_smooth(method='lm', color='red', se=FALSE, linewidth=0.5)
+              }
+              if(!input$Enhancer_Find_table_plot_label){
+                p <- p + geom_text_repel(data = df_cor_all_data_extract,  color = 'black', aes(label = Sample), max.overlaps=Inf,  box.padding = 0.3, point.padding = 0.5, segment.color = 'grey50', segment.size = 0.1, size=input$Enhancer_Find_table_plot_legend_font_size) 
+                # p <- p + geom_text_repel(aes(label=df_cor_all_data_extract$Sample), size=input$Enhancer_Find_table_plot_legend_font_size, overlap = TRUE, max.overlaps = Inf, box.padding = 0.3, point.padding = 0.5, segment.color = 'grey50', segment.size = 0.1)
+              }
+              p <- p + labs(title=paste0('Correlation between\n', Gene, ' and ', Peak), x=paste0(Gene, '\nexpression'), y=paste0(Peak, '\naccessibility'))
+              p <- p + theme(axis.title=element_text(size=input$Enhancer_Find_table_plot_label_font_size), axis.text=element_text(size=input$Enhancer_Find_table_plot_font_size), plot.title=element_text(size=input$Enhancer_Find_table_plot_title_size, hjust = 0.5))
+              p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
+              p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))
+              p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+              p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+              p
+            }
+          }
+        }, width=reactive(input$Enhancer_Find_table_plot_fig.width), height=reactive(input$Enhancer_Find_table_plot_fig.height), res=300)
+
+        output$Enhancer_Find_table_status_download <- downloadHandler(
+          filename = function(){"RNAseq_ATACseq_Correlation.tsv"}, 
+          content = function(fname){ write.table(Enhancer_Find_table_result(), fname, sep='\t',  quote=F, row.names=F) }
+        )
+
+
       # Show the list of the correlated peak list
         # gene select
           output$Enhancer_Find_gene_selection <- renderUI({
@@ -10842,7 +11131,7 @@ server <- function(input, output, session) {
               }
             }
           })
-
+      #
 
     #### Motif search
       # defalt message
@@ -14842,7 +15131,8 @@ server <- function(input, output, session) {
         outputOptions(output, "human_mouse_convert_status", suspendWhenHidden=FALSE)
         outputOptions(output, "human_mouse_convert_table_status", suspendWhenHidden=FALSE)
         outputOptions(output, "human_mouse_convert_result", suspendWhenHidden=FALSE)
-      
+    
+
       # conversion table
         human_mouse_convert_data <- reactiveVal(NULL)
         observeEvent(input$human_mouse_convert_start,{
@@ -15357,6 +15647,69 @@ server <- function(input, output, session) {
       #
 
     ### Venn Diagram
+      shinyjs::hide("Venn_Diagram_plot_col3_colour")
+      observeEvent(input$Venn_Diagram_method, {
+        if(input$Venn_Diagram_method == "B"){
+          shinyjs::show("Venn_Diagram_plot_col3_colour")
+          shinyjs::show("Venn_Diagram_show_overlap_3D")
+          shinyjs::hide("Venn_Diagram_show_overlap_2D")
+        } else {
+          shinyjs::hide("Venn_Diagram_plot_col3_colour")
+          shinyjs::hide("Venn_Diagram_show_overlap_3D")
+          shinyjs::show("Venn_Diagram_show_overlap_2D")
+        }
+      })
+
+      output$Venn_Diagram_show_overlap_2D_list <- renderText({
+        venn_data <- venn_data()
+        if(input$Venn_Diagram_method == "A"){
+          if(length(input$Venn_Diagram_show_overlap_2D) != 0){
+            if(input$Venn_Diagram_show_overlap_2D == 'None'){ NULL }
+            else if(input$Venn_Diagram_show_overlap_2D == 'in Group1 & Group2'){ paste(intersect(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_2D == 'only in Group1'){ paste(setdiff(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_2D == 'only in Group2'){ paste(setdiff(venn_data$group2_name,venn_data$group1_name), collapse='\n') }
+          }else{
+            return(NULL)
+          }
+        }else{
+          return(NULL)
+        }
+      })
+
+      output$Venn_Diagram_Group3 <- renderUI({
+        if(input$Venn_Diagram_method == "B"){
+          fluidRow(
+            column(12, textInput("Venn_Diagram_Group3_name", "Group 3 title")),
+            column(12, textAreaInput("Venn_Diagram_Group3_element", "Group 3 element"))
+          )
+        }else{
+          return(NULL)
+        }
+      })
+
+      output$Venn_Diagram_show_overlap_3D_list <- renderText({
+        if(input$Venn_Diagram_method == "B"){
+          if(length(input$Venn_Diagram_show_overlap_3D) == 0){
+            return(NULL)
+          }else{
+            venn_data <- venn_data()
+            if(input$Venn_Diagram_show_overlap_3D == 'None'){ NULL }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 & Group3'){ paste( intersect(intersect(venn_data$group1_name,venn_data$group2_name),venn_data$group3_name ), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2'){ paste( intersect(venn_data$group1_name,venn_data$group2_name) , collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3'){ paste( intersect(venn_data$group2_name,venn_data$group3_name) , collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 and Group1'){ paste( intersect(venn_data$group3_name,venn_data$group1_name) , collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 but not in Group3'){ paste( setdiff( intersect(venn_data$group1_name,venn_data$group2_name) ,venn_data$group3_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3 but not in Group1'){ paste( setdiff( intersect(venn_data$group2_name,venn_data$group3_name) ,venn_data$group1_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 & Group1 but not in Group2'){ paste( setdiff( intersect(venn_data$group3_name,venn_data$group1_name) ,venn_data$group2_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group1'){ paste( setdiff( setdiff(venn_data$group1_name,venn_data$group2_name), venn_data$group3_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group2'){ paste( setdiff( setdiff(venn_data$group2_name,venn_data$group3_name), venn_data$group1_name), collapse='\n') }
+            else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group3'){ paste( setdiff( setdiff(venn_data$group3_name,venn_data$group1_name), venn_data$group2_name), collapse='\n') }
+          }
+        }else{
+          return(NULL)
+        }
+      })
+
       venn_data <- reactive({
         if(length(input$Venn_Diagram_method) == 0){
           output$Venn_Diagram_status <- renderText({'Please choose the method.'})
@@ -15417,29 +15770,6 @@ server <- function(input, output, session) {
           )
         }
       }, width=reactive(input$Venn_Diagram_plot.width), height=reactive(input$Venn_Diagram_plot.height), res=300)
-
-      output$Venn_Diagram_show_overlap_2D_list <- renderText({
-        venn_data <- venn_data()
-        if(input$Venn_Diagram_show_overlap_2D == 'None'){ NULL }
-        else if(input$Venn_Diagram_show_overlap_2D == 'in Group1 & Group2'){ paste(intersect(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_2D == 'only in Group1'){ paste(setdiff(venn_data$group1_name,venn_data$group2_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_2D == 'only in Group2'){ paste(setdiff(venn_data$group2_name,venn_data$group1_name), collapse='\n') }
-      })
-
-      output$Venn_Diagram_show_overlap_3D_list <- renderText({
-        venn_data <- venn_data()
-        if(input$Venn_Diagram_show_overlap_3D == 'None'){ NULL }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 & Group3'){ paste( intersect(intersect(venn_data$group1_name,venn_data$group2_name),venn_data$group3_name ), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2'){ paste( intersect(venn_data$group1_name,venn_data$group2_name) , collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3'){ paste( intersect(venn_data$group2_name,venn_data$group3_name) , collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 and Group1'){ paste( intersect(venn_data$group3_name,venn_data$group1_name) , collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group1 & Group2 but not in Group3'){ paste( setdiff( intersect(venn_data$group1_name,venn_data$group2_name) ,venn_data$group3_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group2 & Group3 but not in Group1'){ paste( setdiff( intersect(venn_data$group2_name,venn_data$group3_name) ,venn_data$group1_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'in Group3 & Group1 but not in Group2'){ paste( setdiff( intersect(venn_data$group3_name,venn_data$group1_name) ,venn_data$group2_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group1'){ paste( setdiff( setdiff(venn_data$group1_name,venn_data$group2_name), venn_data$group3_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group2'){ paste( setdiff( setdiff(venn_data$group2_name,venn_data$group3_name), venn_data$group1_name), collapse='\n') }
-        else if(input$Venn_Diagram_show_overlap_3D == 'Only in Group3'){ paste( setdiff( setdiff(venn_data$group3_name,venn_data$group1_name), venn_data$group2_name), collapse='\n') }
-      })
 
     ### Netwrok plot
       # load data
