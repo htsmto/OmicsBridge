@@ -19,7 +19,7 @@ git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Or, download the zip file from [here](https://omicsbridge.dkfz.de/OmicsBridge.zip) and uncompress it.
+Or, download the zip file from this page and uncompress it.
 
 Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zendo](https://doi.org/10.5281/zenodo.16410489), uncompress and place the folders in the `OmicsBridge` directory:
 
