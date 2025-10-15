@@ -61,7 +61,7 @@ install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','pa
 
 ## BiocManager dependent packages
 BiocManager::install() # Make sure to install >3.20
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz', 'PWMEnrich', 'seqLogo', 'PWMEnrich.Hsapiens.background', 'BSgenome.Hsapiens.UCSC.hg38', 'BSgenome.Hsapiens.UCSC.hg19', 'EnrichedHeatmap', 'rtracklayer', 'ChIPseeker))
+BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz', 'PWMEnrich', 'seqLogo', 'PWMEnrich.Hsapiens.background', 'BSgenome.Hsapiens.UCSC.hg38', 'BSgenome.Hsapiens.UCSC.hg19', 'EnrichedHeatmap', 'rtracklayer', 'ChIPseeker'))
 
 ## Other packages
 devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
