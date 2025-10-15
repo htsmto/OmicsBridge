@@ -21,28 +21,25 @@ cd OmicsBridge
 
 Or, download the zip file from [here](https://omicsbridge.dkfz.de/OmicsBridge.zip) and uncompress it.
 
-Next, download the necessary data, uncompress and place the folders in the `OmicsBridge` directory:
+Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from Zendo, uncompress and place the folders in the `OmicsBridge` directory:
 
 ```bash
-curl -O https://omicsbridge.dkfz.de/00_Clinical_dataset.tar.gz
-curl -O https://omicsbridge.dkfz.de/00_Expression_data_all.tar.gz
 tar -xzvf 00_Clinical_dataset.tar.gz
 tar -xzvf 00_Expression_data_all.tar.gz
-
-# the final file structure:
-# .
-# ├── 00_Clinical_dataset
-# ├── 00_Expression_data_all
-# ├── app.R
-# ├── data
-# ├── docs
-# ├── mkdocs.yml
-# ├── README.md
-# ├── wiki
-# └── www
 ```
-
-Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.
+the final file structure should be:
+```
+.
+├── 00_Clinical_dataset
+├── 00_Expression_data_all
+├── app.R
+├── data
+├── docs
+├── mkdocs.yml
+├── README.md
+├── wiki
+└── www
+```
 
 ## <u>**Dependencies**</u>
 
