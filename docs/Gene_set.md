@@ -19,7 +19,7 @@ Click "Add the geneset to the list", and the user can see the newly added gene s
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Custome_GeneSet_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/custom_geneset_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ###<u> **1.2. Editing a gene set** </u>

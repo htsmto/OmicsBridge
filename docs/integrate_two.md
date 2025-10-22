@@ -19,7 +19,7 @@ Important notes: Ensure the column containing gene names is labelled "id" for pr
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Integrated_two_1_720.mp4" type="video/mp4">
+    <source src="../videos/Integrated_two_1_annot_light.mp4" type="video/mp4">
     </video>
 
 ## <u> **2. Integration Plot** </u>
@@ -47,5 +47,5 @@ This feature enables you to merge two datasets for integrated visualisation.
   
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Integrated_two_2_720.mp4" type="video/mp4">
+    <source src="../videos/Integrated_two_2_annot_light.mp4" type="video/mp4">
     </video>

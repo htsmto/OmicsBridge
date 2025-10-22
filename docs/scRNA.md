@@ -28,7 +28,7 @@ This section provides a simple UMAP overview of your data.
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -47,7 +47,7 @@ This section provides a simple UMAP overview of your data.
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_2_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ### <u> **2.2. Gene Signature feature plot** </u>
@@ -75,7 +75,7 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_3_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u> **2. Other plots** </u>
@@ -93,12 +93,12 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_4_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ### <u> **2.2. Violin plot** </u>
 1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.
-2. Choose which subgroup you want to use. The dot plot displays gene expression across these selected subgroups.
+2. Choose which subgroup you want to use. The violin plot displays gene expression across these selected subgroups.
 3. Click a gene from the gene list table. The violin plot will appear on the right.
 4. To view specific groups only, toggle the 'Select the groups to show' switch located below the plot.
     - A list of all group names will appear.
@@ -112,7 +112,7 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_5_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_5_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ### <u> **2.3. Pie chart** </u>
@@ -130,5 +130,5 @@ Users can visualise the fraction of cells expressing specific genes across diffe
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/scRNA_6_720.mp4" type="video/mp4"> 
+    <source src="../videos/scRNA_6_annot_light.mp4" type="video/mp4"> 
     </video>

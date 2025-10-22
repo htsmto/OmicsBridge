@@ -219,10 +219,6 @@ First, you can generate a heatmap or barplot to visualise cell type fractions ac
     - Legend font size
     - Colours for high and low deconvolution score (for the heatmap)
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/Clinical_7_720.mp4" type="video/mp4"> 
-    </video>
 
 ### <u>**7.2. Exploring correlations between gene expression and cell type abundance**</u>
 
@@ -242,10 +238,6 @@ This feature allows you to analyse the relationship between specific gene expres
     - Option to display or hide the correlation line
     - Option to use a white background
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/Clinical_8_720.mp4" type="video/mp4"> 
-    </video>
 
 ## <u>**8. Compare cohorts**</u>
 In this section, you can compare gene expression or mutation frequency across different cohorts.
@@ -266,6 +258,11 @@ In this section, you can compare gene expression or mutation frequency across di
     - Colour scheme for the bar plot (mutation frequency analysis)
     - Option to use a white background
 
+??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Clinical_9_annot_light.mp4" type="video/mp4"> 
+    </video>
+
 ## <u>**9. Cancer Gene Census (COSMOS)**</u>
 OmicsBridge includes a database of cancer predisposition genes sourced from [Cancer Gene Census from COSMIC](https://cancer.sanger.ac.uk/census). This feature helps you identify which genes from your input are known to be associated with cancer predisposition.
 
@@ -274,7 +271,7 @@ OmicsBridge includes a database of cancer predisposition genes sourced from [Can
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Clinical_10_720.mp4" type="video/mp4"> 
+    <source src="../videos/Clinical_10_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**10. Manage the cohort database**</u>

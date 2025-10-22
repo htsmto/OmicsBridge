@@ -12,7 +12,7 @@ A Conversion Table showing corresponding gene names between species will be gene
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Tool_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/Tool_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -27,7 +27,7 @@ A Conversion Table will be displayed in the middle. Entries without matches rema
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Tool_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/Tool_2_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**3. Find gene loci**</u>
@@ -42,7 +42,7 @@ The tool generates a table showing gene names (both Ensembl ID and gene symbol),
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Tool_3_720.mp4" type="video/mp4"> 
+    <source src="../videos/Tool_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**4. Cross-tabulation analysis**</u>
@@ -67,7 +67,7 @@ This section offers a cross-tabulation analysis tool for examining relationships
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Tool_4_720.mp4" type="video/mp4"> 
+    <source src="../videos/Tool_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**5. Venn Diagram**</u>
@@ -87,7 +87,7 @@ The following figure parameters can be customised:
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Tool_5_720.mp4" type="video/mp4"> 
+    <source src="../videos/Tool_5_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**6. Network Plot**</u>

@@ -21,7 +21,7 @@ Click on "Generate a plot" to create the visualisation. The profile plot will di
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Epi_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/Epi_1_annot.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**2. Genome visualisation**</u>
@@ -41,7 +41,7 @@ Select either hg38 or hg19 genome, then specify the position to visualise using 
   
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Epi_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/Epi_2_annot.mp4" type="video/mp4"> 
     </video>
 
 ## <u>**3. IGV**</u>
@@ -58,7 +58,7 @@ The selected dataset will be displayed in the IGV section on the right. Like the
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Epi_3_720.mp4" type="video/mp4"> 
+    <source src="../videos/Epi_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u> **4. Fing Enhancer/Promoter**</u>
@@ -80,7 +80,7 @@ Click the "Find enhancers/promoters" button to begin the calculation. The correl
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Epi_4_720.mp4" type="video/mp4"> 
+    <source src="../videos/Epi_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## <u> **5. Motif scan** </u>
@@ -97,5 +97,5 @@ The results table includes:
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Epi_5_720.mp4" type="video/mp4"> 
+    <source src="../videos/Epi_5_annot_light.mp4" type="video/mp4"> 
     </video>
