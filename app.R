@@ -5067,6 +5067,9 @@ server <- function(input, output, session) {
             }
             
             tmp <- Dataset()
+            if(dim(tmp)[1] == 0){
+              tmp <- tibble( Dataset = character(), Data.type = character(), CellLine = character(), Data.from = character(), Experiment = character(), Control.group = character(), Treatment.group = character(), Data.Class = character(), When = character(), Path = character(), Description = character(), Added.When = character() )
+            }
             tmp <- add_row(tmp, Dataset=dataset.name.upload ,Data.type=data.type.upload ,CellLine=cellline.upload ,Data.from=Data.from.upload , Experiment=Experiment.upload, Control.group=Control.group.upload, Treatment.group=Treatment.group.upload, Data.Class=Data.Class.upload, When=When.upload ,Path=save_path ,  Description=Description, Added.When = time_stamp)
             tmp <- tmp[order(tmp$Added.When, decreasing =T),]
             Dataset(tmp)
