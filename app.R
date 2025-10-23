@@ -5056,7 +5056,7 @@ server <- function(input, output, session) {
             # a <- gsub(' ', '_', Data.from.upload); b <- gsub(' ', '_', Experiment.upload)
             filname <- paste0(format(Sys.time(), "%H.%M.%S"), '-', uploaded_file$name )
             save_path <- file.path('00_Expression_data_all', Year, date, filname)
-            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = T)
+            dir.create(file.path('00_Expression_data_all', Year, date), recursive=T, showWarnings = F)
             # save
             if(flag==0){
               file.copy(uploaded_file$datapath, save_path)
