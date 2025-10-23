@@ -19,7 +19,8 @@ git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Or, download the zip file from this page and uncompress it.
+> Note: You may be prompted to install `git-lfs` when cloning the repository. For installation instructions, please refer to [the official Git LFS website](https://git-lfs.com/).
+
 
 Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zendo](https://doi.org/10.5281/zenodo.16410489), uncompress and place the folders in the `OmicsBridge` directory:
 
@@ -27,11 +28,13 @@ Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expressi
 tar -xzvf 00_Clinical_dataset.tar.gz
 tar -xzvf 00_Expression_data_all.tar.gz
 ```
+> Note: You cound skip downloading `00_Expression_data_all.tar.gz`, as it only contains demo data.
+
 the final file structure should be:
 ```
 .
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all
+├── 00_Expression_data_all # if you haven’t downloaded 00_Expression_data_all.tar.gz, the app will automatically create this folder (it will be empty) when it starts.
 ├── app.R
 ├── data
 ├── docs
