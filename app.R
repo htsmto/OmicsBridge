@@ -1,6 +1,14 @@
 # if 00_Clinical_dataset and 00_Expression_data_all directory is not in the working, stop
-  if (!dir.exists('00_Clinical_dataset') || !dir.exists('00_Expression_data_all')) {
+  if (!dir.exists('00_Clinical_dataset')) {
     stop("Please make sure that the directories '00_Clinical_dataset' and '00_Expression_data_all' are downloaded and deployed in the working directory.")
+  }
+  if(!dir.exists('00_Expression_data_all')){
+    cat('Creating 00_Expression_data_all directory...\n')
+    dir.create('00_Expression_data_all')
+    data_tmp <- read.table('data/Database.tsv', sep='\t', header=T)
+    # delete all the contenct of data_tmp. export the data frame only wiht the header
+    data_tmp <- data_tmp[0, ]
+    write.table(data_tmp, file='data/Database.tsv', sep='\t', row.names=F, quote=F)
   }
 
 #### Load packages and setting ####
