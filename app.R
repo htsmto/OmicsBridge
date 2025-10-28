@@ -8497,7 +8497,7 @@ server <- function(input, output, session) {
                 if(!'id' %in% rownames(outliers)){
                   p <- p + geom_point(data = df_main_plot[df_main_plot$id %in% outliers$id,], color=highligh_colour , size = highlight_plot_size)
                   if(show_label==1){
-                    p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = highligh_colour, aes(label = id), size = highlight_label_size, segment.size=0.2, max.overlaps=50)
+                    p <- p + geom_text_repel(data =  df_main_plot[df_main_plot$id %in% outliers$id,],  color = highligh_colour, aes(label = id), size = highlight_label_size, segment.size=0.2, max.overlaps=60)
                   }
                 }
               }
@@ -8553,10 +8553,24 @@ server <- function(input, output, session) {
                   }
                   
                 }else{
+                  df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
+                      "A" = data2_outliers(),
+                      "B" = data2_outliers()[data2_outliers()$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1, ]$id, ],
+                      "C" = data2_outliers()[data2_outliers()$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2, ]$id, ],
+                      "D" = data2_outliers()[data2_outliers()$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X2 & df_data1()[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X1, ]$id, ],
+                      "E" = data2_outliers()[data2_outliers()$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.X] < input$Integrate_data_mapped_thr_X2 | df_data1()[input$Integrate_data1_Scat.X] > input$Integrate_data_mapped_thr_X1, ]$id, ],
+                  )       
+                  df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
+                      "A" = df_tmp,
+                      "B" = df_tmp[df_tmp$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                      "C" = df_tmp[df_tmp$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ]$id, ],
+                      "D" = df_tmp[df_tmp$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y2 & df_data1()[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                      "E" = df_tmp[df_tmp$id %in% df_data1()[df_data1()[input$Integrate_data1_Scat.Y] < input$Integrate_data_mapped_thr_Y2 | df_data1()[input$Integrate_data1_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                  )          
                   if(input$Integrate_data1_hide_labels){
-                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, df_tmp, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 0, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
                   }else{
-                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, data2_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
+                    p <- plot_scatter_plot(df_data1(), input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, df_tmp, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold, input$Integrate_data1_colour_id, 1, input$Integrate_data1_pt.size, input$Integrate_data1_high.pt.size, input$Integrate_data1_high.label.size)  
                   }
                   if(!input$Integrate_data_mapped_hide_threshold){
                     switch(input$Integrate_data_mapped_thr_X_method,
@@ -8605,10 +8619,24 @@ server <- function(input, output, session) {
                   }
                   
                 }else{
+                  df_tmp <- switch(input$Integrate_data_mapped_thr_X_method, 
+                      "A" = data1_outliers(),
+                      "B" = data1_outliers()[data1_outliers()$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1, ]$id, ],
+                      "C" = data1_outliers()[data1_outliers()$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2, ]$id, ],
+                      "D" = data1_outliers()[data1_outliers()$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X2 & df_data2()[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X1, ]$id, ],
+                      "E" = data1_outliers()[data1_outliers()$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.X] < input$Integrate_data_mapped_thr_X2 | df_data2()[input$Integrate_data2_Scat.X] > input$Integrate_data_mapped_thr_X1, ]$id, ],
+                  )       
+                  df_tmp <- switch(input$Integrate_data_mapped_thr_Y_method, 
+                      "A" = df_tmp,
+                      "B" = df_tmp[df_tmp$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                      "C" = df_tmp[df_tmp$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2, ]$id, ],
+                      "D" = df_tmp[df_tmp$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y2 & df_data2()[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                      "E" = df_tmp[df_tmp$id %in% df_data2()[df_data2()[input$Integrate_data2_Scat.Y] < input$Integrate_data_mapped_thr_Y2 | df_data2()[input$Integrate_data2_Scat.Y] > input$Integrate_data_mapped_thr_Y1, ]$id, ],
+                  )          
                   if(input$Integrate_data2_hide_labels){
-                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, df_tmp, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 0, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
                   }else{
-                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, data1_outliers(), input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
+                    p <- plot_scatter_plot(df_data2(), input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y, df_tmp, input$Integrate_data_mapped_x_threshold, input$Integrate_data_mapped_y_threshold,  input$Integrate_data2_colour_id, 1, input$Integrate_data2_pt.size, input$Integrate_data2_high.pt.size, input$Integrate_data2_high.label.size) 
                   }
                   if(!input$Integrate_data_mapped_hide_threshold){
                     switch(input$Integrate_data_mapped_thr_X_method,
