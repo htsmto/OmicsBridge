@@ -490,9 +490,9 @@ ui <- fluidPage(
                                         column(6, sliderInput(inputId = 'Data_Overview_Swarm_fig.width', label='fig width', min=300, max=3000, value=800, step=10)),
                                         column(6, sliderInput(inputId = 'Data_Overview_Swarm_fig.height', label='fig height', min=300, max=3000, value=500, step=10)),
                                         column(6, sliderInput(inputId = 'Data_Overview_Swarm_pt.size', 'Point size', min=0.1, max=5, value=1, step=0.1)),
-                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=1, max=10, value=4, step=0.1)),
-                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=1, max=10, value=4, step=0.1)),
-                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Y title size', min=1, max=10, value=4, step=0.1))
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_xlab.font.size', label='X label size', min=0, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_ylab.font.size', label='Y label size', min=0, max=10, value=4, step=0.1)),
+                                        column(6, sliderInput(inputId = 'Data_Overview_Swarm_graph.title.font.size', 'Y title size', min=0, max=10, value=4, step=0.1))
                                       ),
                                       fluidRow(
                                         column(12, materialSwitch('Data_Overview_Swarm_white_background', 'Use white background', value=FALSE, status = "success"))
@@ -5814,9 +5814,25 @@ server <- function(input, output, session) {
                     p <- p + scale_color_viridis_d(option=input$Data_Overview_Swarm_select_colour_pallete) #(palette = input$Data_Overview_Swarm_select_colour_pallete)
                   }
                 }
-                p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ theme(legend.position = 'none')
-                p <- p + theme(axis.title.x = element_blank()) # + theme(plot.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+                p <- p + theme(legend.position = 'none', axis.title.x = element_blank())
+                if(input$Data_Overview_Swarm_xlab.font.size == 0){
+                  p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+                }else{
+                  p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size))
+                  p <- p + theme(axis.ticks.x = element_line(size=0.1), axis.ticks.length.x = unit(1, "pt"))
+                }
+                if(input$Data_Overview_Swarm_ylab.font.size != 0){
+                  p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.ticks.y = element_line(size=0.1), aixs.ticks.length.y = unit(1, "pt"))
+                }else{
+                  p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+                }
+                p <- p + theme() 
                 p <- p + ylab(Gene)
+                if(input$Data_Overview_Swarm_graph.title.font.size != 0){
+                  p <- p + theme(axis.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+                }else{
+                  p <- p + theme(axis.title = element_blank())
+                }
               }else{
                 data_list <- split(df_tmp, df_tmp$Gene)
                 num_plots <- length(data_list)
@@ -5830,13 +5846,29 @@ server <- function(input, output, session) {
                       } 
                   }
                   each_gene <- data_list[[i]]$Gene[1]
-                  p <- p + ylab(each_gene) + theme(axis.title.y = element_text(size = input$Data_Overview_Swarm_graph.title.font.size)) + theme(legend.position = 'none')  + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size))
+                  p <- p + ylab(each_gene) + theme(legend.position = 'none')
+                  if(input$Data_Overview_Swarm_ylab.font.size != 0){
+                    p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.ticks.y = element_line(size=0.1), axis.ticks.length.y = unit(1, "pt"))
+                  }else{
+                    p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+                  }
+                  if(input$Data_Overview_Swarm_graph.title.font.size != 0){
+                    p <- p + theme(axis.title.y = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
+                  }else{
+                    p <- p + theme(axis.title.y = element_blank())
+                  }
                   p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-                  p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+                  p <- p + theme(axis.title.x = element_blank())
                   if( i < num_plots){
                     p <- p + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
                   }else{
-                    p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size), axis.title.x = element_blank())
+                    if(input$Data_Overview_Swarm_xlab.font.size == 0){
+                      p <- p + theme(axis.text.x = element_blank())
+                      p <- p + theme(axis.ticks.x = element_blank())
+                    }else{
+                      p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Data_Overview_Swarm_xlab.font.size))
+                      p <- p + theme(axis.ticks.x = element_line(size=0.1), axis.ticks.length.x = unit(1, "pt"))
+                    }
                   }
                   if(input$Data_Overview_Swarm_white_background){
                     p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
@@ -5847,10 +5879,8 @@ server <- function(input, output, session) {
                 })
                 p <- wrap_plots(plots, ncol=1)
               }
-              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-              p <- p + theme(axis.text.y = element_text(size = input$Data_Overview_Swarm_ylab.font.size), axis.text.x = element_text(size = input$Data_Overview_Swarm_xlab.font.size))
-              p <- p + theme(axis.title = element_text(size = input$Data_Overview_Swarm_graph.title.font.size))
-              p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
+              p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
+              # p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(1, "pt"))
               if(input$Data_Overview_Swarm_white_background){
                 p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
                 p <- p + theme(panel.background = element_rect(fill="white", size=0))
@@ -15426,7 +15456,7 @@ server <- function(input, output, session) {
           # saveDb(txdb, file = "/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
           Peak_annotation_txdb <- reactive({
             if(input$Peak_annotation_genome == 'hg38'){
-              loadDb("/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
+              loadDb("data/gencode.v41.primary_assembly.annotation.sqlite")
             }
           })
           
