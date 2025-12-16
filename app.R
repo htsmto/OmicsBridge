@@ -4685,6 +4685,7 @@ ui <- fluidPage(
                         box(width=12, title='Input',collapsible = TRUE, status='info',
                           fluidRow(
                             column(12, fileInput("Network_input_file", "upload a tsv file", accept = c(".tsv")) ),
+                            column(12, helpText("The input file should be a three-column table. \n The header should contain 'from', 'to' and 'weight' columns. \n'from' and 'to' are the node names. 'weight' is the edge weight (numeric).") ),
                             column(12, materialSwitch('Network_input_example', 'Use an example data', value=FALSE,  status='info') )
                           ),
                           fluidRow(
@@ -15882,11 +15883,11 @@ server <- function(input, output, session) {
         output$Network_input_table_visNet <- renderVisNetwork({
           if(is.null(Network_input_data())){
             output$Network_input_table_visNet_status <- renderText({'Please input the data'})
-            return(ggplot())
+            return(NULL)
           }
-          if(length(Network_input_data())== 0 ){
+          if(length(nrow(Network_input_data()))== 0 ){
             output$Network_input_table_visNet_status <- renderText({'Please input the data'})
-            return(ggplot())
+            return(NULL)
           }
           output$Network_input_table_visNet_status <- renderText({NULL})
           graph <- graph_from_data_frame(Network_input_data(), directed = TRUE)
