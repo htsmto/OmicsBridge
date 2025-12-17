@@ -4776,6 +4776,7 @@ server <- function(input, output, session) {
         if(!requireNamespace("AUCell", quietly = TRUE)) { BiocManager::install("AUCell", ask = FALSE) }
         suppressMessages(library(AUCell))
       }else if(input$sidebar == 'igv'){
+        cat('loading packages for epigenome visualisation...\n')
         if(!requireNamespace("GenomicAlignments", quietly = TRUE)) { BiocManager::install("GenomicAlignments", ask = FALSE) }
         if(!requireNamespace("EnrichedHeatmap", quietly = TRUE)) { BiocManager::install("EnrichedHeatmap", ask = FALSE) }
         if(!requireNamespace("rtracklayer", quietly = TRUE)) { BiocManager::install("rtracklayer", ask = FALSE) }
@@ -4800,12 +4801,14 @@ server <- function(input, output, session) {
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
         data(PWMLogn.hg19.MotifDb.Hsap)
       }else if(input$sidebar == 'Data_Overview'){
+        cat('loading the decoupleR packages for data overview...\n')
         if(!requireNamespace("decoupleR", quietly = TRUE)) { BiocManager::install("decoupleR", ask = FALSE) }
         suppressMessages(library(decoupleR))
         # suppressMessages(library(visNetwork))
         # net <- readRDS('data/OmnipathR_net.rds')
         # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
       }else if(input$sidebar == 'Clinical_dataset'){
+        cat('loading the survival analysis packages for clinical dataset...\n')
         suppressMessages(library(survival))
         suppressMessages(library(survminer))
         if(!requireNamespace("MCPcounter", quietly = TRUE)) {
@@ -4817,6 +4820,7 @@ server <- function(input, output, session) {
         }
         suppressMessages(library(xCell))
       }else if(input$sidebar == 'Tools'){
+        cat('loading the packages for tools...\n')
         suppressMessages(library(visNetwork))
         suppressMessages(library(eulerr))
         suppressMessages(library(ChIPseeker))
