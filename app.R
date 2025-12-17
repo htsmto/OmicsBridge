@@ -81,6 +81,7 @@
   if(!requireNamespace("MCPcounter", quietly = TRUE)) { devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source", force = TRUE, upgrade = "never") }
   if(!requireNamespace("xCell", quietly = TRUE)) { devtools::install_github('dviraran/xCell',upgrade = "never") }
   if(!requireNamespace("reshape2", quietly = TRUE)) { install.packages("reshape2", dependencies = FALSE) }
+  cat('Necessary packages loaded.\n')
   suppressMessages(library(reshape2))
   options(shiny.maxRequestSize = 10000*1024^2)
   options(shiny.usecairo=TRUE)
@@ -88,10 +89,12 @@
   set.seed(123)
   options(scipen = 10)
   set.seed(123)
+  cat('loading necessary data files...\n')
   net <- readRDS('data/OmnipathR_net.rds')
   colour_pallets <- c('viridis', 'magma', 'plasma', 'inferno', 'cividis')
   human_mouse_biomart_data <- read.table('data/biomart_comparison_chart.tsv', sep='\t',header=T,check.names = FALSE)
   customegeneModels <- readRDS('data/customgeneModels.rds')
+  cat('necessary data files loaded.\n')
 ####
 
 
@@ -4775,8 +4778,9 @@ server <- function(input, output, session) {
         suppressMessages(library(cowplot))
         if(!requireNamespace("AUCell", quietly = TRUE)) { BiocManager::install("AUCell", ask = FALSE) }
         suppressMessages(library(AUCell))
+        cat('scRNA packages loaded.\n')
       }else if(input$sidebar == 'igv'){
-        cat('loading packages for epigenome visualisation...\n')
+        cat('loading packages and data files for epigenome visualisation...\n')
         if(!requireNamespace("GenomicAlignments", quietly = TRUE)) { BiocManager::install("GenomicAlignments", ask = FALSE) }
         if(!requireNamespace("EnrichedHeatmap", quietly = TRUE)) { BiocManager::install("EnrichedHeatmap", ask = FALSE) }
         if(!requireNamespace("rtracklayer", quietly = TRUE)) { BiocManager::install("rtracklayer", ask = FALSE) }
@@ -4800,6 +4804,7 @@ server <- function(input, output, session) {
         if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) { BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", ask = FALSE) }
         suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
         data(PWMLogn.hg19.MotifDb.Hsap)
+        cat('packages and data files for epigenome visualisation loaded.\n')
       }else if(input$sidebar == 'Data_Overview'){
         cat('loading the decoupleR packages for data overview...\n')
         if(!requireNamespace("decoupleR", quietly = TRUE)) { BiocManager::install("decoupleR", ask = FALSE) }
@@ -4807,6 +4812,7 @@ server <- function(input, output, session) {
         # suppressMessages(library(visNetwork))
         # net <- readRDS('data/OmnipathR_net.rds')
         # suppressMessages(library(clusterProfiler)) # BiocManager::install("clusterProfiler")
+        cat('decoupleR packages loaded.\n')
       }else if(input$sidebar == 'Clinical_dataset'){
         cat('loading the survival analysis packages for clinical dataset...\n')
         suppressMessages(library(survival))
@@ -4819,11 +4825,13 @@ server <- function(input, output, session) {
           devtools::install_github('dviraran/xCell')
         }
         suppressMessages(library(xCell))
+        cat('survival analysis packages loaded.\n')
       }else if(input$sidebar == 'Tools'){
         cat('loading the packages for tools...\n')
         suppressMessages(library(visNetwork))
         suppressMessages(library(eulerr))
         suppressMessages(library(ChIPseeker))
+        cat('packages for tools loaded.\n')
 
       }
     })
