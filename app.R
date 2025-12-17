@@ -12,6 +12,7 @@
   }
 
 #### Load packages and setting ####
+  cat('loading packages...\n')
   options(install.packages.check.source = "no")
   options(ask = FALSE)
   options(install.packages.check.source = "no")
@@ -4767,6 +4768,7 @@ server <- function(input, output, session) {
   ### Library loading ################
     observeEvent(input$sidebar,{
       if(input$sidebar == 'scRNA'){
+        cat('loading scRNA packages...\n')
         if(!requireNamespace("Seurat", quietly = TRUE)) { install.packages("Seurat", dependencies = FALSE) }
         suppressMessages(library(Seurat))
         if(!requireNamespace("cowplot", quietly = TRUE)) { install.packages("cowplot", dependencies = FALSE) }
