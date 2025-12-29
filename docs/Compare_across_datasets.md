@@ -40,7 +40,7 @@ This section analyses and identifies genes that consistently appear as significa
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Compare_acorss_datasets_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/Compare_acorss_datasets_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -66,5 +66,5 @@ Note that if none of the datasets contains the selected gene, no plot will appea
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/Compare_acorss_datasets_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/Compare_acorss_datasets_2_annot_light.mp4" type="video/mp4"> 
     </video>

@@ -18,8 +18,8 @@ Please clone this [Github repository](https://github.com/htsmto/OmicsBridge) by 
 git clone https://github.com/Immune-Regulation-in-Cancer/OmicsBridge.git
 cd OmicsBridge
 ```
-Alternatively, you can download the ZIP file from the repository and extract it manually.
-Note: You may be prompted to install `git-lfs` when cloning the repository. For installation instructions, please refer to [the official Git LFS website](https://git-lfs.com/).
+
+> Note: You may be prompted to install `git-lfs` when cloning the repository. For installation instructions, please refer to [the official Git LFS website](https://git-lfs.com/).
 
 Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zendo](https://doi.org/10.5281/zenodo.16410489), uncompress and place the folders in the `OmicsBridge` directory:
 

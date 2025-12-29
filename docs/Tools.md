@@ -102,3 +102,6 @@ This section generates a network plot by providing a TSV file containing nodes, 
     - Option to show the direction of the node connections.
 
 ??? example  "Example Usage video"
+    <video width="1000" controls>
+    <source src="../videos/Tool_6_annot_light.mp4" type="video/mp4"> 
+    </video>

@@ -36,7 +36,7 @@ To create and interact with scatter plots:
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_1_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ### <u> **2.2. Highlighting the filtered genes** </u>
@@ -63,7 +63,7 @@ By clicking the 'Show in a bar plot' switch, a bar plot of the filtered genes wi
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_2_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_2_annot.mp4" type="video/mp4"> 
     </video>
 
 #### <u>**2.2.2. Showing the pathway genes**</u>
@@ -88,7 +88,7 @@ Similar to "filtering genes", clicking the 'Show in a bar plot' switch will disp
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_3_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -106,7 +106,7 @@ Users can visualise genes from their custom gene sets that are registered in the
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_4_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ### <u> **2.3. Downstream analysis** </u>
@@ -140,7 +140,7 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_5_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_5_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -169,7 +169,7 @@ To perform GSEA analysis:
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_6_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_6_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -191,7 +191,7 @@ To perform Transcription Factor (TF) activity inference analysis. This analysis 
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_7_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_7_annot_light.mp4" type="video/mp4"> 
     </video>
 
 ## **3. Analysis of "Count table"**
@@ -222,7 +222,7 @@ The swarm plot visualises expression differences of genes of interest across sam
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_8_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_8_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -255,7 +255,7 @@ When choosing "Enter Y-axis gene and explore the correlations":
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_9_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_9_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -281,7 +281,7 @@ The heatmap feature allows you to visualise gene expression patterns across samp
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_10_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_10_annot_light.mp4" type="video/mp4"> 
     </video>
 
 
@@ -303,5 +303,5 @@ The heatmap feature allows you to visualise gene expression patterns across samp
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
-    <source src="../videos/DataOverview_11_720.mp4" type="video/mp4"> 
+    <source src="../videos/Data_overview_11_annot_light.mp4" type="video/mp4"> 
     </video>
