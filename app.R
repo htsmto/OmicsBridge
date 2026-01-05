@@ -15469,6 +15469,11 @@ server <- function(input, output, session) {
           output$Peak_annotation_status <- renderText({'Please fill in the input fields and click the start button.'})
           # txdb <- makeTxDbFromGFF("/home/h023o/Tools/ref/hg38/gencode.v41.primary_assembly.annotation.gtf", format = "gtf")
           # saveDb(txdb, file = "/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
+          # if gencode.v41.primary_assembly.annotation.sqlite is still gzipped, unzip it first.
+          if(file.exists("data/gencode.v41.primary_assembly.annotation.sqlite.gz")){
+            R.utils::gunzip("data/gencode.v41.primary_assembly.annotation.sqlite.gz", remove=FALSE)
+          }
+
           Peak_annotation_txdb <- reactive({
             if(input$Peak_annotation_genome == 'hg38'){
               loadDb("data/gencode.v41.primary_assembly.annotation.sqlite")
