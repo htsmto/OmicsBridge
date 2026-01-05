@@ -87,8 +87,8 @@ You can customise the port number (4191 in this example) as needed. Once running
 > ```bash
 > ssh -L 4191:localhost:4191 your_username@remote_server_address
 > ```
-
-After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
+> 
+> After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
 
 
 If you're using your local R environment instead of Docker, open your teminal and:
