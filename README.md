@@ -15,6 +15,7 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 Please clone this repository first. In the terminal:
 
 ```bash
+# Make sure that `git-lfs` is installed.
 git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```

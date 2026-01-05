@@ -6,3 +6,4 @@ videos/
 00_Expression_data_all.tar.gz
 site/
 .DS_Store
+data/gencode.v41.primary_assembly.annotation.sqlite
