@@ -15471,7 +15471,9 @@ server <- function(input, output, session) {
           # saveDb(txdb, file = "/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
           # if gencode.v41.primary_assembly.annotation.sqlite is still gzipped, unzip it first.
           if(file.exists("data/gencode.v41.primary_assembly.annotation.sqlite.gz")){
-            R.utils::gunzip("data/gencode.v41.primary_assembly.annotation.sqlite.gz", remove=FALSE)
+            if(!file.exists("data/gencode.v41.primary_assembly.annotation.sqlite")){
+              R.utils::gunzip("data/gencode.v41.primary_assembly.annotation.sqlite.gz", remove=FALSE)
+            }
           }
 
           Peak_annotation_txdb <- reactive({
