@@ -2085,7 +2085,12 @@ ui <- fluidPage(
             ##### Dataset selection #####
               box(width=12, title='Data selection', status='info', solidHeader = TRUE,
                 fluidRow( 
-                  column(4, htmlOutput("Clinical_data_select")) ,
+                  column(4,
+                    fluidRow(
+                      # column(12, selectInput('clinical_data_select', 'Select a clinical data', choices = c('None'='None')))
+                      column(12, uiOutput("Clinical_data_select_ui")) ,
+                    )
+                  ),
                   column(8, 
                     fluidRow(
                       column(12, h5('Dataset detail:')),
@@ -3384,9 +3389,9 @@ ui <- fluidPage(
                       box(width=12, title='Registered cohort', collapsible = TRUE, status='primary',solidHeader = TRUE,
                         DT::dataTableOutput("Cohort_DataBaseTable"),
                         fluidRow( 
-                          column(1, actionButton('Cohort_DataBase_save_dt', 'Save changes',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
+                          column(2, actionButton('Cohort_DataBase_save_dt', 'Save changes',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")), 
                           column(2, actionButton('Cohort_DataBase_delete_row', 'Delete selected data', style="color: #ffffff; background-color: #2d3cac; border-color: #1c48fa")), 
-                          column(7, verbatimTextOutput('Cohort_DataBase_status')) 
+                          column(6, verbatimTextOutput('Cohort_DataBase_status')) 
                         )
                       ),
                       box(width=12, title='Upload',collapsible = TRUE,  status='danger',solidHeader = TRUE,
@@ -3422,13 +3427,16 @@ ui <- fluidPage(
                         fluidRow( 
                           column(5, uiOutput("new_cohort_upload_meta")),
                           column(5, uiOutput("new_cohort_upload_mut")),
-                        ),
-                        fluidRow( column(2, actionButton('new_cohort_upload_reset', "Reset uploaded files",style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))),
-                        fluidRow( column(12, h4('') ) ),
-                        fluidRow( 
+                          column(2,
+                            fluidRow(
+                              column(12, h4('')),
+                              column(12, h4('')),
+                              column(12, actionButton('new_cohort_upload_reset', "Reset uploaded files",style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))
+                            )
+                          ),
                           column(12, h3('') ),
                           column(4, textInput("new_cohort_upload_dataset_name", "Cohort Name*")),
-                          column(7, textAreaInput("new_cohort_upload_description", "Description")) 
+                          column(6, textAreaInput("new_cohort_upload_description", "Description")) 
                         ),
                         fluidRow( column(2, actionButton('new_cohort_upload_data', 'Add a new cohort',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" )), column(6, verbatimTextOutput('new_cohort_status'))),
                         fluidRow( column(12, h3('') )),
@@ -4758,7 +4766,7 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Last updated on 23. Sep, 2025 ", style = "text-align: right;"))
+      h4(tags$div("Last updated on 10th. Jan, 2026 ", style = "text-align: right;"))
     )
   )
 )
@@ -4843,6 +4851,9 @@ server <- function(input, output, session) {
       Dataset <- reactiveVal({
         tmp <- read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE)
         data.frame(tmp)
+      })
+      Cliniacal_dataset <- reactiveVal({
+        data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T, check.names = FALSE))
       })
       output$Data_type_filter <- renderUI({ 
         tmp <- Dataset()
@@ -11440,9 +11451,23 @@ server <- function(input, output, session) {
   ### Clinical_data ################################################################################
 
     #### Clinical data loading ####
-      Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T, check.names = FALSE))})
-      output$Clinical_data_select <- renderUI({ selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) })
-      outputOptions(output, "Clinical_data_select", suspendWhenHidden=FALSE)
+      # Cliniacal_dataset <- reactiveVal({data.frame(read.table('data/Clinical_data_database.tsv', sep='\t', header=T, check.names = FALSE))})
+      output$Clinical_data_select_ui <- renderUI({ 
+        cat(Cliniacal_dataset()$Database.Name[1])
+        cat("renderUI called\n")
+        selectInput('Clinical_data_select', 'Select a clinical data', c('None'='None', Cliniacal_dataset()$Database.Name)) 
+      })
+      # outputOptions(output, "Clinical_data_select_ui", suspendWhenHidden=FALSE)
+
+      # observe({
+      #   req(Cliniacal_dataset())
+      #   cat("Cliniacal_dataset rows:", nrow(Cliniacal_dataset()), "\n")
+      #   updateSelectInput(
+      #     session,
+      #     'clinical_data_select',
+      #     choices = c('None'='None', Cliniacal_dataset()$Database.Name)
+      #   )
+      # })
 
       # show the details when it is selected
         output$Clinical_Dataset_detail <- renderText({
@@ -12912,14 +12937,14 @@ server <- function(input, output, session) {
       #
     #### Upload ####
       # file upload and reset function 
-        output$new_cohort_upload_GE <- renderUI({ fileInput("new_cohort_upload_GE", "Upload a Gene expression file*") })
+        output$new_cohort_upload_GE <- renderUI({ isolate(fileInput("new_cohort_upload_GE", "Upload a Gene expression file*")) })
         output$new_cohort_upload_sur <- renderUI({ fileInput("new_cohort_upload_sur", "Upload a survival data file*") })
         output$new_cohort_upload_meta <- renderUI({ fileInput("new_cohort_upload_meta", "Upload a metadata file*") })
         output$new_cohort_upload_mut <- renderUI({ fileInput("new_cohort_upload_mut", "Upload a mutation data file (optional)") })
-        outputOptions(output, "new_cohort_upload_GE", suspendWhenHidden=FALSE)
-        outputOptions(output, "new_cohort_upload_sur", suspendWhenHidden=FALSE)
-        outputOptions(output, "new_cohort_upload_meta", suspendWhenHidden=FALSE)
-        outputOptions(output, "new_cohort_upload_mut", suspendWhenHidden=FALSE)
+        # outputOptions(output, "new_cohort_upload_GE", suspendWhenHidden=FALSE)
+        # outputOptions(output, "new_cohort_upload_sur", suspendWhenHidden=FALSE)
+        # outputOptions(output, "new_cohort_upload_meta", suspendWhenHidden=FALSE)
+        # outputOptions(output, "new_cohort_upload_mut", suspendWhenHidden=FALSE)
 
       # reset
         observeEvent(input$new_cohort_upload_reset, {
@@ -13149,7 +13174,7 @@ server <- function(input, output, session) {
 
                   tmp <- Cliniacal_dataset()
                   tmp <- add_row(tmp, Database.Name=cohort_name , 
-                    Description=	Description,
+                    Description=  Description,
                     Expression_path= save_path_ge,
                     Survival_path= save_path_cli,
                     Meta_path= save_path_meta,
@@ -13217,8 +13242,10 @@ server <- function(input, output, session) {
           Cliniacal_dataset(tmp)
           replaceData(dataTableProxy('Cliniacal_dataset'), Cliniacal_dataset(), resetPaging=F)
           write.table(Cliniacal_dataset(), 'data/Clinical_data_database.tsv', row.names=F, sep='\t', quote=F)
+          show_alert(title='Success!', text='The selected cohort(s) were successfully deleted.', type='success')
           output$Cohort_DataBase_status <- renderText('Deleted!')
         }else{
+          show_alert(title='Error.',text='Please select at least one row to delete.', type='error' )
           output$Cohort_DataBase_status <- renderText('No row selecetd!')
         }
       })
@@ -15470,11 +15497,11 @@ server <- function(input, output, session) {
           # txdb <- makeTxDbFromGFF("/home/h023o/Tools/ref/hg38/gencode.v41.primary_assembly.annotation.gtf", format = "gtf")
           # saveDb(txdb, file = "/home/h023o/ShinyApps/Software/OmicsBridge/data/gencode.v41.primary_assembly.annotation.sqlite")
           # if gencode.v41.primary_assembly.annotation.sqlite is still gzipped, unzip it first.
-          if(file.exists("data/gencode.v41.primary_assembly.annotation.sqlite.gz")){
-            if(!file.exists("data/gencode.v41.primary_assembly.annotation.sqlite")){
-              R.utils::gunzip("data/gencode.v41.primary_assembly.annotation.sqlite.gz", remove=FALSE)
-            }
-          }
+          # if(file.exists("data/gencode.v41.primary_assembly.annotation.sqlite.gz")){
+          #   if(!file.exists("data/gencode.v41.primary_assembly.annotation.sqlite")){
+          #     R.utils::gunzip("data/gencode.v41.primary_assembly.annotation.sqlite.gz", remove=FALSE)
+          #   }
+          # }
 
           Peak_annotation_txdb <- reactive({
             if(input$Peak_annotation_genome == 'hg38'){
