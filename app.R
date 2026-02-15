@@ -2687,7 +2687,9 @@ ui <- fluidPage(
                                             column(6, colourpicker::colourInput('Clinical_Mutation_Gene_expression_col_wt', 'Colour (wild type)', value='#3f48ee')),
                                           ),
                                           fluidRow(
-                                            column(6, materialSwitch('Clinical_Mutation_Gene_expression_white_background', 'Use white background', value=FALSE, status = "success"))
+                                            column(6, materialSwitch('Clinical_Mutation_Gene_expression_white_background', 'Use white background', value=FALSE, status = "success")),
+                                            column(6, radioButtons('Clinical_Mutation_Gene_expression_Legend_position', 'Legend position', choices = c("Right" = "right", "Top" = "top"), selected = "right", inline = TRUE) ),
+                                            column(6, uiOutput("Clinical_Mutation_Gene_expression_Legend_layout_ui"))
                                           ),
                                           circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                         )
@@ -4766,7 +4768,7 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Last updated on 10th. Jan, 2026 ", style = "text-align: right;"))
+      h4(tags$div("Version 1.0.0 | Last updated on 15th. Feb, 2026 ", style = "text-align: right;"))
     )
   )
 )
@@ -14780,11 +14782,16 @@ server <- function(input, output, session) {
         ## input genes
           # when selecting from custom genesets
             output$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select <- renderUI({
-              gene_sets_names <- c()
-              gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
-              selectInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              if(input$Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset){
+                gene_sets_names <- c()
+                gene_sets_names <- c(gene_sets_names, Original_geneset_list()$Geneset.name)
+                selectInput('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select', 'Select a custom geneset',  c('None'='None', gene_sets_names))
+              }else{
+                NULL
+              }
+
             })
-            outputOptions(output, "Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select",  suspendWhenHidden=FALSE)
+            # outputOptions(output, "Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select",  suspendWhenHidden=FALSE)
 
           # data table for selecting a gene
             Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp <- reactive({
@@ -14806,6 +14813,12 @@ server <- function(input, output, session) {
               datatable( Clinical_Mutation_Gene_expression_geneInput_selecttable_tmp(), selection = list(mode='single'), options = list(scrollX = TRUE, scrollY=TRUE)) 
             })
         ## Comparison plot
+          output$Clinical_Mutation_Gene_expression_Legend_layout_ui <- renderUI({
+            if (input$Clinical_Mutation_Gene_expression_Legend_position == "top") {
+              materialSwitch("Clinical_Mutation_Gene_expression_Legend_layout", "Legend label line break", value = FALSE, status = "success")
+            }
+          })
+
           # select genes -> make a pivot table -> t-test -> plot
           output$Clinical_Mutation_Gene_expression_geneInput_plot <- renderPlot({
             if(is.null(df_mut_num())){
@@ -14899,18 +14912,29 @@ server <- function(input, output, session) {
                 values = c('Mutation' = input$Clinical_Mutation_Gene_expression_col_mut, 'Wild.type' = input$Clinical_Mutation_Gene_expression_col_wt )
               ) 
             }
-            p <- p + theme(legend.position = "top", legend.box.margin = margin(t = -10, b = 0))
             p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Gene_expression_XY_label.font.size))
             p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Gene_expression_XY_title.font.size))
-            p <- p + ggtitle(gene_ex) + theme(plot.title = element_text(size = input$Clinical_Mutation_Gene_expression_title.font.size))
+            p <- p + theme(plot.title = element_text(size = input$Clinical_Mutation_Gene_expression_title.font.size))
             p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
             p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
             p <- p + theme(legend.key.size = unit(1.5, "mm"))
+            p <- p + ylab(gene_ex)
             p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size), legend.title = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size))
             if(input$Clinical_Mutation_Gene_expression_white_background){
               p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
               p <- p + theme(panel.background = element_rect(fill="white", size=0))
               p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            }
+            if(input$Clinical_Mutation_Gene_expression_Legend_position == "right"){
+              p <- p + theme(legend.position = "right")
+            }else{
+              if(input$Clinical_Mutation_Gene_expression_Legend_layout){
+                p <- p + theme(legend.position = c(0.5, 1))
+                p <- p + theme(legend.direction = "vertical")
+              }else{
+                p <- p + theme(legend.position = c(0.5, 0.99))
+                p <- p + theme(legend.direction = "horizontal")
+              }
             }
             p
           }, width=reactive(input$Clinical_Mutation_Gene_expression_fig.width), height=reactive(input$Clinical_Mutation_Gene_expression_fig.height), res=300)
