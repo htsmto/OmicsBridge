@@ -1,0 +1,1581 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../integrate_two/">
+      
+      
+        <link rel="next" href="../scRNA/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.13">
+    
+    
+      
+        <title>Clinical Data Analysis - OmicsBridge</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#clinical-data" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OmicsBridge" class="md-header__button md-logo" aria-label="OmicsBridge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OmicsBridge
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Clinical Data Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OmicsBridge" class="md-nav__button md-logo" aria-label="OmicsBridge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OmicsBridge
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Database and Data Uplaod
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Data_Overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Compare_across_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compare Across Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrate_two/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Two Datasets Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Clinical Data Analysis
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Clinical Data Analysis
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-cohort-selection-and-view-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Cohort selection and view the data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-survival-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Survival analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-gene-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Gene correlation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mutation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Mutation analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-gene-expression-across-subtypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Gene expression across subtypes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-signature-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Signature analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-deconvolution-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Deconvolution analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Deconvolution analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-generating-a-heatmapbarplot" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1. Generating a heatmap/barplot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-exploring-correlations-between-gene-expression-and-cell-type-abundance" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2. Exploring correlations between gene expression and cell type abundance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-compare-cohorts" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Compare cohorts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-cancer-gene-census-cosmos" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Cancer Gene Census (COSMOS)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-manage-the-cohort-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Manage the cohort database
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Manage the cohort database">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-pre-installed-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1. Pre-installed cohort
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102how-to-upload-an-own-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.How to upload an own cohort
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.2.How to upload an own cohort">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1021-gene-expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.1 Gene expression
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1022-patient-survival-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.2. Patient survival information
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1023-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.3. Metadata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1024-mutation-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.4. Mutation data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-3-edit-or-delete-the-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10-3. Edit or delete the cohort
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10-3. Edit or delete the cohort">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1031-editing" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3.1. Editing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1032-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3.2. Delete
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scRNA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    scRNA Data Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../igv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Epigenome Visualisation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Gene_set/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom Genesets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FAQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Case_study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Case study
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-cohort-selection-and-view-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Cohort selection and view the data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-survival-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Survival analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-gene-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Gene correlation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mutation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Mutation analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-gene-expression-across-subtypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Gene expression across subtypes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-signature-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Signature analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-deconvolution-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Deconvolution analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Deconvolution analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-generating-a-heatmapbarplot" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1. Generating a heatmap/barplot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-exploring-correlations-between-gene-expression-and-cell-type-abundance" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2. Exploring correlations between gene expression and cell type abundance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-compare-cohorts" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Compare cohorts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-cancer-gene-census-cosmos" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Cancer Gene Census (COSMOS)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-manage-the-cohort-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Manage the cohort database
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Manage the cohort database">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-pre-installed-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1. Pre-installed cohort
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102how-to-upload-an-own-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.How to upload an own cohort
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.2.How to upload an own cohort">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1021-gene-expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.1 Gene expression
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1022-patient-survival-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.2. Patient survival information
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1023-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.3. Metadata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1024-mutation-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.4. Mutation data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-3-edit-or-delete-the-cohort" class="md-nav__link">
+    <span class="md-ellipsis">
+      10-3. Edit or delete the cohort
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10-3. Edit or delete the cohort">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1031-editing" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3.1. Editing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1032-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3.2. Delete
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="clinical-data"><strong>Clinical data</strong></h1>
+<h2 id="1-cohort-selection-and-view-the-data"><u><strong>1. Cohort selection and view the data</strong></u></h2>
+<p>A cohort can be selected in the top. Once selected, its details will be shown on the right. The data can be viewed as an excel format in the “View the data” section. For a gene expression, since this table is usually a large data, by default it shows the first 1000 lines to avoid over memory usega. The uses can choose to show all the data if they want.</p>
+<h2 id="2-survival-analysis"><u><strong>2. Survival analysis</strong></u></h2>
+<p>This section examines the association between gene expression and survival outcomes within a selected patient cohort.</p>
+<ol>
+<li>Enter individual gene names line by line or select a custom gene set.</li>
+<li>Choose how to divide patients into high- and low-expression groups:<ul>
+<li>Using the median (default)</li>
+<li>Using top 25% vs. bottom 25%</li>
+<li>Using custom-defined thresholds (e.g., top X% vs. bottom Y%)</li>
+<li>Manually specifying the two groups by entering sample names directly</li>
+</ul>
+</li>
+<li>Select the event type</li>
+<li>Click the start button.<ul>
+<li>It generates a results table showing p-values and hazard ratios for each gene, sorted by the hazard ratio.</li>
+</ul>
+</li>
+<li>Click on any row in the results table to display the corresponding Kaplan–Meier curve.</li>
+<li>Use the histogram feature to visualise gene expression distributions, which can help determine appropriate sample splitting criteria.</li>
+</ol>
+<p>The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to <strong>10-2. How to upload your own cohort</strong> section.</p>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>The size (width and height) of the figure.</li>
+<li>The size of the X and Y axis/label font size.</li>
+<li>The size of the legend title</li>
+<li>The colour for the high- and low-expression group.</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_1_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="3-gene-correlation"><u><strong>3. Gene correlation</strong></u></h2>
+<p>This section allows you to analyse gene expression correlations within a selected cohort. Users can investigate how the expression level of a specific gene correlates with the expression levels of other genes.</p>
+<ol>
+<li>Enter one name of the target gene (will be shown on the Y-axis of scatter plots).</li>
+<li>Select an analysis mode under Explore type:<ul>
+<li><strong>Explore one gene's correlation with specific genes</strong> (default):<ul>
+<li>In this case, enter the gene names or select a geneset from a Custom Geneset to investigate the correlation (will be shown on the X-axis)</li>
+</ul>
+</li>
+<li><strong>Explore one gene's correlation with all the genes</strong>:<ul>
+<li>It calculates correlations with all genes in the cohort. This takes several minutes.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Choose correlation method: Pearson (linear relationships) or Spearman (rank-based).</li>
+<li>Click Start to run analysis. It returns a table showing correlation coefficient and p-value for each gene.</li>
+<li>Clicking any gene in the table displays its scatter plot showing correlation with the target gene.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>The size (width and height) of the figure.</li>
+<li>The size of the X and Y axis/label font size.</li>
+<li>Change the background from gray to white</li>
+<li>The colour of the dot</li>
+<li>Show the correlation line</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_2_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="4-mutation-analysis"><u><strong>4. Mutation analysis</strong></u></h2>
+<p>This section helps you analyse gene mutations in the selected cohort.</p>
+<ol>
+<li>Input the genes to investigate by:<ul>
+<li>Entering gene names one per line in the text box ('Text input')</li>
+<li>Choosing to analyse all genes in the dataset ('Use all genes')</li>
+<li>Selecting a geneset from the Custom Geneset ('Select from custom genesets')</li>
+</ul>
+</li>
+<li>Filter the samples if necessary<ul>
+<li>By default, all cohort samples are included ('Use all samples')</li>
+<li>When choosing 'Use the selected samples by a specific category', you can filter samples using metadata (treatment group, cancer subtype, demographics) for targeted analysis</li>
+</ul>
+</li>
+<li>Click the start button. A Results table will appear in the bottom left section. The following plots will be generated in the tabs:<ul>
+<li><strong>Frequency Plot</strong> tab: 
+A bar plot showing the frequency or the counts of mutated genes. The Y-axis displays either mutation count or frequency (%). You can adjust the number of genes to display.</li>
+<li><strong>Survival analysis</strong> tab: 
+Select an event for survival analysis. Clicking a gene name displays a Kaplan-Meier curve comparing the wild-type patients and the mutant patients.</li>
+<li><strong>Gene expression plot</strong> tab: 
+This comparison examines the expression levels between the wild-type and mutant groups.<ol>
+<li>Click a gene in the mutation analysis results table</li>
+<li>Enter genes in the input field to generate a table listing these genes</li>
+<li>Click a gene from the Input genes table to generate a plot comparing its expression between the wild-type and mutant patients</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ol>
+<li>Frequency Plot<ul>
+<li>Plot size (width and height)</li>
+<li>X and Y label size</li>
+<li>Legend size</li>
+<li>Colours for highest and lowest mutant count/frequency</li>
+<li>Number of genes to display</li>
+<li>White background option</li>
+<li>Option to hide scores on each bar</li>
+</ul>
+</li>
+<li>Survival analysis<ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis/label font size</li>
+<li>Legend title size</li>
+<li>Colours for high and low expression groups</li>
+</ul>
+</li>
+<li>Gene expression plot<ul>
+<li>Plot size (width and height)</li>
+<li>X and Y label size</li>
+<li>Graph title and legend font size</li>
+<li>Colours for wild-type and mutant groups</li>
+</ul>
+</li>
+</ol>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_3_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="5-gene-expression-across-subtypes"><u><strong>5. Gene expression across subtypes</strong></u></h2>
+<p>When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across patient subgroups.</p>
+<ol>
+<li>Enter the genes or select a custom geneset</li>
+<li>Select a category for subtype from the "Group by" drop-down menu</li>
+<li>Click "Start comparing" to compare gene expression across subtypes. Note that visualisation may be slow and cluttered when there are many subtypes in the selected group.</li>
+<li>A result table with statistical scores and p-values will be generated. Statistical scores include W values for two subtypes and H values for three or more subtypes.</li>
+<li>Clicking any row in the table displays a visualisation on the right. Available plot types include Box plot, Violin plot, Swarm plot, or Violin + Swarm plot</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis/label font size</li>
+<li>Graph title size</li>
+<li>Colour palette for each subtype</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_4_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="6-signature-analysis"><u><strong>6. Signature analysis</strong></u></h2>
+<p>This section performs signature analysis on gene expression data from the selected cohort to evaluate the activity or presence of specific biological processes.</p>
+<ol>
+<li>Choose the input type by either:<ul>
+<li>Selecting from custom gene sets</li>
+<li>Entering gene names line by line</li>
+</ul>
+</li>
+<li>
+<p>Select the calculation method:</p>
+<ul>
+<li>GSVA (Gene Set Variation Analysis) or ssGSEA (single-sample Gene Set Enrichment Analysis) is available.</li>
+</ul>
+</li>
+<li>
+<p>Click the start button. This generates a result table with scores for each sample.</p>
+</li>
+<li>Three plots are generated:<ul>
+<li><strong>Survival analysis plot</strong> tab:<ul>
+<li>Generates a Kaplan-Meier plot.</li>
+<li>Allows selection of methods to split samples into high and low-score patients: either by median or comparing Top 25% vs Bottom 25%.</li>
+</ul>
+</li>
+<li><strong>Score comparison</strong> tab:<ul>
+<li>Select the group to compare signature scores and click the start button.</li>
+<li>Four plot types are available (Box plot, Violin plot, Swarm plot, and Violin + Swarm plot).</li>
+</ul>
+</li>
+<li><strong>Distribution</strong> tab:<ul>
+<li>Generates a histogram of signature scores to help determine appropriate sample splitting criteria.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<details class="info">
+<summary>What is GSVA and ssGSEA?</summary>
+<p>GSVA (Gene Set Variation Analysis) calculates an enrichment score for each gene set by transforming gene expression data into a pathway activity score across samples. It uses kernel-based density estimation to assess the relative enrichment of a gene set, comparing it to the overall expression distribution in the dataset.</p>
+<p>ssGSEA (single-sample Gene Set Enrichment Analysis), on the other hand, ranks genes within each sample and calculates an enrichment score based on the ranked positions of genes in a gene set. It evaluates how consistently genes of a set are positioned at the top or bottom of the ranked gene list for each individual sample.</p>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li><strong>Survival analysis plot</strong><ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis/label font size</li>
+<li>Legend title size</li>
+<li>Colors for high and low expression groups</li>
+</ul>
+</li>
+<li><strong>Score comparison plot</strong><ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis/label font size</li>
+<li>Legend title size</li>
+<li>Color palette</li>
+</ul>
+</li>
+<li><strong>Histogram</strong><ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis/label font size</li>
+<li>Legend title size</li>
+<li>Histogram bin color</li>
+<li>Number of histogram bins</li>
+</ul>
+</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_5_annot.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="7-deconvolution-analysis"><u><strong>7. Deconvolution analysis</strong></u></h2>
+<p>This section provides deconvolution analysis from patients' gene expression data (typically bulk RNAseq). While several deconvolution tools exist, two are available here: <a href="https://github.com/ebecht/MCPcounter">MCPcounter</a> and <a href="https://comphealth.ucsf.edu/app/xcell">xCell</a>.</p>
+<ol>
+<li>Select the cohort</li>
+<li>Choose either MCPcounter or xCell as your method, then click the start button. A deconvolution result table will appear on the right.</li>
+</ol>
+<p>The interface provides two additional analysis tabs. </p>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_6_annot.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h3 id="71-generating-a-heatmapbarplot"><u><strong>7.1. Generating a heatmap/barplot</strong></u></h3>
+<p>First, you can generate a heatmap or barplot to visualise cell type fractions across samples.</p>
+<ol>
+<li>Choose which samples to use:<ul>
+<li>"All samples": Includes every sample in the dataset</li>
+<li>"Filter from metadata":<ul>
+<li>Filter samples by subtypes using information from the metadata files</li>
+<li>The number of samples selected will be displayed after choosing a category</li>
+</ul>
+</li>
+<li>"Text input": Enter sample IDs (patient IDs) line by line in the text box, ensuring no extra spaces</li>
+</ul>
+</li>
+<li>Choose which cell types to include:<ul>
+<li>"All cell types": Includes all available cell types</li>
+<li>"Select cell types":<ul>
+<li>A table of available cell types will be displayed</li>
+<li>Click on specific cell types you want to include in the plot</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Click the "Show plots" button to generate a heatmap and barplot on the right</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis font size</li>
+<li>Legend font size</li>
+<li>Colours for high and low deconvolution score (for the heatmap)</li>
+</ul>
+</details>
+<h3 id="72-exploring-correlations-between-gene-expression-and-cell-type-abundance"><u><strong>7.2. Exploring correlations between gene expression and cell type abundance</strong></u></h3>
+<p>This feature allows you to analyse the relationship between specific gene expression levels and cell type abundance.</p>
+<ol>
+<li>Enter the gene names line by line (or choose a geneset)</li>
+<li>Select a cell type to investigate</li>
+<li>Choose a correlation method, either Pearson or Spearman</li>
+<li>Click the start button. This calculates the correlation between gene expression and cell type abundance, generating a table with correlation coefficients and p-values.</li>
+<li>Clicking any row in the result table generates a scatter plot.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis font size</li>
+<li>Legend font size</li>
+<li>Dot and correlation line colours</li>
+<li>Option to display or hide the correlation line</li>
+<li>Option to use a white background</li>
+</ul>
+</details>
+<h2 id="8-compare-cohorts"><u><strong>8. Compare cohorts</strong></u></h2>
+<p>In this section, you can compare gene expression or mutation frequency across different cohorts.</p>
+<ol>
+<li>(You do not have to select a cohort in this section)</li>
+<li>Enter gene names line by line, or choose a custom geneset</li>
+<li>The list of genes will appear. Click the gene you want to investigate.</li>
+<li>Select the cohorts you want to include.<ul>
+<li>All cohorts stored in OmicsBridge will be listed.</li>
+<li>You can select multiple cohorts, but note that generating figures may take longer, especially for gene expression analysis. (ex. When selecting all TCGA cohorts, it takes ~30 min for the mutation frequency analysis and 2~3 minutes for the gene expression analysis.)</li>
+</ul>
+</li>
+<li>Click the start button in either tab ("Mutation Frequency" or "Gene expression")<ul>
+<li>In "Mutation Frequency," a bar plot will display the number (or percentage) of patients with mutations in the selected gene across the chosen cohorts.</li>
+<li>In "Gene expression," a box plot is generated that compares gene expression levels across the selected cohorts</li>
+</ul>
+</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>Font size for x-axis, y-axis, and legend</li>
+<li>Colour scheme for the bar plot (mutation frequency analysis)</li>
+<li>Option to use a white background</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_9_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="9-cancer-gene-census-cosmos"><u><strong>9. Cancer Gene Census (COSMOS)</strong></u></h2>
+<p>OmicsBridge includes a database of cancer predisposition genes sourced from <a href="https://cancer.sanger.ac.uk/census">Cancer Gene Census from COSMIC</a>. This feature helps you identify which genes from your input are known to be associated with cancer predisposition.</p>
+<ol>
+<li>Enter gene names line by line.</li>
+<li>If any of the genes you entered are associated with cancer predisposition, they will appear in the results table. If none match, the complete database will be displayed instead.</li>
+</ol>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Clinical_10_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="10-manage-the-cohort-database"><u><strong>10. Manage the cohort database</strong></u></h2>
+<p>The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.</p>
+<h3 id="101-pre-installed-cohort"><u><strong>10.1. Pre-installed cohort</strong></u></h3>
+<p><a href="https://www.nature.com/articles/ng.2764">TCGA</a> data (34 cancer types, see the table below) is available as pre-installed cohorts. This includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from <a href="https://xenabrowser.net/datapages/?hub=https://tcga.xenahubs.net:443">UCSC</a> Xena, with gene expression values transformed as log2(RSEM normalised count+1).</p>
+<details class="info">
+<summary>TCGA abbreviation</summary>
+<table>
+<thead>
+<tr>
+<th>Abbreviation</th>
+<th>Cancer type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCGA_ACC</td>
+<td>Adrenocortical carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_BLCA</td>
+<td>Bladder Urothelial Carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_BRCA</td>
+<td>Breast invasive carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_CESC</td>
+<td>Cervical squamous cell carcinoma and endocervical adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_CHOL</td>
+<td>Cholangiocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_COAD</td>
+<td>Colon adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_DLBC</td>
+<td>Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</td>
+</tr>
+<tr>
+<td>TCGA_ESCA</td>
+<td>Esophageal carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_GBM</td>
+<td>Glioblastoma multiforme</td>
+</tr>
+<tr>
+<td>TCGA_HNSC</td>
+<td>Head and Neck squamous cell carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_KICH</td>
+<td>Kidney Chromophobe</td>
+</tr>
+<tr>
+<td>TCGA_KIRC</td>
+<td>Kidney renal clear cell carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_KIRP</td>
+<td>Kidney renal papillary cell carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_LAML</td>
+<td>Acute Myeloid Leukemia</td>
+</tr>
+<tr>
+<td>TCGA_LGG</td>
+<td>Brain Lower Grade Glioma</td>
+</tr>
+<tr>
+<td>TCGA_LIHC</td>
+<td>Liver hepatocellular carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_LUAD</td>
+<td>Lung adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_LUSC</td>
+<td>Lung squamous cell carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_MESO</td>
+<td>Mesothelioma</td>
+</tr>
+<tr>
+<td>TCGA_PAAD</td>
+<td>Pancreatic adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_PCPG</td>
+<td>Pheochromocytoma and Paraganglioma</td>
+</tr>
+<tr>
+<td>TCGA_PRAD</td>
+<td>Prostate adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_READ</td>
+<td>Rectum adenocarcinoma</td>
+</tr>
+<tr>
+<td>TCGA_SARC</td>
+<td>Sarcoma</td>
+</tr>
+<tr>
+<td>TCGA_SKCM</td>
+<td>Skin Cutaneous Melanoma</td>
+</tr>
+<tr>
+<td>TCGA_TGCT</td>
+<td>Testicular Germ Cell Tumors</td>
+</tr>
+<tr>
+<td>TCGA_THCA</td>
+<td>Thyroid carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_THYM</td>
+<td>Thymoma</td>
+</tr>
+<tr>
+<td>TCGA_UCEC</td>
+<td>Uterine Corpus Endometrial Carcinoma</td>
+</tr>
+<tr>
+<td>TCGA_UCS</td>
+<td>Uterine Carcinosarcoma</td>
+</tr>
+<tr>
+<td>TCGA_UVM</td>
+<td>Uveal Melanoma</td>
+</tr>
+<tr>
+<td>TCGA_COADREAD</td>
+<td>Colon and Rectal Cancer</td>
+</tr>
+<tr>
+<td>TCGA_GBMLGG</td>
+<td>lower grade glioma and glioblastoma</td>
+</tr>
+<tr>
+<td>TCGA_LUNG</td>
+<td>Lung Cancer</td>
+</tr>
+</tbody>
+</table>
+</details>
+<h3 id="102how-to-upload-an-own-cohort"><u><strong>10.2.How to upload an own cohort</strong></u></h3>
+<p>The users can upload their own cohort and analyse it here. Three files (Gene expression, Clinical data a d Metadata) should be uploaded. Optionally, mutation data can be added. Each data has to follow the following data format.</p>
+<h4 id="1021-gene-expression"><u><strong>10.2.1 Gene expression</strong></u></h4>
+<p>A tab-delimited table of the gene expression of each sample (genes × samples(patients)) from bulk RNAseq (or microarray). </p>
+<ul>
+<li>Ensure the data is already normalised before uploading, as the interface does not perform normalisation automatically.</li>
+<li>Rows (index): gene names.</li>
+<li>Columns (headers): sample names that match those used in your clinical data and metadata.</li>
+</ul>
+<details class="tip">
+<summary>Example</summary>
+<p><img alt="Example" src="../img/3_ex_example.png" /></p>
+</details>
+<h4 id="1022-patient-survival-information"><u><strong>10.2.2. Patient survival information</strong></u></h4>
+<p>A tab-delimited table containing the information of overall survival, progression-free survival, etc (those needed for generating a Kaplan-Meier curve or survival analysis). Please follow these rules.</p>
+<ul>
+<li><strong>The first column must contain sample IDs and should have the header named <code>sample</code> (in all lowercase).</strong> All sample IDs should exactly match those used in your gene expression and clinical data.</li>
+<li>
+<p><strong>All other columns must represent pairs of event data</strong>:<br>
+   One column for the event status (censoring), with binary values: 1 (event occurred) or 0 (censored).
+   One corresponding column for the event time (in days), labelled with the same event name followed by <code>.time</code>. <br> 
+   For Example, when you have Overall Survival (OS) data, use one column named <code>OS</code> for event status and use another column named <code>OS.time</code> for the number of days until the event or censoring. Similary, for other types of events (e.g., DSS, DFI, PFI), follow the same format. <code>DSS</code> and <code>DSS.time</code>, <code>DFI</code> and <code>DFI.time</code>, <code>PFI</code> and <code>PFI.time</code>, etc.</p>
+</li>
+<li>
+<p>You may include other columns in the dataset that do not follow the event/time pair format. These columns will be safely ignored and will not affect the analysis.</p>
+</li>
+</ul>
+<details class="tip">
+<summary>Example</summary>
+<p><img alt="Example" src="../img/3_clinical_example.png" /></p>
+</details>
+<h4 id="1023-metadata"><u><strong>10.2.3. Metadata</strong></u></h4>
+<p>Please upload a tab-delimited (.tsv) table containing metadata for the samples (patients) in your cohort. This may include information such as treatment condition, gender, grade, or cancer subtype.</p>
+<ul>
+<li>The first column must contain the sample IDs, and the header for this column must be <code>sample</code> (all lowercase). All sample IDs should exactly match those used in your gene expression and clinical data.</li>
+</ul>
+<p>If you do not have any metadata to include, please upload a .tsv file that contains only the sample IDs in the first column with the header <code>sample</code>. This ensures consistency and allows the interface to process the data correctly.</p>
+<details class="tip">
+<summary>Example</summary>
+<p><img alt="Example" src="../img/3_meta_example.png" /></p>
+</details>
+<h4 id="1024-mutation-data"><u><strong>10.2.4. Mutation data</strong></u></h4>
+<p>If you have information about which genes are mutated in which patients, you can upload this as a TSV file.</p>
+<ul>
+<li>Similar to the patient survival information and metadata, the first column must contain the sample IDs, with the header <code>sample</code> (all lowercase).</li>
+<li>The second column contains gene names, with the header <code>id</code>.</li>
+</ul>
+<p>These two columns are sufficient. Any additional columns will be ignored.</p>
+<details class="tip">
+<summary>Example</summary>
+<p><img alt="Example" src="../img/3_mutation_example.png" /></p>
+</details>
+<h3 id="10-3-edit-or-delete-the-cohort"><u><strong>10-3. Edit or delete the cohort</strong></u></h3>
+<h4 id="1031-editing"><u> <strong>10.3.1. Editing</strong></u></h4>
+<ol>
+<li>Go to the "Registered cohort" table in the Cohort database section.</li>
+<li>Edit the table by double-clicking on the desired field.</li>
+<li>After making your changes, click the "Save changes" button. When you see the message "saved!", your edits have been successfully applied.</li>
+</ol>
+<h4 id="1032-delete"><u> <strong>10.3.2. Delete</strong></u></h4>
+<ol>
+<li>Go to the "Registered cohort" table in the Cohort database section.</li>
+<li>Select the row(s) you wish to delete.</li>
+<li>Click the "Delete selected data" button.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

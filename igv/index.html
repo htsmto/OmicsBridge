@@ -1,0 +1,792 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../scRNA/">
+      
+      
+        <link rel="next" href="../Gene_set/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.13">
+    
+    
+      
+        <title>Epigenome Visualisation - OmicsBridge</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#epigenome-visualisation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OmicsBridge" class="md-header__button md-logo" aria-label="OmicsBridge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OmicsBridge
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Epigenome Visualisation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OmicsBridge" class="md-nav__button md-logo" aria-label="OmicsBridge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OmicsBridge
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Database and Data Uplaod
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Data_Overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Compare_across_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compare Across Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrate_two/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Two Datasets Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clinical_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Clinical Data Analysis
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scRNA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    scRNA Data Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Epigenome Visualisation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Epigenome Visualisation
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-profile-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Profile Plot
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-genome-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Genome visualisation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-igv" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. IGV
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-fing-enhancerpromoter" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Fing Enhancer/Promoter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-motif-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Motif scan
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Gene_set/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom Genesets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FAQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Case_study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Case study
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-profile-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Profile Plot
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-genome-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Genome visualisation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-igv" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. IGV
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-fing-enhancerpromoter" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Fing Enhancer/Promoter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-motif-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Motif scan
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="epigenome-visualisation"><strong>Epigenome Visualisation</strong></h1>
+<h2 id="1-profile-plot"><u><strong>1. Profile Plot</strong></u></h2>
+<p>This section allows users to generate a profile plot using selected bigWig files. 
+A profile plot is a visualisation that displays signal intensities across a specified genomic region using selected bigWig files. It allows users to examine patterns of data, such as epigenetic signals, over a defined chromosomal interval.</p>
+<ol>
+<li><strong>Select datasets:</strong><br>
+Select the bigWig files you want to include in the profile plot and click 'Import the selected sample'. The loaded samples will appear in a list table. All datasets in this table will be used for plotting. To remove datasets from this list, select them in the table and click 'Remove the selected sample'. Note that importing data takes a few seconds.</li>
+<li><strong>Set chromosome positions:</strong><br>
+Enter chromosome locations line by line using the format <code>chr:start-end</code> (e.g., <code>chr1:1000000-2000000</code>) to define regions for plotting. You can also specify how much additional sequence to include by adjusting the 'Extend length' value. The default extension is 2000 base pairs, meaning the plot will display from (start - 2000) to (end + 2000).</li>
+<li><strong>Generate the profile plot:</strong><br>
+Click on "Generate a plot" to create the visualisation. The profile plot will display signal intensities across the specified genomic region for each selected bigWig file. The profile plot consists of two parts: the upper section displays signal intensity levels across the genomic region, while the lower section presents the same data as a heatmap visualisation for easier pattern recognition.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height, with separate adjustments for the upper plot and bottom heatmap sections)</li>
+<li>Font size for sample names and legend</li>
+<li>X and Y axis label sizes</li>
+<li>Heatmap color range (maximum and minimum values)</li>
+<li>Color scheme for the intensity graph</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Epi_1_annot.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="2-genome-visualisation"><u><strong>2. Genome visualisation</strong></u></h2>
+<p>This section visualises genomic read coverage from bigwig or bam files using the <a href="https://bioconductor.org/packages/devel/bioc/html/Gviz.html">Gviz library</a>. It displays coverage data across specified genomic regions.</p>
+<ol>
+<li><strong>Select the datasets</strong><br>
+Choose datasets from the drop-down menu and click 'Use this dataset'. The selected datasets are listed in the table below and will be included in the plot. To remove a dataset, select it in the table and click 'Remove the dataset from the list'.</li>
+<li><strong>Set the chromatin positions and generate the plot</strong><br>
+Select either hg38 or hg19 genome, then specify the position to visualise using the format <code>chr:start-end</code>. Note that specifying too wide a range will result in an error.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>Track height for bigwig data, bam data, or reference genome display</li>
+<li>Colour settings for bigwig data, bam data, or reference genome tracks</li>
+<li>Group y-axis scaling options for bigwig or bam datavisualisationn</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Epi_2_annot.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="3-igv"><u><strong>3. IGV</strong></u></h2>
+<p>The IGV (Integrated Genome Viewer) section embeds a genome browser within the interface, allowing users to view data from bed files directly in the browser. <a href="https://igv.org/">IGV</a> is a widely used tool for visualising genomic data. It supports a variety of file formats, including BAM, BED, and BigWig, and provides an interactive platform for exploring genomic alignments, annotations, and datasets. <br>
+In this section, due to memory limitations, only bed files can be viewed. For visualisation of bigwig or bam files, please refer to the 'Genome visualisation' section.</p>
+<ol>
+<li><strong>Choose a genome</strong><br>
+Currently, human (hg19 and hg38) and mouse genome (mm10 and mm39) are available.</li>
+<li><strong>Select a dataset</strong><br>
+Choose a dataset to view in IGV from the drop-down menu. You can filter the dataset list. Once selected, dataset details will appear below.</li>
+<li><strong>Click the 'View in IGV' button</strong><br>
+The selected dataset will be displayed in the IGV section on the right. Like the original IGV, you can specify chromosome positions, change color settings, and more. For detailed instructions, please refer to the original IGV documentation.</li>
+</ol>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Epi_3_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="4-fing-enhancerpromoter"><u> <strong>4. Fing Enhancer/Promoter</strong></u></h2>
+<p>This section identifies potential enhancers or promoters for each gene by analysing the correlation between gene expression from RNAseq and peak intensity from ATACseq. Using a normalised read count table with matched RNAseq and ATACseq data, it calculates the correlation for peaks located around each gene's genomic region (default range: ±100K, adjustable). Peaks with a high correlation coefficient or significant results are highlighted as potential enhancers or promoters for the corresponding gene.</p>
+<ol>
+<li><strong>Select the RNAseq and ATACseq data</strong><br>
+First, select the matched RNAseq and ATACseq datasets. The RNAseq data is a normalised read count table where the indexes are gene names and columns are sample names. The ATACseq is also a normalised read count table where the indexes are chromosome positions (chr:start-end) and columns are sample names.</li>
+<li><strong>Specify the matched samples</strong><br>
+Next, tell the interface which RNAseq samples and ATACseq samples are matched. In the text box, enter each pair of matched samples on a new line, with the RNAseq sample name and ATACseq sample name separated by a comma (,).</li>
+<li><strong>Enter the genes to investigate</strong><br>
+Enter the gene names you want to check, one per line. You can also use genes from custom gene sets.</li>
+<li><strong>Calculation type</strong><br>
+Choose either Pearson or Spearman for the correlation calculation.</li>
+<li><strong>Specify the genomic region range</strong><br>
+The default range is ±100kb. By adjusting this value, the interface calculates correlations between the gene and peaks within a specified distance from the gene's position. In case you want to calculate correlations with all peaks, enable the "Check only the same chromosomes of the target genes" option (note that this significantly increases calculation time).</li>
+<li><strong>Start calculation</strong><br>
+Click the "Find enhancers/promoters" button to begin the calculation. The correlation results will appear on the right, along with the gene expression and peak intensity (chromatin accessibility) data used in the calculation. At the bottom of the results table, you can adjust the P-value threshold to display a list of peaks highly correlated with the selected gene—these are the potential enhancers/promoters.</li>
+</ol>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Epi_4_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<h2 id="5-motif-scan"><u> <strong>5. Motif scan</strong> </u></h2>
+<p>This tool scans for transcription factor motifs in the input chromatin positions or sequences using the <a href="https://bioconductor.org/packages/release/bioc/html/MotifDb.html">MotifDb</a> database (PWMLogn.hg19.MotifDb.Hsap), identifying potential binding sites within specified genomic regions.</p>
+<ol>
+<li><strong>Set the input</strong><br>
+First, choose the input type: either "Input genomic positions" or "Input sequences". For "Input genomic positions", enter the genomic positions line by line using the format chr:start-end, and select either hg38 or hg19 genome type. For "Input sequences", enter the genomic sequence directly line by line. Note that the calculation will stop if you use any characters other than A, T, G, and C.</li>
+<li><strong>Start motif scan</strong><br>
+Click the start button to begin the motif scan. Each input takes a few seconds to process, so the total time depends on how many positions you've entered. Once scanning is complete, a results table will appear on the right, ranked by statistical significance. Click any row to display the corresponding motif logo at the bottom.
+The results table includes:<ul>
+<li>raw.score: Raw enrichment score for the motif across input regions</li>
+<li>top.motif.prop: Proportion of top-scoring regions where the motif was found</li>
+</ul>
+</li>
+</ol>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Epi_5_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>
