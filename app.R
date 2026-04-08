@@ -1705,6 +1705,22 @@ ui <- fluidPage(
                                   fluidRow(
                                     column(12, materialSwitch('Compare_white_background', 'Use white background', value=FALSE, status = "success"))
                                   ),
+                                    fluidRow(
+                                      column(4, materialSwitch('Compare_manual_colour_range', 'Use manual colour range', value=FALSE, status = "success")),
+                                      conditionalPanel(
+                                        condition = "input.Compare_manual_colour_range == true",
+                                        column(4, numericInput('Compare_manual_colour_range_high', 'Manual colour range - High value', value=1, step=0.1)),
+                                        column(4, numericInput('Compare_manual_colour_range_low', 'Manual colour range - Low value', value=-1, step=0.1))
+                                      )
+                                    ),
+                                    fluidRow(
+                                      column(4, materialSwitch('Compare_manual_y_axis_range', 'Use manual y-axis range', value=FALSE, status = "success")),
+                                      conditionalPanel(
+                                        condition = "input.Compare_manual_y_axis_range == true",
+                                        column(4, numericInput('Compare_manual_y_axis_range_high', 'Manual y-axis range - High value', value=1, step=0.1)),
+                                        column(4, numericInput('Compare_manual_y_axis_range_low', 'Manual y-axis range - Low value', value=-1, step=0.1))
+                                      )
+                                    ),
                                   circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                 )
                               ),
@@ -8157,17 +8173,40 @@ server <- function(input, output, session) {
             values_for_colours <- df_compare$Colour[!is.na(df_compare$Colour)]
             if( min(values_for_colours)<0 ){
               if( max(values_for_colours)>=0 ){
-                tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
-                p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
-                p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+                if(input$Compare_manual_colour_range == FALSE){
+                  tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(-tmp, 0, tmp)) , limits = c(-tmp, tmp), name=col_name)
+                }else{
+                  max_col <- input$Compare_manual_colour_range_high
+                  min_col <- input$Compare_manual_colour_range_low
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, 0, max_col)) , limits = c(min_col, max_col), name=col_name, oob = scales::squish)
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, 0, max_col)) , limits = c(min_col, max_col), name=col_name, oob = scales::squish)
+                }
                 p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
               }else{
-                p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=col_name)
-                p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=col_name)
+                if(input$Compare_manual_colour_range == FALSE){
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=col_name)
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=col_name)
+                }else{
+                  max_col <- input$Compare_manual_colour_range_high
+                  min_col <- input$Compare_manual_colour_range_low
+                  p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)), name=col_name, oob = scales::squish)
+                  p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=col_name, oob = scales::squish)
+                }
+
               }
             }else{
-              p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
-              p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+              if(input$Compare_manual_colour_range == FALSE){
+                p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=col_name)
+                }else{
+                max_col <- input$Compare_manual_colour_range_high
+                min_col <- input$Compare_manual_colour_range_low
+                p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=col_name, oob = scales::squish)  
+                p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=col_name, oob = scales::squish)
+              }                
+
             }
           }
           p <- p + ggtitle(colnames(df_compare)[1])
@@ -8194,7 +8233,10 @@ server <- function(input, output, session) {
             }else{
               p <- p + ylim(c(min(df_compare[,Y_axis]), max(df_compare[,Y_axis])))
             }
-
+            
+          }
+          if(input$Compare_manual_y_axis_range){
+            p <- p + coord_cartesian(ylim = c(input$Compare_manual_y_axis_range_low, input$Compare_manual_y_axis_range_high))
           }
           p
         }, width=reactive(input$Compare_fig.width), height=reactive(input$Compare_fig.height), res=300)
