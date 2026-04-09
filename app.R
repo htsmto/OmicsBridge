@@ -4784,7 +4784,7 @@ ui <- fluidPage(
           )
         #####
       ),
-      h4(tags$div("Version 1.0.0 | Last updated on 15th. Feb, 2026 ", style = "text-align: right;"))
+      h4(tags$div("Version 1.0.0 | Last updated on 8th. Apr, 2026 ", style = "text-align: right;"))
     )
   )
 )
@@ -8233,7 +8233,7 @@ server <- function(input, output, session) {
             }else{
               p <- p + ylim(c(min(df_compare[,Y_axis]), max(df_compare[,Y_axis])))
             }
-            
+
           }
           if(input$Compare_manual_y_axis_range){
             p <- p + coord_cartesian(ylim = c(input$Compare_manual_y_axis_range_low, input$Compare_manual_y_axis_range_high))
@@ -12802,7 +12802,7 @@ server <- function(input, output, session) {
               for (gene in genes){
                 # kruskal.test
                 df_out_tmp <- df_out[df_out$Genes == gene,]
-                df_test_tmp <- kruskal.test(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp) # str(df_test)
+                df_test_tmp <- kruskal.test(x = df_out_tmp[["Expression"]], g = df_out_tmp[[group_by]]) # str(df_test)
                 p <- df_test_tmp$p.value
                 statistic <- df_test_tmp$statistic
                 tmp <- data.frame('Gene'=gene, 'Statistic (Kruskal-Wallis)'=statistic, 'P.value'=p)
@@ -12917,9 +12917,9 @@ server <- function(input, output, session) {
           })
           # 'Expression_subtype_figtype', 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C'), selected='A'))
           if(input$Expression_subtype_use_single_colour){
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression'))
+            p <- ggplot(df_out_tmp, aes(x = .data[[group_by]], y=.data[["Expression"]]))
           }else{
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', fill=group_by))
+            p <- ggplot(df_out_tmp, aes(x = .data[[group_by]], y=.data[["Expression"]], fill=.data[[group_by]]))
           }
           if(input$Expression_subtype_figtype == 'A'){  # boxplot
             if(input$Expression_subtype_use_single_colour){
@@ -12940,7 +12940,7 @@ server <- function(input, output, session) {
               }
             }
           }else if(input$Expression_subtype_figtype == 'C'){ # swarm plot
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='Expression', color=group_by))
+            p <- ggplot(df_out_tmp, aes(x = .data[[group_by]], y=.data[["Expression"]], color=.data[[group_by]]))
             if(input$Expression_subtype_use_single_colour){
               p <- p + geom_beeswarm(size=input$Expression_subtype_dot.size,color=input$Expression_subtype_choose_single_colour)
             }else{
@@ -13690,7 +13690,7 @@ server <- function(input, output, session) {
           df_tmp <- merge(singature_table, df_meta_subtype, by='sample') # head(df_tmp)
           df_out <- df_tmp
           if(length(unique(unlist(df_out[,group_by]))) >= 3){
-            df_test_tmp <- kruskal.test(as.formula(paste('score', '~', group_by)), data=df_out) # str(df_test)
+            df_test_tmp <- kruskal.test(x = df_out[["score"]], g = df_out[[group_by]]) # str(df_test)
             p <- df_test_tmp$p.value
             statistic <- df_test_tmp$statistic
             output$Signature_subtype_note <- renderText({
@@ -13752,9 +13752,9 @@ server <- function(input, output, session) {
           df_out_tmp <- Signature_subtype_test()
           group_by <- colnames(df_out_tmp)[3]
           if(input$Signature_subtype_use_single_colour){
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='score'))
+            p <- ggplot(df_out_tmp, aes(x=.data[[group_by]], y=.data[["score"]]))
           }else{
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='score', fill=group_by))
+            p <- ggplot(df_out_tmp, aes(x=.data[[group_by]], y=.data[["score"]], fill=.data[[group_by]]))
           }
           if(input$Signature_subtype_figtype == 'A'){  # boxplot
             if(input$Signature_subtype_use_single_colour){
@@ -13775,7 +13775,7 @@ server <- function(input, output, session) {
               }
             }
           }else if(input$Signature_subtype_figtype == 'C'){ # swarm plot
-            p <- ggplot(df_out_tmp, aes_string(x=group_by, y='score', color=group_by))
+            p <- ggplot(df_out_tmp, aes(x=.data[[group_by]], y=.data[["score"]], color=.data[[group_by]]))
             if(input$Signature_subtype_use_single_colour){
               p <- p + geom_beeswarm(size=input$Signature_subtype_dot.size,color=input$Signature_subtype_choose_single_colour)
             }else{
