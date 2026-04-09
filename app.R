@@ -13153,6 +13153,23 @@ server <- function(input, output, session) {
                   error= 1
                   return()
                 }
+
+                # the colunames should include a pair of headers: "XXX" and "XXX.time". We want to extract only those headers (and 'sample')
+                colnames_tmp <- colnames(suv_table())
+                colnames_tmp <- colnames_tmp[colnames_tmp != 'sample']
+                extracted_colnames <- c('sample')
+                for(key in colnames_tmp){
+                  if(paste0(key,'.time') %in% colnames_tmp){
+                    extracted_colnames <- c(extracted_colnames, key, paste0(key,'.time'))
+                  }
+                }
+                if(length(extracted_colnames) == 1){
+                  show_alert(title='Error.',text='The survival table does not have at least one pair of survival status and time columns (e.g. "OS" and "OS.time").', type='error' )
+                  output$new_cohort_status <- renderText({'Error: The survival table should have at least one pair of survival status and time columns (e.g. "OS" and "OS.time").'})
+                  error= 1
+                  return()
+                }
+
                 meta_table <- meta_table()
                 if(!'sample' %in% colnames(meta_table)){
                   show_alert(title='Error.',text='The meta data does not have "sample" in its header.', type='error' )
