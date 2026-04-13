@@ -1705,22 +1705,22 @@ ui <- fluidPage(
                                   fluidRow(
                                     column(12, materialSwitch('Compare_white_background', 'Use white background', value=FALSE, status = "success"))
                                   ),
-                                    fluidRow(
-                                      column(4, materialSwitch('Compare_manual_colour_range', 'Use manual colour range', value=FALSE, status = "success")),
-                                      conditionalPanel(
-                                        condition = "input.Compare_manual_colour_range == true",
-                                        column(4, numericInput('Compare_manual_colour_range_high', 'Manual colour range - High value', value=1, step=0.1)),
-                                        column(4, numericInput('Compare_manual_colour_range_low', 'Manual colour range - Low value', value=-1, step=0.1))
-                                      )
-                                    ),
-                                    fluidRow(
-                                      column(4, materialSwitch('Compare_manual_y_axis_range', 'Use manual y-axis range', value=FALSE, status = "success")),
-                                      conditionalPanel(
-                                        condition = "input.Compare_manual_y_axis_range == true",
-                                        column(4, numericInput('Compare_manual_y_axis_range_high', 'Manual y-axis range - High value', value=1, step=0.1)),
-                                        column(4, numericInput('Compare_manual_y_axis_range_low', 'Manual y-axis range - Low value', value=-1, step=0.1))
-                                      )
-                                    ),
+                                  fluidRow(
+                                    column(4, materialSwitch('Compare_manual_colour_range', 'Use manual colour range', value=FALSE, status = "success")),
+                                    conditionalPanel(
+                                      condition = "input.Compare_manual_colour_range == true",
+                                      column(4, numericInput('Compare_manual_colour_range_high', 'Manual colour range - High value', value=1, step=0.1)),
+                                      column(4, numericInput('Compare_manual_colour_range_low', 'Manual colour range - Low value', value=-1, step=0.1))
+                                    )
+                                  ),
+                                  fluidRow(
+                                    column(4, materialSwitch('Compare_manual_y_axis_range', 'Use manual y-axis range', value=FALSE, status = "success")),
+                                    conditionalPanel(
+                                      condition = "input.Compare_manual_y_axis_range == true",
+                                      column(4, numericInput('Compare_manual_y_axis_range_high', 'Manual y-axis range - High value', value=1, step=0.1)),
+                                      column(4, numericInput('Compare_manual_y_axis_range_low', 'Manual y-axis range - Low value', value=-1, step=0.1))
+                                    )
+                                  ),
                                   circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
                                 )
                               ),
