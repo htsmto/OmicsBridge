@@ -1,0 +1,8 @@
+cat('Loading Clinical library... \n')
+suppressMessages(library(survival))
+suppressMessages(library(survminer))
+suppressMessages(library(reshape2))
+suppressMessages(library(GSVA))
+suppressMessages(library(MCPcounter))
+suppressMessages(library(xCell))
+cat('Clinical library loaded.\n')
