@@ -1,0 +1,167 @@
+/* Design */
+.custom-title {
+    font-size: 36px !important;  
+    font-weight: bold !important; 
+    color: #FFFFFF !important;  
+    text-align: center !important;
+    font-family: 'Hachi Maru Pop', sans-serif !important;
+}
+
+.main-header .sidebar-toggle::after {
+  content: ' MENU';
+  font-size: 22px;
+  color: white;
+  padding-left: 5px;
+  font-family: Helvetica, Arial, serif !important;
+  font-weight: bold;
+} 
+
+.centered-container { 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 80vh; 
+}
+
+#Original_geneset_DataBaseTable table.dataTable tbody tr { 
+  height: 50px !important; 
+}
+
+.custom-title-container {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.main-header {
+  background-color: #042bca !important;
+  height: 65px !important; 
+  align-items: center !important;
+  padding: 0; 
+}
+
+.main-header .navbar {
+  background-color: #042bca  !important;
+}
+
+.main-header .logo {
+  background-color: #042bca !important;
+  font-family: Helvetica, Arial, serif !important;
+  font-weight: bold !important;
+}
+
+.main-sidebar {
+  background-color: #FFFFFF !important;
+  top: 20px !important;
+  font-size: 18px;
+}
+
+body {
+  font-family: Helvetica, Arial, serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Helvetica, Arial, serif !important;
+}
+
+.shiny-input-container, .shiny-output-container {
+  font-family: Helvetica, Arial, serif !important;
+}
+
+.sidebar-menu > li > a {
+  color: #000000 !important;
+}
+
+.sidebar-menu > li > a:hover {
+  color: #FFFFFF !important;
+}
+
+.sidebar-menu .active a{
+  color: #2100dc !important;
+  background-color: #c3e1ff !important;
+  font-weight: bold !important;
+}
+
+.content-wrapper {
+  background-color:#f1f8ff !important;
+  top: 20px !important;
+}
+
+
+.dropdown-menu {
+  background-color: #ebffee;  /* 背景色をオレンジ色に変更 */
+  border: 2px solid #00cb1e;  /* オレンジ色の実線ボーダーを追加 */
+  border-radius: 5px;         /* 角を丸く */
+} 
+
+
+#filterin_dropdown .dropdown-menu {
+  background-color: #d4effc !important;
+  border: 2px solid #52bef3 !important;
+  border-radius: 5px;
+}
+
+#help .dropdown-menu {
+  background-color: #fcecd4 !important;
+  border: 2px solid #f7a62d !important;
+  border-radius: 5px;
+}
+
+.app-footer {
+  text-align: right;
+  font-size: 13px;
+  color: #888;
+  margin-top: 30px;
+  padding: 10px 20px;
+  border-top: 1px solid #eee;
+}
+
+/* home.R */
+.home-container {
+  text-align: center;
+}
+
+.home-title {
+  font-family: Helvetica, Arial, serif;
+  font-size: 26px;
+}
+
+.home-text {
+  font-family: Helvetica, Arial, serif;
+  font-size: 22px;
+}
+
+.home-title u {
+  text-decoration: underline;
+}
+
+.home-title b {
+  font-weight: bold;
+}
+
+.home-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.home-image {
+  width: 1200px;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.home-footer-text {
+  text-align: center;
+  font-family: Helvetica, Arial, serif;
+  font-size: 22px;
+  margin-top: 20px;
+}
+
+.home-version {
+  text-align: right;
+  font-size: 16px;
+  font-weight: normal;
+  color: #666;
+  margin-top: 10px;
+}

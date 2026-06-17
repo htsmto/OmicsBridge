@@ -2,7 +2,8 @@
 
 ## <u>**Overview**</u>
 
-OmicsBridge is an intuitive platform that integrates and visualizes diverse omics datasets. Our tool helps researchers identify key genes with functional and clinical relevance, supporting hypothesis generation. It also serves as a centralized database for efficient data storage and access, reducing scattered datasets and improving overall data accessibility.
+OmicsBridge is a code-free, multi-omics analysis platform that integrates transcriptome, epigenome, and single-cell data within a single interface. With 50+ analytical modules spanning several omics modalities, it covers everything from standard RNA-seq analysis to epigenome visualisation, cross-dataset comparison, and clinical outcome evaluation — all without writing a single line of code.
+A persistent local database eliminates repetitive uploads, and custom gene sets defined in one module are instantly reusable across all others.
 
 You can use OmicsBridge through a standalone web interface at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
 Please note that uploaded data will be deleted after you close the tab.
@@ -31,12 +32,26 @@ the final file structure should be:
 ```
 .
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all # if you haven’t downloaded 00_Expression_data_all.tar.gz, the app will automatically create this folder (it will be empty) when it starts.
+├── 00_Expression_data_all  # auto-created as empty if not downloaded
 ├── app.R
 ├── data
 ├── docs
+├── install_packages.R      # automated package installation script
+├── libraries               # per-module library loaders (loaded lazily on first tab access)
 ├── mkdocs.yml
+├── modules                 # modularised server and UI code
+│   ├── Clinical/
+│   ├── DataOverview/
+│   ├── DatasetsCompare/
+│   ├── Epigenome/
+│   ├── IntegrateTwoDataset/
+│   ├── OriginalDataset/
+│   ├── Tools/
+│   ├── scRNA/
+│   ├── wiki_document/
+│   └── *_module.R          # per-module orchestrators
 ├── README.md
+├── ui                      # app-level UI components (header, sidebar, body, home)
 ├── wiki
 └── www
 ```
@@ -53,7 +68,19 @@ docker pull htsmto/omicsbridge:latest
 
 ### Manual Installation of Required Libraries
 
-OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version *3.20 or higher*.
+OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please ensure you install BiocManager version *3.20 or higher*.
+
+#### Automated Installation (Recommended)
+
+An installation script is provided. Run the following in your terminal from the project root:
+
+```bash
+Rscript install_packages.R
+```
+
+This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.
+
+#### Alternative: Manual Installation
 
 ```R
 ## CRAN dependent packages
@@ -110,8 +137,8 @@ The Wiki contains concise instructions and short demo videos for each visualizat
 
 ## <u>**Version**</u>
 
-Current version: v1.0 <br>
-Release date: August 2025
+Current version: v1.2.0 <br>
+Release date: June 2026
 
 ## <u>**Citation**</u>
 
