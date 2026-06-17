@@ -1,0 +1,16 @@
+
+cat("Loading Dataoverview libraries...\n")
+
+suppressMessages(library(ggplot2))
+suppressMessages(library(reshape2))
+suppressMessages(library(ggbeeswarm))
+suppressMessages(library(patchwork))
+suppressMessages(library(ggrepel)) 
+suppressMessages(library(GSEABase)) 
+suppressMessages(library(clusterProfiler)) 
+suppressMessages(library(org.Hs.eg.db))
+suppressMessages(library(org.Mm.eg.db))
+suppressMessages(library(ggraph))
+suppressMessages(library(fgsea))
+net <- readRDS('data/OmnipathR_net.rds')
+cat("Dataoverview libraries loaded.\n")
