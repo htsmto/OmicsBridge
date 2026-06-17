@@ -1,0 +1,15 @@
+
+cat("Loading Epigenome data analysis libraries...\n")
+
+suppressMessages(library(rtracklayer))
+suppressMessages(library(EnrichedHeatmap))
+suppressMessages(library(circlize))
+suppressMessages(library(GenomicRanges))
+customegeneModels <- readRDS('data/customgeneModels.rds')
+suppressMessages(library(igvShiny))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+suppressMessages(library(PWMEnrich))
+suppressMessages(library(PWMEnrich.Hsapiens.background))
+data(PWMLogn.hg19.MotifDb.Hsap)
+cat("Epigenome data analysis libraries loaded.\n")
