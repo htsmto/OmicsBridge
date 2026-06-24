@@ -59,7 +59,6 @@ homeTabUI <- function() {
                     rel = "noopener noreferrer",
                     tags$b("this GitHub page")
                 ), tags$br(),
-                "Please note that the data you upload to this website will be deleted once you leave the session", tags$br(),
                 "Please install and set up OmicsBridge to your local PC to use the full power of our interface.", tags$br(),
                 "", tags$br()
             ),

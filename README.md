@@ -6,7 +6,6 @@ OmicsBridge is a code-free, multi-omics analysis platform that integrates transc
 A persistent local database eliminates repetitive uploads, and custom gene sets defined in one module are instantly reusable across all others.
 
 You can use OmicsBridge through a standalone web interface at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
-Please note that uploaded data will be deleted after you close the tab.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
 ![Interface overview](docs/img/interface_overview.png)
