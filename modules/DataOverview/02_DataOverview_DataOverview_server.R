@@ -35,7 +35,15 @@ dataoverview_dataoverview_Server <- function(input, output, session) {
                 if(file.exists(dataset_path)){
                     df_tmp <- read.table(dataset_path, header=T, check.names = FALSE, sep='\t')
                     numeric_cols <- names(df_tmp)[!(names(df_tmp) %in% 'id')]
-                    df_tmp[numeric_cols] <- lapply(df_tmp[numeric_cols], as.numeric)
+                    df_tmp[numeric_cols] <- lapply(df_tmp[numeric_cols], function(col){
+                        converted <- suppressWarnings(as.numeric(col))
+                        # as.numeric() turning every value to NA means the column was never numeric to begin with; keep it as-is
+                        if(all(is.na(converted)) && !all(is.na(col))){
+                            col
+                        } else {
+                            converted
+                        }
+                    })
                     status(NULL)
                     df_overview(df_tmp)
                 } else {
