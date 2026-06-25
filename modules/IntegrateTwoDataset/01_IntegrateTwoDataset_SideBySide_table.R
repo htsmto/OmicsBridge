@@ -54,6 +54,15 @@ side_by_side_table_server <- function(input, output, session, df_data1, df_data2
                     }
                 #
 
+                # both datasets' x/y axes must be selected before the overlap table can be built
+                # (right after a dataset is (re)selected, its x/y selectors briefly default to 'None')
+                    axis_selections <- c(input$Integrate_data1_Scat.X, input$Integrate_data1_Scat.Y, input$Integrate_data2_Scat.X, input$Integrate_data2_Scat.Y)
+                    if(length(axis_selections) < 4 || any(axis_selections == 'None')){
+                        Integrate_Overlapped_gene_table_tmp(NULL)
+                        return(NULL)
+                    }
+                #
+
                 # apply the filtering in the mapped side
                     df_tmp <- switch(input$Integrate_data_mapped_thr_X_method,
                         "A" = df_tmp,

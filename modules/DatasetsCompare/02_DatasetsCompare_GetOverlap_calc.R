@@ -95,6 +95,7 @@ get_overlap_calc_server <- function(input, output, session, selected_datasets_ta
                             next()
                         }
                         data_tmp <- read.table(selected_datasets_table$Path[i], sep='\t', header=T, check.names = FALSE)
+                        data_tmp <- replace_infinite_values_df(data_tmp)
 
                         # if the selected score column does not exist in the dataset, skip this dataset and show warning later
                         if(!(score_column %in% colnames(data_tmp))){

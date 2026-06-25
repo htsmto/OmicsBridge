@@ -44,6 +44,7 @@ dataoverview_dataoverview_Server <- function(input, output, session) {
                             converted
                         }
                     })
+                    df_tmp <- replace_infinite_values_df(df_tmp)
                     status(NULL)
                     df_overview(df_tmp)
                 } else {

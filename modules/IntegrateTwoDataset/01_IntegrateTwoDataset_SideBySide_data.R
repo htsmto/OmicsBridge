@@ -13,6 +13,12 @@ side_by_side_data_server <- function(input, output, session) {
             Dataset <- reactiveVal({data.frame(read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE))})
         #
 
+        # reload database
+            observeEvent(input$reload_database, {
+                Dataset(data.frame(read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE)))
+            })
+        #
+
         # direction select
             Integrate_data_map_direction_note <- reactiveVal(NULL)
             output$Integrate_data_map_direction_note <- renderText({Integrate_data_map_direction_note()})
@@ -105,6 +111,7 @@ side_by_side_data_server <- function(input, output, session) {
                             path <- Dataset()[Dataset()$Dataset == selected_data, ]$Path
                             if(file.exists(path)){
                                 df_tmp <- read.table(path, sep='\t', header=T,check.names = FALSE)
+                                df_tmp <- replace_infinite_values_df(df_tmp)
                                 return(df_tmp)
                             }else{
                                 return(NULL)

@@ -212,8 +212,15 @@ IntegrateTwoDataset_IntegrationPlot_server <- function(input, output, session, d
                     color=.data[[input$Integrate_data1_plus_2_Scat.colour]]))
 
             values_for_colours <- df_main_plot[, input$Integrate_data1_plus_2_Scat.colour]
-            values_for_colours <- values_for_colours[!is.na(values_for_colours)]
-            if (min(values_for_colours) < 0) {
+            # is.finite() drops NA *and* +-Inf -- e.g. a -log10(p-value) column will be
+            # Inf for genes with p-value == 0, which would otherwise make the gradient's
+            # internal rescale()/approxfun() calculation collapse to NaN and crash the plot.
+            values_for_colours <- values_for_colours[is.finite(values_for_colours)]
+            if (length(values_for_colours) < 2 || min(values_for_colours) == max(values_for_colours)) {
+                # Not enough distinct finite values to build a gradient -- use a flat scale instead.
+                p <- p + scale_color_gradientn(colors=c("white","red"), name=input$Integrate_data1_plus_2_Scat.colour)
+                p <- p + scale_fill_gradientn(colors=c("white","red"),  name=input$Integrate_data1_plus_2_Scat.colour)
+            } else if (min(values_for_colours) < 0) {
                 if (max(values_for_colours) >= 0) {
                     tmp <- max(abs(max(values_for_colours)), abs(min(values_for_colours)))
                     p <- p + scale_color_gradientn(colors=c("blue","white","red"), values=scales::rescale(c(-tmp,0,tmp)), limits=c(-tmp,tmp), name=input$Integrate_data1_plus_2_Scat.colour)

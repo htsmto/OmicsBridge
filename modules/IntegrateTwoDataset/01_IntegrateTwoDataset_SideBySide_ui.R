@@ -4,9 +4,10 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
             box(width=12, title='Direction', collapsible=TRUE, status='info',
                 fluidRow(
                     column(5, radioButtons(ns("Integrate_data_map_direction"), "", choices = c('See the selected genes from Data1 onto Data2'='A', 'See the selected genes from Data2 onto Data1'='B'), selected='A')),
-                    column(7, h3('\n'), verbatimTextOutput(ns('Integrate_data_map_direction_note')))    
+                    column(5, h3('\n'), verbatimTextOutput(ns('Integrate_data_map_direction_note'))),
+                    column(2, h3('\n'), actionButton(ns('reload_database'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))
                 )
-                
+
             ),
         #
 

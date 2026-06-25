@@ -204,6 +204,7 @@ compare_one_gene_data_server <- function(input, output, session, selected_datase
                         next
                     }
                     data_tmp <- read.table(selected_datasets_table$Path[i], sep='\t', header=T, check.names = FALSE)
+                    data_tmp <- replace_infinite_values_df(data_tmp)
 
                     # if the selected y axis or colour is not in the dataset, show a message later and skip this dataset
                     if(!(input$Choose_datasets_y %in% colnames(data_tmp))){
