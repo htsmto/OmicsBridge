@@ -41,14 +41,22 @@ scRNAModuleServer <- function(id) {
 
     # --- [3-2] Shared data ---------------------------------------------------
     # Dataset index and custom gene sets are loaded once and passed to servers.
-    Dataset <- tryCatch(
-      data.frame(read.delim("data/Database.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
-      error = function(e) {
-        showNotification(paste("Could not load Database.tsv:", conditionMessage(e)),
-                         type = "error", duration = 15)
-        data.frame()
-      }
-    )
+    # Dataset is a reactiveVal so the "Reload your datasets list" button can
+    # refresh it without restarting the session.
+    load_dataset_index <- function() {
+      tryCatch(
+        data.frame(read.delim("data/Database.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
+        error = function(e) {
+          showNotification(paste("Could not load Database.tsv:", conditionMessage(e)),
+                           type = "error", duration = 15)
+          data.frame()
+        }
+      )
+    }
+    Dataset <- reactiveVal(load_dataset_index())
+    observeEvent(input$reload_database, {
+      Dataset(load_dataset_index())
+    })
     Custom_genesets <- tryCatch(
       data.frame(read.delim("data/Genesets_list.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
       error = function(e) {

@@ -1,10 +1,12 @@
 Epigenome_genomevisualisation_UI <- function(ns){
-    box(title='Profile Plot', width=12, status='primary', solidHeader = TRUE,
+    box(title='Epigenome visualisation', width=12, status='primary', solidHeader = TRUE,
         fluidRow(
         column(4,
             box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
             fluidRow(
                 column(12, htmlOutput(ns('Gviz_data_select'))),
+                column(12, actionButton(ns('reload_database_genomevis'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
+                column(12, h5(' ')),
                 column(12, radioButtons(ns('Gviz_data_type'), 'Data type', choices=c('BigWig', 'BAM'), selected='BigWig', inline=TRUE)),
                 column(12, actionButton(ns('Gviz_data_add'), 'Use this dataset', style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
                 column(12, h2('')),

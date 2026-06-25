@@ -24,6 +24,8 @@ Epigenome_profile_UI <- function(ns){
                                 )
                             )
                         ),
+                        column(12, actionButton(ns('reload_database_profile'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708") ),
+                        column(12, h5(' ')),
                         column(6, actionButton(ns('Profile_Plot_sample_import'), 'Import the selected sample',style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
                         column(6, helpText('It takes a while to import the bigwig data. Please be patient after clicking the button.')),
                         column(12, h5('')),

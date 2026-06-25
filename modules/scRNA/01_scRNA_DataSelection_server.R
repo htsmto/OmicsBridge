@@ -14,8 +14,8 @@ scRNA_DataSelection_server  <- function(input, output, session, Dataset) {
             # Dataset <- data.frame(read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE))
 
         # dataset selection UI
-            output$scRNA_data_select <- renderUI({ 
-                selectInput(session$ns('scRNA_data_select'), 'Select a scRNA data', c('None'='None', Dataset[Dataset$Data.Class == 'C',]$Dataset)) 
+            output$scRNA_data_select <- renderUI({
+                selectInput(session$ns('scRNA_data_select'), 'Select a scRNA data', c('None'='None', Dataset()[Dataset()$Data.Class == 'C',]$Dataset))
             })
 
     ##
@@ -28,10 +28,10 @@ scRNA_DataSelection_server  <- function(input, output, session, Dataset) {
             observe({
                 if(!is.null(input$scRNA_data_select) && input$scRNA_data_select != 'None'){
                     detail_message(paste0(
-                        'Data.from: ', as.character(Dataset[Dataset$Dataset == input$scRNA_data_select, ]$Data.from), '\n', 
-                        'Experiment: ', as.character(Dataset[Dataset$Dataset == input$scRNA_data_select, ]$Experiment), '\n', 
-                        'When: ' , as.character(Dataset[Dataset$Dataset == input$scRNA_data_select, ]$When), '\n', 
-                        'Description: ' , as.character(Dataset[Dataset$Dataset == input$scRNA_data_select, ]$Description), '\n'
+                        'Data.from: ', as.character(Dataset()[Dataset()$Dataset == input$scRNA_data_select, ]$Data.from), '\n',
+                        'Experiment: ', as.character(Dataset()[Dataset()$Dataset == input$scRNA_data_select, ]$Experiment), '\n',
+                        'When: ' , as.character(Dataset()[Dataset()$Dataset == input$scRNA_data_select, ]$When), '\n',
+                        'Description: ' , as.character(Dataset()[Dataset()$Dataset == input$scRNA_data_select, ]$Description), '\n'
                     ))
                 }else{
                     detail_message('Please select a dataset.')

@@ -39,7 +39,7 @@ EpigenomeModuleServer <- function(id) {
     # --- [3-2] Shared data ---------------------------------------------------
     # Dataset index is wrapped in reactiveVal so downstream servers can depend
     # on it reactively (e.g., if the database is updated during the session).
-    Dataset <- reactiveVal({
+    load_dataset_index <- function() {
       tryCatch(
         data.frame(read.delim("data/Database.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
         error = function(e) {
@@ -48,7 +48,16 @@ EpigenomeModuleServer <- function(id) {
           data.frame()
         }
       )
-    })
+    }
+    Dataset <- reactiveVal(load_dataset_index())
+
+    # Each sub-tab has its own "Reload your datasets list" button (placed next
+    # to that sub-tab's dataset selector), but they all refresh the same
+    # shared Dataset reactiveVal used by every sub-server below.
+    observeEvent(input$reload_database_profile, { Dataset(load_dataset_index()) })
+    observeEvent(input$reload_database_genomevis, { Dataset(load_dataset_index()) })
+    observeEvent(input$reload_database_igv, { Dataset(load_dataset_index()) })
+    observeEvent(input$reload_database_enhancer, { Dataset(load_dataset_index()) })
 
     # --- [3-3] Sub-module servers -------------------------------------------
     Epigenome_profile_server(input, output, session, Dataset)

@@ -57,7 +57,7 @@ scRNA_UMAP_server  <- function(input, output, session, Dataset) {
                 selected_dataset <- selected_dataset()
 
                 # if the file is not found, show an error message and reset the flag.
-                filepath <- Dataset[Dataset$Dataset == selected_dataset, ]$Path
+                filepath <- Dataset()[Dataset()$Dataset == selected_dataset, ]$Path
                 if(!file.exists(filepath)){
                     scRNA_UMAP1_status(paste0('Error: The file for the selected dataset (', selected_dataset, ') is not found. \nPlease check the file path and try again.'))
                     DataLoading(FALSE)

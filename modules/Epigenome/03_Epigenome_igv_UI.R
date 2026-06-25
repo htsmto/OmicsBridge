@@ -1,21 +1,22 @@
 Epigenome_igv_UI <- function(ns){
-    box(title='Profile Plot', width=12, status='primary', solidHeader = TRUE,
+    box(title='IGV', width=12, status='primary', solidHeader = TRUE,
         fluidRow(
             column(4, 
                 box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
                     fluidRow( 
                         column(12, selectInput(ns('igv_gneome_selection'), 'Choose genome:', choices=c('hg38', 'hg19', 'mm10', 'mm39'), selected='hg38')),
                         column(12, htmlOutput(ns("igv_data_select"))),
-                        column(12, 
+                        column(8,
                             div(id='filterin_dropdown',
-                                dropdownButton( 
+                                dropdownButton(
                                     fluidRow(
                                         column(6, htmlOutput(ns("igv_data_DataFrom"))),
                                         column(6, htmlOutput(ns("igv_data_Experiment")))
                                     ),label='Dataset filtering', circle = FALSE, status = "info", icon = icon("sliders"), width = "500px",  tooltip = tooltipOptions(title = "Dataset filtering")
                                 )
-                            ) 
+                            )
                         ),
+                        column(4, actionButton(ns('reload_database_igv'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
                         column(12, h2('')),
                         column(12, 
                             fluidRow(
