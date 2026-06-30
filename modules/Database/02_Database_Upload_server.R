@@ -136,7 +136,11 @@ database_upload_Server <- function(input, output, session) {
             Dataset_name(input$upload_dataset_name)
             Experiment_name(input$upload_Experiment)
             Data_from(input$upload_data_from)
-            Data_type(ifelse(input$upload_data_type_select_select == 'Other', input$upload_data_type_manual, input$upload_data_type_select_select))
+            Data_type(if(isTRUE(input$upload_data_type_select_select == 'Other')) {
+                if(is.null(input$upload_data_type_manual)) '' else input$upload_data_type_manual
+            } else {
+                input$upload_data_type_select_select
+            })
             Cell_line(input$upload_cell_line)
             When(input$upload_when)
             Data_Class(input$upload_Data_Class)

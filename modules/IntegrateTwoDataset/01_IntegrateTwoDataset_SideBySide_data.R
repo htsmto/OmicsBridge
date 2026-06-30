@@ -41,23 +41,24 @@ side_by_side_data_server <- function(input, output, session) {
                     dataset_select_button_creation <- function(df_tmp, Name, Seuqenced_by, Experiments, Data_type ){
                         req(df_tmp)
                         df_tmp <- df_tmp[df_tmp$Data.Class == 'B',]
-                        if(length(Seuqenced_by) == 0 || length(Experiments) || length(Data_type) == 0){
+
+                        no_filter <- (length(Seuqenced_by) == 0 || Seuqenced_by == 'None') &&
+                                     (length(Experiments)  == 0 || Experiments  == 'None') &&
+                                     (length(Data_type)    == 0 || Data_type    == 'None')
+                        if(no_filter){
                             return(selectInput(session$ns(Name), 'Dataset select', c('None'='None', unique(df_tmp$Dataset)) ))
                         }
 
-                        if(length(Seuqenced_by)!= 0 || Seuqenced_by!='None'){
+                        if(length(Seuqenced_by) != 0 && Seuqenced_by != 'None'){
                             df_tmp <- df_tmp[df_tmp$Data.from == Seuqenced_by,]
-                            tmp <- unique(df_tmp$Dataset)
-                        }else if(length(Experiments)!=0 || Experiments!='None'){
-                            df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]
-                            tmp <- unique(df_tmp$Dataset)
-                        }else if(length(Data_type)!=0 || Data_type!='None'){
-                            df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]
-                            tmp <- unique(df_tmp$Dataset)
-                        }else{
-                            tmp <- NULL
                         }
-                        selectInput(session$ns(Name), 'Dataset select', c('None'='None', tmp))
+                        if(length(Experiments) != 0 && Experiments != 'None'){
+                            df_tmp <- df_tmp[df_tmp$Experiment == Experiments,]
+                        }
+                        if(length(Data_type) != 0 && Data_type != 'None'){
+                            df_tmp <- df_tmp[df_tmp$Data.type == Data_type,]
+                        }
+                        selectInput(session$ns(Name), 'Dataset select', c('None'='None', unique(df_tmp$Dataset)))
                     }
                 #
 
