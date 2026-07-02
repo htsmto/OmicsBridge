@@ -79,7 +79,8 @@ clinical_DataSelection_server <- function(input, output, session) {
                 Ex_path = Ex_path,
                 Surv_path = Surv_path,
                 Meta_path = Meta_path,
-                Mut_path = Mut_path
+                Mut_path = Mut_path,
+                Clinical_dataset = Clinical_dataset
             ))
         
         #

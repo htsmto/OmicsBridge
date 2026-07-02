@@ -42,6 +42,7 @@ clinicalModuleServer <- function(id) {
   source("modules/Clinical/06_clinical_ExpressionCompare_server.R", local = TRUE)
   source("modules/Clinical/07_clinical_Signature_server.R",       local = TRUE)
   source("modules/Clinical/08_clinical_Deconvolution_server.R",   local = TRUE)
+  source("modules/Clinical/09_clinical_CompareCohorts_server.R",  local = TRUE)
   source("modules/Clinical/10_clinical_COSMIC_server.R",          local = TRUE)
   source("modules/Clinical/11_clinical_upload_server.R",          local = TRUE)
 
@@ -98,6 +99,9 @@ clinicalModuleServer <- function(id) {
       loaded_data_table$Gene_expression,
       loaded_data_table$Survival,
       loaded_data_table$Meta_data,
+      Custom_genesets)
+    clinical_CompareCohorts_server(input, output, session,
+      data_path_list$Clinical_dataset,
       Custom_genesets)
     clinical_COSMIC_server(input, output, session, Custom_genesets)
     clinical_upload_server(input, output, session)
