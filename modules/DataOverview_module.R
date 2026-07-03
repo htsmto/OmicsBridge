@@ -56,14 +56,16 @@ dataoverviewModuleServer <- function(id) {
     # --- [3-3] Shared data ---------------------------------------------------
     # Gene set list used by Swarm, Heatmap, Correlation, MainPlot, and GSEA.
     # Loaded once here and passed as an argument to each sub-server.
-    Original_geneset_list <- tryCatch(
-      data.frame(read.delim("data/Genesets_list.tsv", sep = "\t", header = TRUE)),
-      error = function(e) {
-        showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
-                         type = "error", duration = 15)
-        data.frame()
-      }
-    )
+    Original_geneset_list <- reactiveFileReader(3000, session, "data/Genesets_list.tsv", function(f) {
+      tryCatch(
+        data.frame(read.delim(f, sep = "\t", header = TRUE)),
+        error = function(e) {
+          showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
+                           type = "error", duration = 15)
+          data.frame()
+        }
+      )
+    })
 
     # --- [3-4] Sub-module servers --------------------------------------------
     # Each call registers the reactive logic for one sub-panel.

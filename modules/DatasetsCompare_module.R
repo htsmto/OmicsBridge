@@ -38,14 +38,16 @@ DatasetsCompareModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
 
     # --- [3-2] Shared data ---------------------------------------------------
-    Custom_genesets <- tryCatch(
-      data.frame(read.delim("data/Genesets_list.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
-      error = function(e) {
-        showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
-                         type = "error", duration = 15)
-        data.frame()
-      }
-    )
+    Custom_genesets <- reactiveFileReader(3000, session, "data/Genesets_list.tsv", function(f) {
+      tryCatch(
+        data.frame(read.delim(f, sep = "\t", header = TRUE, check.names = FALSE)),
+        error = function(e) {
+          showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
+                           type = "error", duration = 15)
+          data.frame()
+        }
+      )
+    })
 
     # --- [3-3] Sub-module servers -------------------------------------------
     # DataSelection returns the table of selected datasets, which is passed

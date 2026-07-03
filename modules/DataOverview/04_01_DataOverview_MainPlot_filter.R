@@ -277,7 +277,7 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
         is.null(input$show_filterin_input_option) ||
         input$show_filterin_input_option != "D") return(NULL)
     selectInput(session$ns("Plot_Gene_set_select_geneset"), "Select a custom geneset",
-                c("None" = "None", Original_geneset_list$Geneset.name))
+                c("None" = "None", Original_geneset_list()$Geneset.name))
   })
 
   custom_genes <- reactiveVal(NULL)
@@ -293,8 +293,8 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
       custom_genes(NULL)
     } else {
       genes_tmp <- strsplit(
-        Original_geneset_list[
-          Original_geneset_list$Geneset.name %in% input$Plot_Gene_set_select_geneset, ]$Genes,
+        Original_geneset_list()[
+          Original_geneset_list()$Geneset.name %in% input$Plot_Gene_set_select_geneset, ]$Genes,
         split = ", ")[[1]]
       custom_genes(genes_tmp)
     }

@@ -32,7 +32,7 @@ correlation_calc_server <- function(input, output, session, df_ex, Custom_genese
         # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
             output$Two_gene_corr_input_from_custom_geneset_select <- renderUI({
                 if(length(input$Two_gene_corr_input_from_custom_geneset) > 0 && input$Two_gene_corr_input_from_custom_geneset == TRUE){
-                    gene_sets_names <- c(Custom_geneset$Geneset.name)
+                    gene_sets_names <- c(Custom_geneset()$Geneset.name)
                     selectInput(session$ns('Two_gene_corr_input_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -73,7 +73,7 @@ correlation_calc_server <- function(input, output, session, df_ex, Custom_genese
                             Two_gene_corr_input_gene(NULL)
                             return(NULL)
                         }else{
-                            genes <- strsplit(Custom_geneset[Custom_geneset$Geneset.name %in% input$Two_gene_corr_input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                            genes <- strsplit(Custom_geneset()[Custom_geneset()$Geneset.name %in% input$Two_gene_corr_input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                             Two_gene_corr_input_gene(genes)
                             Two_gene_corr_genes_status(paste0("You have input ", length(Two_gene_corr_input_gene()), " gene(s) from your selected custom geneset."))
                         }

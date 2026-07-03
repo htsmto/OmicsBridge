@@ -57,14 +57,16 @@ scRNAModuleServer <- function(id) {
     observeEvent(input$reload_database, {
       Dataset(load_dataset_index())
     })
-    Custom_genesets <- tryCatch(
-      data.frame(read.delim("data/Genesets_list.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
-      error = function(e) {
-        showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
-                         type = "error", duration = 15)
-        data.frame()
-      }
-    )
+    Custom_genesets <- reactiveFileReader(3000, session, "data/Genesets_list.tsv", function(f) {
+      tryCatch(
+        data.frame(read.delim(f, sep = "\t", header = TRUE, check.names = FALSE)),
+        error = function(e) {
+          showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
+                           type = "error", duration = 15)
+          data.frame()
+        }
+      )
+    })
 
     # --- [3-3] Sub-module servers --------------------------------------------
     # UMAP server loads the Seurat object and returns it as a reactive.

@@ -26,7 +26,7 @@ heatmap_data_server <- function(input, output, session, df_ex, Custom_geneset) {
                     if(input$Data_Overview_heatmap_target_gene_type == 'A'){
                         textAreaInput(session$ns("Data_Overview_heatmap_target_genes"), "Enter genes (line by line)",  placeholder = "GeneA\nGeneB\nGeneC", width = '100%')
                     }else if (input$Data_Overview_heatmap_target_gene_type == 'B') {
-                        gene_sets_names <- c(Custom_geneset$Geneset.name)
+                        gene_sets_names <- c(Custom_geneset()$Geneset.name)
                         selectInput(session$ns('Data_Overview_heatmap_target_select_geneset'), 'Select a geneset',  c('None'='None', gene_sets_names))
                     }else if (input$Data_Overview_heatmap_target_gene_type == 'C') {
                         gsc <- getGmt('data/h.all.v2023.2.Hs.symbols.gmt')
@@ -113,8 +113,8 @@ heatmap_data_server <- function(input, output, session, df_ex, Custom_geneset) {
                             return(NULL)
                         }else{
                             # check if the geneset is included
-                            if(input$Data_Overview_heatmap_target_select_geneset %in% Custom_geneset$Geneset.name){
-                                genes_tmp <- strsplit(Custom_geneset[Custom_geneset$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', ')[[1]]
+                            if(input$Data_Overview_heatmap_target_select_geneset %in% Custom_geneset()$Geneset.name){
+                                genes_tmp <- strsplit(Custom_geneset()[Custom_geneset()$Geneset.name %in% input$Data_Overview_heatmap_target_select_geneset, ]$Genes, split=', ')[[1]]
                                 genes_tmp_found <- genes_tmp[genes_tmp %in% df_ex()$id]
                                 genes_tmp_notfound <- genes_tmp[!(genes_tmp %in% df_ex()$id)]
                                 if(length(genes_tmp_found) == 0){

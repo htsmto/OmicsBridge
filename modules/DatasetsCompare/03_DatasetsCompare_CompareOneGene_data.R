@@ -76,7 +76,7 @@ compare_one_gene_data_server <- function(input, output, session, selected_datase
         # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
             output$target_gene_for_comparing_Input_from_custom_geneset_select <- renderUI({
                 if(length(input$target_gene_for_comparing_Input_from_custom_geneset) > 0 && input$target_gene_for_comparing_Input_from_custom_geneset == TRUE){
-                    gene_sets_names <- c(Custom_genesets$Geneset.name)
+                    gene_sets_names <- c(Custom_genesets()$Geneset.name)
                     selectInput(session$ns('target_gene_for_comparing_Input_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -120,7 +120,7 @@ compare_one_gene_data_server <- function(input, output, session, selected_datase
                             Input_is_ready(0)
                             return(NULL)
                         }else{
-                            genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$target_gene_for_comparing_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                            genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$target_gene_for_comparing_Input_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                             gene_list_custom(genes)
                             # Gene_comparing_selected_gene_status(paste0("You have input ", length(gene_list_custom()), " gene(s) from your selected custom geneset."))
                             Input_is_ready(2)

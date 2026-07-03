@@ -23,7 +23,7 @@ gsea_calc_server <- function(input, output, session, df_ex, Original_geneset_lis
         # pathway chooose (Custom Gene sets)
             output$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set <- renderUI({
                 if(input$GSEA_pathway_dataset_select == 'E' && input$GSEA_pathway_dataset_select_one_geneset_select == 'A') {
-                    gene_sets_names <- c(Original_geneset_list$Geneset.name)
+                    gene_sets_names <- c(Original_geneset_list()$Geneset.name)
                     selectInput(session$ns('GSEA_pathway_dataset_select_one_geneset_select_from_custom_set'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -90,7 +90,7 @@ gsea_calc_server <- function(input, output, session, df_ex, Original_geneset_lis
                             GSEA_pathway_dataset_select_status('Please select a custom gene set.')
                             return(NULL)
                         }else{
-                            genes <- strsplit(Original_geneset_list[Original_geneset_list$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
+                            genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$GSEA_pathway_dataset_select_one_geneset_select_from_custom_set, ]$Genes, split=', ')[[1]]
                             gsc <- list('Selected custom gene set' = genes)
                             GSEA_pathway_dataset_select_status('One gene set was set from the selected custom gene set.')
                             GSEA_Gene_set(gsc)

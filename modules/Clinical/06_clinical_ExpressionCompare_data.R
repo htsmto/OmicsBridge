@@ -32,7 +32,7 @@ expr_compare_data_server <- function(input, output, session, Gene_expression, Me
             # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
                 output$Expression_subtype_genes_from_custom_geneset_select <- renderUI({
                     if(length(input$Expression_subtype_genes_from_custom_geneset) > 0 && input$Expression_subtype_genes_from_custom_geneset == TRUE){
-                        gene_sets_names <- c(Custom_genesets$Geneset.name)
+                        gene_sets_names <- c(Custom_genesets()$Geneset.name)
                         selectInput(session$ns('Expression_subtype_genes_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                     } else {
                         return(NULL)
@@ -70,7 +70,7 @@ expr_compare_data_server <- function(input, output, session, Gene_expression, Me
                             return(NULL)
                         }
 
-                        genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                        genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$Expression_subtype_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                         Gene_expression_gene(genes)
                         Expression_subtype_genes_status(paste0("You have input ", length(Gene_expression_gene()), " gene(s) from your selected custom geneset."))
 
@@ -257,30 +257,42 @@ expr_compare_data_server <- function(input, output, session, Gene_expression, Me
                 # Do test
                 # if subtypes are more than 2, do kruskal-wallis test; if there are only 2 subtypes, do wilcox test.
 
-                    if(length(unique(df_meta_subtype[,group_by])) == 2){ # when 2 subtypes
-                        df_test <- data.frame('Gene'=c(), 'Statistic (Wilcoxon)'=c(), 'P.value'=c())
-                        for (gene in genes){
-                            # wilcox.test
-                            df_out_tmp <- df_out[df_out$Genes == gene,]
-                            group1 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[1],]$Expression
-                            group2 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[2],]$Expression
-                            df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
-                            p <- df_test_tmp$p.value
-                            statistic <- df_test_tmp$statistic
-                            tmp <- data.frame('Gene'=gene, 'Statistic (Wilcoxon)'=statistic, 'P.value'=p)
-                            df_test <- rbind(df_test, tmp)
+                    df_test <- tryCatch({
+                        if(length(unique(df_meta_subtype[,group_by])) == 2){ # when 2 subtypes
+                            df_test <- data.frame('Gene'=c(), 'Statistic (Wilcoxon)'=c(), 'P.value'=c())
+                            for (gene in genes){
+                                # wilcox.test
+                                df_out_tmp <- df_out[df_out$Genes == gene,]
+                                group1 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[1],]$Expression
+                                group2 <- df_out_tmp[df_out_tmp[,group_by] == unique(unlist(df_out[,group_by]))[2],]$Expression
+                                df_test_tmp <- wilcox.test(group1, group2) # str(df_test)
+                                p <- df_test_tmp$p.value
+                                statistic <- df_test_tmp$statistic
+                                tmp <- data.frame('Gene'=gene, 'Statistic (Wilcoxon)'=statistic, 'P.value'=p)
+                                df_test <- rbind(df_test, tmp)
+                            }
+                        }else{
+                            df_test <- data.frame('Gene'=c(), 'Statistic (Kruskal-Wallis)'=c(), 'P.value'=c())
+                            for (gene in genes){
+                                # kruskal.test
+                                df_out_tmp <- df_out[df_out$Genes == gene,]
+                                df_out_tmp$.group_by_col <- df_out_tmp[[group_by]]
+                                df_test_tmp <- kruskal.test(as.formula(paste('Expression', '~', '.group_by_col')), data=df_out_tmp) # str(df_test)
+                                p <- df_test_tmp$p.value
+                                statistic <- df_test_tmp$statistic
+                                tmp <- data.frame('Gene'=gene, 'Statistic (Kruskal-Wallis)'=statistic, 'P.value'=p)
+                                df_test <- rbind(df_test, tmp)
+                            }
                         }
-                    }else{
-                        df_test <- data.frame('Gene'=c(), 'Statistic (Kruskal-Wallis)'=c(), 'P.value'=c())
-                        for (gene in genes){
-                            # kruskal.test
-                            df_out_tmp <- df_out[df_out$Genes == gene,]
-                            df_test_tmp <- kruskal.test(as.formula(paste('Expression', '~', group_by)), data=df_out_tmp) # str(df_test)
-                            p <- df_test_tmp$p.value
-                            statistic <- df_test_tmp$statistic
-                            tmp <- data.frame('Gene'=gene, 'Statistic (Kruskal-Wallis)'=statistic, 'P.value'=p)
-                            df_test <- rbind(df_test, tmp)
-                        }
+                        df_test
+                    }, error = function(e){
+                        show_alert(title='Error.', text=paste0('An error occurred while running the statistical test: ', conditionMessage(e)), type='error')
+                        Expression_subtype_status(paste0('An error occurred while running the statistical test: ', conditionMessage(e)))
+                        isCalculating(FALSE)
+                        NULL
+                    })
+                    if(is.null(df_test)){
+                        return(NULL)
                     }
                     df_test <- df_test[order(df_test$`P.value`),] # order by p value
                     rownames(df_test) <- NULL

@@ -36,7 +36,7 @@ clinical_COSMIC_server <- function(input, output, session,  Custom_genesets) {
         # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
             output$CGC_input_gene_from_custom_geneset_select <- renderUI({
                 if(length(input$CGC_input_gene_from_custom_geneset) > 0 && input$CGC_input_gene_from_custom_geneset == TRUE){
-                    gene_sets_names <- c(Custom_genesets$Geneset.name)
+                    gene_sets_names <- c(Custom_genesets()$Geneset.name)
                     selectInput(session$ns('CGC_input_gene_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -74,7 +74,7 @@ clinical_COSMIC_server <- function(input, output, session,  Custom_genesets) {
                         return(NULL)
                     }
 
-                    genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$CGC_input_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                    genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$CGC_input_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                     CGC_input_gene(genes)
                     CGC_input_gene_status(paste0("You have input ", length(CGC_input_gene()), " gene(s) from your selected custom geneset."))
                 }

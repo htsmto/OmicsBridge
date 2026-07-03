@@ -42,7 +42,7 @@ swarm_data_server <- function(input, output, session, Original_geneset_list, df_
         # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
             output$target_genes_from_custom_geneset_select <- renderUI({
                 if(length(input$target_genes_from_custom_geneset) > 0 && input$target_genes_from_custom_geneset == TRUE){
-                    gene_sets_names <- c(Original_geneset_list$Geneset.name)
+                    gene_sets_names <- c(Original_geneset_list()$Geneset.name)
                     selectInput(session$ns('target_genes_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -79,7 +79,7 @@ swarm_data_server <- function(input, output, session, Original_geneset_list, df_
                         gene_list_custom(NULL)
                         return(NULL)
                     }else{
-                        genes <- strsplit(Original_geneset_list[Original_geneset_list$Geneset.name %in% input$target_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                        genes <- strsplit(Original_geneset_list()[Original_geneset_list()$Geneset.name %in% input$target_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                         gene_list_custom(genes)
                         status_gene(paste0("You have input ", length(gene_list_custom()), " gene(s) from your selected custom geneset."))
                     }

@@ -10,8 +10,10 @@
 
 IntegrateTwoDataset_IntegrationPlot_server <- function(input, output, session, data1_plus_data2) {
 
-    # Load custom genesets (static snapshot; consistent with other modules)
-    Custom_genesets <- data.frame(read.delim('data/Genesets_list.tsv', sep='\t', header=T, check.names=FALSE))
+    # Load custom genesets (auto-refreshes when data/Genesets_list.tsv changes)
+    Custom_genesets <- reactiveFileReader(3000, session, 'data/Genesets_list.tsv', function(f) {
+        data.frame(read.delim(f, sep='\t', header=T, check.names=FALSE))
+    })
 
     # --- [1] Axis / colour UI -------------------------------------------------
     # Dynamic selectInputs populated from column names of the merged dataset.
@@ -75,7 +77,7 @@ IntegrateTwoDataset_IntegrationPlot_server <- function(input, output, session, d
     # Custom gene sets picker for filtering
     output$Integrate_data1_plus_2_plot_custom_geneset_select <- renderUI({
         selectInput(session$ns('Integrate_data1_plus_2_plot_custom_geneset_select'), 'Select a custom gene set',
-            c('None'='None', Custom_genesets$Geneset.name))
+            c('None'='None', Custom_genesets()$Geneset.name))
     })
     outputOptions(output, "Integrate_data1_plus_2_plot_custom_geneset_select", suspendWhenHidden=FALSE)
 
@@ -103,7 +105,7 @@ IntegrateTwoDataset_IntegrationPlot_server <- function(input, output, session, d
             if (!is.null(sel) && sel == 'Custom gene sets') {
                 picked <- input$Integrate_data1_plus_2_plot_custom_geneset_select
                 if (is.null(picked) || picked == 'None') return(NULL)
-                genes_in_set <- strsplit(Custom_genesets[Custom_genesets$Geneset.name == picked, ]$Genes, split=', ')[[1]]
+                genes_in_set <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name == picked, ]$Genes, split=', ')[[1]]
                 df_main_plot <- df_main_plot[df_main_plot$id %in% genes_in_set, ]
             } else {
                 if (is.null(input$Integrate_data1_plus_2_plot_select_pathway) ||

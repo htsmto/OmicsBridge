@@ -35,7 +35,7 @@ survival_inputs_server <- function(input, output, session, ex_table, surv_table,
             # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
                 output$Clinical_Survival_genes_from_custom_geneset_select <- renderUI({
                     if(length(input$Clinical_Survival_genes_from_custom_geneset) > 0 && input$Clinical_Survival_genes_from_custom_geneset == TRUE){
-                        gene_sets_names <- c(Custom_genesets$Geneset.name)
+                        gene_sets_names <- c(Custom_genesets()$Geneset.name)
                         selectInput(session$ns('Clinical_Survival_genes_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                     } else {
                         return(NULL)
@@ -76,7 +76,7 @@ survival_inputs_server <- function(input, output, session, ex_table, surv_table,
                                 survival_input_genes(NULL)
                                 return(NULL)
                             }else{
-                                genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                                genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$Clinical_Survival_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                                 survival_input_genes(genes)
                                 Clinical_Survival_genes_status(paste0("You have input ", length(survival_input_genes()), " gene(s) from your selected custom geneset."))
                             }

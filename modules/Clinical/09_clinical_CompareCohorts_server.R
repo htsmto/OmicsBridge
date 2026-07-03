@@ -13,7 +13,7 @@ clinical_CompareCohorts_server <- function(input, output, session, Clinical_data
     ## Custom geneset selector
     output$Compare_across_cohorts_gene_from_custom_geneset_select <- renderUI({
         if (input$Compare_across_cohorts_gene_from_custom_geneset) {
-            gene_sets_names <- Custom_genesets$Geneset.name
+            gene_sets_names <- Custom_genesets()$Geneset.name
             selectInput(session$ns('Compare_across_cohorts_gene_from_custom_geneset_select'),
                         'Select a custom geneset',
                         c('None' = 'None', gene_sets_names))
@@ -41,7 +41,7 @@ clinical_CompareCohorts_server <- function(input, output, session, Clinical_data
                 output$Compare_across_cohorts_gene_table_status <- renderText({"Please select a custom gene set."})
                 return(NULL)
             }
-            genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% sel, ]$Genes, split = ', ')[[1]]
+            genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% sel, ]$Genes, split = ', ')[[1]]
             return(data.frame(Gene = genes))
         } else {
             if (nchar(input$Compare_across_cohorts_gene) == 0) {

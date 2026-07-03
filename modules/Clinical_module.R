@@ -50,14 +50,16 @@ clinicalModuleServer <- function(id) {
 
     # --- [3-3] Shared data ---------------------------------------------------
     # Custom gene sets used across survival, signature, deconvolution, etc.
-    Custom_genesets <- tryCatch(
-      data.frame(read.delim("data/Genesets_list.tsv", sep = "\t", header = TRUE, check.names = FALSE)),
-      error = function(e) {
-        showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
-                         type = "error", duration = 15)
-        data.frame()
-      }
-    )
+    Custom_genesets <- reactiveFileReader(3000, session, "data/Genesets_list.tsv", function(f) {
+      tryCatch(
+        data.frame(read.delim(f, sep = "\t", header = TRUE, check.names = FALSE)),
+        error = function(e) {
+          showNotification(paste("Could not load Genesets_list.tsv:", conditionMessage(e)),
+                           type = "error", duration = 15)
+          data.frame()
+        }
+      )
+    })
 
     # --- [3-4] Sub-module servers --------------------------------------------
     # DataSelection returns file paths; ViewData loads the actual data tables.

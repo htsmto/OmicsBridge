@@ -311,7 +311,7 @@ deconvolution_calc_server <- function(input, output, session, Gene_expression, S
             # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
                 output$Deconvolution_Gene_correlation_from_custom_geneset_select <- renderUI({
                     if(length(input$Deconvolution_Gene_correlation_from_custom_geneset) > 0 && input$Deconvolution_Gene_correlation_from_custom_geneset == TRUE){
-                        gene_sets_names <- c(Custom_genesets$Geneset.name)
+                        gene_sets_names <- c(Custom_genesets()$Geneset.name)
                         selectInput(session$ns('Deconvolution_Gene_correlation_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                     } else {
                         return(NULL)
@@ -349,7 +349,7 @@ deconvolution_calc_server <- function(input, output, session, Gene_expression, S
                             return(NULL)
                         }
 
-                        genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$Deconvolution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                        genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$Deconvolution_Gene_correlation_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                         Correlation_gene(genes)
                         Deconvolution_Gene_correlation_genes_status(paste0("You have input ", length(Correlation_gene()), " gene(s) from your selected custom geneset."))
 

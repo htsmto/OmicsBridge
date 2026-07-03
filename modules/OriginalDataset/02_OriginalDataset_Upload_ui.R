@@ -12,7 +12,7 @@ original_geneset_upload_UI <- function(ns) {
               column(12, h4(strong("Quick upload guide"))),
               column(12, helpText("- The Geneset name and the list of the genes are mandatory.")),
               column(12, helpText("- The Geneset name must be unique.")),
-              column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots."))
+              column(12, helpText("- Avoid special characters; use only alphabets, numbers, spaces, underscores and dots."))
             ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE
           )
         ) 

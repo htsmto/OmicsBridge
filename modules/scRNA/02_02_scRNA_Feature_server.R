@@ -43,7 +43,7 @@ scRNA_Feature_server  <- function(input, output, session, Custom_genesets) {
         # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
             output$scRNA_FeaturePlot_gene_from_custom_geneset_select <- renderUI({
                 if(length(input$scRNA_FeaturePlot_gene_from_custom_geneset) > 0 && input$scRNA_FeaturePlot_gene_from_custom_geneset == TRUE){
-                    gene_sets_names <- c(Custom_genesets$Geneset.name)
+                    gene_sets_names <- c(Custom_genesets()$Geneset.name)
                     selectInput(session$ns('scRNA_FeaturePlot_gene_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                 } else {
                     return(NULL)
@@ -80,7 +80,7 @@ scRNA_Feature_server  <- function(input, output, session, Custom_genesets) {
                             gene_list_custom(NULL)
                             return(NULL)
                         }else{
-                            genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$scRNA_FeaturePlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                            genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$scRNA_FeaturePlot_gene_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                             gene_list_custom(genes)
                             scRNA_FeaturePlot_status_gene_input(paste0("You have input ", length(gene_list_custom()), " gene(s) from your selected custom geneset."))
                         }

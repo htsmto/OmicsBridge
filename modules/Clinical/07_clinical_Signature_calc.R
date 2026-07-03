@@ -32,7 +32,7 @@ signature_calc_server <- function(input, output, session, Gene_expression, surv_
             # custom gene select button. Open when the user click the checkbox "Use the genes from a custom gene set"
                 output$Signature_genes_from_custom_geneset_select <- renderUI({
                     if(length(input$Signature_genes_from_custom_geneset) > 0 && input$Signature_genes_from_custom_geneset == TRUE){
-                        gene_sets_names <- c(Custom_genesets$Geneset.name)
+                        gene_sets_names <- c(Custom_genesets()$Geneset.name)
                         selectInput(session$ns('Signature_genes_from_custom_geneset_select'), 'Select a custom geneset',  c('None'='None', gene_sets_names))
                     } else {
                         return(NULL)
@@ -70,7 +70,7 @@ signature_calc_server <- function(input, output, session, Gene_expression, surv_
                             return(NULL)
                         }
 
-                        genes <- strsplit(Custom_genesets[Custom_genesets$Geneset.name %in% input$Signature_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
+                        genes <- strsplit(Custom_genesets()[Custom_genesets()$Geneset.name %in% input$Signature_genes_from_custom_geneset_select, ]$Genes, split=', ')[[1]]
                         Signature_gene(genes)
                         Signature_genes_status(paste0("You have input ", length(Signature_gene()), " gene(s) from your selected custom geneset."))
 

@@ -50,20 +50,20 @@ original_geneset_upload_server <- function(input, output, session) {
                         show_alert(title = "Error", text = "Geneset name and Genes are mandatory. Please fill in the required fields.", type = "error")
                         return()
                     }
-                
+
+                # copy the input values to new variables for easier reference
+                    Geneset_name_to_add <- trimws(Geneset_name())
+                    Cell_line_to_add <- Cell_line()
+                    Data_source_to_add <- Data_source()
+                    Genes_to_add <- unlist(strsplit(Genes(), "\n"))
+                    Description_to_add <- Description()
+
                 # check for unique geneset name
-                    if (Geneset_name() %in% Original_geneset_list()$Geneset.name) {
+                    if (Geneset_name_to_add %in% Original_geneset_list()$Geneset.name) {
                         Original_geneset_status_upload("Error: Geneset name already exists. Please choose a unique name.")
                         show_alert(title = "Error", text = "Geneset name already exists. Please choose a unique name.", type = "error")
                         return()
                     }
-
-                # copy the input values to new variables for easier reference
-                    Geneset_name_to_add <- Geneset_name()
-                    Cell_line_to_add <- Cell_line()
-                    Data_source_to_add <- Data_source()
-                    Genes_to_add <- unlist(strsplit(Genes(), "\n")) 
-                    Description_to_add <- Description()
 
                 # when the genes box is not empty but only contains spaces or newlines, it is considered as empty
                     if (all(grepl("^\\s*$", Genes_to_add))) {
@@ -72,10 +72,10 @@ original_geneset_upload_server <- function(input, output, session) {
                         return()
                     }
 
-                # check if the geneset name contains only allowed characters (alphanumeric, underscores, dots)
-                    if (!grepl("^[a-zA-Z0-9_.]+$", Geneset_name_to_add)) {
-                        Original_geneset_status_upload("Error: Geneset name contains invalid characters. Please use only letters, numbers, underscores, or dots.")
-                        show_alert(title = "Error", text = "Geneset name contains invalid characters. Please use only letters, numbers, underscores, or dots.", type = "error")
+                # check if the geneset name contains only allowed characters (alphanumeric, spaces, underscores, dots)
+                    if (!grepl("^[a-zA-Z0-9_. ]+$", Geneset_name_to_add)) {
+                        Original_geneset_status_upload("Error: Geneset name contains invalid characters. Please use only letters, numbers, spaces, underscores, or dots.")
+                        show_alert(title = "Error", text = "Geneset name contains invalid characters. Please use only letters, numbers, spaces, underscores, or dots.", type = "error")
                         return()
                     }
 
@@ -94,7 +94,7 @@ original_geneset_upload_server <- function(input, output, session) {
         # once it is confirmed
             observeEvent(input$Original_geneset_confirm_upload_data, {
                 # copy the input values to new variables for easier reference
-                    Geneset_name_to_add <- Geneset_name()
+                    Geneset_name_to_add <- trimws(Geneset_name())
                     Cell_line_to_add <- Cell_line()
                     Data_source_to_add <- Data_source()
                     Genes_to_add <- unlist(strsplit(Genes(), "\n")) 

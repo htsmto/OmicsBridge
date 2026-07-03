@@ -340,7 +340,19 @@ signature_plot_server <- function(input, output, session, meta_table, surv_table
                         # perform the statistical test
                         # show the number of samples in each group, p  and statistic value
                         if(length(unique(unlist(df_out[,group_by]))) >= 3){
-                            df_test_tmp <- kruskal.test(as.formula(paste('score', '~', group_by)), data=df_out) # str(df_test)
+                            df_test_tmp <- tryCatch({
+                                df_out$.group_by_col <- df_out[[group_by]]
+                                kruskal.test(as.formula(paste('score', '~', '.group_by_col')), data=df_out) # str(df_test)
+                            }, error = function(e){
+                                show_alert(title='Error.', text=paste0('An error occurred while running the statistical test: ', conditionMessage(e)), type='error')
+                                Signature_subtype_note(paste0('An error occurred while running the statistical test: ', conditionMessage(e)))
+                                Signature_subtype_test(NULL)
+                                isCalculating_subtype_test(FALSE)
+                                NULL
+                            })
+                            if(is.null(df_test_tmp)){
+                                return(NULL)
+                            }
                             p <- df_test_tmp$p.value
                             statistic <- df_test_tmp$statistic
                             # the number of samples in each group

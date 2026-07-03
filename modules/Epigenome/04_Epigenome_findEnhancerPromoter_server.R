@@ -14,7 +14,9 @@
 
 epigenome_findEnhancerPromoter_server <- function(input, output, session, Dataset) {
 
-  Custom_genesets    <- data.frame(read.delim('data/Genesets_list.tsv', sep='\t', header=TRUE, check.names=FALSE))
+  Custom_genesets <- reactiveFileReader(3000, session, 'data/Genesets_list.tsv', function(f) {
+    data.frame(read.delim(f, sep='\t', header=TRUE, check.names=FALSE))
+  })
   Gene_coords_GRch38 <- read.table('data/Gene_coords_GRch38.tsv', sep='\t', header=TRUE, check.names=FALSE)
 
   # --- [1] RNAseq dataset selection dropdowns ---------------------------------
@@ -211,7 +213,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
 
   output$Enhancer_Find_custom_geneset_select <- renderUI({
     if (input$Enhancer_Find_use_custom_geneset) {
-      gene_sets_names <- c(Custom_genesets$Geneset.name)
+      gene_sets_names <- c(Custom_genesets()$Geneset.name)
       selectInput(session$ns('Enhancer_Find_custom_geneset_select'), 'Select a custom geneset', c('None'='None', gene_sets_names))
     }
   })
@@ -280,7 +282,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
         return("Please select a custom gene set.")
       }
       genes <- strsplit(
-        Custom_genesets[Custom_genesets$Geneset.name %in% sel, ]$Genes, " "
+        Custom_genesets()[Custom_genesets()$Geneset.name %in% sel, ]$Genes, " "
       )[[1]]
       genes <- genes[genes != ""]
       return(paste0(length(genes), " gene(s) in selected gene set: ", sel))
@@ -355,7 +357,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
         return(NULL)
       }
       target_genes <- strsplit(
-        Custom_genesets[Custom_genesets$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes,
+        Custom_genesets()[Custom_genesets()$Geneset.name %in% input$Enhancer_Find_custom_geneset_select, ]$Genes,
         split=', '
       )[[1]]
     } else {
