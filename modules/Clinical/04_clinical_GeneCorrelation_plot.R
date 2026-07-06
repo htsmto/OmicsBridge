@@ -89,6 +89,14 @@ gene_correlation_plot_server <- function(input, output, session,
                     if(length(input$Gene_correlation_table_rows_selected) == 0 || input$Gene_correlation_table_gene_select == 'None' || input$Gene_correlation_table_gene_select == 'All_genes_correlation' || input$Gene_correlation_table_gene_select == 'All_genes_p_value'){
                         Gene_correlation_error_catch('The pairwise correlation heatmap of the input genes is shown. \nOnce you select a gene and its correlated gene in the table, a scatter plot will be shown here.')
                         cor_mat <- Correlation_result_list()[['All_genes_correlation']]
+                        while(any(!is.finite(cor_mat))){
+                            worst <- which.max(rowSums(!is.finite(cor_mat)))
+                            cor_mat <- cor_mat[-worst, -worst, drop = FALSE]
+                        }
+                        if(nrow(cor_mat) < 2){
+                            Gene_correlation_error_catch("Not enough genes with non-zero variance to compute a correlation heatmap. Please check the selected genes/samples.")
+                            return(ggplot())
+                        }
                         dist_rows <- as.dist(1 - cor_mat)
                         dist_cols <- as.dist(1 - t(cor_mat))
                         hc_rows <- hclust(dist_rows)
