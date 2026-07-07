@@ -8,6 +8,17 @@
 # =============================================================================
 
 mainplot_axis_server <- function(input, output, session, df_ex) {
+  # --- [0] Reset axes on dataset change ---------------------------------------
+  # The choices shown in Scat.X/Scat.Y (below) only refresh once df_ex()
+  # changes and the renderUI round-trips back to the browser. Until then,
+  # input$scat.x/scat.y still hold the previous dataset's column names, which
+  # can crash downstream filters that index the new df_ex() by a column it
+  # doesn't have. Resetting to "None" immediately closes that window.
+  observeEvent(input$Dataset_select, {
+    updateSelectInput(session, "scat.x", selected = "None")
+    updateSelectInput(session, "scat.y", selected = "None")
+  }, ignoreInit = TRUE)
+
 
   # --- [1] X-axis selector ---------------------------------------------------
   # Generates a selectInput whose choices are the column names of df_ex().
