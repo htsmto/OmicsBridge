@@ -113,6 +113,22 @@ mainplot_plot_server <- function(input, output, session, df_ex,
     df_main_plot <- df_ex()
 
     # Base scatter layer
+    # if selected axes are not in the data frame, return an empty plot with a warning
+    if (!(input$scat.x %in% names(df_main_plot)) || !(input$scat.y %in% names(df_main_plot))) {
+      Gene_ex_status("Selected axes are not present in the data. Please check the data and try again.")
+      return(ggplot())
+    }
+
+    # if the selected axes are not numeric, return an empty plot with a warning
+    # try converting the selected axes to numeric, and if it fails, return an empty plot with a warning
+    df_main_plot[[input$scat.x]] <- suppressWarnings(as.numeric(df_main_plot[[input$scat.x]]))
+    df_main_plot[[input$scat.y]] <- suppressWarnings(as.numeric(df_main_plot[[input$scat.y]]))
+    if (any(is.na(df_main_plot[[input$scat.x]])) || any(is.na(df_main_plot[[input$scat.y]]))) {
+      Gene_ex_status("Selected axes contain non-numeric values. Please select numeric columns for plotting.")
+      return(ggplot())
+    }
+
+    # if they are fine:
     p <- ggplot(df_main_plot, aes(x = .data[[input$scat.x]], y = .data[[input$scat.y]])) +
          geom_point(size = input$pt.size)
 
