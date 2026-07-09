@@ -182,7 +182,7 @@ database_upload_Server <- function(input, output, session) {
             }
 
             # mandatory fields check
-            if(length(Dataset_name()) == 0 || length(Experiment_name()) == 0 || length(Data_from()) == 0 || length(Data_type()) == 0 || length(Data_Class()) == 0 || Data_type() == '--Select from the below--'){
+            if(!nzchar(trimws(Dataset_name())) || !nzchar(trimws(Experiment_name())) || !nzchar(trimws(Data_from())) || !nzchar(trimws(Data_type())) || length(Data_Class()) == 0 || Data_type() == '--Select from the below--'){
                 show_alert(title = "Error", text = "Please fill in all the mandatory fields marked with * before clicking the upload button.", type = "error")
                 status(paste0("Error: Please fill in all the mandatory fields marked with * before clicking the upload button. \n", "\nYou are about to upload the dataset with the following information: \n", status_message))
                 return(NULL)
