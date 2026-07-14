@@ -131,29 +131,25 @@ compare_one_gene_plot_server <- function(input, output, session, used_genes, all
                             p <- p + geom_hline(yintercept=0, linetype='dotted', linewidth=0.1)
                         }else{
                             if(input$Compare_manual_colour_range == FALSE){
-                            p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)), name=colour_name())
-                            p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(df_compare$Colour), 0)) , name=colour_name())
+                            p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(selected_data_table_for_plot$Colour), 0)), name=colour_name())
+                            p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(selected_data_table_for_plot$Colour), 0)) , name=colour_name())
                             }else{
                             max_col <- input$Compare_manual_colour_range_high
                             min_col <- input$Compare_manual_colour_range_low
                             p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)), name=colour_name(), oob = scales::squish)
                             p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=colour_name(), oob = scales::squish)
                             }
-                            # p <- p + scale_color_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(selected_data_table_for_plot$Colour), 0)), name=colour_name())
-                            # p <- p + scale_fill_gradientn( colors = c(input$Compare_lowest_colour, input$Compare_zero_colour), values = scales::rescale(c(min(values_for_colours), 0))  , limits = c(c(min(selected_data_table_for_plot$Colour), 0)) , name=colour_name())
                         }
                     }else{
                         if(input$Compare_manual_colour_range == FALSE){
-                            p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=colour_name())
-                            p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(df_compare$Colour)))  , limits = c(0,max(df_compare$Colour)) , name=colour_name())
+                            p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(selected_data_table_for_plot$Colour)))  , limits = c(0,max(selected_data_table_for_plot$Colour)) , name=colour_name())
+                            p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(selected_data_table_for_plot$Colour)))  , limits = c(0,max(selected_data_table_for_plot$Colour)) , name=colour_name())
                         }else{
                             max_col <- input$Compare_manual_colour_range_high
                             min_col <- input$Compare_manual_colour_range_low
                             p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=colour_name(), oob = scales::squish)
                             p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(min_col, max_col))  , limits = c(c(min_col, max_col)) , name=colour_name(), oob = scales::squish)
                         }
-                    # p <- p + scale_color_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(selected_data_table_for_plot$Colour)))  , limits = c(0,max(selected_data_table_for_plot$Colour)) , name=colour_name())
-                    # p <- p + scale_fill_gradientn( colors = c(input$Compare_zero_colour, input$Compare_highest_colour), values = scales::rescale(c(0,max(selected_data_table_for_plot$Colour)))  , limits = c(0,max(selected_data_table_for_plot$Colour)) , name=colour_name())
                     }
                 }
 
