@@ -105,6 +105,11 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
     paste(na.omit(df_outliers()$id), collapse = "\n")
   })
 
+  output$filtered_download <- downloadHandler(
+    filename = function() { "Filtered_genes_in_plot.csv" },
+    content  = function(fname) { write.csv(df_outliers(), fname) }
+  )
+
 
   ## ---- [C] Pathway filter --------------------------------------------------
   # Loads a GMT file (Hallmark human, Hallmark mouse, or user-uploaded custom)
