@@ -156,7 +156,9 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
         is.null(input$show_filterin_input_option) ||
         input$show_filterin_input_option != "C") {
       genes_in_the_pathway(NULL)
-    } else if (length(input$select_pathway) == 0 || input$select_pathway == "None") {
+    } else if (length(input$select_pathway) == 0 || input$select_pathway == "None" ||
+               is.null(Gene_set()) || length(Gene_set()) == 0 ||
+               !(input$select_pathway %in% names(Gene_set()))) {
       genes_in_the_pathway(NULL)
     } else {
       genes_in_the_pathway(Gene_set()[[input$select_pathway]]@geneIds)
