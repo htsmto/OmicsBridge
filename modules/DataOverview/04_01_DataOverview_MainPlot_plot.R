@@ -23,7 +23,7 @@ mainplot_plot_server <- function(input, output, session, df_ex,
   # Genes from Input 1 take priority over Input 2 when both overlap.
   add_highlights_combined <- function(df, p, genes1, genes2) {
     all_genes <- unique(c(genes1, genes2))
-    if (length(all_genes) == 0) return(p)
+    if (length(all_genes) == 0) return(list(plot = p, values = c()))
 
     df_sub <- df[df$id %in% all_genes, ]
     # Assign type: 'g1' for Input 1 genes, 'g2' for Input 2 only
@@ -38,11 +38,9 @@ mainplot_plot_server <- function(input, output, session, df_ex,
                           max.overlaps = input$label.overlap.level,
                           segment.size = 0.2)
     }
-    p <- p + scale_color_manual(
-      values = c(g1 = input$interesting_gene_colour_id,
-                 g2 = input$main_plot_target_genes_2_colour),
-      guide = "none")
-    return(p)
+    values <- c(g1 = input$interesting_gene_colour_id,
+                g2 = input$main_plot_target_genes_2_colour)
+    return(list(plot = p, values = values))
   }
 
 
@@ -53,7 +51,7 @@ mainplot_plot_server <- function(input, output, session, df_ex,
   highlight_filtered_genes <- function(df, p, filtered_df, filter_flag,
                                        X_type, Y_type, X1, X2, Y1, Y2,
                                        colour_pos, colour_neg) {
-    if (length(filtered_df) == 0 || is.null(filtered_df)) return(p)
+    if (length(filtered_df) == 0 || is.null(filtered_df)) return(list(plot = p, values = c()))
 
     filtered_df$sign_group <- ifelse(filtered_df[[input$scat.x]] >= 0, "pos", "neg")
     p <- p + geom_point(data = filtered_df, aes(color = sign_group), size = input$high.pt.size)
@@ -86,8 +84,8 @@ mainplot_plot_server <- function(input, output, session, df_ex,
       )
     }
 
-    p <- p + scale_color_manual(values = c("pos" = colour_pos, "neg" = colour_neg), guide = "none")
-    return(p)
+    values <- c("pos" = colour_pos, "neg" = colour_neg)
+    return(list(plot = p, values = values))
   }
 
 
@@ -132,8 +130,48 @@ mainplot_plot_server <- function(input, output, session, df_ex,
     p <- ggplot(df_main_plot, aes(x = .data[[input$scat.x]], y = .data[[input$scat.y]])) +
          geom_point(size = input$pt.size)
 
-    # Manually highlighted genes (Input 1 + Input 2)
-    p <- add_highlights_combined(df_main_plot, p, Interesting_gene(), Interesting_gene2())
+    # Filtered gene highlights — which set depends on the active filter mode
+    # (drawn first so the manually searched genes below can render on top)
+    colour_values <- c()
+    filter_res <- NULL
+    if (input$show_filterin_input_option == "B") {
+      if (input$How_to_filter == "B") {
+        filter_res <- highlight_filtered_genes(df_main_plot, p, df_outliers(),
+          input$show_threhold_lines,
+          input$Main_scatter_thr_X_method, input$Main_scatter_thr_Y_method,
+          input$Main_scatter_thr_X1, input$Main_scatter_thr_X2,
+          input$Main_scatter_thr_Y1, input$Main_scatter_thr_Y2,
+          input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
+      } else {
+        filter_res <- highlight_filtered_genes(df_main_plot, p, df_outliers(), FALSE,
+          "A", "A", 0, 0, 0, 0,
+          input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
+      }
+    } else if (input$show_filterin_input_option == "C") {
+      filter_res <- highlight_filtered_genes(df_main_plot, p, df_outliers_pathway(),
+        input$show_threhold_lines_pathway,
+        input$Main_scatter_pathway_thr_X_method, input$Main_scatter_pathway_thr_Y_method,
+        input$Main_scatter_pathway_thr_X1, input$Main_scatter_pathway_thr_X2,
+        input$Main_scatter_pathway_thr_Y1, input$Main_scatter_pathway_thr_Y2,
+        input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
+    } else if (input$show_filterin_input_option == "D") {
+      filter_res <- highlight_filtered_genes(df_main_plot, p, df_genes_custom_geneset(),
+        input$show_threhold_lines_geneset,
+        input$Main_scatter_geneset_thr_X_method, input$Main_scatter_geneset_thr_Y_method,
+        input$Main_scatter_geneset_thr_X1, input$Main_scatter_geneset_thr_X2,
+        input$Main_scatter_geneset_thr_Y1, input$Main_scatter_geneset_thr_Y2,
+        input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
+    }
+    if (!is.null(filter_res)) {
+      p <- filter_res$plot
+      colour_values <- c(colour_values, filter_res$values)
+    }
+
+    # Manually highlighted genes (Input 1 + Input 2) — drawn last so they
+    # stay on top of the filtered-gene highlights above
+    highlight_res <- add_highlights_combined(df_main_plot, p, Interesting_gene(), Interesting_gene2())
+    p <- highlight_res$plot
+    colour_values <- c(colour_values, highlight_res$values)
 
     # Brush-selection labels (capped at 500 to avoid text clutter)
     tryCatch({
@@ -148,34 +186,10 @@ mainplot_plot_server <- function(input, output, session, df_ex,
       }
     }, error = function(e) NULL)
 
-    # Filtered gene highlights — which set depends on the active filter mode
-    if (input$show_filterin_input_option == "B") {
-      if (input$How_to_filter == "B") {
-        p <- highlight_filtered_genes(df_main_plot, p, df_outliers(),
-          input$show_threhold_lines,
-          input$Main_scatter_thr_X_method, input$Main_scatter_thr_Y_method,
-          input$Main_scatter_thr_X1, input$Main_scatter_thr_X2,
-          input$Main_scatter_thr_Y1, input$Main_scatter_thr_Y2,
-          input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
-      } else {
-        p <- highlight_filtered_genes(df_main_plot, p, df_outliers(), FALSE,
-          "A", "A", 0, 0, 0, 0,
-          input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
-      }
-    } else if (input$show_filterin_input_option == "C") {
-      p <- highlight_filtered_genes(df_main_plot, p, df_outliers_pathway(),
-        input$show_threhold_lines_pathway,
-        input$Main_scatter_pathway_thr_X_method, input$Main_scatter_pathway_thr_Y_method,
-        input$Main_scatter_pathway_thr_X1, input$Main_scatter_pathway_thr_X2,
-        input$Main_scatter_pathway_thr_Y1, input$Main_scatter_pathway_thr_Y2,
-        input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
-    } else if (input$show_filterin_input_option == "D") {
-      p <- highlight_filtered_genes(df_main_plot, p, df_genes_custom_geneset(),
-        input$show_threhold_lines_geneset,
-        input$Main_scatter_geneset_thr_X_method, input$Main_scatter_geneset_thr_Y_method,
-        input$Main_scatter_geneset_thr_X1, input$Main_scatter_geneset_thr_X2,
-        input$Main_scatter_geneset_thr_Y1, input$Main_scatter_geneset_thr_Y2,
-        input$outlier_gene_colour_id, input$outlier_gene_colour_id_negative)
+    # Apply a single shared color scale for all highlight groups (manual +
+    # filtered) so they don't clobber each other's scale_color_manual layer
+    if (length(colour_values) > 0) {
+      p <- p + scale_color_manual(values = colour_values, guide = "none")
     }
 
     # Plot appearance: fonts, grid, background, axis limits
