@@ -77,7 +77,7 @@ dataoverviewModuleServer <- function(id) {
     dataoverview_pca_Server(input, output, session, df_ex)
     dataoverview_heatmap_Server(input, output, session, df_ex, Original_geneset_list)
     dataoverview_correlation_Server(input, output, session, df_ex, Original_geneset_list)
-    df_main <- dataoverview_mainplot_Server(input, output, session, Original_geneset_list, df_ex)
+    df_main <- dataoverview_mainplot_Server(input, output, session, Original_geneset_list, df_ex, Dataset_dataclass)
     dataoverview_go_Server(input, output, session, df_main$df_outliers, df_main$Overview_selected_table)
     dataoverview_gsea_Server(input, output, session, df_ex, Original_geneset_list)
     dataoverview_TF_Server(input, output, session, df_ex)

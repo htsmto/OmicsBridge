@@ -33,6 +33,11 @@ mainplot_selection_server <- function(input, output, session, df_ex) {
       outFile2_status("Please select both X and Y axes to show the plot and select genes.")
       return()
     }
+    if (!(input$scat.x %in% colnames(df_ex())) || !(input$scat.y %in% colnames(df_ex()))) {
+      Overview_selected_table(NULL)
+      outFile2_status("The selected axes are not found in the current dataset. Please re-select the X and Y axes.")
+      return()
+    }
     if (length(input$plot_brush) == 0 || is.null(input$plot_brush)) {
       Overview_selected_table(NULL)
       outFile2_status("Please select an area in the plot to show the genes in that area.")

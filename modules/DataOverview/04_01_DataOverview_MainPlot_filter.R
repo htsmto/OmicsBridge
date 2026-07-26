@@ -30,6 +30,11 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
       return(NULL)
     }
 
+    if (!(input$scat.x %in% colnames(df_ex())) || !(input$scat.y %in% colnames(df_ex()))) {
+      df_outliers(NULL)
+      return(NULL)
+    }
+
     df_main_plot <- df_ex()
 
     if (length(input$show_filterin_input_option) == 0 ||
@@ -177,6 +182,10 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
       df_outliers_pathway(NULL); not_found_gene(NULL); found_gene(NULL); filter_method(NULL)
       return(NULL)
     }
+    if (!(input$scat.x %in% colnames(df_ex())) || !(input$scat.y %in% colnames(df_ex()))) {
+      df_outliers_pathway(NULL); not_found_gene(NULL); found_gene(NULL); filter_method(NULL)
+      return(NULL)
+    }
     if (length(genes_in_the_pathway()) == 0 || is.null(genes_in_the_pathway())) {
       df_outliers_pathway(NULL); not_found_gene(NULL); found_gene(NULL); filter_method(NULL)
       return()
@@ -315,6 +324,11 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
   observe({
     if (length(input$scat.y) == 0 || input$scat.y == "None" ||
         length(input$scat.x) == 0 || input$scat.x == "None") {
+      df_genes_custom_geneset(NULL); not_found_gene_custom(NULL)
+      found_gene_custom(NULL); filter_method_custom(NULL)
+      return(NULL)
+    }
+    if (!(input$scat.x %in% colnames(df_ex())) || !(input$scat.y %in% colnames(df_ex()))) {
       df_genes_custom_geneset(NULL); not_found_gene_custom(NULL)
       found_gene_custom(NULL); filter_method_custom(NULL)
       return(NULL)
