@@ -2,24 +2,23 @@
 
 ## <u>**Overview**</u>
 
-OmicsBridge is an intuitive platform that integrates and visualizes diverse omics datasets. Our tool helps researchers identify key genes with functional and clinical relevance, supporting hypothesis generation. It also serves as a centralized database for efficient data storage and access, reducing scattered datasets and improving overall data accessibility.
+OmicsBridge is a code-free, multi-omics analysis platform that integrates transcriptome, epigenome, and single-cell data within a single interface. With 50+ analytical modules spanning several omics modalities, it covers everything from standard RNA-seq analysis to epigenome visualisation, cross-dataset comparison, and clinical outcome evaluation — all without writing a single line of code.
+A persistent local database eliminates repetitive uploads, and custom gene sets defined in one module are instantly reusable across all others.
 
-You can use OmicsBridge through a standalone web interface at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
-This web interface is a demo version. Please note that uploaded data in this demo will be deleted after you close the tab.
+You can try the demo version of OmicsBridge at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
+Please note that uploaded data there will be deleted after you close the session.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
 ![Interface overview](img/interface_overview.png)
 
 ## <u>**Installation**</u>
 
-Please clone this [Github repository](https://github.com/htsmto/OmicsBridge) by running the following commands in your terminal:
+Please clone this repository first. In the terminal:
 
 ```bash
-git clone https://github.com/Immune-Regulation-in-Cancer/OmicsBridge.git
+git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
-
-> Note: You may be prompted to install `git-lfs` when cloning the repository. For installation instructions, please refer to [the official Git LFS website](https://git-lfs.com/).
 
 Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zendo](https://doi.org/10.5281/zenodo.16410489), uncompress and place the folders in the `OmicsBridge` directory:
 
@@ -27,37 +26,65 @@ Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expressi
 tar -xzvf 00_Clinical_dataset.tar.gz
 tar -xzvf 00_Expression_data_all.tar.gz
 ```
+> Note: You cound skip downloading `00_Expression_data_all.tar.gz`, as it only contains demo data.
+
 the final file structure should be:
 ```
 .
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all
+├── 00_Expression_data_all  # auto-created as empty if not downloaded
 ├── app.R
 ├── data
 ├── docs
+├── install_packages.R      # automated package installation script
+├── libraries               # per-module library loaders (loaded lazily on first tab access)
 ├── mkdocs.yml
+├── modules                 # modularised server and UI code
+│   ├── Clinical/
+│   ├── DataOverview/
+│   ├── DatasetsCompare/
+│   ├── Epigenome/
+│   ├── IntegrateTwoDataset/
+│   ├── OriginalDataset/
+│   ├── Tools/
+│   ├── scRNA/
+│   ├── wiki_document/
+│   └── *_module.R          # per-module orchestrators
 ├── README.md
+├── ui                      # app-level UI components (header, sidebar, body, home)
 ├── wiki
 └── www
 ```
 
-
-Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.
-
 ## <u>**Dependencies**</u>
 
 ### Docker Image
+
 We provide a Docker image available from Docker Hub:
 ```bash
 docker pull htsmto/omicsbridge:latest
 ```
 
+
 ### Manual Installation of Required Libraries
-OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version *3.20 or higher*.
+
+OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please ensure you install BiocManager version *3.20 or higher*.
+
+#### Automated Installation (Recommended)
+
+An installation script is provided. Run the following in your terminal from the project root:
+
+```bash
+Rscript install_packages.R
+```
+
+This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.
+
+#### Alternative: Manual Installation
 
 ```R
 ## CRAN dependent packages
-install.packages(c('shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork', 'ggraph', "shinyWidgets", "shinycssloaders", 'ggseqlogo', 'circlize'. 'ggupset'))
+install.packages(c('Rcpp', 'shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork', 'ggraph', "shinyWidgets", "shinycssloaders", 'ggseqlogo', 'circlize', 'ggupset'))
 
 ## BiocManager dependent packages
 BiocManager::install() # Make sure to install >3.20
@@ -87,8 +114,8 @@ You can customise the port number (4191 in this example) as needed. Once running
 > ```bash
 > ssh -L 4191:localhost:4191 your_username@remote_server_address
 > ```
-
-After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
+> 
+> After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
 
 
 If you're using your local R environment instead of Docker, open your teminal and:
@@ -110,8 +137,8 @@ The Wiki contains concise instructions and short demo videos for each visualizat
 
 ## <u>**Version**</u>
 
-Current version: v1.0 <br>
-Release date: August 2025
+Current version: v1.2.15 <br>
+Release date: July 2026
 
 ## <u>**Citation**</u>
 
