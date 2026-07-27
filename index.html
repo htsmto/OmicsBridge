@@ -285,6 +285,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Manual Installation of Required Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automated-installation-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated Installation (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-manual-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternative: Manual Installation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -657,6 +681,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Manual Installation of Required Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automated-installation-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated Installation (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-manual-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternative: Manual Installation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -727,45 +775,65 @@
 
 <h1 id="omicsbridge">OmicsBridge</h1>
 <h2 id="overview"><u><strong>Overview</strong></u></h2>
-<p>OmicsBridge is an intuitive platform that integrates and visualizes diverse omics datasets. Our tool helps researchers identify key genes with functional and clinical relevance, supporting hypothesis generation. It also serves as a centralized database for efficient data storage and access, reducing scattered datasets and improving overall data accessibility.</p>
-<p>You can use OmicsBridge through a standalone web interface at <a href="https://omicsbridge.dkfz.de/">https://omicsbridge.dkfz.de</a>.
-Please note that uploaded data will be deleted after you close the tab.
+<p>OmicsBridge is a code-free, multi-omics analysis platform that integrates transcriptome, epigenome, and single-cell data within a single interface. With 50+ analytical modules spanning several omics modalities, it covers everything from standard RNA-seq analysis to epigenome visualisation, cross-dataset comparison, and clinical outcome evaluation — all without writing a single line of code.
+A persistent local database eliminates repetitive uploads, and custom gene sets defined in one module are instantly reusable across all others.</p>
+<p>You can try the demo version of OmicsBridge at <a href="https://omicsbridge.dkfz.de/">https://omicsbridge.dkfz.de</a>.
+Please note that uploaded data there will be deleted after you close the session.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.</p>
 <p><img alt="Interface overview" src="img/interface_overview.png" /></p>
 <h2 id="installation"><u><strong>Installation</strong></u></h2>
-<p>Please clone this <a href="https://github.com/htsmto/OmicsBridge">Github repository</a> by running the following commands in your terminal:</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Immune-Regulation-in-Cancer/OmicsBridge.git
+<p>Please clone this repository first. In the terminal:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/htsmto/OmicsBridge.git
 <span class="nb">cd</span><span class="w"> </span>OmicsBridge
 </code></pre></div>
-<blockquote>
-<p>Note: You may be prompted to install <code>git-lfs</code> when cloning the repository. For installation instructions, please refer to <a href="https://git-lfs.com/">the official Git LFS website</a>.</p>
-</blockquote>
 <p>Next, download the necessary data (<code>00_Clinical_dataset.tar.gz</code> and <code>00_Expression_data_all.tar.gz</code>) from <a href="https://doi.org/10.5281/zenodo.16410489">Zendo</a>, uncompress and place the folders in the <code>OmicsBridge</code> directory:</p>
-<p><div class="highlight"><pre><span></span><code>tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Clinical_dataset.tar.gz
+<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Clinical_dataset.tar.gz
 tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.tar.gz
 </code></pre></div>
-the final file structure should be:
+<blockquote>
+<p>Note: You cound skip downloading <code>00_Expression_data_all.tar.gz</code>, as it only contains demo data.</p>
+</blockquote>
+<p>the final file structure should be:
 <div class="highlight"><pre><span></span><code>.
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all
+├── 00_Expression_data_all  # auto-created as empty if not downloaded
 ├── app.R
 ├── data
 ├── docs
+├── install_packages.R      # automated package installation script
+├── libraries               # per-module library loaders (loaded lazily on first tab access)
 ├── mkdocs.yml
+├── modules                 # modularised server and UI code
+│   ├── Clinical/
+│   ├── DataOverview/
+│   ├── DatasetsCompare/
+│   ├── Epigenome/
+│   ├── IntegrateTwoDataset/
+│   ├── OriginalDataset/
+│   ├── Tools/
+│   ├── scRNA/
+│   ├── wiki_document/
+│   └── *_module.R          # per-module orchestrators
 ├── README.md
+├── ui                      # app-level UI components (header, sidebar, body, home)
 ├── wiki
 └── www
 </code></pre></div></p>
-<p>Alternatively, copy the links above and paste them in a browser to download the files, then uncompress and place them inside the OmicsBridge folder.</p>
 <h2 id="dependencies"><u><strong>Dependencies</strong></u></h2>
 <h3 id="docker-image">Docker Image</h3>
 <p>We provide a Docker image available from Docker Hub:
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>htsmto/omicsbridge:latest
 </code></pre></div></p>
 <h3 id="manual-installation-of-required-libraries">Manual Installation of Required Libraries</h3>
-<p>OmicsBridge requires R version <em>4.4.0 or higher</em>. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please install the following libraries and ensure you install BiocManager version <em>3.20 or higher</em>.</p>
+<p>OmicsBridge requires R version <em>4.4.0 or higher</em>. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please ensure you install BiocManager version <em>3.20 or higher</em>.</p>
+<h4 id="automated-installation-recommended">Automated Installation (Recommended)</h4>
+<p>An installation script is provided. Run the following in your terminal from the project root:</p>
+<div class="highlight"><pre><span></span><code>Rscript<span class="w"> </span>install_packages.R
+</code></pre></div>
+<p>This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.</p>
+<h4 id="alternative-manual-installation">Alternative: Manual Installation</h4>
 <div class="highlight"><pre><span></span><code><span class="c1">## CRAN dependent packages</span>
-<span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;shiny&#39;</span><span class="p">,</span><span class="s">&#39;shinydashboard&#39;</span><span class="p">,</span><span class="s">&#39;eulerr&#39;</span><span class="p">,</span><span class="s">&#39;ggplot2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggbeeswarm&#39;</span><span class="p">,</span><span class="s">&#39;patchwork&#39;</span><span class="p">,</span><span class="s">&#39;igraph&#39;</span><span class="p">,</span><span class="s">&#39;tidyr&#39;</span><span class="p">,</span><span class="s">&#39;dplyr&#39;</span><span class="p">,</span><span class="s">&#39;DT&#39;</span><span class="p">,</span><span class="s">&#39;ggrepel&#39;</span><span class="p">,</span><span class="s">&#39;tibble&#39;</span><span class="p">,</span><span class="s">&#39;forcats&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;colourpicker&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;devtools&#39;</span><span class="p">,</span><span class="s">&#39;stringr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Cairo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Seurat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;reshape2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cowplot&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survival&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survminer&#39;</span><span class="p">,</span><span class="s">&quot;BiocManager&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;visNetwork&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggraph&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinyWidgets&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinycssloaders&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggseqlogo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;circlize&#39;</span><span class="n">.</span><span class="w"> </span><span class="s">&#39;ggupset&#39;</span><span class="p">))</span>
+<span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;Rcpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shiny&#39;</span><span class="p">,</span><span class="s">&#39;shinydashboard&#39;</span><span class="p">,</span><span class="s">&#39;eulerr&#39;</span><span class="p">,</span><span class="s">&#39;ggplot2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggbeeswarm&#39;</span><span class="p">,</span><span class="s">&#39;patchwork&#39;</span><span class="p">,</span><span class="s">&#39;igraph&#39;</span><span class="p">,</span><span class="s">&#39;tidyr&#39;</span><span class="p">,</span><span class="s">&#39;dplyr&#39;</span><span class="p">,</span><span class="s">&#39;DT&#39;</span><span class="p">,</span><span class="s">&#39;ggrepel&#39;</span><span class="p">,</span><span class="s">&#39;tibble&#39;</span><span class="p">,</span><span class="s">&#39;forcats&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;colourpicker&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;devtools&#39;</span><span class="p">,</span><span class="s">&#39;stringr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Cairo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Seurat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;reshape2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cowplot&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survival&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survminer&#39;</span><span class="p">,</span><span class="s">&quot;BiocManager&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;visNetwork&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggraph&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinyWidgets&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinycssloaders&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggseqlogo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;circlize&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggupset&#39;</span><span class="p">))</span>
 
 <span class="c1">## BiocManager dependent packages</span>
 <span class="n">BiocManager</span><span class="o">::</span><span class="nf">install</span><span class="p">()</span><span class="w"> </span><span class="c1"># Make sure to install &gt;3.20</span>
@@ -789,8 +857,8 @@ the final file structure should be:
 <p>Note: If you are running this on a remote server, make sure to forward the port when connecting via SSH. For example:</p>
 <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">4191</span>:localhost:4191<span class="w"> </span>your_username@remote_server_address
 </code></pre></div>
-</blockquote>
 <p>After logging in, run the Docker command as above on the remote server. Then, open <code>http://localhost:4191</code> in your local browser to access the app. <br></p>
+</blockquote>
 <p>If you're using your local R environment instead of Docker, open your teminal and:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">Your_path_to_OmicsBridge_directory</span><span class="si">}</span>
 Rscript<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;shiny::runApp(&#39;app.R&#39;)&quot;</span>
@@ -805,8 +873,8 @@ Rscript<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;
 <p>We provide a comprehensive Wiki for the interface at https://htsmto.github.io/OmicsBridge/.
 The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.</p>
 <h2 id="version"><u><strong>Version</strong></u></h2>
-<p>Current version: v1.0 <br>
-Release date: August 2025</p>
+<p>Current version: v1.2.15 <br>
+Release date: July 2026</p>
 <h2 id="citation"><u><strong>Citation</strong></u></h2>
 <p>A permanent DOI and citation will be provided upon publication.</p>
 <h2 id="contact"><u><strong>Contact</strong></u></h2>
