@@ -5,7 +5,8 @@
 OmicsBridge is a code-free, multi-omics analysis platform that integrates transcriptome, epigenome, and single-cell data within a single interface. With 50+ analytical modules spanning several omics modalities, it covers everything from standard RNA-seq analysis to epigenome visualisation, cross-dataset comparison, and clinical outcome evaluation — all without writing a single line of code.
 A persistent local database eliminates repetitive uploads, and custom gene sets defined in one module are instantly reusable across all others.
 
-You can use OmicsBridge through a standalone web interface at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
+You can try the demo version of OmicsBridge at [https://omicsbridge.dkfz.de](https://omicsbridge.dkfz.de/).
+Please note that uploaded data there will be deleted after you close the session.
 If you want to deploy OmicsBridge in your local environment, please follow the instructions below.
 
 ![Interface overview](docs/img/interface_overview.png)
