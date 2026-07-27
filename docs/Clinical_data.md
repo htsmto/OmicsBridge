@@ -2,7 +2,7 @@
 
 ## <u>**1. Cohort selection and view the data**</u>
 
-A cohort can be selected in the top. Once selected, its details will be shown on the right. The data can be viewed as an excel format in the “View the data” section. For a gene expression, since this table is usually a large data, by default it shows the first 1000 lines to avoid over memory usega. The uses can choose to show all the data if they want.
+A cohort can be selected in the top. Once selected, its details will be shown on the right. The data can be viewed as an excel format in the “View the data” section. For a gene expression, since this table is usually a large data, by default it shows the first 1000 lines to avoid over memory usage. The uses can choose to show all the data if they want.
 
 ## <u>**2. Survival analysis**</u>
 
@@ -20,7 +20,7 @@ This section examines the association between gene expression and survival outco
 5. Click on any row in the results table to display the corresponding Kaplan–Meier curve.
 6. Use the histogram feature to visualise gene expression distributions, which can help determine appropriate sample splitting criteria.
 
-The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to **10-2. How to upload your own cohort** section.
+The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to **10.2. How to upload your own cohort** section.
 
 
 ??? success  "Adjustable graph parameters"
@@ -42,7 +42,7 @@ This section allows you to analyse gene expression correlations within a selecte
 1. Enter one name of the target gene (will be shown on the Y-axis of scatter plots).
 2. Select an analysis mode under Explore type:
     - **Explore one gene's correlation with specific genes** (default):
-        - In this case, enter the gene names or select a geneset from a Custom Geneset to investigate the correlation (will be shown on the X-axis)
+        - In this case, enter the gene names or select a gene set from a custom gene set to investigate the correlation (will be shown on the X-axis)
     - **Explore one gene's correlation with all the genes**:
         - It calculates correlations with all genes in the cohort. This takes several minutes.
 3. Choose correlation method: Pearson (linear relationships) or Spearman (rank-based).
@@ -69,7 +69,7 @@ This section helps you analyse gene mutations in the selected cohort.
 1. Input the genes to investigate by:
     - Entering gene names one per line in the text box ('Text input')
     - Choosing to analyse all genes in the dataset ('Use all genes')
-    - Selecting a geneset from the Custom Geneset ('Select from custom genesets')
+    - Selecting a gene set from a custom gene set ('Select from custom genesets')
 2. Filter the samples if necessary
     - By default, all cohort samples are included ('Use all samples')
     - When choosing 'Use the selected samples by a specific category', you can filter samples using metadata (treatment group, cancer subtype, demographics) for targeted analysis
@@ -114,7 +114,7 @@ This section helps you analyse gene mutations in the selected cohort.
 
 When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across patient subgroups.
 
-1. Enter the genes or select a custom geneset
+1. Enter the genes or select a custom gene set
 2. Select a category for subtype from the "Group by" drop-down menu
 3. Click "Start comparing" to compare gene expression across subtypes. Note that visualisation may be slow and cluttered when there are many subtypes in the selected group.
 4. A result table with statistical scores and p-values will be generated. Statistical scores include W values for two subtypes and H values for three or more subtypes.
@@ -224,7 +224,7 @@ First, you can generate a heatmap or barplot to visualise cell type fractions ac
 
 This feature allows you to analyse the relationship between specific gene expression levels and cell type abundance.
 
-1. Enter the gene names line by line (or choose a geneset)
+1. Enter the gene names line by line (or choose a gene set)
 2. Select a cell type to investigate
 3. Choose a correlation method, either Pearson or Spearman
 4. Click the start button. This calculates the correlation between gene expression and cell type abundance, generating a table with correlation coefficients and p-values.
@@ -243,7 +243,7 @@ This feature allows you to analyse the relationship between specific gene expres
 In this section, you can compare gene expression or mutation frequency across different cohorts.
 
 1. (You do not have to select a cohort in this section)
-2. Enter gene names line by line, or choose a custom geneset
+2. Enter gene names line by line, or choose a custom gene set
 3. The list of genes will appear. Click the gene you want to investigate.
 4. Select the cohorts you want to include.
     - All cohorts stored in OmicsBridge will be listed.
@@ -319,9 +319,9 @@ The users can manage the cohort database and upload or delete datasets in the �
     | TCGA_LUNG | Lung Cancer |   
 
 
-### <u>**10.2.How to upload an own cohort**</u>
+### <u>**10.2. How to upload your own cohort**</u>
 
-The users can upload their own cohort and analyse it here. Three files (Gene expression, Clinical data a d Metadata) should be uploaded. Optionally, mutation data can be added. Each data has to follow the following data format.
+The users can upload their own cohort and analyse it here. Three files (Gene expression, Patient survival information, and Metadata) should be uploaded. Optionally, mutation data can be added. Each data has to follow the following data format.
 
 #### <u>**10.2.1 Gene expression**</u>
 
@@ -371,7 +371,7 @@ These two columns are sufficient. Any additional columns will be ignored.
 ??? tip "Example"
     ![Example](img/3_mutation_example.png)
 
-### <u>**10-3. Edit or delete the cohort**</u>
+### <u>**10.3. Edit or delete the cohort**</u>
 #### <u> **10.3.1. Editing**</u>
 
 1. Go to the "Registered cohort" table in the Cohort database section.

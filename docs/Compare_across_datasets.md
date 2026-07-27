@@ -54,7 +54,7 @@ This feature compares scores of specific genes across selected datasets, display
 
 After clicking "Start Analysis," a list of gene names appears. Click any gene to display its plot on the right. 
 
-Note that if none of the datasets contains the selected gene, no plot will appear.
+Note that if none of the datasets contain the selected gene, no plot will appear.
 
 ??? success  "Adjustable graph parameters"
     - The size (width and height) of the figure

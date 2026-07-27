@@ -32,7 +32,7 @@ This section provides a simple UMAP overview of your data.
     </video>
 
 
-## <u> **2. Feauter Plots** </u>
+## <u> **2. Feature Plots** </u>
 
 ### <u> **2.1. Gene feature plot** </u>
 1. Enter your genes of interest (one per line). They will appear as a selectable table below.
@@ -78,8 +78,8 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     <source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
-## <u> **2. Other plots** </u>
-### <u> **2.1 Dot plot** </u>
+## <u> **3. Other plots** </u>
+### <u> **3.1. Dot plot** </u>
 
 1. Enter gene names one per line or select a custom gene set.
 2. Choose which subgroup you want to use. The dot plot will display gene expression across these selected subgroups.
@@ -96,7 +96,7 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     <source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
     </video>
 
-### <u> **2.2. Violin plot** </u>
+### <u> **3.2. Violin plot** </u>
 1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.
 2. Choose which subgroup you want to use. The violin plot displays gene expression across these selected subgroups.
 3. Click a gene from the gene list table. The violin plot will appear on the right.
@@ -115,7 +115,7 @@ AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enri
     <source src="../videos/scRNA_5_annot_light.mp4" type="video/mp4"> 
     </video>
 
-### <u> **2.3. Pie chart** </u>
+### <u> **3.3. Pie chart** </u>
 Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.
 
 1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.

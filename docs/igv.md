@@ -37,7 +37,7 @@ Select either hg38 or hg19 genome, then specify the position to visualise using 
     - Figure size (width and height)
     - Track height for bigwig data, bam data, or reference genome display
     - Colour settings for bigwig data, bam data, or reference genome tracks
-    - Group y-axis scaling options for bigwig or bam datavisualisationn
+    - Group y-axis scaling options for bigwig or bam data visualisation
   
 ??? example  "Example Usage video"
     <video width="1000" controls>
@@ -61,7 +61,7 @@ The selected dataset will be displayed in the IGV section on the right. Like the
     <source src="../videos/Epi_3_annot_light.mp4" type="video/mp4"> 
     </video>
 
-## <u> **4. Fing Enhancer/Promoter**</u>
+## <u> **4. Find Enhancer/Promoter**</u>
 
 This section identifies potential enhancers or promoters for each gene by analysing the correlation between gene expression from RNAseq and peak intensity from ATACseq. Using a normalised read count table with matched RNAseq and ATACseq data, it calculates the correlation for peaks located around each gene's genomic region (default range: ±100K, adjustable). Peaks with a high correlation coefficient or significant results are highlighted as potential enhancers or promoters for the corresponding gene.
 

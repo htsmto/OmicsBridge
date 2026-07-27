@@ -1,14 +1,14 @@
 site_name: OmicsBridge
 nav:
   - Home: index.md
-  - Database and Data Uplaod: Database.md
+  - Database and Data Upload: Database.md
   - Data Overview: Data_Overview.md
   - Compare Across Datasets: Compare_across_datasets.md
   - Two Datasets Integration: integrate_two.md
   - Clinical Data Analysis: Clinical_data.md
   - scRNA Data Overview: scRNA.md
   - Epigenome Visualisation: igv.md
-  - Custom Genesets: Gene_set.md
+  - Custom Gene Sets: Gene_set.md
   - Tools: Tools.md
   - FAQ: FAQ.md
   - Case study: Case_study.md

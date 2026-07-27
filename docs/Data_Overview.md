@@ -151,7 +151,7 @@ To perform GSEA analysis:
 1. Select the gene sets group:
     - Use pre-installed HALLMARK gene sets for humans and mice from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb)
     - Or select "Upload a gmt file (other gene sets)" to upload custom gene sets (gmt format only)
-    - Or users can calculate the enrichment of one gene set. In this case, you can select a custom geneset from a drop-dwon menu, or manually input the list of genes in a text box line by line.
+    - Or users can calculate the enrichment of one gene set. In this case, you can select a custom gene set from a drop-down menu, or manually input the list of genes in a text box line by line.
 2. Choose a score for GSEA ranking:
     - This score determines gene sorting and ranking. Typically, log fold change is used
     - Note: selecting a non-numeric category will cause an error
