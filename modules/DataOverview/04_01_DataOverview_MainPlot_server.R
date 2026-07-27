@@ -1,7 +1,7 @@
 # =============================================================================
 # DataOverview - MainPlot: Orchestrator
 # File: modules/DataOverview/04_01_DataOverview_MainPlot_server.R
-# Purpose: Entry point for the main scatter plot feature. Sources the four
+# Purpose: Entry point for the main scatter plot feature. Sources the
 #          sub-files below and wires their reactive outputs together:
 #
 #   axis.R        → renders X/Y axis dropdowns
@@ -9,6 +9,7 @@
 #   filter.R      → threshold / pathway / custom-geneset filtering
 #   selection.R   → plot-brush selection (brushedPoints)
 #   plot.R        → assembles and renders the ggplot2 scatter plot
+#   barplot.R     → assembles and renders the ggplot2 bar plot
 #
 # Edit this file when: changing the order or structure of the sub-modules,
 #                       or adding a new sub-feature to the MainPlot.
@@ -25,6 +26,7 @@ dataoverview_mainplot_Server <- function(input, output, session, Original_genese
   source("modules/DataOverview/04_01_DataOverview_MainPlot_filter.R",      local = TRUE)
   source("modules/DataOverview/04_01_DataOverview_MainPlot_selection.R",   local = TRUE)
   source("modules/DataOverview/04_01_DataOverview_MainPlot_plot.R",        local = TRUE)
+  source("modules/DataOverview/04_01_DataOverview_MainPlot_barplot.R",     local = TRUE)
 
   # MainPlot is only meaningful for Data.Class 'B' (comparison/DEG) datasets.
   # Gate df_ex here, once, instead of in every sub-file: each sub-file already
@@ -62,7 +64,17 @@ dataoverview_mainplot_Server <- function(input, output, session, Original_genese
     filter_outputs$df_genes_custom_geneset
   )
 
-  # --- [7] Return values for downstream modules ------------------------------
+  # --- [7] Bar plot rendering -------------------------------------------------
+  # Bars use the same filtered/pathway/custom-geneset data as the scatter plot
+  # highlights, shown when the shared "Show in a bar plot" switch is on.
+  mainplot_barplot_server(
+    input, output, session,
+    filter_outputs$df_outliers,
+    filter_outputs$df_outliers_pathway,
+    filter_outputs$df_genes_custom_geneset
+  )
+
+  # --- [8] Return values for downstream modules ------------------------------
   # df_outliers and Overview_selected_table are consumed by GO analysis.
   list(
     df_outliers             = filter_outputs$df_outliers,
