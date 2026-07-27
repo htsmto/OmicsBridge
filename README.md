@@ -136,8 +136,8 @@ The Wiki contains concise instructions and short demo videos for each visualizat
 
 ## <u>**Version**</u>
 
-Current version: v1.2.0 <br>
-Release date: June 2026
+Current version: v1.2.15 <br>
+Release date: July 2026
 
 ## <u>**Citation**</u>
 
