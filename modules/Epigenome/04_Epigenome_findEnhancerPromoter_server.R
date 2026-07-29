@@ -514,7 +514,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
             next
           }
           cor_test <- tryCatch(
-            cor.test(RNAseq_df_gene, ATACseq_df_peak, method = input$Enhancer_Find_calculation_type),
+            cor.test(RNAseq_df_gene, ATACseq_df_peak, method = input$Enhancer_Find_calculation_type, exact = FALSE),
             error = function(e) {
               output$Enhancer_Find_table_status <- renderText({
                 paste0("Error in correlation calculation for gene: ", each_gene, " and peak: ", each_peak, ". ", e$message)
