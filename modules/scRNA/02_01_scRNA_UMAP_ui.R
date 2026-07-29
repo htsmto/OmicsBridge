@@ -41,13 +41,13 @@ scRNA_UMAP_ui <- function(ns) {
                 column(12, materialSwitch(ns("scRNA_UMAP1_highlight_group"), 'Highlight a specific group', status = 'info')),
                 column(12, 
                     conditionalPanel(condition = paste0("input['", ns("scRNA_UMAP1_highlight_group"), "'] == true"),
-                    fluidRow(
-                        column(10, htmlOutput(ns("scRNA_UMAP1_highlight_group_select")))
-                    ),
-                    fluidRow(
-                        column(5, colourpicker::colourInput(ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
-                        column(5, colourpicker::colourInput(ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
-                    )
+                        fluidRow(
+                            column(10, htmlOutput(ns("scRNA_UMAP1_highlight_group_select")))
+                        ),
+                    # fluidRow(
+                    #     column(5, colourpicker::colourInput(ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
+                    #     column(5, colourpicker::colourInput(ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
+                    # )
                     )
                 )
                 )

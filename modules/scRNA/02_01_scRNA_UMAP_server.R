@@ -102,41 +102,70 @@ scRNA_UMAP_server  <- function(input, output, session, Dataset) {
             output$scRNA_UMAP1_highlight_group_select <- renderUI({
                 Seurat_obj <- Seurat_object()
 
-                # check if Seurat object is loaded
-                if(!is.null(Seurat_obj)){
+                # material switch 'scRNA_UMAP1_highlight_group' should be on
+                if(input$scRNA_UMAP1_highlight_group != TRUE){
+                    return(NULL)
+                }else{
 
-                    # check if group.by is selected
-                    if(!is.null(input$scRNA_UMAP1_highlight_group)){
-                        if(input$scRNA_UMAP1_groupBy != 'None'){
-                            if( length(unique(Seurat_obj@meta.data[,input$scRNA_UMAP1_groupBy])) > 100 ){ # when the number of groups is larger than 100, do not show the group selection dropdown to avoid performance issue. 
-                                selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
-                            }else{
-                                # get the categoies of the selected group.by variable to show in the dropdown. 
-                                meta <- Seurat_obj@meta.data
-                                groups <- as.character(meta[,input$scRNA_UMAP1_groupBy])
-                                
-                                # when the groups can be converted to numeric, sort them as numeric. Otherwise, sort them as character.
-                                suppressWarnings({
-                                    groups_vals <- as.numeric(groups) 
-                                })
-                                if(all(!is.na(groups_vals))){
-                                    groups <- sort(unique(groups_vals))
+                    # check if Seurat object is loaded
+                    if(!is.null(Seurat_obj)){
+
+                        # check if group.by is selected
+                        if(!is.null(input$scRNA_UMAP1_highlight_group)){
+                            if(input$scRNA_UMAP1_groupBy != 'None'){
+                                if( length(unique(Seurat_obj@meta.data[,input$scRNA_UMAP1_groupBy])) > 100 ){ # when the number of groups is larger than 100, do not show the group selection dropdown to avoid performance issue. 
+                                    selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
                                 }else{
-                                    groups <- sort(unique(groups))
-                                }
+                                    # get the categoies of the selected group.by variable to show in the dropdown. 
+                                    meta <- Seurat_obj@meta.data
+                                    groups <- as.character(meta[,input$scRNA_UMAP1_groupBy])
+                                    
+                                    # when the groups can be converted to numeric, sort them as numeric. Otherwise, sort them as character.
+                                    suppressWarnings({
+                                        groups_vals <- as.numeric(groups) 
+                                    })
+                                    if(all(!is.na(groups_vals))){
+                                        groups <- sort(unique(groups_vals))
+                                    }else{
+                                        groups <- sort(unique(groups))
+                                    }
 
-                                # set the choices
-                                selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('None'='None', groups) )
+                                    # set the choices
+                                    fluidRow(
+                                        column(12, selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('None'='None', groups) )),
+                                        column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
+                                        column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
+                                    )
+                                    
+                                }
+                            }else{
+                                fluidRow(
+                                    column(12, selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )),
+                                    column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
+                                    column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
+                                )
+                                # selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
                             }
                         }else{
-                            selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
+                            fluidRow(
+                                column(12, selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )),
+                                column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
+                                column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
+                            )
+                            # selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
                         }
                     }else{
-                        selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Set the "Colour by" option--'='None') )
+                        fluidRow(
+                            column(12, selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Select a dataset first--'='None') )),
+                            column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_background'), 'Colour (background)', value='gray') ),
+                            column(6, colourpicker::colourInput(session$ns('scRNA_UMAP1_highlight_group_highlight'), 'Colour (highlighted group)', value='red') )
+                        )
+                        # selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Select a dataset first--'='None') )
                     }
-                }else{
-                    selectInput(session$ns('scRNA_UMAP1_highlight_group_select'), 'Select the highlighted group:', c('--Select a dataset first--'='None') )
+
+
                 }
+
             })
 
         # umap object

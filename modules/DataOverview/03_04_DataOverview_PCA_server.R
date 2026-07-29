@@ -22,6 +22,42 @@ dataoverview_pca_Server <- function(input, output, session, df_ex){
                 samples <- samples[order(samples)]
                 paste(unlist(samples), collapse='\n')
             })
+        #
+
+        # when difining the groups manually
+            output$Data_Overview_PCA_Setting_when_difining_groups_manually <- renderUI({
+                if(length(input$Data_Overview_PCA_Setting) == 0 || is.null(input$Data_Overview_PCA_Setting)){
+                    return(NULL)
+                }
+                if(input$Data_Overview_PCA_Setting == 'B'){
+                    fluidRow(
+                        column(12,
+                            helpText(HTML("
+                            Please specify the sample names and their group names that you want to use as the following example.<br>
+                            Ex.)<br>
+                            \tSample1_rep1,Group1<br>
+                            \tSample1_rep2,Group1<br>
+                            \tSample2_rep1,Group2<br>
+                            \t...<br>
+                            "))
+                        ),
+                        column(12,
+                            verbatimTextOutput(session$ns('Data_Overview_PCA_Setting_group_define_status')),
+                            textAreaInput(session$ns("Data_Overview_PCA_Setting_group_define"), "Enter the group description")
+                        ),
+                        column(12,
+                            tags$details(
+                            tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
+                            div(
+                                verbatimTextOutput(session$ns('Data_Overview_PCA_Sample_list'))
+                            )
+                            )
+                        )
+                    )
+                }else{
+                    return(NULL)
+                }
+            })
     #
 
     # group definition table
@@ -53,7 +89,7 @@ dataoverview_pca_Server <- function(input, output, session, df_ex){
             }else{
                 # when nothing is input (input$Data_Overview_PCA_Setting_group_define)
                 Data_Overview_PCA_Setting_group_define_status('Please enter the group description.')
-                if(nchar(input$Data_Overview_PCA_Setting_group_define)==0){
+                if(length(input$Data_Overview_PCA_Setting_group_define) == 0 || is.null(input$Data_Overview_PCA_Setting_group_define) || nchar(input$Data_Overview_PCA_Setting_group_define)==0){
                     group_define_table(NULL)
                     input_samples(NULL)
                     return(NULL)

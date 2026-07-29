@@ -48,30 +48,31 @@ dataoverview_pca_UI <- function(ns){
                         column(12, radioButtons(ns('Data_Overview_PCA_Setting'), 'Sample input setting', choices = c('Use all the samples'='A', 'Define the groups manually'='B'), selected='A')),
                         column(12,
                             conditionalPanel(condition = paste0("input['", ns('Data_Overview_PCA_Setting'), "'] == 'B'"),
-                                fluidRow(
-                                    column(12,
-                                        helpText(HTML("
-                                        Please specify the sample names and their group names that you want to use as the following example.<br>
-                                        Ex.)<br>
-                                        \tSample1_rep1,Group1<br>
-                                        \tSample1_rep2,Group1<br>
-                                        \tSample2_rep1,Group2<br>
-                                        \t...<br>
-                                        "))
-                                    ),
-                                    column(12,
-                                        verbatimTextOutput(ns('Data_Overview_PCA_Setting_group_define_status')),
-                                        textAreaInput(ns("Data_Overview_PCA_Setting_group_define"), "Enter the group description")
-                                    ),
-                                    column(12,
-                                        tags$details(
-                                        tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
-                                        div(
-                                            verbatimTextOutput(ns('Data_Overview_PCA_Sample_list'))
-                                        )
-                                        )
-                                    )
-                                ),
+                                fluidRow(column(12, htmlOutput(ns("Data_Overview_PCA_Setting_when_difining_groups_manually")))),
+                                # fluidRow(
+                                #     column(12,
+                                #         helpText(HTML("
+                                #         Please specify the sample names and their group names that you want to use as the following example.<br>
+                                #         Ex.)<br>
+                                #         \tSample1_rep1,Group1<br>
+                                #         \tSample1_rep2,Group1<br>
+                                #         \tSample2_rep1,Group2<br>
+                                #         \t...<br>
+                                #         "))
+                                #     ),
+                                #     column(12,
+                                #         verbatimTextOutput(ns('Data_Overview_PCA_Setting_group_define_status')),
+                                #         textAreaInput(ns("Data_Overview_PCA_Setting_group_define"), "Enter the group description")
+                                #     ),
+                                #     column(12,
+                                #         tags$details(
+                                #         tags$summary("List of sample names ▼ (click here)"),  # クリックすると開閉されるタイトル
+                                #         div(
+                                #             verbatimTextOutput(ns('Data_Overview_PCA_Sample_list'))
+                                #         )
+                                #         )
+                                #     )
+                                # ),
                                 h3("")
                             ),
                         ),
