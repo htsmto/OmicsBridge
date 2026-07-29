@@ -229,8 +229,8 @@ mutation_oncoprint_server <- function(input, output, session,
                         p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Gene_expression_XY_label.font.size))
                         p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Gene_expression_XY_title.font.size))
                         p <- p + ggtitle(gene_ex) + theme(plot.title = element_text(size = input$Clinical_Mutation_Gene_expression_title.font.size))
-                        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
-                        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+                        p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                         p <- p + theme(legend.key.size = unit(1.5, "mm"))
                         p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size), legend.title = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size))
                         if(input$Clinical_Mutation_Gene_expression_white_background){

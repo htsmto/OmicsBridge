@@ -143,10 +143,10 @@ expr_compare_plot_server <- function(input, output, session,
                     p <- p + theme(axis.title.y = element_text(size = input$Expression_subtype_XY_title.font.size), axis.title.x = element_text(size = input$Expression_subtype_XY_title.font.size))
                     p <- p + theme(legend.position = 'none')
                     p <- p + ggtitle(gene) + theme(plot.title = element_text(size = input$Expression_subtype_title.font.size))
-                    p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-                    p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                    p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+                    p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                     if(input$Expression_subtype_white_background){
-                        p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                        p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                         p <- p + theme(panel.background = element_rect(fill="white", size=0))
                         p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                     }

@@ -111,13 +111,13 @@ dataoverview_TF_Server <- function(input, output, session, df_ex) {
                         p <- p + scale_fill_gradient2(low = input$DecoupeR_colour_low, high = input$DecoupeR_colour_high, mid = input$DecoupeR_colour_mid, midpoint = 0)
                         p <- p + theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust = 1)) + xlab("TFs")
                         p <- p + theme(axis.text=element_text(size=input$DecoupeR_lab.font.size), axis.title=element_text(size=input$DecoupeR_title.font.size))
-                        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-                        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))  
+                        p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                         p <- p + theme(legend.text = element_text(size = input$DecoupeR_legend.size), legend.title = element_text(size = input$DecoupeR_legend.size) )
                         p <- p + theme(legend.key.size = unit(1, "mm"))
                         p <- p + theme(legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
                         if(input$DecoupeR_white_background){
-                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                             p <- p + theme(panel.background = element_rect(fill="white", size=0))
                             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                         }

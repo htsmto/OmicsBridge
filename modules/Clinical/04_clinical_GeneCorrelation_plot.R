@@ -149,10 +149,10 @@ gene_correlation_plot_server <- function(input, output, session,
                         p <- p + labs(x=gene1, y=gene2)
                         p <- p + theme(axis.text.y = element_text(size = input$Gene_correlation_label_size), axis.text.x = element_text(size = input$Gene_correlation_label_size))
                         p <- p + theme(axis.title.y = element_text(size = input$Gene_correlation_title_size), axis.title.x = element_text(size = input$Gene_correlation_title_size))
-                        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-                        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+                        p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                         if(input$Gene_correlation_white_background){
-                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                             p <- p + theme(panel.background = element_rect(fill="white", size=0))
                             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                         }

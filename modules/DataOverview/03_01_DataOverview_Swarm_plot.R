@@ -164,13 +164,13 @@ swarm_plot_server <- function(input, output, session,
                         if(input$Xlab.font.size == 0){
                             p <- p + theme( axis.text.x = element_blank(), axis.ticks.x = element_blank())
                         }else{
-                            p <- p + theme( axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Xlab.font.size), axis.ticks.x = element_line(size=0.1), axis.ticks.length.x = unit(1, "pt"))
+                            p <- p + theme( axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = input$Xlab.font.size), axis.ticks.x = element_line(linewidth=0.1), axis.ticks.length.x = unit(1, "pt"))
                         }
 
                     # same for the Y label
                         p <- p + ylab(gene_tmp)
                         if(input$Ylab.font.size != 0){
-                            p <- p + theme( axis.text.y = element_text(size = input$Ylab.font.size), axis.ticks.y = element_line(size=0.1), axis.ticks.length.y = unit(1, "pt"))
+                            p <- p + theme( axis.text.y = element_text(size = input$Ylab.font.size), axis.ticks.y = element_line(linewidth=0.1), axis.ticks.length.y = unit(1, "pt"))
                         }else{
                             p <- p + theme( axis.text.y = element_blank(), axis.ticks.y = element_blank())
                         }
@@ -188,11 +188,11 @@ swarm_plot_server <- function(input, output, session,
                         }
 
                     # grid
-                        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
+                        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
 
                     # white background
                         if(input$White.background){
-                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                             p <- p + theme(panel.background = element_rect(fill="white", size=0))
                             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                         }

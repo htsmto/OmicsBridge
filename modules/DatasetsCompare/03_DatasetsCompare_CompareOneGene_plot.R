@@ -162,10 +162,10 @@ compare_one_gene_plot_server <- function(input, output, session, used_genes, all
                 p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(plot.title = element_text(size = input$Compare_graph.title.font.size))
                 p <- p + theme(axis.text.y = element_text(size = input$Compare_label.font.size), axis.text.x = element_text(size = input$Compare_label.font.size)) + theme(axis.title.y = element_text(size = input$Compare_title.font.size), axis.title.x = element_text(size = input$Compare_title.font.size))
                 p <- p + theme(legend.text = element_text(size=input$Compare_label_legend_size), legend.title= element_text(size=input$Compare_label_legend_size))
-                p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+                p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                 if(input$Compare_white_background){
-                    p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                    p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                     p <- p + theme(panel.background = element_rect(fill="white", size=0))
                     p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                 }

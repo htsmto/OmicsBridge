@@ -134,11 +134,11 @@ scRNA_Feature_server  <- function(input, output, session, Custom_genesets) {
     #                 p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_FeaturePlot_legend_size), legend.title = element_text(size=input$scRNA_FeaturePlot_legend_size))
     #                 p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_FeaturePlot_graph.title.font.size)) 
     #                 p1 <- p1 + ggtitle(gene)
-    #                 p1 <- p1 + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-    #                 p1 <- p1 + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+    #                 p1 <- p1 + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))  
+    #                 p1 <- p1 + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
     #                 p1 <- p1 + theme(legend.key.size = unit(2, "mm"))
     #                 if(input$scRNA_FeaturePlot_white_background){
-    #                     p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+    #                     p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
     #                     p1 <- p1 + theme(panel.background = element_rect(fill="white", size=0))
     #                     p1 <- p1 + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
     #                 }

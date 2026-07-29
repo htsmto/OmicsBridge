@@ -158,9 +158,9 @@ tools_crosstabular_Server <- function(input, output, session) {
                     legend.title = element_blank(),
                     legend.key.size = unit(2, "mm"),
                     legend.margin = margin(-10, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"),
-                    panel.grid.major = element_line(size = 0.1),
-                    panel.grid.minor = element_line(size = 0.05),
-                    axis.ticks = element_line(size=0.1),
+                    panel.grid.major = element_line(linewidth = 0.1),
+                    panel.grid.minor = element_line(linewidth = 0.05),
+                    axis.ticks = element_line(linewidth=0.1),
                     axis.ticks.length = unit(0.5, "pt")
                 )
 
@@ -173,7 +173,7 @@ tools_crosstabular_Server <- function(input, output, session) {
                 p <- p + theme(
                         panel.grid = element_blank(), 
                         panel.border=element_blank(), 
-                        axis.line = element_line(color='black', size=0.1),
+                        axis.line = element_line(color='black', linewidth=0.1),
                         panel.background = element_rect(fill="white", size=0),
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank()

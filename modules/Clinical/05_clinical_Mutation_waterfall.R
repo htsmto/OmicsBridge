@@ -212,7 +212,7 @@ mutation_waterfall_server <- function(input, output, session,
                     p <- p + theme(legend.margin = margin(-3, 0, 0, 0),legend.spacing.x = unit(0, "mm"),legend.spacing.y = unit(0, "mm"))
                     p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Kaplan_label_size))
                     p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Kaplan_title_size))
-                    # p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
+                    # p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
                     p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                     p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                     p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))

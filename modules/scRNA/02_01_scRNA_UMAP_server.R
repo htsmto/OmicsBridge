@@ -200,13 +200,13 @@ scRNA_UMAP_server  <- function(input, output, session, Dataset) {
                 p1 <- p1 + theme(axis.text = element_text(size=input$scRNA_umap1_XY_label), axis.title = element_text(size=input$scRNA_umap1_XY_title))
                 p1 <- p1 + theme(legend.text = element_text(size=input$scRNA_umap1_legend_size), legend.title = element_text(size=input$scRNA_umap1_legend_size))
                 p1 <- p1 + theme(plot.title = element_text(size=input$scRNA_umap1_graph_title)) 
-                p1 <- p1 + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))  
-                p1 <- p1 + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p1 <- p1 + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))  
+                p1 <- p1 + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                 p1 <- p1 + theme(legend.key.size=unit(0.01, 'mm'))
 
                 # white background
                 if(input$scRNA_umap1_white_background){
-                    p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                    p1 <- p1 + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                     p1 <- p1 + theme(panel.background = element_rect(fill="white", size=0))
                     p1 <- p1 + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                 }                

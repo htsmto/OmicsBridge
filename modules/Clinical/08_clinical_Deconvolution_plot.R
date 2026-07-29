@@ -159,10 +159,10 @@ deconvolution_plot_server <- function(input, output, session, Gene_expression,
                         p <- p + labs(x=Gene2, y=cell_type)
                         p <- p + theme(axis.text = element_text(size = input$Deconvolution_Gene_correlation_label_size))
                         p <- p + theme(axis.title = element_text(size = input$Deconvolution_Gene_correlation_title_size))
-                        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-                        p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+                        p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                         if(input$Deconvolution_Gene_correlation_white_background){
-                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                            p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                             p <- p + theme(panel.background = element_rect(fill="white", size=0))
                             p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                         }

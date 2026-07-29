@@ -198,9 +198,9 @@ scRNA_Feature_server_dot  <- function(input, output, session, Seurat_object, Inp
                 p <- p + theme(axis.title = element_text(size=input$scRNA_dot_Y_title_size))
                 p <- p + ylab(input$scRNA_DotPlot_groupBy)
                 p <- p + xlab(NULL)
-                p <- p + theme(axis.ticks = element_line(size=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
+                p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
                 p <- p + theme(legend.key.size = unit(1.5, "mm"))
-                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', size=0.1))
+                p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                 p <- p + theme(panel.background = element_rect(fill="white", size=0))
                 p <- p + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
                 p
