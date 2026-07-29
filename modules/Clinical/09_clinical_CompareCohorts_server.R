@@ -163,7 +163,7 @@ clinical_CompareCohorts_server <- function(input, output, session, Clinical_data
 
         if (!input$Compare_across_cohorts_mut_hide_score) {
             label_col <- if (input$Compare_across_cohorts_mut_freq_plot_type == 'A') "Mutation.Patients" else "Frequency"
-            p <- p + geom_text(aes_string(label = label_col), vjust = -0.5, color = 'black',
+            p <- p + geom_text(aes(label = .data[[label_col]]), vjust = -0.5, color = 'black',
                                size = input$Compare_across_cohorts_mut_score_size)
         }
 
@@ -183,11 +183,11 @@ clinical_CompareCohorts_server <- function(input, output, session, Clinical_data
         p <- p + theme(axis.title  = element_text(size = input$Compare_across_cohorts_mut_title_size))
         p <- p + theme(legend.text = element_text(size = input$Compare_across_cohorts_mut_legend_size))
         p <- p + theme(legend.key.size = unit(2, "mm"))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-        p <- p + theme(axis.ticks = element_line(size = 0.1), axis.ticks.length = unit(0.5, "pt"))
+        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+        p <- p + theme(axis.ticks = element_line(linewidth = 0.1), axis.ticks.length = unit(0.5, "pt"))
         if (input$Compare_across_cohorts_mut_white_background) {
             p <- p + theme(panel.grid = element_blank(), panel.border = element_blank(),
-                           axis.line = element_line(color = 'black', size = 0.1),
+                           axis.line = element_line(color = 'black', linewidth = 0.1),
                            panel.background = element_rect(fill = "white", size = 0))
         }
         p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
@@ -269,12 +269,12 @@ clinical_CompareCohorts_server <- function(input, output, session, Clinical_data
         p <- p + geom_boxplot(size = 0.2, outlier.size = 0.5)
         p <- p + theme(axis.text   = element_text(size = input$Compare_across_cohorts_gx_label_size))
         p <- p + theme(axis.title  = element_text(size = input$Compare_across_cohorts_gx_title_size))
-        p <- p + theme(panel.grid.major = element_line(size = 0.1), panel.grid.minor = element_line(size = 0.05))
-        p <- p + theme(axis.ticks = element_line(size = 0.1), axis.ticks.length = unit(0.5, "pt"))
+        p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
+        p <- p + theme(axis.ticks = element_line(linewidth = 0.1), axis.ticks.length = unit(0.5, "pt"))
         p <- p + theme(legend.position = 'none')
         if (input$Compare_across_cohorts_gx_white_background) {
             p <- p + theme(panel.grid = element_blank(), panel.border = element_blank(),
-                           axis.line = element_line(color = 'black', size = 0.1),
+                           axis.line = element_line(color = 'black', linewidth = 0.1),
                            panel.background = element_rect(fill = "white", size = 0))
         }
         p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
