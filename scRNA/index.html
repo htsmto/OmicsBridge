@@ -730,6 +730,27 @@
 <p>The Seurat object must be loaded from an RDS file. Ensure that <code>Reductions(Seurat_object)</code> returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
 <img alt="Example" src="../img/1_Seurat.png" /></p>
 </details>
+<details class="warning">
+<summary>Seurat object too large to upload? Reduce its size</summary>
+<p>If your RDS file is too large to upload, you can shrink it by removing data that is not required for data exploration in the <strong>current version</strong> of OmicsBridge (note: this may change in future versions, e.g. if new features come to rely on this data).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Make the object smaller by removing unnecessary data</span>
+
+<span class="c1"># Scaled data (needed for PCA/DEG, but not required for data exploration in OmicsBridge)</span>
+<span class="n">Seurat_obj</span><span class="o">@</span><span class="n">assays</span><span class="o">$</span><span class="n">RNA</span><span class="o">@</span><span class="n">layers</span><span class="o">$</span><span class="n">scale.data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NULL</span>
+
+<span class="c1"># Count data (raw counts; not needed if already processed)</span>
+<span class="n">Seurat_obj</span><span class="o">@</span><span class="n">assays</span><span class="o">$</span><span class="n">RNA</span><span class="o">@</span><span class="n">layers</span><span class="o">$</span><span class="n">counts</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NULL</span>
+
+<span class="c1"># Graph structures (used for clustering, but not needed for plotting)</span>
+<span class="n">Seurat_obj</span><span class="o">@</span><span class="n">graphs</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list</span><span class="p">()</span>
+
+<span class="c1"># Command history (kept for reproducibility, safe to drop to save space)</span>
+<span class="n">Seurat_obj</span><span class="o">@</span><span class="n">commands</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list</span><span class="p">()</span>
+
+<span class="c1"># Unnecessary reductions (keep only UMAP; e.g. remove PCA)</span>
+<span class="n">Seurat_obj</span><span class="o">@</span><span class="n">reductions</span><span class="o">$</span><span class="n">pca</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NULL</span><span class="w">  </span><span class="c1"># if only using UMAP</span>
+</code></pre></div>
+</details>
 <h2 id="1-data-overview"><u> <strong>1. Data overview</strong> </u></h2>
 <p>This section provides a simple UMAP overview of your data.</p>
 <ol>
