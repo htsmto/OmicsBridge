@@ -9,6 +9,28 @@ The interface accepts an RDS file as input for the scRNA section. The scRNA data
     The Seurat object must be loaded from an RDS file. Ensure that `Reductions(Seurat_object)` returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
     ![Example](img/1_Seurat.png)
 
+??? warning "Seurat object too large to upload? Reduce its size"
+    If your RDS file is too large to upload, you can shrink it by removing data that is not required for data exploration in the **current version** of OmicsBridge (note: this may change in future versions, e.g. if new features come to rely on this data).
+
+    ```r
+    # Make the object smaller by removing unnecessary data
+
+    # Scaled data (needed for PCA/DEG, but not required for data exploration in OmicsBridge)
+    Seurat_obj@assays$RNA@layers$scale.data <- NULL
+
+    # Count data (raw counts; not needed if already processed)
+    Seurat_obj@assays$RNA@layers$counts <- NULL
+
+    # Graph structures (used for clustering, but not needed for plotting)
+    Seurat_obj@graphs <- list()
+
+    # Command history (kept for reproducibility, safe to drop to save space)
+    Seurat_obj@commands <- list()
+
+    # Unnecessary reductions (keep only UMAP; e.g. remove PCA)
+    Seurat_obj@reductions$pca <- NULL  # if only using UMAP
+    ```
+
 ## <u> **1. Data overview** </u>
 
 This section provides a simple UMAP overview of your data.
