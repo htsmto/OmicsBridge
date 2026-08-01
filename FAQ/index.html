@@ -423,19 +423,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    FAQ
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -447,34 +434,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-can-i-save-the-figure" class="md-nav__link">
-    <span class="md-ellipsis">
-      How can I save the figure?
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -522,23 +481,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-can-i-save-the-figure" class="md-nav__link">
-    <span class="md-ellipsis">
-      How can I save the figure?
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -554,8 +496,46 @@
 
 
 <h1 id="faq">FAQ</h1>
-<h2 id="how-can-i-save-the-figure"><strong>How can I save the figure?</strong></h2>
+<details class="note">
+<summary>What are the system requirements to run OmicsBridge?</summary>
+<p>OmicsBridge runs on virtually any standard computer, but performance scales with available RAM. Loading single-cell RNA-seq or epigenome datasets is particularly memory-intensive, so we recommend at least 24 GB of RAM for these analyses. If you only work with bulk RNA-seq or similar lighter data types, a lower-RAM machine will run smoothly.</p>
+</details>
+<details class="note">
+<summary>How can I save the figure?</summary>
 <p>Right-click on your mouse and select “Save Image As…” (in Mac)</p>
+</details>
+<details class="note">
+<summary>Does OmicsBridge handle raw data preprocessing?</summary>
+<p>Not currently. OmicsBridge does not perform raw data processing (e.g. alignment, quantification, peak calling) at this stage, though this may be added in the future. Preprocessing is expected to be handled by a bioinformatician beforehand. OmicsBridge's role is to provide a code-free interface for exploring already-processed data, rather than generating it from raw sequencing files.</p>
+</details>
+<details class="note">
+<summary>What input format does OmicsBridge expect?</summary>
+<p>Data should be uploaded as already-processed files in .csv, .tsv, .txt, or .rds format, matching the expected structure for the relevant Data Class (e.g. expression matrix, clinical metadata). For epigenome data uploaded as BAM files, the corresponding .bai index file must be uploaded alongside it. Note that large files (e.g. BAM) may take longer to upload or fail depending on your computer's specifications and the platform's file size limit.</p>
+</details>
+<details class="note">
+<summary>Do I need an internet connection to use OmicsBridge?</summary>
+<p>No. OmicsBridge is designed mainly for local usage. Once installed, it works fully offline. This means you don't need to worry about data privacy, since your data never leaves your machine.</p>
+</details>
+<details class="note">
+<summary>What operating systems are supported?</summary>
+<p>OmicsBridge's local version runs via Docker, so it works on Windows, macOS, and Linux — anywhere Docker Desktop (or Docker Engine) can be installed. No OS-specific setup is required beyond having Docker running.</p>
+</details>
+<details class="note">
+<summary>How much disk space do I need?</summary>
+<p>Disk space requirements depend mainly on the size of the datasets you plan to load. Bulk RNA-seq datasets are relatively small, while scRNA-seq and epigenome datasets (e.g. BAM/BigWig files for the IGV browser) can require significantly more space. We recommend at least [X GB] of free storage, more if you're working with large cohorts.</p>
+</details>
+<details class="note">
+<summary>Does OmicsBridge require a powerful CPU?</summary>
+<p>No. CPU speed is not a major bottleneck for most analyses. RAM is the more important factor, particularly for scRNA-seq and epigenome data loading.</p>
+</details>
+<details class="note">
+<summary>Do I need to install R separately?</summary>
+<p>If you're using the Dockerised version, no. R and all dependencies are bundled in the container. R is only needed separately if you choose to run OmicsBridge from source rather than via Docker.</p>
+</details>
+<details class="note">
+<summary>What browser should I use?</summary>
+<p>Since OmicsBridge is an R/Shiny application, a modern browser such as Chrome or Firefox is recommended for the best experience with the interactive plots and dashboards.</p>
+</details>
 
 
 
