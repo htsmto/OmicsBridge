@@ -202,8 +202,8 @@ database_upload_Server <- function(input, output, session) {
             # check if there are any special characters in the dataset name, the experiment name, the data from and the data type. Only alphabets, numbers, underscores, dots (except the first character), space and () is acceptable.
             special_char_pattern <- "^[A-Za-z][A-Za-z0-9._() ]*$"
             if(!grepl(special_char_pattern, Dataset_name()) || !grepl(special_char_pattern, Experiment_name()) || !grepl(special_char_pattern, Data_from()) || !grepl(special_char_pattern, Data_type())){
-                show_alert(title = "Error", text = "Special characters are not allowed. Please use only alphabets, numbers, underscores, dots (except the first character), space and ().", type = "error")
-                status(paste0("Error: Special characters are not allowed. Please use only alphabets, numbers, underscores, dots (except the first character), space and (). \n", "\n", status_message))
+                show_alert(title = "Error", text = "Invalid name format. Names must start with a letter (A–Z or a–z) and may contain only letters, numbers, underscores (_), dots (.), spaces, and parentheses (( )). Dots are not allowed as the first character.", type = "error")
+                status(paste0("Error: Invalid name format. Names must start with a letter (A–Z or a–z) and may contain only letters, numbers, underscores (_), dots (.), spaces, and parentheses (( )). Dots are not allowed as the first character.\n\n", status_message))
                 return(NULL)
             }
 
