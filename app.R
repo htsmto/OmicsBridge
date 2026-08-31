@@ -193,7 +193,7 @@ server <- function(input, output, session) {
             # Transcriptome analysis: loads clusterProfiler, fgsea, GSVA, etc.
             withProgress(message = "Loading transcriptome analysis tools...", value = 0.5, {
                 tryCatch({
-                    source("libraries/libraries_DataOverview.R", local = TRUE)
+                    source("libraries/libraries_DataOverview.R")
                     dataoverviewModuleServer("data_overview")
                 }, error = function(e) {
                     showNotification(
@@ -248,7 +248,7 @@ server <- function(input, output, session) {
             # Epigenome: IGV browser, motif scanning, genome-wide visualisation.
             withProgress(message = "Loading epigenome visualisation tools...", value = 0.5, {
                 tryCatch({
-                    source("libraries/libraries_Epigenome.R", local = TRUE)
+                    source("libraries/libraries_Epigenome.R")
                     EpigenomeModuleServer("igv")
                 }, error = function(e) {
                     showNotification(
