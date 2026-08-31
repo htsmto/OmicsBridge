@@ -65,18 +65,26 @@ scRNA_UMAP_server  <- function(input, output, session, Dataset) {
                 }
 
                 # try loading scRNA from a RDS file. If there is an error, show an error message and reset the flag.
-                tryCatch({
-                    scRNA_UMAP1_status(NULL)
+                # Gated behind a CPU/RAM resource check -- see guardHeavyLoad() in
+                # app.R -- since Seurat .rds files are the heaviest load in the app.
+                do_load <- function() {
+                    tryCatch({
+                        scRNA_UMAP1_status(NULL)
+                        DataLoading(FALSE)
+                        Seurat_object(readRDS(filepath))
+                    }, error = function(e){
+                        scRNA_UMAP1_status(paste0('Error: Failed to load the file for the selected dataset (', selected_dataset, '). \nPlease check if the file is a valid RDS file and try again.'))
+                        DataLoading(FALSE)
+                    })
+                }
+                on_cancel <- function() {
                     DataLoading(FALSE)
-                    Seurat_object(readRDS(filepath))
-                    return(NULL)
-                }, error = function(e){
-                    scRNA_UMAP1_status(paste0('Error: Failed to load the file for the selected dataset (', selected_dataset, '). \nPlease check if the file is a valid RDS file and try again.'))
-                    DataLoading(FALSE)
-                    return(NULL) 
-                })
- 
+                    scRNA_UMAP1_status('Loading cancelled.')
+                }
+                guardHeavyLoad(session, "confirm_scRNA_load", do_load, on_cancel = on_cancel,
+                                what = "this scRNA dataset (.rds)", file_paths = filepath)
             })
+            heavyLoadConfirmObserver(input, session, "confirm_scRNA_load")
 
         # show status
             output$scRNA_UMAP1_status <- renderText({ scRNA_UMAP1_status() })

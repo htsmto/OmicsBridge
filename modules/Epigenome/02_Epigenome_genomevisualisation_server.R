@@ -147,61 +147,75 @@ Epigenome_genomevisualisation_server <- function(input, output, session, Dataset
                 #
                 Gviz_plot_status(NULL)
 
-                # genome and chromosome
-                gen=input$Gviz_genome_selection
-                chr=Gviz_chr
+                # Gated behind a CPU/RAM resource check -- see guardHeavyLoad() in
+                # app.R -- since this loop can read an arbitrary number of bigWig/BAM
+                # tracks in one click.
+                selected_paths <- Dataset()[Dataset()$Dataset %in% Gviz_selected_dataset(), ]$Path
 
-                # base tracks
-                itrack <- Gviz::IdeogramTrack(genome = gen, chromosome = chr, bands = cyto(), fontsize=5)
-                gtrack <- Gviz::GenomeAxisTrack(fontsize=5)
-                grtrack <- Gviz::GeneRegionTrack(customegeneModels, genome = gen, chromosome = chr, name = "Refseq", transcriptAnnotation = "gene", cex = 0.4, fontsize=5,fontsize.group=2)
+                do_load <- function() {
+                    # genome and chromosome
+                    gen=input$Gviz_genome_selection
+                    chr=Gviz_chr
 
-                # refseq colour option
-                scheme <- Gviz::getScheme()
-                scheme$GeneRegionTrack$fill <- input$Gviz_plot_refseq_col
-                scheme$GeneRegionTrack$col <- NULL
-                scheme$GeneRegionTrack$fontsize <- 2
-                Gviz::addScheme(scheme, "myScheme")
-                options(Gviz.scheme = "myScheme")
+                    # base tracks
+                    itrack <- Gviz::IdeogramTrack(genome = gen, chromosome = chr, bands = cyto(), fontsize=5)
+                    gtrack <- Gviz::GenomeAxisTrack(fontsize=5)
+                    grtrack <- Gviz::GeneRegionTrack(customegeneModels, genome = gen, chromosome = chr, name = "Refseq", transcriptAnnotation = "gene", cex = 0.4, fontsize=5,fontsize.group=2)
 
-                ## DataTrack objects:
-                DataTrack_list <- list()
-                DataTrack_list[[1]] <- itrack
-                DataTrack_list[[2]] <- gtrack
-                Gviz_Track_sizes_tmp <- c(0.1, 0.1)
-                if(length(Gviz_selected_dataset()) >= 1){
-                    for (i in seq_along(Gviz_selected_dataset())) {
-                        dataset <- Gviz_selected_dataset()[i]
-                        type <- Gviz_selected_dataset_type()[i]
-                        path <- Dataset()[Dataset()$Dataset == dataset, ]$Path
-                        if(type == 'BigWig'){
-                            if(input$Gviz_plot_ylim_bw){
-                                DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, input$Gviz_plot_bw_col, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bw_max)))
-                            }else{
-                                DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, fontsize=6)
+                    # refseq colour option
+                    scheme <- Gviz::getScheme()
+                    scheme$GeneRegionTrack$fill <- input$Gviz_plot_refseq_col
+                    scheme$GeneRegionTrack$col <- NULL
+                    scheme$GeneRegionTrack$fontsize <- 2
+                    Gviz::addScheme(scheme, "myScheme")
+                    options(Gviz.scheme = "myScheme")
+
+                    ## DataTrack objects:
+                    DataTrack_list <- list()
+                    DataTrack_list[[1]] <- itrack
+                    DataTrack_list[[2]] <- gtrack
+                    Gviz_Track_sizes_tmp <- c(0.1, 0.1)
+                    if(length(Gviz_selected_dataset()) >= 1){
+                        for (i in seq_along(Gviz_selected_dataset())) {
+                            dataset <- Gviz_selected_dataset()[i]
+                            type <- Gviz_selected_dataset_type()[i]
+                            path <- Dataset()[Dataset()$Dataset == dataset, ]$Path
+                            if(type == 'BigWig'){
+                                if(input$Gviz_plot_ylim_bw){
+                                    DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, input$Gviz_plot_bw_col, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bw_max)))
+                                }else{
+                                    DataTrack_list[[i+2]] <-  Gviz::DataTrack(range = path, genome = gen, type = "l",  chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col.mountain=c(input$Gviz_plot_bw_col, input$Gviz_plot_bw_col), col=input$Gviz_plot_bw_col, fontsize=6)
+                                }
+                                Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bw)/100)
+                            }else if(type == 'BAM'){
+                                options(ucscChromosomeNames=FALSE)
+                                if(input$Gviz_plot_ylim_bam){
+                                    DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bam_max)))
+                                }else{
+                                    DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6)
+                                }
+                                Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bam)/100)
                             }
-                            Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bw)/100)
-                        }else if(type == 'BAM'){
-                            options(ucscChromosomeNames=FALSE)
-                            if(input$Gviz_plot_ylim_bam){
-                                DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6, ylim=c(0, as.numeric(input$Gviz_plot_ylim_bam_max)))
-                            }else{
-                                DataTrack_list[[i+2]] <- Gviz::AlignmentsTrack(path, isPaired = TRUE, type= "coverage", genome = gen, chromosome = chr, name = gsub("(.{11})", "\\1\n", dataset), fill = input$Gviz_plot_bam_col, col = input$Gviz_plot_bam_col, coverageHeight=1, fontsize=6)
-                            }
-                            Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_bam)/100)
                         }
                     }
-                }
-                DataTrack_list[[length(DataTrack_list) + 1]] <- grtrack
-                Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_ref)/100)
+                    DataTrack_list[[length(DataTrack_list) + 1]] <- grtrack
+                    Gviz_Track_sizes_tmp <- c(Gviz_Track_sizes_tmp, as.numeric(input$Gviz_plot_height_ref)/100)
 
-                ### Gviz tracks
-                Gviz_Tracks(DataTrack_list)
-                Gviz_Track_sizes(Gviz_Track_sizes_tmp)
-                Gviz_params(list(genome = gen, chromosome = chr, from = Gviz_start, to = Gviz_end))
-                isCalculating_Gviz(FALSE)
+                    ### Gviz tracks
+                    Gviz_Tracks(DataTrack_list)
+                    Gviz_Track_sizes(Gviz_Track_sizes_tmp)
+                    Gviz_params(list(genome = gen, chromosome = chr, from = Gviz_start, to = Gviz_end))
+                    isCalculating_Gviz(FALSE)
+                }
+                on_cancel <- function() {
+                    isCalculating_Gviz(FALSE)
+                    Gviz_plot_status('Loading cancelled.')
+                }
+                guardHeavyLoad(session, "confirm_Gviz_load", do_load, on_cancel = on_cancel,
+                                what = "the selected bigWig/BAM track(s)", file_paths = selected_paths)
                 return(NULL)
             })
+            heavyLoadConfirmObserver(input, session, "confirm_Gviz_load")
         #
 
 
