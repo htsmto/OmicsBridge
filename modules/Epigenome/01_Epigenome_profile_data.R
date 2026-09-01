@@ -91,16 +91,28 @@ epigenome_profile_data_server <- function(input, output, session, Dataset) {
                     #
 
                     # add the imported sample to the list
-                    bw_list <- imported_bw_data()
-                    bw_list <- append(bw_list, list(import(path))) #  ex. tmp <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.24/THP1_LPS.IFNg.0.5h_Rep1.bw')
-                    tmp <- imported_sample()
-                    tmp <- c(tmp , input$Profile_Plot_sample_selection)
-                    imported_sample(tmp)
-                    imported_bw_data(bw_list)
-                    isCalculating_import(FALSE)
-                    Profile_Plot_sample_selection_status(NULL)
+                    # Gated behind a CPU/RAM resource check -- see guardHeavyLoad() in
+                    # libraries/libraries.R -- since imported tracks accumulate in memory
+                    # (removed only when the user explicitly removes them).
+                    do_load <- function() {
+                        bw_list <- imported_bw_data()
+                        bw_list <- append(bw_list, list(import(path))) #  ex. tmp <- import('/home/h023o/ShinyApps/Software/OmicsBridge/00_Expression_data_all/2025/06.24/THP1_LPS.IFNg.0.5h_Rep1.bw')
+                        tmp <- imported_sample()
+                        tmp <- c(tmp , input$Profile_Plot_sample_selection)
+                        imported_sample(tmp)
+                        imported_bw_data(bw_list)
+                        isCalculating_import(FALSE)
+                        Profile_Plot_sample_selection_status(NULL)
+                    }
+                    on_cancel <- function() {
+                        isCalculating_import(FALSE)
+                        Profile_Plot_sample_selection_status('Import cancelled.')
+                    }
+                    guardHeavyLoad(session, "confirm_profile_import", do_load, on_cancel = on_cancel,
+                                    what = "this bigWig track", file_paths = path)
                     return()
                 })
+                heavyLoadConfirmObserver(input, session, "confirm_profile_import")
             #
 
             # remove selected sample, Profile_Plot_sample_remove
