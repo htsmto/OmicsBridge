@@ -27,8 +27,26 @@ show_Overview_server <- function(input, output, session, Dataset_dataclass){
         if(Dataset_dataclass() == 'A'){
             tabsetPanel(
                 ## data table
-                tabPanel(strong("Data Table"), h4(''), 
+                tabPanel(strong("Data Table"), h4(''),
                     box(width=12, status='warning', title=strong('Data table'), collapsible=TRUE,
+                        fluidRow(
+                            column(3, selectInput(session$ns('normalisation_method'), 'Normalisation',
+                                                  choices = c('None' = 'none', 'CPM' = 'cpm', 'TPM' = 'tpm', 'FPKM' = 'fpkm'))),
+                            column(2, actionButton(session$ns('apply_normalisation'), 'Apply', icon = icon('calculator')))
+                        ),
+                        conditionalPanel(
+                            condition = sprintf("input['%s'] == 'tpm' || input['%s'] == 'fpkm'",
+                                                session$ns('normalisation_method'), session$ns('normalisation_method')),
+                            div(class = 'text-warning',
+                                icon('triangle-exclamation'),
+                                strong(' TPM/FPKM currently only support the human genome:'),
+                                ' the gene length lookup is keyed by human gene symbol.',
+                                ' Any gene in the table whose ', code('id'), ' is not a recognised human gene symbol,',
+                                ' or has no known length, will be skipped - see the status message below after clicking Apply.')
+                        ),
+                        fluidRow(
+                            column(12, verbatimTextOutput(session$ns('normalisation_status')))
+                        ),
                         fluidRow(
                             column(12, verbatimTextOutput(session$ns('Count_data_DataTable_status'))),
                             column(12, withSpinner(DT::dataTableOutput(session$ns("Count_data_DataTable")), type=5, color='#0dc5c1'))

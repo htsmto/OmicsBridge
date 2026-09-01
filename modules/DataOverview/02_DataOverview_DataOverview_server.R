@@ -11,9 +11,14 @@
 dataoverview_dataoverview_Server <- function(input, output, session) {
     ## variable, initial settings
         Dataset <- reactiveVal(data.frame(read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE)))
-        df_overview <- reactiveVal(NULL)
+        df_raw <- reactiveVal(NULL)        # untouched, as-loaded table (before any normalisation)
+        df_overview <- reactiveVal(NULL)   # currently displayed / used-downstream table (raw, or user-normalised)
         status <- reactiveVal(NULL)
-        
+        normalisation_status <- reactiveVal(NULL)
+
+        # gene length lookup for TPM/FPKM (NULL if the file is missing/unreadable; CPM doesn't need it)
+        gene_lengths <- reactive({ load_gene_lengths() })
+
         # reload database
             observeEvent(input$reload_database, {
                 Dataset(data.frame(read.delim('data/Database.tsv', sep='\t', header=T,check.names = FALSE)))
@@ -46,19 +51,59 @@ dataoverview_dataoverview_Server <- function(input, output, session) {
                     })
                     df_tmp <- replace_infinite_values_df(df_tmp)
                     status(NULL)
+                    df_raw(df_tmp)
                     df_overview(df_tmp)
+                    normalisation_status(NULL)
                 } else {
                     show_alert(paste0("The file for the selected dataset does not exist. \nPlease re-upload the dataset."), type = "error")
                     status("The file for the selected dataset does not exist. \nPlease re-upload the dataset.")
+                    df_raw(NULL)
                     df_overview(NULL)
+                    normalisation_status(NULL)
                     return()
                 }
             }else{
+                df_raw(NULL)
                 df_overview(NULL)
                 status(NULL)
+                normalisation_status(NULL)
                 return()
             }
         })
+
+    ## normalisation (Data.Class == 'A' only; control not shown for class B)
+        observeEvent(input$apply_normalisation, {
+            method <- input$normalisation_method
+            method_label <- c(none = "None", cpm = "CPM", tpm = "TPM", fpkm = "FPKM")[method]
+
+            result <- normalise_counts(df_raw(), method, gene_lengths())
+
+            if(!is.null(result$error)){
+                show_alert(result$error, type = "error")
+                normalisation_status(paste0("Error applying ", method_label, ": ", result$error))
+                return()
+            }
+
+            df_overview(result$data)
+
+            downstream_note <- "This table is now used by the Swarm plot, Genes correlation, Heatmap, and PCA tabs."
+            normalisation_status(
+                if(method == "none"){
+                    paste("No normalisation applied - the original loaded table is used.", downstream_note)
+                } else if(method %in% c("tpm", "fpkm")){
+                    if(result$dropped == 0){
+                        paste0("Applied: ", method_label, ". All ", result$total, " genes matched the gene length file - none skipped. ", downstream_note)
+                    } else {
+                        paste0("Applied: ", method_label, ". ", result$dropped, " of ", result$total,
+                               " genes were skipped (no matching entry in the gene length file) and are excluded from the normalised table. ", downstream_note)
+                    }
+                } else {
+                    paste0("Applied: ", method_label, ". ", downstream_note)
+                }
+            )
+        })
+
+        output$normalisation_status <- renderText({ normalisation_status() })
 
     ## when nothing is selected
         output$Data_noselect_message <- renderText({"Please select a dataset above"})  

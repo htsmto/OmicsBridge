@@ -42,6 +42,7 @@ dataoverviewModuleServer <- function(id) {
   # Each file defines one server function used in the moduleServer body below.
   source("modules/DataOverview/01_DataOverview_DataSelection_server.R", local = TRUE)
   source("modules/DataOverview/02_DataOverview_DataOverview_server.R",  local = TRUE)
+  source("modules/DataOverview/02_DataOverview_Normalisation_calc.R",   local = TRUE)
   source("modules/DataOverview/03_01_DataOverview_Swarm_server.R",      local = TRUE)
   source("modules/DataOverview/03_02_DataOverview_Correlation_server.R",local = TRUE)
   source("modules/DataOverview/03_03_DataOverview_heatmap_server.R",    local = TRUE)
