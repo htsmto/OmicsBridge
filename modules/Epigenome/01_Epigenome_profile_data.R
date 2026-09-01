@@ -133,6 +133,18 @@ epigenome_profile_data_server <- function(input, output, session, Dataset) {
                     tmp <- tmp[-delete_index]
                     imported_bw_data(bw_list)
                     imported_sample(tmp)
+                    # Invalidate any plot data computed while the removed sample was
+                    # still present, so a stale result isn't shown/held until the next
+                    # "Generate a plot" click.
+                    heatmap_data_list(NULL)
+                    # Force R to reclaim the now-unreferenced bigWig GRanges right away,
+                    # instead of waiting for an automatic gc() trigger. Note: this bounds
+                    # R's own (Vcells/Ncells) memory usage, but on Linux glibc's allocator
+                    # generally does not return freed heap back to the OS for small/medium
+                    # allocations -- so the process's RSS, and the sidebar's host-wide
+                    # "RAM usage" bar (ps::ps_system_memory(), see app.R), may not visibly
+                    # drop even though this object has been correctly freed.
+                    gc()
                     isCalculating_import(FALSE)
                     return()
                 })
