@@ -197,7 +197,7 @@ server <- function(input, output, session) {
                     dataoverviewModuleServer("data_overview")
                 }, error = function(e) {
                     showNotification(
-                        paste("Failed to load Data Overview module:", conditionMessage(e)),
+                        paste("Failed to load Count & Comparison Data Overview module:", conditionMessage(e)),
                         type = "error", duration = 15
                     )
                 })

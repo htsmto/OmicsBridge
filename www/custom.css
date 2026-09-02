@@ -81,6 +81,12 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: bold !important;
 }
 
+.sidebar-menu > li > a[data-value="Data_Overview"] span {
+  font-size: 14px;
+  line-height: 1.3;
+  display: inline-block;
+}
+
 .content-wrapper {
   background-color:#f1f8ff !important;
   top: 20px !important;
