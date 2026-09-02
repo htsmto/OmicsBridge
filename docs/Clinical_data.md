@@ -345,7 +345,183 @@ OmicsBridge includes a database of cancer predisposition genes sourced from [Can
 The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.
 
 ### <u>**10.1. Pre-installed cohort**</u>
-[TCGA](https://www.nature.com/articles/ng.2764) data (34 cancer types, see the table below) is available as pre-installed cohorts. This includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from [UCSC](https://xenabrowser.net/datapages/?hub=https://tcga.xenahubs.net:443) Xena, with gene expression values transformed as log2(RSEM normalised count+1).
+[TCGA](https://www.nature.com/articles/ng.2764) data (34 cancer types, see the table below) is available as a separate, optional download — a package you download from Zenodo and extract into the OmicsBridge directory yourself, rather than data bundled with the software installation. It includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from [UCSC Xena](https://xenabrowser.net), with gene expression values transformed as log2(RSEM normalised count+1).
+
+??? info  "Data source and version details"
+    Gene expression, clinical/metadata, and survival data were downloaded from the **TCGA Hub**; mutation data was downloaded separately from the **GDC Hub** — two different data hubs on UCSC Xena.
+
+    | File | Xena hub | Dataset | Version |
+    | --- | --- | --- | --- |
+    | Gene expression | TCGA Hub | `HiSeqV2` | 2017-10-13 (2017-09-08 for the 3 combined cohorts) |
+    | Clinical / metadata | TCGA Hub | `clinicalMatrix` | 2019-12-06 |
+    | Survival | TCGA Hub | `survival` | 2018-09-13 (2020-05-15 for TCGA_LUNG) |
+    | Mutation | GDC Hub | `mutect2_snv` (MuTect2 calls) | 2019-07-19 |
+
+    The mutation files originally used a 16-character sample ID format (with a trailing sample-portion letter, e.g. `TCGA-2F-A9KO-01A`), while the other three files use a 15-character format (e.g. `TCGA-2F-A9KO-01`). This trailing character was removed from the mutation files’ sample IDs so that samples can be matched across all four data types; no other value was changed.
+
+    This particular MuTect2 mutation dataset has since been marked deprecated on the GDC Xena Hub and replaced there by a newer "Ensemble Somatic Variant" pipeline output. The mutation data included here reflects the original MuTect2 release as downloaded in 2019, not the current GDC release.
+
+    ??? note  "Download commands (for full reproducibility)"
+        These are the exact commands used to assemble this dataset collection, provided so it can be independently verified, updated, or reproduced.
+
+        **Gene expression** — TCGA Hub, `HiSeqV2` dataset:
+
+        ```bash
+        wget -O TCGA_ACC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.ACC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_BLCA/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.BLCA.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_BRCA/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.BRCA.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_CESC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CESC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_CHOL/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CHOL.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_COAD/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.COAD.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_DLBC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.DLBC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_ESCA/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.ESCA.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_GBM/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.GBM.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_HNSC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.HNSC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_KICH/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KICH.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_KIRC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KIRC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_KIRP/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KIRP.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LAML/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LAML.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LGG/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LGG.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LIHC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LIHC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LUAD/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUAD.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LUSC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUSC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_MESO/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.MESO.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_PAAD/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PAAD.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_PCPG/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PCPG.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_PRAD/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PRAD.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_READ/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.READ.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_SARC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.SARC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_SKCM/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.SKCM.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_TGCT/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.TGCT.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_THCA/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.THCA.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_THYM/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.THYM.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_UCEC/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UCEC.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_UCS/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UCS.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_UVM/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UVM.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_COADREAD/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.COADREAD.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_GBMLGG/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.GBMLGG.sampleMap%2FHiSeqV2.gz
+        wget -O TCGA_LUNG/Gene_expression_RSEM.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUNG.sampleMap%2FHiSeqV2.gz
+        ```
+
+        **Clinical / metadata** — TCGA Hub, `clinicalMatrix` dataset:
+
+        ```bash
+        wget -O TCGA_ACC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.ACC.sampleMap%2FACC_clinicalMatrix
+        wget -O TCGA_BLCA/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.BLCA.sampleMap%2FBLCA_clinicalMatrix
+        wget -O TCGA_BRCA/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.BRCA.sampleMap%2FBRCA_clinicalMatrix
+        wget -O TCGA_CESC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CESC.sampleMap%2FCESC_clinicalMatrix
+        wget -O TCGA_CHOL/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CHOL.sampleMap%2FCHOL_clinicalMatrix
+        wget -O TCGA_COAD/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.COAD.sampleMap%2FCOAD_clinicalMatrix
+        wget -O TCGA_DLBC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.DLBC.sampleMap%2FDLBC_clinicalMatrix
+        wget -O TCGA_ESCA/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.ESCA.sampleMap%2FESCA_clinicalMatrix
+        wget -O TCGA_GBM/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.GBM.sampleMap%2FGBM_clinicalMatrix
+        wget -O TCGA_HNSC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.HNSC.sampleMap%2FHNSC_clinicalMatrix
+        wget -O TCGA_KICH/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KICH.sampleMap%2FKICH_clinicalMatrix
+        wget -O TCGA_KIRC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KIRC.sampleMap%2FKIRC_clinicalMatrix
+        wget -O TCGA_KIRP/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.KIRP.sampleMap%2FKIRP_clinicalMatrix
+        wget -O TCGA_LAML/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LAML.sampleMap%2FLAML_clinicalMatrix
+        wget -O TCGA_LGG/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LGG.sampleMap%2FLGG_clinicalMatrix
+        wget -O TCGA_LIHC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LIHC.sampleMap%2FLIHC_clinicalMatrix
+        wget -O TCGA_LUAD/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUAD.sampleMap%2FLUAD_clinicalMatrix
+        wget -O TCGA_LUSC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUSC.sampleMap%2FLUSC_clinicalMatrix
+        wget -O TCGA_MESO/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.MESO.sampleMap%2FMESO_clinicalMatrix
+        wget -O TCGA_PAAD/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PAAD.sampleMap%2FPAAD_clinicalMatrix
+        wget -O TCGA_PCPG/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PCPG.sampleMap%2FPCPG_clinicalMatrix
+        wget -O TCGA_PRAD/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.PRAD.sampleMap%2FPRAD_clinicalMatrix
+        wget -O TCGA_READ/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.READ.sampleMap%2FREAD_clinicalMatrix
+        wget -O TCGA_SARC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.SARC.sampleMap%2FSARC_clinicalMatrix
+        wget -O TCGA_SKCM/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.SKCM.sampleMap%2FSKCM_clinicalMatrix
+        wget -O TCGA_TGCT/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.TGCT.sampleMap%2FTGCT_clinicalMatrix
+        wget -O TCGA_THCA/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.THCA.sampleMap%2FTHCA_clinicalMatrix
+        wget -O TCGA_THYM/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.THYM.sampleMap%2FTHYM_clinicalMatrix
+        wget -O TCGA_UCEC/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UCEC.sampleMap%2FUCEC_clinicalMatrix
+        wget -O TCGA_UCS/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UCS.sampleMap%2FUCS_clinicalMatrix
+        wget -O TCGA_UVM/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.UVM.sampleMap%2FUVM_clinicalMatrix
+        wget -O TCGA_COADREAD/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.COADREAD.sampleMap%2FCOADREAD_clinicalMatrix
+        wget -O TCGA_GBMLGG/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.GBMLGG.sampleMap%2FGBMLGG_clinicalMatrix
+        wget -O TCGA_LUNG/meta.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.LUNG.sampleMap%2FLUNG_clinicalMatrix
+        ```
+
+        **Survival** — TCGA Hub, `survival` dataset:
+
+        ```bash
+        wget -O TCGA_ACC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FACC_survival.txt
+        wget -O TCGA_BLCA/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FBLCA_survival.txt
+        wget -O TCGA_BRCA/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FBRCA_survival.txt
+        wget -O TCGA_CESC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FCESC_survival.txt
+        wget -O TCGA_CHOL/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FCHOL_survival.txt
+        wget -O TCGA_COAD/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FCOAD_survival.txt
+        wget -O TCGA_DLBC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FDLBC_survival.txt
+        wget -O TCGA_ESCA/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FESCA_survival.txt
+        wget -O TCGA_GBM/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FGBM_survival.txt
+        wget -O TCGA_HNSC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FHNSC_survival.txt
+        wget -O TCGA_KICH/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FKICH_survival.txt
+        wget -O TCGA_KIRC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FKIRC_survival.txt
+        wget -O TCGA_KIRP/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FKIRP_survival.txt
+        wget -O TCGA_LAML/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLAML_survival.txt
+        wget -O TCGA_LGG/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLGG_survival.txt
+        wget -O TCGA_LIHC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLIHC_survival.txt
+        wget -O TCGA_LUAD/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLUAD_survival.txt
+        wget -O TCGA_LUSC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLUSC_survival.txt
+        wget -O TCGA_MESO/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FMESO_survival.txt
+        wget -O TCGA_PAAD/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FPAAD_survival.txt
+        wget -O TCGA_PCPG/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FPCPG_survival.txt
+        wget -O TCGA_PRAD/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FPRAD_survival.txt
+        wget -O TCGA_READ/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FREAD_survival.txt
+        wget -O TCGA_SARC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FSARC_survival.txt
+        wget -O TCGA_SKCM/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FSKCM_survival.txt
+        wget -O TCGA_TGCT/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FTGCT_survival.txt
+        wget -O TCGA_THCA/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FTHCA_survival.txt
+        wget -O TCGA_THYM/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FTHYM_survival.txt
+        wget -O TCGA_UCEC/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FUCEC_survival.txt
+        wget -O TCGA_UCS/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FUCS_survival.txt
+        wget -O TCGA_UVM/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FUVM_survival.txt
+        wget -O TCGA_COADREAD/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FCOADREAD_survival.txt
+        wget -O TCGA_GBMLGG/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FGBMLGG_survival.txt
+        wget -O TCGA_LUNG/survival.tsv https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/survival%2FLUNG_survival.txt
+        ```
+
+        **Mutation** — GDC Hub, `mutect2_snv` dataset (MuTect2 calls; not available for the 3 combined cohorts):
+
+        ```bash
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-ACC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-BLCA.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-BRCA.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-CESC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-CHOL.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-COAD.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-DLBC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-ESCA.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-GBM.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-HNSC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-KICH.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-KIRC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-KIRP.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-LAML.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-LGG.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-LIHC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-LUAD.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-LUSC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-MESO.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-PAAD.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-PCPG.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-PRAD.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-READ.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-SARC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-SKCM.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-TGCT.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-THCA.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-THYM.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-UCEC.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-UCS.mutect2_snv.tsv.gz
+        wget https://gdc-hub.s3.us-east-1.amazonaws.com/download/TCGA-UVM.mutect2_snv.tsv.gz
+        ```
+
+        **Sample ID reformatting** applied to `mutations.tsv` in 29 of the 31 cohorts (`TCGA_ACC` and `TCGA_LUAD` already used the matching 15-character format and were left unchanged) — the last character of every value in the `sample` column was removed:
+
+        ```bash
+        awk -F'\t' -v OFS='\t' 'NR==1{print; next} {$1=substr($1,1,length($1)-1); print}' mutations.tsv > mutations_tmp.tsv && mv mutations_tmp.tsv mutations.tsv
+        ```
 
 ??? info  "TCGA abbreviation"
     | Abbreviation | Cancer type |

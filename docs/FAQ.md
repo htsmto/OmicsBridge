@@ -50,3 +50,10 @@
 
 ??? note "I just uploaded or edited a dataset, but it's not showing up in a dropdown — why?"
     Dataset dropdowns are loaded once when a section is first opened and don't refresh automatically. Nearly every section that lists datasets has a "Reload your datasets list" (or similarly named) button next to the dropdown — click it to refresh the list with anything uploaded or edited since the page was loaded.
+
+??? warning "I downloaded the TCGA clinical dataset before 2026-09-02, and mutation analysis isn't finding any mutations when I filter by a category — why?"
+    Datasets downloaded from an earlier version of the TCGA data package (before it was corrected) have a sample ID format mismatch: `mutations.tsv` used a different TCGA barcode format (with an extra trailing character) than `meta.tsv`, `survival.tsv`, and the gene expression file for the same cohort.
+
+    In practice, this only causes a problem in the **Mutation analysis** section of Clinical Data Analysis, and only when using the **"Use the selected samples by a specific category"** sample-filtering option — that filter matches mutation samples against the cohort's metadata table, and with the old format the two never match, silently returning zero patients/mutations rather than an error. Mutation analysis using "Use all samples" (the default) is not affected, since it doesn't need to match sample IDs across files.
+
+    **Fix**: download the current version of the TCGA dataset package from Zenodo and replace your cohort folder(s). See the Clinical Data Analysis page, **10.1. Pre-installed cohort** section, for full details on this fix and how the data was prepared.
