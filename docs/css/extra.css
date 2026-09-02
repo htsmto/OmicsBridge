@@ -1,0 +1,72 @@
+/* =============================================================================
+   OmicsBridge wiki - extra styling
+   File: docs/css/extra.css
+   Purpose: Small visual tweaks on top of the default mkdocs-material theme.
+   Wired in via `extra_css` in mkdocs.yml.
+   ============================================================================= */
+
+/* --- Tabbed content blocks (pymdownx.tabbed) ---------------------------------
+   By default, Material's tab groups only have a thin 1px border, which can
+   read as "just some buttons" rather than a distinct enclosed box. This makes
+   the whole tab group clearly read as one unit: a visible border, rounded
+   corners, and a faint background tint behind the tab content. Uses Material's
+   theme-aware CSS variables so it still looks right in dark mode. */
+.tabbed-set {
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 8px;
+  margin: 1.25em 0;
+  overflow: hidden;
+}
+
+.tabbed-set > .tabbed-labels {
+  background-color: #1c54b2; /* blue header strip for the tab labels */
+  border-bottom: 1px solid #14408a;
+}
+
+/* Force every tab label - active or inactive, hover or not - to stay white
+   against the blue strip. !important overrides Material's own default label
+   colour, which otherwise wins regardless of selector position since it's
+   part of the compiled theme stylesheet. */
+.tabbed-set > .tabbed-labels > label,
+.tabbed-set > .tabbed-labels > label:hover,
+.tabbed-set > .tabbed-labels > label:focus {
+  color: #ffffff !important;
+  opacity: 0.75;
+}
+
+/* Active tab: a solid white background "pill" behind just that label, with
+   the label text switching to the same blue as the strip - a much clearer
+   signal than a colour/underline change alone. Pairs each <input>'s position
+   with its <label>'s position (the inputs come before .tabbed-labels in the
+   DOM, so ":checked + label" doesn't work - this sibling-combinator + nth-
+   child pairing is the standard workaround). Covers up to 8 tabs, well
+   beyond the 4 needed for Database's A-D. !important guards against
+   Material's own active-tab rule winning the cascade, as happened before. */
+.tabbed-set > input:nth-child(1):checked ~ .tabbed-labels > label:nth-child(1),
+.tabbed-set > input:nth-child(2):checked ~ .tabbed-labels > label:nth-child(2),
+.tabbed-set > input:nth-child(3):checked ~ .tabbed-labels > label:nth-child(3),
+.tabbed-set > input:nth-child(4):checked ~ .tabbed-labels > label:nth-child(4),
+.tabbed-set > input:nth-child(5):checked ~ .tabbed-labels > label:nth-child(5),
+.tabbed-set > input:nth-child(6):checked ~ .tabbed-labels > label:nth-child(6),
+.tabbed-set > input:nth-child(7):checked ~ .tabbed-labels > label:nth-child(7),
+.tabbed-set > input:nth-child(8):checked ~ .tabbed-labels > label:nth-child(8) {
+  background-color: #ffffff !important;
+  color: #1c54b2 !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  border-radius: 6px 6px 0 0;
+}
+
+.tabbed-set > .tabbed-content {
+  padding: 1em 1.2em;
+  background-color: var(--md-default-bg-color);
+}
+
+/* --- Markdown tables -----------------------------------------------------
+   Applies site-wide, to every table (e.g. the field tables in Database.md),
+   so tables and tabs read as one consistent design system rather than
+   different colours in different places. */
+.md-typeset table:not([class]) thead th {
+  background-color: #1c54b2;
+  color: #ffffff !important;
+}

@@ -42,6 +42,7 @@ the final file structure should be:
 ├── modules                 # modularised server and UI code
 │   ├── Clinical/
 │   ├── DataOverview/
+│   ├── Database/
 │   ├── DatasetsCompare/
 │   ├── Epigenome/
 │   ├── IntegrateTwoDataset/
@@ -83,16 +84,19 @@ This installs all required CRAN, Bioconductor, and GitHub packages automatically
 #### Alternative: Manual Installation
 
 ```R
+## Bootstrap packages (needed to install everything else)
+install.packages(c('BiocManager', 'remotes'))
+BiocManager::install() # Make sure to install >3.20
+
 ## CRAN dependent packages
-install.packages(c('Rcpp', 'shiny','shinydashboard','eulerr','ggplot2', 'ggbeeswarm','patchwork','igraph','tidyr','dplyr','DT','ggrepel','tibble','forcats', 'colourpicker', 'devtools','stringr', 'Cairo', 'Seurat', 'reshape2', 'cowplot', 'survival', 'survminer',"BiocManager", 'visNetwork', 'ggraph', "shinyWidgets", "shinycssloaders", 'ggseqlogo', 'circlize', 'ggupset'))
+install.packages(c('shiny', 'shinyjs', 'shinydashboard', 'shinyWidgets', 'shinycssloaders', 'DT', 'dplyr', 'tidyr', 'reshape2', 'stringr', 'ggplot2', 'ggbeeswarm', 'patchwork', 'ggrepel', 'ggraph', 'eulerr', 'visNetwork', 'igraph', 'circlize', 'cowplot', 'colourpicker', 'ggseqlogo', 'survival', 'survminer', 'Rtsne', 'umap'))
 
 ## BiocManager dependent packages
-BiocManager::install() # Make sure to install >3.20
-BiocManager::install(c("GSEABase",'GSVA','fgsea',"clusterProfiler","org.Hs.eg.db","org.Mm.eg.db","decoupleR","igvShiny","GenomicAlignments", "AUCell", 'Gviz', 'PWMEnrich', 'seqLogo', 'PWMEnrich.Hsapiens.background', 'BSgenome.Hsapiens.UCSC.hg38', 'BSgenome.Hsapiens.UCSC.hg19', 'EnrichedHeatmap', 'rtracklayer', 'ChIPseeker'))
+BiocManager::install(c('GSEABase', 'clusterProfiler', 'org.Hs.eg.db', 'org.Mm.eg.db', 'fgsea', 'GSVA', 'decoupleR', 'GenomicRanges', 'GenomicFeatures', 'ChIPseeker', 'AnnotationDbi', 'rtracklayer', 'EnrichedHeatmap', 'Gviz', 'igvShiny', 'BSgenome.Hsapiens.UCSC.hg38', 'BSgenome.Hsapiens.UCSC.hg19', 'PWMEnrich', 'PWMEnrich.Hsapiens.background', 'AUCell', 'Seurat'))
 
-## Other packages
-devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
-devtools::install_github('dviraran/xCell')
+## GitHub-only packages
+remotes::install_github('ebecht/MCPcounter', ref = 'master', subdir = 'Source')
+remotes::install_github('dviraran/xCell')
 ```
 
 ## <u>**Launching the App**</u>

@@ -1,6 +1,7 @@
 # scRNA dataset
-Here, users can visualise the registered scRNAseq dataset and investigate their genes of interest in it. 
+Here, users can visualise the registered scRNAseq dataset and investigate their genes of interest in it.
 
+---
 
 ## <u> **0. Pre-processing** </u>
 The interface accepts an RDS file as input for the scRNA section. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.
@@ -31,17 +32,21 @@ The interface accepts an RDS file as input for the scRNA section. The scRNA data
     Seurat_obj@reductions$pca <- NULL  # if only using UMAP
     ```
 
+---
+
 ## <u> **1. Data overview** </u>
 
 This section provides a simple UMAP overview of your data.
 
-1. Select the dataset. The details will appear on the right.
+1. Select the dataset from the drop-down menu. The dataset's details (Data from, Experiment, When, Description) appear on the right.
+
+    Click "Reload your datasets list" (next to the dropdown) to refresh with any datasets uploaded or edited since the page was loaded.
+
 2. By default, the plot is coloured according to the clusters defined by Seurat.
     - You can change the colouring option by selecting from a drop-down menu.
     - The available categories depend on the metadata in the dataset (stored in Seurat_object@meta.data).
 3. To highlight a specific group, toggle on "Highlight a specific group".
     - A drop-down menu will appear for selecting a group.
-    - You can customise the colours
 
 ??? success  "Adjustable graph parameters"
     - The size (width and height) of the figure.
@@ -53,104 +58,110 @@ This section provides a simple UMAP overview of your data.
     <source src="../videos/scRNA_1_annot_light.mp4" type="video/mp4"> 
     </video>
 
+---
 
-## <u> **2. Feature Plots** </u>
+## <u> **2. Feature plots** </u>
 
-### <u> **2.1. Gene feature plot** </u>
-1. Enter your genes of interest (one per line). They will appear as a selectable table below.
-2. Click on a gene in the table to generate a feature plot. Cells not expressing the selected gene appear in black as background, while cells expressing the gene (UMI > 0) are highlighted with a gradient colour scheme (default: white to red).
- 
-??? success  "Adjustable graph parameters"
-    - Figure size (width and height)
-    - Font size for X/Y axes, labels, graph title, and legend
-    - Dot size
-    - Colours for highest/lowest expression and background
-    - Option to use a white background
+This section lets you investigate genes of interest across the cells in your UMAP plot, in several plot formats.
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/scRNA_2_annot_light.mp4" type="video/mp4"> 
-    </video>
+Enter your genes of interest (one per line) in the "Inputs and Settings" box, or toggle "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead. The genes will appear as a selectable table below the input box, shared across all the tabs described below.
 
-### <u> **2.2. Gene Signature feature plot** </u>
-The interface can also calculate gene set signature scores (AUC scores) and generate a feature plot for visualisation.
+=== "**Feature Plot (UMAP)**"
+    Click on a gene in the table to generate a feature plot. Cells not expressing the selected gene appear in a background colour, while cells expressing the gene (UMI > 0) are highlighted with a gradient colour scheme (default: white to red).
 
-AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enrichment of gene sets within single cells. They are calculated by ranking gene expression values in each cell and assessing how well a given gene set is enriched among highly expressed genes. AUC scores help infer pathway activity or transcription factor activity across cells, revealing functional differences between cell populations.
+    ??? success  "Adjustable graph parameters"
+        - Figure size (width and height)
+        - X/Y label font size, X/Y title font size, graph title font size, and legend font size
+        - Dot size (expressing cells) and dot size (background/non-expressing cells)
+        - Colour for the highest expression, colour for the lowest expression, and colour for zero expression (background)
+        - Option to use a white background
 
-1. Enter your genes of interest (one per line) or choose from the custom gene sets.
-2. Click the start button to calculate the AUC score for each single cell. This process takes a few minutes.
-3. A feature plot will automatically appear on the right.
-4. In the 'Violin plot' tab, you can view a violin plot comparing scores across user-specified groups. Select the desired group from the drop-down menu at the top.
+    ??? example  "Example Usage video"
+        <video width="1000" controls>
+        <source src="../videos/scRNA_2_annot_light.mp4" type="video/mp4"> 
+        </video>
 
-??? success  "Adjustable graph parameters"
-    - Figure size (width and height)
-    - Font size for X/Y axes, labels, graph title, and legend
-    - Dot size
-    - Colours for highest/lowest expression and background
-    - Option to use a white background
+=== "**Violin Plot**"
+    1. Choose a "Group by" categorical variable from the drop-down menu.
+    2. Click a gene from the gene list table to generate a violin plot of its expression across the chosen groups.
+    3. To view specific groups only, toggle "Select the groups to show" below the plot.
+        - A list of all group names will appear.
+        - Only the selected groups will be displayed in the plot.
 
-    For the violin plot:
+    ??? success  "Adjustable graph parameters"
+        - The size (width and height) of the figure
+        - X label size, Y label size, X/Y title size, and legend font size
+        - Min/max Y-axis display range
+        - Option to use a white background
+        - Option to rotate X-axis labels
+        - "Hide jitter plots" switch (jitter points, showing individual cells, are hidden by default)
 
-    - Option to rotate the X-axis labels
-    - Option to hide the jitter plots
+    ??? example  "Example Usage video"
+        <video width="1000" controls>
+        <source src="../videos/scRNA_5_annot_light.mp4" type="video/mp4"> 
+        </video>
 
+=== "**Dot Plot**"
+    1. Choose a "Group by" categorical variable from the drop-down menu.
+    2. By default, click a gene from the gene list table to plot just that gene. Alternatively, toggle "Show all the input genes?" to plot every entered gene together in one dot plot, in the order they were entered (this may take longer with many genes).
+    3. To view specific groups only, toggle "Select the groups to show" below the plot.
+        - A list of all group names will appear.
+        - Only the selected groups will be displayed in the plot.
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
-    </video>
+    ??? success  "Adjustable graph parameters"
+        - The size (width and height) of the figure
+        - X label size, Y label size, Y title size, and legend font size
+        - Dot scale
+        - Colour for high expression and colour for low expression
 
-## <u> **3. Other plots** </u>
-### <u> **3.1. Dot plot** </u>
+    ??? example  "Example Usage video"
+        <video width="1000" controls>
+        <source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
+        </video>
 
-1. Enter gene names one per line or select a custom gene set.
-2. Choose which subgroup you want to use. The dot plot will display gene expression across these selected subgroups.
-3. Click the start button. The dot plot will appear on the right panel.
+=== "**Pie chart**"
+    Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.
 
-??? success  "Adjustable graph parameters"
-    - The size (width and height) of the figure
-    - The size of the X/Y axis labels, graph title, and legend font
-    - The scale of each dot
-    - The colour of the highest/lowest expression.
+    1. Choose a "Group by" categorical variable from the drop-down menu.
+    2. Click a gene from the gene list table. The pie chart will show the proportions of expressing and non-expressing cells across groups in the selected category, with labels indicating the cell count and percentage in each group.
+    3. To view specific groups only, toggle "Select the groups to show" below the plot.
+        - A list of all group names will appear.
+        - Only the selected groups will be displayed as pie charts.
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
-    </video>
+    ??? success  "Adjustable graph parameters"
+        - The size (width and height) of the figure
+        - The size of the label, group names, and legend
+        - The colour for the expressing and non-expressing segments in the pie chart
+        - Option to hide the labels/legend
 
-### <u> **3.2. Violin plot** </u>
-1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.
-2. Choose which subgroup you want to use. The violin plot displays gene expression across these selected subgroups.
-3. Click a gene from the gene list table. The violin plot will appear on the right.
-4. To view specific groups only, toggle the 'Select the groups to show' switch located below the plot.
-    - A list of all group names will appear.
-    - Only the selected groups will be displayed in the plot.
+    ??? example  "Example Usage video"
+        <video width="1000" controls>
+        <source src="../videos/scRNA_6_annot_light.mp4" type="video/mp4"> 
+        </video>
 
-??? success  "Adjustable graph parameters"
-    - The size (width and height) of the figure
-    - The size of the X/Y axis labels, graph title, and legend font
-    - Option to use a white background
-    - Option to rotate X-axis labels
+=== "**Gene Set Signature (AUC score) Feature Plot**"
+    The interface can also calculate gene set signature scores (AUC scores) for the genes entered above and generate a feature plot for visualisation.
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/scRNA_5_annot_light.mp4" type="video/mp4"> 
-    </video>
+    AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enrichment of gene sets within single cells. They are calculated using the AUCell method, which ranks gene expression values in each cell and assesses how well a given gene set is enriched among highly expressed genes. AUC scores help infer pathway activity or transcription factor activity across cells, revealing functional differences between cell populations.
 
-### <u> **3.3. Pie chart** </u>
-Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.
+    1. With your genes of interest entered above, click "Calculate the signature score" to run AUCell for each single cell. This takes 1-3 minutes depending on the number of genes and the size of the dataset.
+    2. Once complete, a feature plot appears automatically, showing every cell's signature score on the UMAP.
+    3. **Violin plot**: select the desired "Group by" variable from the drop-down menu to compare signature scores across groups. To view specific groups only, toggle "Select the groups to show" below this plot in the same way as the other violin plot.
 
-1. Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.
-2. Choose which subgroup you want to use for visualisation. The dot plot will display gene expression across these selected subgroups.
-3. Click a gene from the gene list table. The pie chart will show the proportions of expressing and non-expressing cells across groups in the selected category, with labels indicating the cell count in each group.
+    ??? success  "Adjustable graph parameters"
+        - Figure size (width and height)
+        - X/Y label font size, X/Y title font size, and legend font size
+        - Dot size (foreground) and dot size (background), for the feature plot
+        - Colour for the highest expression, colour for the lowest expression, and colour for zero expression (background), for the feature plot
+        - Option to use a white background
 
-??? success  "Adjustable graph parameters"
-    - The size (width and height) of the figure
-    - the size of the label, group names, and legend
-    - The colour for the expressing and non-expressing segments in the pie chart
-    - Option to hide the labels/legend
+        For the violin plot:
 
-??? example  "Example Usage video"
-    <video width="1000" controls>
-    <source src="../videos/scRNA_6_annot_light.mp4" type="video/mp4"> 
-    </video>
+        - Min/max Y-axis display range
+        - Option to rotate X-axis labels
+        - "Hide jitter plots" switch (jitter points are hidden by default)
+
+    ??? example  "Example Usage video"
+        <video width="1000" controls>
+        <source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
+        </video>

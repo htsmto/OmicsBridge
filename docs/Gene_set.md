@@ -1,6 +1,8 @@
 
 # **Custom Gene Sets**
-In this section, users can create and save their own gene sets. Later, in the “Data Overview”, they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. 
+In this section, users can create and save their own gene sets. Later, in the "Count & Comparison Data Overview", they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. 
+
+---
 
 ## <u> **1. Adding and editing the gene set** </u>
 
@@ -9,7 +11,7 @@ Users can add new gene sets in the "Add a Gene Set" section. Please note that us
 
 | **Field** | **Description**  |
 |----|----|
-| **Geneset name***  | Name of the custom gene set. Later on, the user will use this name to select the gene set.|
+| **Geneset name***  | Name of the custom gene set. Later on, the user will use this name to select the gene set. <span style="color: red;">Must be unique</span> — duplicate geneset names are not allowed.|
 | **Genes***  | The genes that you want to use in the custom gene set. Each gene should be written line by line. Currently, listing gene symbols is recommended.|
 | **Cell line/Cell type**| *(Optional)* From which cells is the gene set defined?  |
 | **Data source**        | *(Optional)* From which resource/experiment is the gene set coming? |
@@ -23,4 +25,10 @@ Click "Add the geneset to the list", and the user can see the newly added gene s
     </video>
 
 ### <u> **1.2. Editing a gene set** </u>
-The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking. After making an edit, the changes will appear below the table. The edit is saved when you click "Save changes" and see the confirmation message "saved!" You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking "Delete selected data" removes all selected rows from the database.
+The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking (the geneset name in the first column cannot be edited). After making an edit, the change will be manifested below the table.
+
+Clicking **"Save changes"** opens a confirmation dialog ("Are you sure you want to save the changes? This action cannot be undone.") — confirming writes the edits to the database file.
+
+You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking **"Delete selected data"** opens a confirmation dialog listing exactly which gene set(s) will be removed — confirming permanently deletes those rows.
+
+Click **"Reload data"** to refresh the table with the latest data from the underlying database file (useful if another user has added or edited a gene set in the meantime).

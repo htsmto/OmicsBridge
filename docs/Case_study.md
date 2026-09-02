@@ -2,6 +2,8 @@
 
 This section demonstrates the use of OmicsBridge with multiple omics datasets.
 
+---
+
 ## <u>**Case Study 1**</u>: <br>Exploring Screening Data and Narrowing Down Candidate Genes from a Clinical Perspective
 
 CXCL10 is a chemokine that facilitates T-cell migration to the tumour microenvironment. We conducted a FACS-assisted loss-of-function CRISPR screening to identify CXCL10 regulators in a myeloid cell line, U937. We introduced a CRISPR gRNA library (Brunello library, Addgene) into cells via lentiviral transduction and cultured them with IFNγ and TNFα to induce CXCL10 expression. After trapping the chemokine within cells using brefeldin A treatment, we measured CXCL10 production levels using flow cytometry. We then sorted CXCL10-high and -low cell populations using FACS and analysed the enriched barcoded gRNAs in each population.
@@ -50,6 +52,8 @@ We further investigated STK11 expression patterns at single-cell resolution usin
     <source src="../videos/Supplemental_video_1d.mp4" type="video/mp4"> 
     </video>
 
+---
+
 ## <u>**Case Study 2**</u>: <br>Transcriptomic Analysis of STK11 Knockout in Myeloid Cell Lines
 
 To elucidate the molecular mechanism underlying STK11-mediated regulation of CXCL10 expression, we performed RNA-seq analysis on U937 and THP1 myeloid cell lines with CRISPR/Cas9-mediated STK11 knockout, both in the presence and absence of cytokine stimulation. OmicsBridge facilitates comprehensive visualisation and analysis of the transcriptomic data, enabling intuitive interpretation of complex datasets. The platform's integrated analytical framework allowed for robust differential expression analysis, pathway enrichment, and cross-dataset comparisons. We leveraged these capabilities to systematically examine the transcriptional consequences of STK11 deficiency on cytokine signalling networks across both cellular models.
@@ -93,6 +97,8 @@ To systematically evaluate the transcriptional impact of STK11 deletion, we perf
     <source src="../videos/Supplemental_video_2d.mp4" type="video/mp4"> 
     </video>
 
+
+---
 
 ## <u>**Case Study 3**</u>: <br>Epigenomic Analysis of Chromatin Accessibility Dynamics in Response to Cytokine Stimulation
 

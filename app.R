@@ -190,8 +190,8 @@ server <- function(input, output, session) {
         loaded[[tab]] <- TRUE
 
         if (tab == "Data_Overview") {
-            # Transcriptome analysis: loads clusterProfiler, fgsea, GSVA, etc.
-            withProgress(message = "Loading transcriptome analysis tools...", value = 0.5, {
+            # Count & Comparison Data Overview: loads clusterProfiler, fgsea, GSVA, etc.
+            withProgress(message = "Loading Count & Comparison Data Overview tools...", value = 0.5, {
                 tryCatch({
                     source("libraries/libraries_DataOverview.R")
                     dataoverviewModuleServer("data_overview")

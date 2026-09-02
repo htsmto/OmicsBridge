@@ -59,6 +59,7 @@ cran_pkgs <- c(
   "dplyr",            # Data manipulation verbs (filter, mutate, select, etc.)
   "tidyr",            # Data reshaping (pivot_wider, pivot_longer, etc.)
   "reshape2",         # Legacy melt/dcast used in clinical correlation plots
+  "stringr",          # String manipulation utilities (DataOverview GO plot tab)
 
   # --- General plotting ---
   "ggplot2",          # Core plotting library (used throughout)
@@ -72,6 +73,9 @@ cran_pkgs <- c(
   "circlize",         # Circular plots; also used by EnrichedHeatmap
   "cowplot",          # Plot composition helpers (used in scRNA panels)
   "colourpicker",     # Inline colour picker widget (Epigenome UI)
+
+  # --- Motif visualisation ---
+  "ggseqlogo",        # Sequence logo plots (Epigenome motif scan tab)
 
   # --- Survival analysis ---
   "survival",         # Core survival objects (Surv, survfit, coxph)
@@ -101,6 +105,9 @@ bioc_pkgs <- c(
   "org.Mm.eg.db",     # Mouse gene ID mapping database
   "fgsea",            # Fast pre-ranked GSEA
   "GSVA",             # Gene Set Variation Analysis (ssGSEA, GSVA scoring)
+
+  # --- Transcription factor activity ---
+  "decoupleR",        # TF activity inference (DataOverview TF tab)
 
   # --- Genomics (Tools and Epigenome) ---
   "GenomicRanges",    # GRanges objects for interval arithmetic
