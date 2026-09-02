@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -272,48 +274,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Available data types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-count-data-expression-matrix-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      A. Count Data / Expression Matrix Data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-comparison-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      B. Comparison Data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-scrnaseq-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      C. scRNAseq data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-epigenome-data-bed-bigwig-and-bam-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      D. Epigenome data (bed, bigwig and bam file):
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -369,6 +329,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#30-browsing-and-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.0 Browsing and filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#31-editing-the-database" class="md-nav__link">
     <span class="md-ellipsis">
       3.1 Editing the database
@@ -411,7 +380,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -652,48 +621,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Available data types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-count-data-expression-matrix-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      A. Count Data / Expression Matrix Data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-comparison-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      B. Comparison Data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-scrnaseq-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      C. scRNAseq data:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-epigenome-data-bed-bigwig-and-bam-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      D. Epigenome data (bed, bigwig and bam file):
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -749,6 +676,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#30-browsing-and-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.0 Browsing and filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#31-editing-the-database" class="md-nav__link">
     <span class="md-ellipsis">
       3.1 Editing the database
@@ -789,12 +725,18 @@
 
 <h1 id="database-and-data-upload"><strong>Database and Data Upload</strong></h1>
 <p>This section allows users to browse all datasets registered within the interface (i.e., custom database). Additionally, users can upload new datasets and modify information regarding existing datasets.</p>
+<hr />
 <h2 id="1-available-data-types"><u> <strong>1. Available data types</strong> </u></h2>
 <p>The interface accommodates four distinct types of data and specifies the required formatting for each.</p>
-<h3 id="a-count-data-expression-matrix-data"><strong>A. Count Data / Expression Matrix Data</strong>:</h3>
-<p>The read count tables derived from RNA sequencing, proteomics, and various other sources, whether normalised or non-normalised, are considered. It is essential to note that while non-normalised data is permissible, the interface does not offer functionality for data normalisation. Ensure that the data adheres to the following criteria:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><strong>A. Count Data / Expression Matrix Data</strong></label><label for="__tabbed_1_2"><strong>B. Comparison Data</strong></label><label for="__tabbed_1_3"><strong>C. scRNAseq data</strong></label><label for="__tabbed_1_4"><strong>D. Epigenome data (bed, bigwig and bam file)</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The read count tables derived from RNA sequencing, proteomics, and various other sources, whether normalised or non-normalised, are considered. Non-normalised (raw count) data is also accepted. </p>
+<p>For RNA-seq count data specifically, the Data Overview module's Data Table tab offers on-the-fly normalisation to <span style="color: red;">CPM</span>, <span style="color: red;">TPM</span>, or <span style="color: red;">FPKM</span> without leaving the interface — TPM and FPKM require matching each gene to a reference gene length (currently based on human gene symbols), while CPM does not. </p>
+<p>These normalisation options are designed for RNA-seq data; for count data from other omics layers (e.g., proteomics, CRISPR screening), the interface does not offer normalisation, so pre-normalised data is recommended. </p>
+<p>Ensure that the data adheres to the following criteria:</p>
 <ul>
-<li>The table must be in <span style="color: red;"> tab-delimited </span> format (either tsv or .txt file), featuring gene names in the index and sample names in the columns.</li>
+<li>The table must be in <span style="color: red;">tab-delimited or comma-delimited</span> format (.tsv, .txt, or .csv file), featuring gene names in the index and sample names in the columns.</li>
 <li>The header name (column name) containing gene names <span style="color: red;">should be designated as "id" </span>.</li>
 <li>The samples must be named using the format <span style="color: red;">$(Group.Name)_RepX</span> or <span style="color: red;">${Group.Name}_repX</span>, such as THP1_STK11KO_Rep1, THP1_STK11KO_Rep2, THP1_WT_Rep1, etc.</li>
 </ul>
@@ -802,37 +744,50 @@
 <summary>Example</summary>
 <p><img alt="Example" src="../img/1_expression_table.png" /></p>
 </details>
-<h3 id="b-comparison-data"><strong>B. Comparison Data</strong>:</h3>
-<p>Any dataset containing log fold changes and statistical scores, including differentially expressed gene results from RNA sequencing and outcomes of CRISPR screening, among others, suitable for generating a volcano plot, may be input into OmicsBridge. It is imperative that the data complies with the following criteria:</p>
+</div>
+<div class="tabbed-block">
+<p>Any dataset containing log fold changes and statistical scores, including differentially expressed gene results from RNA sequencing and outcomes of CRISPR screening, among others, suitable for generating a volcano plot, may be input into OmicsBridge. </p>
+<p>It is imperative that the data complies with the following criteria:</p>
 <ul>
-<li>The table must be formatted as <span style="color: red;">tab-delimited</span> (either tsv or .txt file) and must include headers, featuring gene names in the index.</li>
+<li>The table must be formatted as <span style="color: red;">tab-delimited or comma-delimited</span> (.tsv, .txt, or .csv file) and must include headers, featuring gene names in the index.</li>
 <li>The header name (column name) that encompasses gene names <span style="color: red;">should be designated as "id"</span>.</li>
 </ul>
 <details class="tip">
 <summary>Example</summary>
 <p><img alt="Example" src="../img/1_log_table.png" /></p>
 </details>
-<h3 id="c-scrnaseq-data"><strong>C. scRNAseq data</strong>:</h3>
-<p>scRNA data properly processed by Seurat and saved as an RDS file can be input to the interface. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type.</p>
+</div>
+<div class="tabbed-block">
+<p>scRNA data properly <span style="color: red;">processed by Seurat and saved as an RDS file</span> can be input to the interface. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). </p>
+<p>Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type.</p>
 <details class="note">
 <summary>Seurat object preprocess</summary>
 <p>The Seurat object must be loaded from an RDS file. Ensure that <code>Reductions(Seurat_object)</code> returns "umap". While the metadata (Seurat_object@meta.data) is flexible, your data should ideally include "seurat_clusters" and "Annotation" fields for optimal functionality.
 <img alt="Example" src="../img/1_Seurat.png" /></p>
 </details>
-<h3 id="d-epigenome-data-bed-bigwig-and-bam-file"><strong>D. Epigenome data (bed, bigwig and bam file)</strong>:</h3>
-<p>Bed, bigwig and bam files from ATACseq, ChIPseq, and similar analyses can be viewed in the "Epigenome Visualisation" section. <br></p>
+</div>
+<div class="tabbed-block">
+<p><span style="color: red;">Bed</span>, <span style="color: red;">bigwig</span> and <span style="color: red;">bam</span> files from ATACseq, ChIPseq, and similar analyses can be viewed in the "Epigenome Visualisation" section. <br></p>
+<blockquote>
+<p>Note: In the upload form's "Data Class" dropdown, this data type is further split into three separate options — <strong>D: bed/narrowPeak</strong>, <strong>E: bigwig</strong>, and <strong>F: bam (+ bai)</strong> — since each requires a different file input.</p>
+</blockquote>
 <ul>
-<li>Bed files must not contain headers and must be tab-delimited. They should include at least five columns: chromosome name, start and end positions, feature name/identifier, and score (ranging from 0 to 1000). Any columns beyond the sixth will be ignored. Please refer to the example bed file below.</li>
+<li>Bed files <span style="color: red;">must not contain headers</span> and must be tab-delimited. They should include at least five columns: chromosome name, start and end positions, feature name/identifier, and score (ranging from 0 to 1000). Any columns beyond the sixth will be ignored. Please refer to the example bed file below.</li>
 <li>For bam files, you must also provide the corresponding index file (bai file). When you select bam as a Data Class, an upload option will appear. If the bai file doesn't match the bam file, you'll receive an error message.<br></li>
 </ul>
 <details class="tip">
 <summary>Example(bed file)</summary>
 <p><img alt="Example" src="../img/1_bed.png" /></p>
 </details>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="2-how-to-upload-a-new-dataset"><u> <strong>2. How to upload a new dataset</strong> </u></h2>
 <p>Users can upload new datasets in the 'Data upload' section by following these steps.</p>
 <h3 id="21-upload-a-file"><strong>2.1. Upload a file</strong>.</h3>
-<p>A file can be selected or dragged and dropped into the file upload section. Make sure the file format and data format meet the requirements described above. The maximum data size to upload is 1 GB.</p>
+<p>A file can be selected or dragged and dropped into the file upload section. Make sure the file format and data format meet the requirements described above. </p>
+<p>The maximum data size configured for upload is 10 GB, but in practice the largest file you can upload successfully depends on your own computer's available memory, disk space, and network connection — very large files (e.g. BAM) may fail well below that limit on lower-resource systems.</p>
 <h3 id="22-complete-the-dataset-information"><strong>2.2. Complete the dataset information</strong>.</h3>
 <p><span style="color: red;">Do not use line breaks</span> in any text boxes, as the database will only keep the first line. Fields marked with an asterisk (*) are required. Also, avoid using special characters (such as /,!,?, etc.).</p>
 <table>
@@ -849,11 +804,11 @@
 </tr>
 <tr>
 <td><strong>Experiment Name</strong>*</td>
-<td>Refers to the name of the experiment to which the dataset is associated. This information aids in filtering the dataset for selection in the Database or Data Overview section.</td>
+<td>Refers to the name of the experiment to which the dataset is associated. This information aids in filtering the dataset for selection in the Database or Count &amp; Comparison Data Overview section.</td>
 </tr>
 <tr>
-<td><strong>Data Source</strong>*</td>
-<td>Indicates the origin or creator of the dataset.</td>
+<td><strong>Data from</strong>*</td>
+<td>Indicates the origin or creator of the dataset (e.g., "Public data", "Student A").</td>
 </tr>
 <tr>
 <td><strong>Data Type</strong>*</td>
@@ -862,6 +817,14 @@
 <tr>
 <td><strong>Data Class</strong>*</td>
 <td>Select the appropriate classification for the dataset.</td>
+</tr>
+<tr>
+<td><strong>Control group name</strong> (Optional, Data Class B only)</td>
+<td>The name of the control/reference group used in the comparison (e.g., "Untreated", "WT"). Only shown when Data Class = B (Comparison data).</td>
+</tr>
+<tr>
+<td><strong>Treatment group name</strong> (Optional, Data Class B only)</td>
+<td>The name of the treatment/experimental group used in the comparison (e.g., "Treated", "KO"). Only shown when Data Class = B (Comparison data).</td>
 </tr>
 <tr>
 <td><strong>Cell Line</strong> (Optional)</td>
@@ -879,11 +842,17 @@
 </table>
 <h3 id="23-click-on-add-to-the-dataset"><strong>2.3. Click on ‘Add to the dataset’</strong>.</h3>
 <p>If the upload is successful, a message stating “Uploaded!” will appear adjacent to the upload button. Additionally, the newly added dataset will be displayed as the first entry in the table.</p>
+<hr />
 <h2 id="3-how-to-edit-the-database"><u> <strong>3. How to edit the database</strong> </u></h2>
+<h3 id="30-browsing-and-filtering"><strong>3.0 Browsing and filtering</strong></h3>
+<p>The dataset table can be filtered by <strong>Data from</strong>, <strong>Experiment</strong>, and <strong>Data type</strong> using the dropdowns above the table; selecting a value narrows the table (and the choices in the other dropdowns) to matching datasets. </p>
+<p>Click <strong>"Reload the database"</strong> to refresh the table with the latest data from the underlying database file (useful if another user has uploaded or edited data in the meantime).</p>
 <h3 id="31-editing-the-database"><strong>3.1 Editing the database</strong></h3>
-<p>Each cell can be edited by double-clicking. Upon the user making an edit, the change will be manifested below the table. The editing process is deemed successful once the user clicks “Save changes” and subsequently confirms the message “saved!”. </p>
+<p>Each cell can be edited by double-clicking (the dataset name in the first column cannot be edited). Upon the user making an edit, the change will be manifested below the table. </p>
+<p>Clicking <strong>"Save changes"</strong> opens a confirmation dialog ("Are you sure you want to save the changes? This action cannot be undone.") — confirming writes the edits to the database file. If you want to discard unsaved edits instead, click <strong>"Reset edits"</strong>, which also asks for confirmation before reverting the table to its last-saved state.</p>
 <h3 id="32-deleting-some-data"><strong>3.2 Deleting some data</strong></h3>
-<p>Each row of the database can be selected by simply clicking on it. It is possible to make multiple selections, and the number of selected rows is displayed at the bottom of the table. By clicking “Delete selected data”, all selected rows will be removed from the database.</p>
+<p>Each row of the database can be selected by simply clicking on it. It is possible to make multiple selections, and the number of selected rows is displayed at the bottom of the table. </p>
+<p>Clicking <strong>"Delete selected datasets"</strong> opens a confirmation dialog listing exactly which dataset(s) will be removed. Confirming permanently deletes those rows from the database <strong>and removes the corresponding uploaded file(s) from the server</strong> — this cannot be undone.</p>
 
 
 
@@ -903,6 +872,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -932,7 +907,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

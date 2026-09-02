@@ -20,7 +20,7 @@
     
     
       
-        <title>Data Overview - OmicsBridge</title>
+        <title>Count & Comparison Data Overview - OmicsBridge</title>
       
     
     
@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -62,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#data-overview-and-downstream-analysis" class="md-skip">
+        <a href="#count-comparison-data-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data Overview
+              Count & Comparison Data Overview
             
           </span>
         </div>
@@ -252,7 +254,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -265,7 +267,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -294,6 +296,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Data Selection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-viewing-and-normalising-the-data-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1. Viewing and normalising the data table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -307,9 +324,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-getting-an-overview-scatter-plot" class="md-nav__link">
+  <a href="#21-getting-an-overview-volcano-scatter-plot" class="md-nav__link">
     <span class="md-ellipsis">
-      2.1. Getting an overview (Scatter Plot)
+      2.1. Getting an overview (Volcano / Scatter Plot)
     </span>
   </a>
   
@@ -322,39 +339,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.2. Highlighting the filtered genes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#221-filtering-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.1. filtering genes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#222-showing-the-pathway-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.2. Showing the pathway genes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#223-showing-the-custom-gene-set-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.3. Showing the custom gene set genes
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -363,39 +347,6 @@
       2.3. Downstream analysis
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2.3. Downstream analysis">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#231-gokegg-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.1. GO/KEGG analysis
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#232-gsea-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.2. GSEA analysis
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#233-transcription-factor-activity-inference-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.3. Transcription Factor activity inference analysis
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -410,48 +361,6 @@
       3. Analysis of "Count table"
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="3. Analysis of &#34;Count table&#34;">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-swarm-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1. Swarm plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-two-gene-correlation-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2. Two gene correlation Plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-heatmap" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3. Heatmap
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-pca-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4. PCA plot
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -694,6 +603,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Data Selection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-viewing-and-normalising-the-data-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1. Viewing and normalising the data table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -707,9 +631,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-getting-an-overview-scatter-plot" class="md-nav__link">
+  <a href="#21-getting-an-overview-volcano-scatter-plot" class="md-nav__link">
     <span class="md-ellipsis">
-      2.1. Getting an overview (Scatter Plot)
+      2.1. Getting an overview (Volcano / Scatter Plot)
     </span>
   </a>
   
@@ -722,39 +646,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2.2. Highlighting the filtered genes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#221-filtering-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.1. filtering genes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#222-showing-the-pathway-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.2. Showing the pathway genes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#223-showing-the-custom-gene-set-genes" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2.3. Showing the custom gene set genes
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -763,39 +654,6 @@
       2.3. Downstream analysis
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2.3. Downstream analysis">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#231-gokegg-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.1. GO/KEGG analysis
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#232-gsea-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.2. GSEA analysis
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#233-transcription-factor-activity-inference-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3.3. Transcription Factor activity inference analysis
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -810,48 +668,6 @@
       3. Analysis of "Count table"
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="3. Analysis of &#34;Count table&#34;">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-swarm-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1. Swarm plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-two-gene-correlation-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2. Two gene correlation Plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-heatmap" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3. Heatmap
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-pca-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4. PCA plot
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -871,17 +687,38 @@
 
 
 
-<h1 id="data-overview-and-downstream-analysis"><strong>Data Overview and Downstream Analysis</strong></h1>
-<p>This section provides an overview of the selected dataset (except for scRNA data and bam/bed files, which are viewable in the "scRNA" and "Genome Browser" sections). Users can create various plots, identify and highlight significant genes and hits, examine overlaps with gene sets of interest, and conduct downstream analyses including GO/KEGG and GSEA analyses.</p>
+<h1 id="count-comparison-data-overview"><strong>Count &amp; Comparison Data Overview</strong></h1>
+<p>This section provides an overview of the selected dataset.</p>
+<p>(scRNA data and bam/bed files are viewable in the "scRNA" and "Genome Browser" sections instead.)</p>
+<p>Users can create various plots, identify and highlight significant genes and hits, examine overlaps with gene sets of interest, and conduct downstream analyses including GO/KEGG and GSEA analyses.</p>
+<hr />
 <h2 id="1-data-selection"><u> <strong>1. Data Selection</strong> </u></h2>
-<p>To begin, a dataset will be chosen in the “Dataset Selection” section. Upon selection, the details of the dataset will be displayed on the right side. Users can filter datasets by “Data from," "Experiment," or “Data type" inside the toggle button. Depending on whether the data is in the form of a Count Table (A) or Comparison Data (B), the content will be presented in the “Overview and Analysis” section. Please refer to the following for more information.</p>
+<p>To begin, a dataset will be chosen in the "Dataset Selection" section.</p>
+<p>Upon selection, the details of the dataset will be displayed on the right side.</p>
+<p>Users can filter datasets by "Sequenced by," "Experiments," or "Data type" inside the toggle button.</p>
+<p>Click "Reload your datasets list" to refresh the dropdown with any datasets uploaded or edited since the page was loaded.</p>
+<p>Depending on whether the data is in the form of a Count Table (A) or Comparison Data (B), the content will be presented in the "Overview and Analysis" section.</p>
+<p>Please refer to the following for more information.</p>
+<h3 id="11-viewing-and-normalising-the-data-table"><u> <strong>1.1. Viewing and normalising the data table</strong> </u></h3>
+<p>Once a dataset is selected, its contents are shown as a table in the "Overview and Analysis" section below, under the "Data Table" tab.</p>
+<p>If the selected data is a Count Table (Data Class A), you can normalise the raw counts before further use by choosing a normalisation method — "None", "CPM", "TPM", or "FPKM" — from the dropdown and clicking "Apply".</p>
+<details class="warning">
+<summary>TPM/FPKM currently only support the human genome</summary>
+<p>TPM and FPKM require the length of each gene, which is looked up by human gene symbol from a GENCODE (v41) gene annotation file.</p>
+<p>Any gene in your table whose "id" is not a recognised human gene symbol, or has no known length in this reference, will be skipped during normalisation — the status message shown after clicking "Apply" reports how many genes were skipped.</p>
+<p>CPM does not require gene length, so it works for any species.</p>
+</details>
+<hr />
 <h2 id="2-analysis-of-comparison-data"><u> <strong>2. Analysis of "Comparison data"</strong> </u></h2>
-<p>Upon selecting a <strong>“Comparison Data”</strong> type of data, two tabs will appear within the <strong>“Overview and Analysis”</strong> section. The “Data Table” presents the data in tabular format, while the "Plot” tab enables users to generate graphical representations and conduct subsequent analyses.</p>
-<h3 id="21-getting-an-overview-scatter-plot"><u> <strong>2.1. Getting an overview (Scatter Plot)</strong> </u></h3>
-<p>To create and interact with scatter plots:</p>
+<p>Upon selecting a <strong>"Comparison Data"</strong> type of data, two tabs will appear within the <strong>"Overview and Analysis"</strong> section.</p>
+<p>The "Data Table" presents the data in tabular format, while the "Plot &amp; Downstream Analysis" tab enables users to generate graphical representations and conduct subsequent analyses.</p>
+<h3 id="21-getting-an-overview-volcano-scatter-plot"><u> <strong>2.1. Getting an overview (Volcano / Scatter Plot)</strong> </u></h3>
+<p>This plot is primarily designed to generate a <strong>volcano plot</strong> — Log Fold Change on the X-axis and -log10(p-value) on the Y-axis.</p>
+<p>The X and Y axes can be set to any numeric column in your data though, so it can also be used as a general-purpose scatter plot for other comparisons.</p>
+<p>To create and interact with the plot:</p>
 <ol>
 <li>
-<p><span style="color:rgb(255, 94, 8);">Select the X and Y axes</span> from the "Display Options" panel on the right. For most analyses, use "Log Fold Change" for the X-axis and "-log10(p.value)" for the Y-axis.</p>
+<p><span style="color:rgb(255, 94, 8);">Select the X and Y axes</span> from the "Display Options" panel on the right. For a volcano plot, use "Log Fold Change" for the X-axis and "-log10(p.value)" for the Y-axis.</p>
 </li>
 <li>
 <p><span style="color:rgb(255, 94, 8);">Select a region within the plot with your mouse</span> to label dots with their gene names (IDs). Note that:</p>
@@ -891,12 +728,18 @@
 <li>Information about selected dots appears in the "Selected Area Information" table below</li>
 </ul>
 </li>
-<li><span style="color:rgb(255, 94, 8);">Highlight specific genes of interest</span> by entering gene names line by line in the "Enter genes" box. Note that:<ul>
+<li>
+<p><span style="color:rgb(255, 94, 8);">Highlight specific genes of interest</span> by entering gene names line by line in the "Enter genes" box. Note that:</p>
+<ul>
 <li>These genes will be marked in red on the plot, along with their labels/annotations</li>
 <li>If any entered genes aren't found in the dataset, a message will indicate which ones are missing. Ensure gene names have no extra spaces</li>
 <li>The "Show information as a table" switch generates a downloadable table with details of highlighted genes in the "Information of Genes of Interest" section</li>
 <li>The "show gene names" switch toggles annotation visibility when the display becomes crowded</li>
 </ul>
+</li>
+<li>
+<p>(optional) <span style="color:rgb(255, 94, 8);">Highlight a second, independent set of genes in a different colour</span> by toggling "Highlight other genes with a different colour" below the first "Enter genes" box.</p>
+<p>This opens a second "Enter genes" box (with its own colour picker, default blue) so you can highlight two separate gene lists on the same plot at once — for example, one gene list in red and another in blue.</p>
 </li>
 </ol>
 <details class="success">
@@ -906,8 +749,9 @@
 <li>The size of all the dots and the highlighted dots.</li>
 <li>The size of the annotation label.</li>
 <li>The size of the XY axis label and the title font size.</li>
+<li>Label overlap level: Controls how aggressively overlapping gene-name labels are thinned out/repositioned — raise this if too many labels are being hidden due to crowding (see note in step 2 above).</li>
 <li>Axis range control: Specify minimum and maximum values for x and y axes to zoom in on specific data regions.</li>
-<li>White background option: The default is a grey background. Use this to switch to a white background.</li>
+<li>White background option: The default is a grey background. Use this to switch to a white background (there is a separate "white background for labels" switch to control the label background independently).</li>
 </ul>
 </details>
 <details class="example">
@@ -917,20 +761,36 @@
 </video></p>
 </details>
 <h3 id="22-highlighting-the-filtered-genes"><u> <strong>2.2. Highlighting the filtered genes</strong> </u></h3>
-<h4 id="221-filtering-genes"><u><strong>2.2.1. filtering genes</strong></u></h4>
-<p>To highlight significant data points: </p>
+<p>Beyond manually typing gene names, OmicsBridge can automatically highlight genes for you, from three different sources. Select one of the tabs below.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><strong>Filtered genes</strong></label><label for="__tabbed_1_2"><strong>Pathway genes</strong></label><label for="__tabbed_1_3"><strong>Custom gene sets</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Rather than manually typing in gene names one by one (as in step 2.1 above), this option automatically finds and highlights genes that pass a significance and/or fold-change cutoff you set.</p>
+<p>For example, every statistically significant hit on a volcano plot at once. This is useful when you want to see or export the full list of "hit" genes without already knowing their names.</p>
 <ol>
 <li>Select "Filtered genes"</li>
-<li>Choose your filtering method: <br><ul>
-<li>Show top/bottom N%: 
-Highlights data by percentile (default: 10%) sorted by the X-axis score and filtered by the Y-axis value (default: 1.13, corresponding to -log10(p.value), where p = 0.05). For example, the top 10% represents the highest-scoring points where X ≥ 0 and Y ≥ 1.13.</li>
-<li>Custom threshold setting: 
-Set specific X and Y cutoff values. You can directly specify your desired threshold values and choose to show only positive hits, only negative hits, or both.</li>
-</ul>
-</li>
-<li>Show as a barplot:
-By clicking the 'Show in a bar plot' switch, a bar plot of the filtered genes will appear in the "Bar plot" tab. The y-axis and colour in the bar plot correspond to the x-axis value in the scatter plot. The x-axis displays gene names (ids), sorted by score.</li>
+<li>Choose your filtering method — see the two tabs below for how each one works.</li>
+<li>(optional) Show as a barplot:
+The scatter plot is useful for seeing the overall pattern, but it can be hard to read off exact values for individual genes, especially when many points are highlighted.</li>
 </ol>
+<p>Clicking the 'Show in a bar plot' switch generates a companion bar plot of the filtered genes in the "Bar plot" tab, making it easier to compare and rank the highlighted genes' scores at a glance.</p>
+<p>The y-axis and colour in the bar plot correspond to the x-axis value in the scatter plot, and the x-axis displays gene names (ids), sorted by score.</p>
+<p><strong>Show top/bottom N%</strong></p>
+<p>Highlights data by percentile, ranked by the X-axis score.</p>
+<p>You can set the top-hit percentile and bottom-hit percentile independently (each defaults to 10%).</p>
+<p>By default this mode does not apply any Y-axis significance filter (its Y-axis threshold starts at 0); raise it if you also want to require a minimum Y-axis value.</p>
+<p><strong>Custom threshold setting</strong></p>
+<p>Set specific cutoff values for the X-axis (X1, X2) and Y-axis (Y1, Y2; Y1 defaults to 1.3, corresponding to -log10(p.value) where p = 0.05).</p>
+<p>For each axis independently, choose how its thresholds are applied:</p>
+<ul>
+<li>"none" (no filter on that axis)</li>
+<li>"&gt; X1" / "&gt; Y1" (keep points above the first threshold — the default for both axes)</li>
+<li>"&lt; X2" / "&lt; Y2" (keep points below the second threshold)</li>
+<li>"X2 &lt; X &lt; X1" / "Y2 &lt; Y &lt; Y1" (keep points between the two thresholds)</li>
+<li>"X &lt; X2 or X &gt; X1" / "Y &lt; Y2 or Y &gt; Y1" (keep points beyond either threshold — useful for capturing both up- and down-regulated genes on a volcano plot)</li>
+</ul>
+<p>The final highlighted set must satisfy the X-axis and Y-axis conditions together.</p>
+<p>Note that the default combination (“&gt; X1” on both axes) only highlights points above both thresholds (e.g. only up-regulated, significant genes) — switch the X-axis mode to “X &lt; X2 or X &gt; X1” if you want both up- and down-regulated hits highlighted at once.</p>
 <details class="tip">
 <summary>Other available options</summary>
 <table>
@@ -955,7 +815,7 @@ By clicking the 'Show in a bar plot' switch, a bar plot of the filtered genes wi
 </tr>
 <tr>
 <td><strong>Show the filtered genes information</strong></td>
-<td>View filtered points in a downloadable table in the "Outliers Information" section below. Users can also access a simple list of filtered gene names for copying.</td>
+<td>View filtered points in a downloadable table in the "Filtered genes information" section below. Users can also access a simple list of filtered gene names for copying.</td>
 </tr>
 </tbody>
 </table>
@@ -966,16 +826,68 @@ By clicking the 'Show in a bar plot' switch, a bar plot of the filtered genes wi
 <source src="../videos/Data_overview_2_annot.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h4 id="222-showing-the-pathway-genes"><u><strong>2.2.2. Showing the pathway genes</strong></u></h4>
+</div>
+<div class="tabbed-block">
 <p>Users can visualise genes associated with specific pathways in the plot.</p>
 <ol>
 <li>Select "Pathway genes"<br></li>
 <li>Choose the gene sets group:<br>
-HALLMARK gene sets for humans and mice from <a href="https://www.gsea-msigdb.org/gsea/msigdb">MSigDB</a> are available as preset options for both human and mouse. If you have your own gene sets file, select "custom" and upload the gmt file to the interface. Note that only gmt files are supported.</li>
+HALLMARK gene sets for humans and mice from <a href="https://www.gsea-msigdb.org/gsea/msigdb">MSigDB</a> are available as preset options for both human and mouse.</li>
+</ol>
+<p>If you have your own gene sets file, select "custom" and upload the gmt file to the interface. Note that only gmt files are supported.
+3. Select a gene set:<br>
+After selecting the gene sets group, available gene sets will appear in the drop-down menu. Choose one, and genes from that set will be highlighted in the plot.
+4. (optional) Show as a barplot:<br>
+Similar to "filtering genes", clicking the 'Show in a bar plot' switch will display a bar plot of the Pathway genes in the 'Bar plot' tab.</p>
+<p>The y-axis and color in the bar plot correspond to the x-axis value in the scatter plot. The x-axis displays gene names (ids), sorted by score.</p>
+<details class="tip">
+<summary>Adjustable graph parameters</summary>
+<table>
+<thead>
+<tr>
+<th><strong>Option</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hide labels</strong></td>
+<td>Hide gene ID labels when the display becomes crowded.</td>
+</tr>
+<tr>
+<td><strong>Show the genes’ information</strong></td>
+<td>Display detailed information about filtered points in a table below.</td>
+</tr>
+<tr>
+<td><strong>Change the colour</strong></td>
+<td>Customise the highlighting colour for better visualisation.</td>
+</tr>
+<tr>
+<td><strong>Apply further filtering</strong></td>
+<td>Works the same way as the "Custom threshold setting" described in the Filtered genes tab above — refine which pathway genes are highlighted by setting X-axis and Y-axis thresholds independently.</td>
+</tr>
+<tr>
+<td><strong>Show the threshold lines</strong></td>
+<td>Display vertical and horizontal lines on the plot marking your chosen thresholds (only available once "Apply further filtering" is on).</td>
+</tr>
+</tbody>
+</table>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Data_overview_3_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Users can visualise genes from their own custom gene sets, registered in the interface.</p>
+<ol>
+<li>Select "Custom genesets"<br></li>
 <li>Select a gene set:<br>
-After selecting the gene sets group, available gene sets will appear in the drop-down menu. Choose one, and genes from that set will be highlighted in the plot.</li>
-<li>Show as a barplot:<br>
-Similar to "filtering genes", clicking the 'Show in a bar plot' switch will display a bar plot of the Pathway genes in the 'Bar plot' tab. The y-axis and color in the bar plot correspond to the x-axis value in the scatter plot. The x-axis displays gene names (ids), sorted by score.</li>
+Choose one of your registered custom gene sets from the drop-down menu. (For instructions on creating gene sets, refer to the "Gene set" section.) All genes within that set will be highlighted in the plot.</li>
+<li>(optional) Show as a barplot:<br>
+Similar to "Filtered genes" and "Pathway genes" above, clicking the 'Show in a bar plot' switch will display a bar plot of the custom-gene-set genes in the "Bar plot" tab.</li>
 </ol>
 <details class="tip">
 <summary>Adjustable graph parameters</summary>
@@ -1001,44 +913,11 @@ Similar to "filtering genes", clicking the 'Show in a bar plot' switch will disp
 </tr>
 <tr>
 <td><strong>Apply further filtering</strong></td>
-<td>Refine results by specifying thresholds for both x and y axes.</td>
-</tr>
-</tbody>
-</table>
-</details>
-<details class="example">
-<summary>Example Usage video</summary>
-<p><video width="1000" controls>
-<source src="../videos/Data_overview_3_annot_light.mp4" type="video/mp4"> 
-</video></p>
-</details>
-<h4 id="223-showing-the-custom-gene-set-genes"><strong>2.2.3. Showing the custom gene set genes</strong></h4>
-<p>Users can visualise genes from their custom gene sets that are registered in the interface. When a gene set is selected, all genes within that set will be highlighted in the plot. For instructions on creating gene sets, refer to the "Gene set" section. Similar to the other options, clicking the 'Show in a bar plot' switch will display a bar plot of the Pathway genes in the 'Bar plot' tab. </p>
-<details class="tip">
-<summary>Adjustable graph parameters</summary>
-<table>
-<thead>
-<tr>
-<th><strong>Option</strong></th>
-<th><strong>Description</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Hide labels</strong></td>
-<td>Hide gene ID labels when the display becomes crowded.</td>
+<td>Works the same way as the "Custom threshold setting" described in the Filtered genes tab above — refine which custom-gene-set genes are highlighted by setting X-axis and Y-axis thresholds independently.</td>
 </tr>
 <tr>
-<td><strong>Show the genes’ information</strong></td>
-<td>Display detailed information about filtered points in a table below.</td>
-</tr>
-<tr>
-<td><strong>Change the colour</strong></td>
-<td>Customise the highlighting colour for better visualisation.</td>
-</tr>
-<tr>
-<td><strong>Apply further filtering</strong></td>
-<td>Refine results by specifying thresholds for both x and y axes.</td>
+<td><strong>Show the threshold lines</strong></td>
+<td>Display vertical and horizontal lines on the plot marking your chosen thresholds (only available once "Apply further filtering" is on).</td>
 </tr>
 </tbody>
 </table>
@@ -1049,9 +928,21 @@ Similar to "filtering genes", clicking the 'Show in a bar plot' switch will disp
 <source src="../videos/Data_overview_4_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+</div>
+</div>
+</div>
 <h3 id="23-downstream-analysis"><u> <strong>2.3. Downstream analysis</strong> </u></h3>
-<h4 id="231-gokegg-analysis"><strong>2.3.1. GO/KEGG analysis</strong></h4>
-<p>Users can perform GO or KEGG analysis using gene symbols (Note: ENSEMBL IDs are not supported so far). </p>
+<p>Three downstream analysis methods are available, each in its own tab below.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1"><strong>Over-representation analysis (ORA)</strong></label><label for="__tabbed_2_2"><strong>GSEA</strong></label><label for="__tabbed_2_3"><strong>TF activity inference</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Over-representation analysis (ORA) is implemented via <a href="https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html">clusterProfiler</a> and is applied to two gene set collections — <strong>GO</strong> (Gene Ontology) and <strong>KEGG</strong> pathways — using a user-defined gene list.</p>
+<p>ORA tests whether your input gene list contains significantly more genes from a given gene set than would be expected by chance, based on that gene list alone.</p>
+<p>(This is different from GSEA in the next tab, which uses the full ranked gene list rather than a fixed list of "hits".)</p>
+<div class="admonition note">
+<p class="admonition-title">Gene symbols only</p>
+<p>Genes must be provided as gene symbols — ENSEMBL IDs are not supported so far.</p>
+</div>
 <ol>
 <li>
 <p>Input the genes.</p>
@@ -1066,44 +957,87 @@ Similar to "filtering genes", clicking the 'Show in a bar plot' switch will disp
 Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans and mice.</p>
 </li>
 <li>
-<p>Click "Start GO Analysis" to begin. <br>
-    The analysis takes a few minutes, depending on the input size and chosen ontology. KEGG is faster than GO.</p>
+<p>Click "Start GO/KEGG Analysis" to begin. <br>
+    This takes about 1-3 minutes, depending on the size of the input and the chosen ontology.</p>
+<p>Click "Reset" to clear the inputs and results and start over.</p>
 </li>
 <li>
-<p>It will return four outputs in the “Results &amp; Plots” section.</p>
+<p>It will return four outputs in the "Results &amp; Plots" section, each in its own tab:</p>
 <ul>
-<li>Table: Complete GO/KEGG analysis results</li>
-<li>Bar plot: Enriched GO/KEGG terms showing gene count and p-value.</li>
-<li>Bubble plot: Alternative visualisation showing the proportion of detected genes within each term.</li>
-<li>Network plot: Visual network of the top 5 enriched GO/KEGG terms and their connections to detected genes</li>
+<li><strong>Table</strong>: Complete ORA results. Includes a "Download this table" button.</li>
+<li><strong>Bar plot</strong>: Enriched GO/KEGG terms showing gene count and p-value.</li>
+<li><strong>Bubble plot</strong>: Alternative visualisation showing the proportion of detected genes within each term.</li>
+<li><strong>Network plot</strong>: Visual network of the top enriched GO/KEGG terms and their connections to detected genes.</li>
 </ul>
 </li>
 </ol>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Bar plot)</summary>
 <ul>
-<li>Number of categories/terms to display in bar and bubble plots</li>
 <li>Figure width and height</li>
-<li>X and Y axis label size</li>
-<li>X-axis title size</li>
+<li>Number of categories/terms to display</li>
+<li>Legend size</li>
+<li>X title font size, Y label size, X label font size</li>
+<li>Colour for the maximum and minimum values</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </details>
+<details class="success">
+<summary>Adjustable graph parameters (Bubble plot)</summary>
+<ul>
+<li>Figure width and height</li>
+<li>Number of categories/terms to display</li>
+<li>X title font size, Y label size, X label font size</li>
+<li>Legend size</li>
+<li>Colour for the maximum and minimum values</li>
+<li>Option to switch from grey to white background</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Network plot)</summary>
+<ul>
+<li>Figure width and height</li>
+<li>Number of categories/terms to display</li>
+<li>Legend size</li>
+<li>Edge line width</li>
+<li>Node label size (separately for term names and genes)</li>
+<li>Node size (separately for term names and genes)</li>
+<li>Node colour (separately for term names and genes)</li>
+<li>Option to colour edges by term</li>
+<li>Option to switch to a circular layout ("Circle plot")</li>
+</ul>
+</details>
+<div class="admonition tip">
+<p class="admonition-title">Network plot not rendering?</p>
+<p>If the network plot fails to render due to insufficient width, click "Reset" and increase the figure width.</p>
+</div>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
 <source src="../videos/Data_overview_5_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h4 id="232-gsea-analysis"><strong>2.3.2. GSEA analysis</strong></h4>
+</div>
+<div class="tabbed-block">
+<p>Gene set enrichment analysis (GSEA) is implemented via <a href="https://bioconductor.org/packages/release/bioc/html/fgsea.html">fgsea</a>, using a ranked gene list.</p>
+<p>It is applied to either the HALLMARK gene set collection from MSigDB, or a user-uploaded custom gene set.</p>
+<p>(This is different from ORA in the previous tab, which uses a fixed list of "hit" genes rather than the full ranking.)</p>
 <p>To perform GSEA analysis:</p>
 <ol>
-<li>Select the gene sets group:<ul>
+<li>
+<p>Select the gene sets group:</p>
+<ul>
 <li>Use pre-installed HALLMARK gene sets for humans and mice from <a href="https://www.gsea-msigdb.org/gsea/msigdb">MSigDB</a></li>
 <li>Or select "Upload a gmt file (other gene sets)" to upload custom gene sets (gmt format only)</li>
-<li>Or users can calculate the enrichment of one gene set. In this case, you can select a custom gene set from a drop-down menu, or manually input the list of genes in a text box line by line.</li>
+<li>
+<p>Or users can calculate the enrichment of one gene set.</p>
+<p>In this case, you can select a custom gene set from a drop-down menu, or manually input the list of genes in a text box line by line.</p>
+</li>
 </ul>
 </li>
-<li>Choose a score for GSEA ranking:<ul>
+<li>
+<p>Choose a score for GSEA ranking:</p>
+<ul>
 <li>This score determines gene sorting and ranking. Typically, log fold change is used</li>
 <li>Note: selecting a non-numeric category will cause an error</li>
 </ul>
@@ -1119,9 +1053,11 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>The size (width and height) of the figure</li>
-<li>The size of the X and Y axis font size</li>
-<li>The size of the graph title</li>
-<li>The colour of the lines in the GSEA plot.</li>
+<li>X/Y axis labels size</li>
+<li>X/Y axis title font size</li>
+<li>Graph title font size</li>
+<li>GSEA line colour (the running enrichment score line)</li>
+<li>Max/Min line colour (the peak/trough marker line)</li>
 </ul>
 </details>
 <details class="example">
@@ -1130,24 +1066,31 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_6_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h4 id="233-transcription-factor-activity-inference-analysis"><strong>2.3.3. Transcription Factor activity inference analysis</strong></h4>
-<p>To perform Transcription Factor (TF) activity inference analysis. This analysis utilises the <a href="https://saezlab.github.io/decoupleR/">decoupleR</a> package to estimate TF activity based on changes in expression of target genes.</p>
+</div>
+<div class="tabbed-block">
+<p>Transcription Factor (TF) activity inference analysis uses the <a href="https://saezlab.github.io/decoupleR/">decoupleR</a> package to estimate TF activity based on changes in expression of target genes.</p>
 <ol>
 <li>Ensure you have RNA-seq data processed by DESeq2 with 'stat' values available</li>
-<li>Click "Start DecoupleR Analysis" to begin the process and wait approximately 1 minute for the analysis to complete</li>
-<li>The results:<ul>
-<li>Bar plot shows TF activity (positive scores indicate activation in treatment vs control)</li>
-<li>Results table provides detailed statistics</li>
+<li>
+<p>Set the "Number of TF to display" slider (default: 50, range: 10-200).</p>
+<p>Then click "Start DecoupleR Analysis" to begin the process, and wait approximately 1 minute for the analysis to complete.</p>
+</li>
+<li>
+<p>The results appear in two tabs:</p>
+<ul>
+<li>"DecoupeR Plot": Bar plot shows TF activity (positive scores indicate activation in treatment vs control)</li>
+<li>"Results Table": Detailed statistics for each TF, downloadable</li>
 </ul>
 </li>
 </ol>
 <details class="success">
 <summary>Adjustable graph parameters</summary>
 <ul>
-<li>The size (width and height) of the figure.</li>
-<li>The size of the X and Y axis font size.</li>
-<li>The colour of the bar plot</li>
-<li>The number of transcription factos to show</li>
+<li>The size (width and height) of the figure</li>
+<li>X/Y axis labels size and X/Y axis title font size</li>
+<li>Legend size</li>
+<li>High activity colour, Low activity colour, and Zero activity colour (a three-point colour gradient for the bar plot)</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </details>
 <details class="example">
@@ -1156,15 +1099,23 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_7_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="3-analysis-of-count-table"><strong>3. Analysis of "Count table"</strong></h2>
-<h3 id="31-swarm-plot"><u> <strong>3.1. Swarm plot</strong> </u></h3>
-<p>The swarm plot visualises expression differences of genes of interest across samples. Samples with the same experimental conditions (replicated samples) are grouped together, making it easy to compare differences between conditions.</p>
+<p>Four analyses are available for Count Table data, each in its own tab below.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:4"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><input id="__tabbed_3_4" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1"><strong>Swarm plot</strong></label><label for="__tabbed_3_2"><strong>Gene correlation</strong></label><label for="__tabbed_3_3"><strong>Heatmap</strong></label><label for="__tabbed_3_4"><strong>PCA plot</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The swarm plot visualises expression differences of genes of interest across samples.</p>
+<p>Samples with the same experimental conditions (replicated samples) are grouped together, making it easy to compare differences between conditions.</p>
 <ol>
 <li>Make sure your sample names follow the format SampleName_Rep# so the interface can identify replicates.</li>
-<li>Enter gene names line by line in the "Enter genes" box.</li>
-<li>Clicking any gene(s) in the table displays its swarm plot on the right. The detailed table of individual sample scores will be shown below the input section.</li>
+<li>Enter the genes you want to plot, either by typing gene names line by line in the "Enter genes" box, or by toggling "Use genes from a custom gene set" to pull genes from one of your registered custom gene sets instead.</li>
+<li>Clicking any gene(s) in the table displays its swarm plot on the right. The detailed table of individual sample scores will be shown below the input section, in the "Expression scores" box (downloadable) — values there are log2-transformed too if you turn on "Use a log scale (log2)" below.</li>
 <li>To customise the graph:<ol>
-<li>“Use a log scale (log2)”:<ul>
+<li>"Use a log scale (log2)":<ul>
 <li>This transforms the y-axis value to log2 values</li>
 </ul>
 </li>
@@ -1175,7 +1126,7 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 </li>
 <li>"Want to exclude specific samples?":<ul>
 <li>If you want to exclude a specific sample, enter the sample names line by line in the text box.</li>
-<li>The available sample names will be listed  below</li>
+<li>The available sample names will be listed below</li>
 </ul>
 </li>
 </ol>
@@ -1185,9 +1136,10 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>The size (width and height) of the figure.</li>
-<li>The size of the X and Y axis/label font size.</li>
+<li>X label size, Y label size, and Y title size.</li>
 <li>The point size.</li>
-<li>The colour palette</li>
+<li>Change the colour palette: pick from a set of preset palettes (viridis, magma, plasma, inferno, cividis).</li>
+<li>Use a single colour: override the palette with one flat colour of your choice for all groups.</li>
 <li>The option for changing the background colour from gray to white</li>
 </ul>
 </details>
@@ -1197,32 +1149,47 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_8_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h3 id="32-two-gene-correlation-plot"><u> <strong>3.2. Two gene correlation Plot</strong> </u></h3>
-<p>This feature displays a scatter plot comparing expression levels of two genes and calculates their correlation across samples in the selected dataset.</p>
-<p>When choosing "Enter both X and Y-axis genes":</p>
+</div>
+<div class="tabbed-block">
+<p>This feature computes and visualises pairwise correlations between the expression levels of multiple genes, across the samples in the selected dataset.</p>
+<p>Enter two or more genes to get a correlation heatmap across all of them, then drill down into any specific pair to see its own scatter plot.</p>
 <ol>
-<li>Enter a gene name for Y-axis and a gene name for X-axis. A scatter plot will be generated immediately.</li>
-<li>Choose the calculation method: either Pearson or Spearman.</li>
-<li>You can display data on a logarithmic scale by toggling "Use log scale"</li>
-</ol>
-<p>When choosing "Enter Y-axis gene and explore the correlations":</p>
-<ol>
-<li>Enter a gene name for Y-axis</li>
-<li>Set the genes for X-axis. Enter gene names line by line, or choose a gene set.</li>
-<li>Choose the calculation method: either Pearson or Spearman.</li>
-<li>Toggle "Use log scale" on or off, if needed.</li>
-<li>Click the start button to generate a results table below.</li>
-<li>Clicking any row in the table displays its scatter plot on the right.</li>
+<li>Enter the genes to correlate:<br>
+Type two or more gene names, line by line, in the "Enter genes names" box — or toggle "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead.</li>
+<li>Correlation settings:<br><ul>
+<li>Choose the calculation method: Pearson or Spearman.</li>
+<li>Toggle "Use log scale" if you want the correlation calculated on log-transformed values.</li>
+</ul>
+</li>
+<li>Select the samples:<br>
+Choose which samples to include in the calculation, from the sample table.</li>
+<li>Click "Calculate the correlations" to compute the full pairwise correlation matrix across all your input genes.</li>
+<li>View the results:<br><ul>
+<li><strong>Correlation table</strong>: Select one of your input genes from the "Select a gene to show its correlation result table" drop-down to see a table of that gene's correlation (r-value and p-value) against every other gene you entered. The table is downloadable.</li>
+<li><strong>Pairwise heatmap</strong>: By default, the "Plot" panel shows a clustered heatmap of the full pairwise correlation matrix across all your input genes — genes are automatically reordered by hierarchical clustering so similarly-correlated genes sit together.</li>
+<li><strong>Scatter plot for one pair</strong>: Once you've selected a gene from the drop-down above, click its row in the correlation table to pick a second gene — the "Plot" panel then switches to a scatter plot of just that gene pair, with points coloured by sample group (or a single colour, if you prefer) and an optional regression line.</li>
+</ul>
+</li>
 </ol>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Pairwise heatmap)</summary>
 <ul>
-<li>Figure dimensions (width and height)</li>
-<li>Font size for X and Y axis labels and titles</li>
-<li>Size of sample labels and legend</li>
-<li>Option to show the correlation line.</li>
-<li>Option to use only the selected samples (’Select samples’)</li>
-<li>Option to change colours by group</li>
+<li>Figure width and height</li>
+<li>X/Y axis label font size (set to 0 to hide the gene name labels entirely)</li>
+<li>Legend font size</li>
+<li>Colour for the highest correlation (+1), lowest correlation (-1), and zero correlation</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Two-gene scatter plot)</summary>
+<ul>
+<li>Figure width and height</li>
+<li>Legend font size</li>
+<li>X/Y axis label font size and title font size</li>
+<li>Point size</li>
+<li>Option to switch from grey to white background</li>
+<li>Option to show a linear regression line</li>
+<li>Option to use a single colour for all points, instead of colouring by sample group (with its own colour picker)</li>
 </ul>
 </details>
 <details class="example">
@@ -1231,7 +1198,8 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_9_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h3 id="33-heatmap"><u> <strong>3.3. Heatmap</strong> </u></h3>
+</div>
+<div class="tabbed-block">
 <p>The heatmap feature allows you to visualise gene expression patterns across samples. Here's how to use it:</p>
 <ol>
 <li>Input the genes to be used in the heatmap by either:<ul>
@@ -1241,14 +1209,15 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <li>Input a gmt file: Upload a GMT file of another gene set group and select a gene set. (An upload menu and a drop-down menu appear)</li>
 </ul>
 </li>
-<li>Select the samples of interest from the sample table.</li>
+<li>Select the samples of interest from the sample table. You can also drag rows in this table to reorder them — this order is carried through to the sample (Y-axis) order in the resulting heatmap, so you can arrange samples however you'd like them displayed before generating the plot.</li>
 <li>Click "Generate a heatmap".<ul>
-<li>A heatmap visualises the standardised expression scores across selected genes and samples.</li>
-<li>The "Expression scores" table shows standardised values</li>
+<li>A heatmap visualises the standardised (z-score) expression scores across selected genes and samples.</li>
+<li>The "Expression scores" table below shows the standardised values, and can be downloaded via "Download this table".</li>
 </ul>
 </li>
 <li>Adjust "Cluster number"<ul>
 <li>You can cluster the genes based on their expression patterns by changing the slider bar below the plot.</li>
+<li>Once genes are clustered, expand the collapsed "List of the genes in each cluster" box (next to the download button) and select a cluster number to see exactly which genes were assigned to it.</li>
 </ul>
 </li>
 </ol>
@@ -1256,8 +1225,10 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>The size (width and height) of the figure.</li>
-<li>The size of the X and Y axis/label font size.</li>
+<li>X label size and Y label size</li>
+<li>Legend size</li>
 <li>The colour of the highest, lowest and zero values in the heatmap</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </details>
 <details class="example">
@@ -1266,7 +1237,8 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_10_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h3 id="34-pca-plot"><u> <strong>3.4. PCA plot</strong> </u></h3>
+</div>
+<div class="tabbed-block">
 <ol>
 <li>If you don't have any specific preferences, simply click "Generate a PCA plot".<ul>
 <li>By default, all samples will be included and colored according to the detected groups (those with replicates, as shown in the swarm plot).</li>
@@ -1277,7 +1249,13 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <li>Click "Generate a PCA plot"</li>
 </ul>
 </li>
+<li>(optional) Select a region on the plot with your mouse to see the sample names of the points you selected, listed below the plot.</li>
 </ol>
+<div class="admonition note">
+<p class="admonition-title">t-SNE and UMAP are also available</p>
+<p>Under "Plot type" in the Settings panel, you can switch from "PCA" to "tSNE" or "Umap" to use those dimensionality-reduction methods instead, using the same gene/sample inputs.</p>
+<p>Selecting "tSNE" reveals an additional "tSNE perplexity" slider (default: 30) that controls the t-SNE algorithm's neighbourhood size.</p>
+</div>
 <details class="success">
 <summary>Adjustable graph parameters</summary>
 <ul>
@@ -1295,6 +1273,9 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
 <source src="../videos/Data_overview_11_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+</div>
+</div>
+</div>
 
 
 
@@ -1314,6 +1295,12 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -1343,7 +1330,7 @@ Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans 
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

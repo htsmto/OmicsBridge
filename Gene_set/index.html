@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -602,7 +604,8 @@
 
 
 <h1 id="custom-gene-sets"><strong>Custom Gene Sets</strong></h1>
-<p>In this section, users can create and save their own gene sets. Later, in the “Data Overview”, they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. </p>
+<p>In this section, users can create and save their own gene sets. Later, in the "Count &amp; Comparison Data Overview", they can easily apply these saved gene sets to other datasets. This feature helps users quickly identify data related to functions of interest within a dataset. </p>
+<hr />
 <h2 id="1-adding-and-editing-the-gene-set"><u> <strong>1. Adding and editing the gene set</strong> </u></h2>
 <h3 id="11-adding-a-gene-set"><u> <strong>1.1. Adding a gene set</strong> </u></h3>
 <p>Users can add new gene sets in the "Add a Gene Set" section. Please note that users <span style="color: red;">cannot break lines</span> in any text boxes — entering multiple lines will result in only the first line being saved to the database. Sections marked with an asterisk (*) are mandatory. Additionally, avoid the use of special symbols (e.g., /,!,?, etc.).</p>
@@ -616,7 +619,7 @@
 <tbody>
 <tr>
 <td><strong>Geneset name</strong>*</td>
-<td>Name of the custom gene set. Later on, the user will use this name to select the gene set.</td>
+<td>Name of the custom gene set. Later on, the user will use this name to select the gene set. <span style="color: red;">Must be unique</span> — duplicate geneset names are not allowed.</td>
 </tr>
 <tr>
 <td><strong>Genes</strong>*</td>
@@ -644,7 +647,10 @@
 </video></p>
 </details>
 <h3 id="12-editing-a-gene-set"><u> <strong>1.2. Editing a gene set</strong> </u></h3>
-<p>The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking. After making an edit, the changes will appear below the table. The edit is saved when you click "Save changes" and see the confirmation message "saved!" You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking "Delete selected data" removes all selected rows from the database.</p>
+<p>The registered gene sets can be edited at any time in the "Custom Gene Sets" table. Each cell is editable by double-clicking (the geneset name in the first column cannot be edited). After making an edit, the change will be manifested below the table.</p>
+<p>Clicking <strong>"Save changes"</strong> opens a confirmation dialog ("Are you sure you want to save the changes? This action cannot be undone.") — confirming writes the edits to the database file.</p>
+<p>You can select rows by clicking them (multiple selections are possible), and the number of selected rows appears at the bottom of the table. Clicking <strong>"Delete selected data"</strong> opens a confirmation dialog listing exactly which gene set(s) will be removed — confirming permanently deletes those rows.</p>
+<p>Click <strong>"Reload data"</strong> to refresh the table with the latest data from the underlying database file (useful if another user has added or edited a gene set in the meantime).</p>
 
 
 
@@ -664,6 +670,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -693,7 +705,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

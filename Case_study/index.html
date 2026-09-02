@@ -41,6 +41,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -241,7 +243,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -823,6 +825,7 @@
 
 <h1 id="case-study-report"><strong>Case Study Report</strong></h1>
 <p>This section demonstrates the use of OmicsBridge with multiple omics datasets.</p>
+<hr />
 <h2 id="case-study-1-exploring-screening-data-and-narrowing-down-candidate-genes-from-a-clinical-perspective"><u><strong>Case Study 1</strong></u>: <br>Exploring Screening Data and Narrowing Down Candidate Genes from a Clinical Perspective</h2>
 <p>CXCL10 is a chemokine that facilitates T-cell migration to the tumour microenvironment. We conducted a FACS-assisted loss-of-function CRISPR screening to identify CXCL10 regulators in a myeloid cell line, U937. We introduced a CRISPR gRNA library (Brunello library, Addgene) into cells via lentiviral transduction and cultured them with IFNγ and TNFα to induce CXCL10 expression. After trapping the chemokine within cells using brefeldin A treatment, we measured CXCL10 production levels using flow cytometry. We then sorted CXCL10-high and -low cell populations using FACS and analysed the enriched barcoded gRNAs in each population.</p>
 <p>The screening data were analysed using MaGeCK, and results were uploaded to OmicsBridge to identify potential CXCL10 regulators.</p>
@@ -860,6 +863,7 @@
 <source src="../videos/Supplemental_video_1d.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="case-study-2-transcriptomic-analysis-of-stk11-knockout-in-myeloid-cell-lines"><u><strong>Case Study 2</strong></u>: <br>Transcriptomic Analysis of STK11 Knockout in Myeloid Cell Lines</h2>
 <p>To elucidate the molecular mechanism underlying STK11-mediated regulation of CXCL10 expression, we performed RNA-seq analysis on U937 and THP1 myeloid cell lines with CRISPR/Cas9-mediated STK11 knockout, both in the presence and absence of cytokine stimulation. OmicsBridge facilitates comprehensive visualisation and analysis of the transcriptomic data, enabling intuitive interpretation of complex datasets. The platform's integrated analytical framework allowed for robust differential expression analysis, pathway enrichment, and cross-dataset comparisons. We leveraged these capabilities to systematically examine the transcriptional consequences of STK11 deficiency on cytokine signalling networks across both cellular models.</p>
 <h3 id="21-transcriptome-data-analysis"><u>2.1. Transcriptome Data Analysis</u></h3>
@@ -894,6 +898,7 @@
 <source src="../videos/Supplemental_video_2d.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="case-study-3-epigenomic-analysis-of-chromatin-accessibility-dynamics-in-response-to-cytokine-stimulation"><u><strong>Case Study 3</strong></u>: <br>Epigenomic Analysis of Chromatin Accessibility Dynamics in Response to Cytokine Stimulation</h2>
 <p>To elucidate the underlying molecular mechanisms, we analysed publicly available epigenomic data (ATAC-seq) from THP1 cells treated with IFN-γ at various time points. This approach enabled us to investigate differential chromatin accessibility patterns across genes differentially regulated by STK11 under cytokine stimulation conditions.</p>
 <h3 id="31-correlation-analysis-between-chromatin-accessibility-and-cytokine-induced-gene-expression"><u>3.1. Correlation Analysis Between Chromatin Accessibility and Cytokine-Induced Gene Expression</u></h3>
@@ -940,6 +945,12 @@
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -968,7 +979,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

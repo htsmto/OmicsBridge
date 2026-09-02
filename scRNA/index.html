@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -396,75 +398,9 @@
         <li class="md-nav__item">
   <a href="#2-feature-plots" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Feature Plots
+      2. Feature plots
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2. Feature Plots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-gene-feature-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.1. Gene feature plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-gene-signature-feature-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2. Gene Signature feature plot
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-other-plots" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Other plots
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Other plots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-dot-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1. Dot plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-violin-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2. Violin plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-pie-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3. Pie chart
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -633,75 +569,9 @@
         <li class="md-nav__item">
   <a href="#2-feature-plots" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Feature Plots
+      2. Feature plots
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="2. Feature Plots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-gene-feature-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.1. Gene feature plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-gene-signature-feature-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2. Gene Signature feature plot
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-other-plots" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Other plots
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Other plots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-dot-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1. Dot plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-violin-plot" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2. Violin plot
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-pie-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3. Pie chart
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -722,7 +592,8 @@
 
 
 <h1 id="scrna-dataset">scRNA dataset</h1>
-<p>Here, users can visualise the registered scRNAseq dataset and investigate their genes of interest in it. </p>
+<p>Here, users can visualise the registered scRNAseq dataset and investigate their genes of interest in it.</p>
+<hr />
 <h2 id="0-pre-processing"><u> <strong>0. Pre-processing</strong> </u></h2>
 <p>The interface accepts an RDS file as input for the scRNA section. The scRNA data must be processed using Seurat and ready for UMAP plotting (not tSNE). Before uploading to the interface, it is highly recommended to annotate each cluster with its corresponding cell type. For more information, please refer to the Seurat tutorial.</p>
 <details class="note">
@@ -751,18 +622,23 @@
 <span class="n">Seurat_obj</span><span class="o">@</span><span class="n">reductions</span><span class="o">$</span><span class="n">pca</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NULL</span><span class="w">  </span><span class="c1"># if only using UMAP</span>
 </code></pre></div>
 </details>
+<hr />
 <h2 id="1-data-overview"><u> <strong>1. Data overview</strong> </u></h2>
 <p>This section provides a simple UMAP overview of your data.</p>
 <ol>
-<li>Select the dataset. The details will appear on the right.</li>
-<li>By default, the plot is coloured according to the clusters defined by Seurat.<ul>
+<li>
+<p>Select the dataset from the drop-down menu. The dataset's details (Data from, Experiment, When, Description) appear on the right.</p>
+<p>Click "Reload your datasets list" (next to the dropdown) to refresh with any datasets uploaded or edited since the page was loaded.</p>
+</li>
+<li>
+<p>By default, the plot is coloured according to the clusters defined by Seurat.</p>
+<ul>
 <li>You can change the colouring option by selecting from a drop-down menu.</li>
 <li>The available categories depend on the metadata in the dataset (stored in Seurat_object@meta.data).</li>
 </ul>
 </li>
 <li>To highlight a specific group, toggle on "Highlight a specific group".<ul>
 <li>A drop-down menu will appear for selecting a group.</li>
-<li>You can customise the colours</li>
 </ul>
 </li>
 </ol>
@@ -780,19 +656,21 @@
 <source src="../videos/scRNA_1_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h2 id="2-feature-plots"><u> <strong>2. Feature Plots</strong> </u></h2>
-<h3 id="21-gene-feature-plot"><u> <strong>2.1. Gene feature plot</strong> </u></h3>
-<ol>
-<li>Enter your genes of interest (one per line). They will appear as a selectable table below.</li>
-<li>Click on a gene in the table to generate a feature plot. Cells not expressing the selected gene appear in black as background, while cells expressing the gene (UMI &gt; 0) are highlighted with a gradient colour scheme (default: white to red).</li>
-</ol>
+<hr />
+<h2 id="2-feature-plots"><u> <strong>2. Feature plots</strong> </u></h2>
+<p>This section lets you investigate genes of interest across the cells in your UMAP plot, in several plot formats.</p>
+<p>Enter your genes of interest (one per line) in the "Inputs and Settings" box, or toggle "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead. The genes will appear as a selectable table below the input box, shared across all the tabs described below.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><strong>Feature Plot (UMAP)</strong></label><label for="__tabbed_1_2"><strong>Violin Plot</strong></label><label for="__tabbed_1_3"><strong>Dot Plot</strong></label><label for="__tabbed_1_4"><strong>Pie chart</strong></label><label for="__tabbed_1_5"><strong>Gene Set Signature (AUC score) Feature Plot</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Click on a gene in the table to generate a feature plot. Cells not expressing the selected gene appear in a background colour, while cells expressing the gene (UMI &gt; 0) are highlighted with a gradient colour scheme (default: white to red).</p>
 <details class="success">
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>Figure size (width and height)</li>
-<li>Font size for X/Y axes, labels, graph title, and legend</li>
-<li>Dot size</li>
-<li>Colours for highest/lowest expression and background</li>
+<li>X/Y label font size, X/Y title font size, graph title font size, and legend font size</li>
+<li>Dot size (expressing cells) and dot size (background/non-expressing cells)</li>
+<li>Colour for the highest expression, colour for the lowest expression, and colour for zero expression (background)</li>
 <li>Option to use a white background</li>
 </ul>
 </details>
@@ -802,64 +680,12 @@
 <source src="../videos/scRNA_2_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h3 id="22-gene-signature-feature-plot"><u> <strong>2.2. Gene Signature feature plot</strong> </u></h3>
-<p>The interface can also calculate gene set signature scores (AUC scores) and generate a feature plot for visualisation.</p>
-<p>AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enrichment of gene sets within single cells. They are calculated by ranking gene expression values in each cell and assessing how well a given gene set is enriched among highly expressed genes. AUC scores help infer pathway activity or transcription factor activity across cells, revealing functional differences between cell populations.</p>
+</div>
+<div class="tabbed-block">
 <ol>
-<li>Enter your genes of interest (one per line) or choose from the custom gene sets.</li>
-<li>Click the start button to calculate the AUC score for each single cell. This process takes a few minutes.</li>
-<li>A feature plot will automatically appear on the right.</li>
-<li>In the 'Violin plot' tab, you can view a violin plot comparing scores across user-specified groups. Select the desired group from the drop-down menu at the top.</li>
-</ol>
-<details class="success">
-<summary>Adjustable graph parameters</summary>
-<ul>
-<li>Figure size (width and height)</li>
-<li>Font size for X/Y axes, labels, graph title, and legend</li>
-<li>Dot size</li>
-<li>Colours for highest/lowest expression and background</li>
-<li>Option to use a white background</li>
-</ul>
-<p>For the violin plot:</p>
-<ul>
-<li>Option to rotate the X-axis labels</li>
-<li>Option to hide the jitter plots</li>
-</ul>
-</details>
-<details class="example">
-<summary>Example Usage video</summary>
-<p><video width="1000" controls>
-<source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
-</video></p>
-</details>
-<h2 id="3-other-plots"><u> <strong>3. Other plots</strong> </u></h2>
-<h3 id="31-dot-plot"><u> <strong>3.1. Dot plot</strong> </u></h3>
-<ol>
-<li>Enter gene names one per line or select a custom gene set.</li>
-<li>Choose which subgroup you want to use. The dot plot will display gene expression across these selected subgroups.</li>
-<li>Click the start button. The dot plot will appear on the right panel.</li>
-</ol>
-<details class="success">
-<summary>Adjustable graph parameters</summary>
-<ul>
-<li>The size (width and height) of the figure</li>
-<li>The size of the X/Y axis labels, graph title, and legend font</li>
-<li>The scale of each dot</li>
-<li>The colour of the highest/lowest expression.</li>
-</ul>
-</details>
-<details class="example">
-<summary>Example Usage video</summary>
-<p><video width="1000" controls>
-<source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
-</video></p>
-</details>
-<h3 id="32-violin-plot"><u> <strong>3.2. Violin plot</strong> </u></h3>
-<ol>
-<li>Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.</li>
-<li>Choose which subgroup you want to use. The violin plot displays gene expression across these selected subgroups.</li>
-<li>Click a gene from the gene list table. The violin plot will appear on the right.</li>
-<li>To view specific groups only, toggle the 'Select the groups to show' switch located below the plot.<ul>
+<li>Choose a "Group by" categorical variable from the drop-down menu.</li>
+<li>Click a gene from the gene list table to generate a violin plot of its expression across the chosen groups.</li>
+<li>To view specific groups only, toggle "Select the groups to show" below the plot.<ul>
 <li>A list of all group names will appear.</li>
 <li>Only the selected groups will be displayed in the plot.</li>
 </ul>
@@ -869,9 +695,11 @@
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>The size (width and height) of the figure</li>
-<li>The size of the X/Y axis labels, graph title, and legend font</li>
+<li>X label size, Y label size, X/Y title size, and legend font size</li>
+<li>Min/max Y-axis display range</li>
 <li>Option to use a white background</li>
 <li>Option to rotate X-axis labels</li>
+<li>"Hide jitter plots" switch (jitter points, showing individual cells, are hidden by default)</li>
 </ul>
 </details>
 <details class="example">
@@ -880,18 +708,49 @@
 <source src="../videos/scRNA_5_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h3 id="33-pie-chart"><u> <strong>3.3. Pie chart</strong> </u></h3>
-<p>Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.</p>
+</div>
+<div class="tabbed-block">
 <ol>
-<li>Enter gene names one per line or select a custom gene set. A selectable table of genes will appear below.</li>
-<li>Choose which subgroup you want to use for visualisation. The dot plot will display gene expression across these selected subgroups.</li>
-<li>Click a gene from the gene list table. The pie chart will show the proportions of expressing and non-expressing cells across groups in the selected category, with labels indicating the cell count in each group.</li>
+<li>Choose a "Group by" categorical variable from the drop-down menu.</li>
+<li>By default, click a gene from the gene list table to plot just that gene. Alternatively, toggle "Show all the input genes?" to plot every entered gene together in one dot plot, in the order they were entered (this may take longer with many genes).</li>
+<li>To view specific groups only, toggle "Select the groups to show" below the plot.<ul>
+<li>A list of all group names will appear.</li>
+<li>Only the selected groups will be displayed in the plot.</li>
+</ul>
+</li>
 </ol>
 <details class="success">
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>The size (width and height) of the figure</li>
-<li>the size of the label, group names, and legend</li>
+<li>X label size, Y label size, Y title size, and legend font size</li>
+<li>Dot scale</li>
+<li>Colour for high expression and colour for low expression</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/scRNA_4_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Users can visualise the fraction of cells expressing specific genes across different clusters or cell types in the scRNA data. A cell is considered to be expressing a gene if it has a UMI count of 1 or greater.</p>
+<ol>
+<li>Choose a "Group by" categorical variable from the drop-down menu.</li>
+<li>Click a gene from the gene list table. The pie chart will show the proportions of expressing and non-expressing cells across groups in the selected category, with labels indicating the cell count and percentage in each group.</li>
+<li>To view specific groups only, toggle "Select the groups to show" below the plot.<ul>
+<li>A list of all group names will appear.</li>
+<li>Only the selected groups will be displayed as pie charts.</li>
+</ul>
+</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>The size (width and height) of the figure</li>
+<li>The size of the label, group names, and legend</li>
 <li>The colour for the expressing and non-expressing segments in the pie chart</li>
 <li>Option to hide the labels/legend</li>
 </ul>
@@ -902,6 +761,40 @@
 <source src="../videos/scRNA_6_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+</div>
+<div class="tabbed-block">
+<p>The interface can also calculate gene set signature scores (AUC scores) for the genes entered above and generate a feature plot for visualisation.</p>
+<p>AUC (Area Under the Curve) scores in scRNA-seq data measure the activity or enrichment of gene sets within single cells. They are calculated using the AUCell method, which ranks gene expression values in each cell and assesses how well a given gene set is enriched among highly expressed genes. AUC scores help infer pathway activity or transcription factor activity across cells, revealing functional differences between cell populations.</p>
+<ol>
+<li>With your genes of interest entered above, click "Calculate the signature score" to run AUCell for each single cell. This takes 1-3 minutes depending on the number of genes and the size of the dataset.</li>
+<li>Once complete, a feature plot appears automatically, showing every cell's signature score on the UMAP.</li>
+<li><strong>Violin plot</strong>: select the desired "Group by" variable from the drop-down menu to compare signature scores across groups. To view specific groups only, toggle "Select the groups to show" below this plot in the same way as the other violin plot.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>X/Y label font size, X/Y title font size, and legend font size</li>
+<li>Dot size (foreground) and dot size (background), for the feature plot</li>
+<li>Colour for the highest expression, colour for the lowest expression, and colour for zero expression (background), for the feature plot</li>
+<li>Option to use a white background</li>
+</ul>
+<p>For the violin plot:</p>
+<ul>
+<li>Min/max Y-axis display range</li>
+<li>Option to rotate X-axis labels</li>
+<li>"Hide jitter plots" switch (jitter points are hidden by default)</li>
+</ul>
+</details>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/scRNA_3_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+</div>
+</div>
+</div>
 
 
 
@@ -921,6 +814,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -950,7 +849,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

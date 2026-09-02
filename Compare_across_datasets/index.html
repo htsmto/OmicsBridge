@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -319,9 +321,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-get-overlaps" class="md-nav__link">
+  <a href="#1-get-the-overlap" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Get overlaps
+      1. Get the overlap
     </span>
   </a>
   
@@ -556,9 +558,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-get-overlaps" class="md-nav__link">
+  <a href="#1-get-the-overlap" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Get overlaps
+      1. Get the overlap
     </span>
   </a>
   
@@ -590,18 +592,21 @@
 
 
 <h1 id="compare-across-datasets"><strong>Compare across datasets</strong></h1>
-<p>This section enables users to compare numerical scores (such as log fold changes of genes of interest) across multiple datasets. After selecting datasets of the same type, users can perform two types of analyses:</p>
+<p>This section enables users to compare numerical scores (such as log fold changes of genes of interest) across multiple datasets.</p>
+<p>After selecting datasets of the same type, users can perform two types of analyses:</p>
 <ol>
-<li><strong>"Get overlaps"</strong>: Compare the top/bottom N% of hits across datasets to identify genes that consistently appear as significant hits, tracking their frequency of occurrence.</li>
+<li><strong>"Get the overlap"</strong>: Compare the top/bottom N% of hits across datasets to identify genes that consistently appear as significant hits, tracking their frequency of occurrence.</li>
 <li><strong>"Compare one gene"</strong>: Compare specific scores (such as the LFC value of a particular gene) across datasets to identify experiment-specific effects and determine which conditions show stronger effect sizes.</li>
 </ol>
+<hr />
 <h2 id="0-datasets-selection"><u> <strong>0. Datasets selection</strong></u></h2>
 <ol>
-<li>First, select a "Data type" from the dropdown menu to view compatible datasets with matching structures.</li>
+<li>First, select a "Data type" from the dropdown menu to view compatible datasets with matching structures. Click "Reload your database" if a dataset you expect to see is missing (e.g. it was just uploaded or edited).</li>
 <li>Next, select datasets for analysis by clicking rows in the table. Use "Select all" or "Deselect all" buttons as needed. For targeted analysis, use the "Data from" and "Experiment" filters to narrow options by source or conditions.</li>
 </ol>
-<h2 id="1-get-overlaps"><u><strong>1. Get overlaps</strong> </u> <br></h2>
-<p>This section analyses and identifies genes that consistently appear as significant hits across multiple datasets to .</p>
+<hr />
+<h2 id="1-get-the-overlap"><u><strong>1. Get the overlap</strong> </u> <br></h2>
+<p>This section analyses and identifies genes that consistently appear as significant hits across multiple datasets.</p>
 <ol>
 <li>(Select the datasets to compare)</li>
 <li>Select a score for ranking<ul>
@@ -615,14 +620,15 @@
 </ul>
 </li>
 <li>Set the threshold (Default: 5%)</li>
-<li>Set "Overlap_times"<ul>
-<li>This defines how many times a gene must appear in the top/bottom N%</li>
-<li>Example: If you select 10 datasets and set Overlap_times to 5 for top 15%, it will return genes that appear in the top 15% in at least 5 of the 10 datasets.</li>
+<li>Set "Show genes with Overlap_time more than:"<ul>
+<li>This defines how many times a gene must appear in the top/bottom N% before it's included in the results.</li>
+<li>Example: If you select 10 datasets and set this to 5 for top 15%, it will return genes that appear in the top 15% in at least 5 of the 10 datasets.</li>
 </ul>
 </li>
-<li>Click the start button<ul>
-<li>The results table will appear below.</li>
+<li>Click "Investigate the overlap"<ul>
+<li>The results table will appear below, in the "Overlapped hits" box.</li>
 <li>The result table displays the frequency of each gene's appearance and its corresponding score for each dataset. When a gene is not in the top/bottom X% in a dataset, its score will be blank for that dataset.</li>
+<li>The table is downloadable via "Download this table". You can also expand the collapsed "List of the genes" box below it to select a single gene from the results and view it on its own.</li>
 </ul>
 </li>
 <li>Clicking any gene name in the table generates a bar plot on the right</li>
@@ -633,7 +639,11 @@
 <li>The size (width and height) of the figure</li>
 <li>The size of the X and Y axis label/title font size</li>
 <li>The size of the graph title</li>
+<li>Legend font size</li>
 <li>The color of the highest/lowest/zero value</li>
+<li>Option to switch from grey to white background</li>
+<li>"Use manual colour range": set custom high/low bounds for the colour scale instead of auto-scaling to the data</li>
+<li>"Use manual y-axis range": set custom high/low bounds for the Y-axis instead of auto-scaling to the data</li>
 </ul>
 </details>
 <details class="example">
@@ -642,14 +652,18 @@
 <source src="../videos/Compare_acorss_datasets_1_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="2-compare-one-gene"><u><strong>2. Compare one gene</strong></u></h2>
-<p>This feature compares scores of specific genes across selected datasets, displaying results as either a bar plot or scatter plot (bar plot is default). To use it:</p>
+<p>This feature compares scores of specific genes across selected datasets, displaying results as either a bar plot or scatter plot (bar plot is default).</p>
+<p>To use it:</p>
 <ol>
-<li>Enter gene names in the text box</li>
+<li>Enter the genes to compare, either by typing gene names in the text box, or by toggling "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead.</li>
 <li>Select the "Y-axis" parameter (typically log fold change or similar value)</li>
 <li>Choose a "Colour" parameter to determine how bars/dots are colored (can match the Y-axis value or another measure like p-values)</li>
 </ol>
-<p>After clicking "Start Analysis," a list of gene names appears. Click any gene to display its plot on the right. </p>
+<p>After clicking "Start Analysis," a list of gene names appears. Click any gene to display its plot on the right.</p>
+<p>The underlying data behind the plot is shown in the "Data information" box (downloadable via "Download this table").</p>
+<p>To switch between a bar plot and a scatter plot, use the "Plot type" radio buttons above the plot itself.</p>
 <p>Note that if none of the datasets contain the selected gene, no plot will appear.</p>
 <details class="success">
 <summary>Adjustable graph parameters</summary>
@@ -660,6 +674,8 @@
 <li>The size of the graph title and the legend</li>
 <li>The colour of the highest/lowest/zero value</li>
 <li>The white background option</li>
+<li>"Use manual colour range": set custom high/low bounds for the colour scale instead of auto-scaling to the data</li>
+<li>"Use manual y-axis range": set custom high/low bounds for the Y-axis instead of auto-scaling to the data</li>
 </ul>
 </details>
 <details class="example">
@@ -687,6 +703,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -716,7 +738,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

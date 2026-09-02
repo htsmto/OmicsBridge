@@ -41,6 +41,8 @@
       
     
     
+      <link rel="stylesheet" href="css/extra.css">
+    
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -403,7 +405,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -806,6 +808,7 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 ├── modules                 # modularised server and UI code
 │   ├── Clinical/
 │   ├── DataOverview/
+│   ├── Database/
 │   ├── DatasetsCompare/
 │   ├── Epigenome/
 │   ├── IntegrateTwoDataset/
@@ -832,16 +835,19 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 </code></pre></div>
 <p>This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.</p>
 <h4 id="alternative-manual-installation">Alternative: Manual Installation</h4>
-<div class="highlight"><pre><span></span><code><span class="c1">## CRAN dependent packages</span>
-<span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;Rcpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shiny&#39;</span><span class="p">,</span><span class="s">&#39;shinydashboard&#39;</span><span class="p">,</span><span class="s">&#39;eulerr&#39;</span><span class="p">,</span><span class="s">&#39;ggplot2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggbeeswarm&#39;</span><span class="p">,</span><span class="s">&#39;patchwork&#39;</span><span class="p">,</span><span class="s">&#39;igraph&#39;</span><span class="p">,</span><span class="s">&#39;tidyr&#39;</span><span class="p">,</span><span class="s">&#39;dplyr&#39;</span><span class="p">,</span><span class="s">&#39;DT&#39;</span><span class="p">,</span><span class="s">&#39;ggrepel&#39;</span><span class="p">,</span><span class="s">&#39;tibble&#39;</span><span class="p">,</span><span class="s">&#39;forcats&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;colourpicker&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;devtools&#39;</span><span class="p">,</span><span class="s">&#39;stringr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Cairo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Seurat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;reshape2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cowplot&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survival&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survminer&#39;</span><span class="p">,</span><span class="s">&quot;BiocManager&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;visNetwork&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggraph&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinyWidgets&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;shinycssloaders&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggseqlogo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;circlize&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggupset&#39;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="c1">## Bootstrap packages (needed to install everything else)</span>
+<span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;BiocManager&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;remotes&#39;</span><span class="p">))</span>
+<span class="n">BiocManager</span><span class="o">::</span><span class="nf">install</span><span class="p">()</span><span class="w"> </span><span class="c1"># Make sure to install &gt;3.20</span>
+
+<span class="c1">## CRAN dependent packages</span>
+<span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;shiny&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shinyjs&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shinydashboard&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shinyWidgets&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;shinycssloaders&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;DT&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;dplyr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;tidyr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;reshape2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;stringr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggplot2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggbeeswarm&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;patchwork&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggrepel&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggraph&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;eulerr&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;visNetwork&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;igraph&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;circlize&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cowplot&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;colourpicker&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ggseqlogo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survival&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;survminer&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Rtsne&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;umap&#39;</span><span class="p">))</span>
 
 <span class="c1">## BiocManager dependent packages</span>
-<span class="n">BiocManager</span><span class="o">::</span><span class="nf">install</span><span class="p">()</span><span class="w"> </span><span class="c1"># Make sure to install &gt;3.20</span>
-<span class="n">BiocManager</span><span class="o">::</span><span class="nf">install</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;GSEABase&quot;</span><span class="p">,</span><span class="s">&#39;GSVA&#39;</span><span class="p">,</span><span class="s">&#39;fgsea&#39;</span><span class="p">,</span><span class="s">&quot;clusterProfiler&quot;</span><span class="p">,</span><span class="s">&quot;org.Hs.eg.db&quot;</span><span class="p">,</span><span class="s">&quot;org.Mm.eg.db&quot;</span><span class="p">,</span><span class="s">&quot;decoupleR&quot;</span><span class="p">,</span><span class="s">&quot;igvShiny&quot;</span><span class="p">,</span><span class="s">&quot;GenomicAlignments&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AUCell&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Gviz&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;PWMEnrich&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;seqLogo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;PWMEnrich.Hsapiens.background&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;BSgenome.Hsapiens.UCSC.hg38&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;BSgenome.Hsapiens.UCSC.hg19&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;EnrichedHeatmap&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rtracklayer&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ChIPseeker&#39;</span><span class="p">))</span>
+<span class="n">BiocManager</span><span class="o">::</span><span class="nf">install</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;GSEABase&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;clusterProfiler&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;org.Hs.eg.db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;org.Mm.eg.db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fgsea&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;GSVA&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;decoupleR&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;GenomicRanges&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;GenomicFeatures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ChIPseeker&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;AnnotationDbi&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rtracklayer&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;EnrichedHeatmap&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Gviz&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;igvShiny&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;BSgenome.Hsapiens.UCSC.hg38&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;BSgenome.Hsapiens.UCSC.hg19&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;PWMEnrich&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;PWMEnrich.Hsapiens.background&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;AUCell&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Seurat&#39;</span><span class="p">))</span>
 
-<span class="c1">## Other packages</span>
-<span class="n">devtools</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&quot;ebecht/MCPcounter&quot;</span><span class="p">,</span><span class="n">ref</span><span class="o">=</span><span class="s">&quot;master&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">subdir</span><span class="o">=</span><span class="s">&quot;Source&quot;</span><span class="p">)</span>
-<span class="n">devtools</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&#39;dviraran/xCell&#39;</span><span class="p">)</span>
+<span class="c1">## GitHub-only packages</span>
+<span class="n">remotes</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&#39;ebecht/MCPcounter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;master&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">subdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Source&#39;</span><span class="p">)</span>
+<span class="n">remotes</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&#39;dviraran/xCell&#39;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="launching-the-app"><u><strong>Launching the App</strong></u></h2>
 <p>If you are using a Docker image, open your termiank and</p>
@@ -873,8 +879,8 @@ Rscript<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;
 <p>We provide a comprehensive Wiki for the interface at https://htsmto.github.io/OmicsBridge/.
 The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.</p>
 <h2 id="version"><u><strong>Version</strong></u></h2>
-<p>Current version: v1.2.15 <br>
-Release date: July 2026</p>
+<p>Current version: v1.3.0 <br>
+Release date: August 2026</p>
 <h2 id="citation"><u><strong>Citation</strong></u></h2>
 <p>A permanent DOI and citation will be provided upon publication.</p>
 <h2 id="contact"><u><strong>Contact</strong></u></h2>
@@ -905,6 +911,12 @@ Email: hitoshi.matsuo[at]dkfz-heidelberg.de
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -933,7 +945,7 @@ Email: hitoshi.matsuo[at]dkfz-heidelberg.de
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="assets/javascripts/bundle.13a4f30d.min.js"></script>

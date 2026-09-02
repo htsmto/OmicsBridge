@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -502,7 +504,7 @@
 </details>
 <details class="note">
 <summary>How can I save the figure?</summary>
-<p>Right-click on your mouse and select “Save Image As…” (in Mac)</p>
+<p>Right-click on the plot and select "Save Image As…" — this works the same way in Chrome or Firefox on Windows, Mac, or Linux. There is currently no built-in "Download plot" button in the interface (unlike tables, which mostly have a "Download this table" button).</p>
 </details>
 <details class="note">
 <summary>Does OmicsBridge handle raw data preprocessing?</summary>
@@ -522,11 +524,16 @@
 </details>
 <details class="note">
 <summary>How much disk space do I need?</summary>
-<p>Disk space requirements depend mainly on the size of the datasets you plan to load. Bulk RNA-seq datasets are relatively small, while scRNA-seq and epigenome datasets (e.g. BAM/BigWig files for the IGV browser) can require significantly more space. We recommend at least [X GB] of free storage, more if you're working with large cohorts.</p>
+<p>Disk space requirements depend mainly on the size of the datasets you plan to load. Bulk RNA-seq datasets are relatively small, while scRNA-seq and epigenome datasets (e.g. BAM/BigWig files for the IGV browser) can require significantly more space. Plan for enough free storage to comfortably hold every dataset you intend to upload, plus some headroom — large single-cell RDS files and BAM files are typically the biggest contributors.</p>
 </details>
 <details class="note">
 <summary>Does OmicsBridge require a powerful CPU?</summary>
 <p>No. CPU speed is not a major bottleneck for most analyses. RAM is the more important factor, particularly for scRNA-seq and epigenome data loading.</p>
+</details>
+<details class="note">
+<summary>My session disconnected, or the app seems to have crashed — what happened?</summary>
+<p>This is most often caused by hitting the server's RAM limit. The sidebar shows two live usage bars, "RAM usage" and "CPU usage (N cores)", reflecting the whole server host rather than just your own session — if the host is shared with other users, their activity affects these bars too. Keep an eye on them while working with memory-heavy data (scRNA-seq, epigenome bigWig/BAM tracks, large clinical cohorts).</p>
+<p>For a few of the heaviest loading steps — loading a scRNA dataset, generating a Genome visualisation plot, importing bigWig samples for a Profile Plot, and loading a clinical cohort's data — OmicsBridge checks resource usage before proceeding: if CPU usage is at or above 90%, RAM usage is at or above 85%, or the file(s) being loaded are unlikely to fit in the RAM currently free, it shows a "Server resources are low" warning and lets you cancel or continue anyway. Other actions don't have this check, so if the usage bars are already high, it's best to wait until they drop (or check with anyone else sharing the server) before starting another heavy analysis.</p>
 </details>
 <details class="note">
 <summary>Do I need to install R separately?</summary>
@@ -535,6 +542,26 @@
 <details class="note">
 <summary>What browser should I use?</summary>
 <p>Since OmicsBridge is an R/Shiny application, a modern browser such as Chrome or Firefox is recommended for the best experience with the interactive plots and dashboards.</p>
+</details>
+<details class="note">
+<summary>Does OmicsBridge need a GPU?</summary>
+<p>No. OmicsBridge runs entirely on CPU — none of its analyses (differential expression, enrichment, clustering, single-cell scoring, etc.) require or make use of a GPU.</p>
+</details>
+<details class="note">
+<summary>Does OmicsBridge support species other than human and mouse?</summary>
+<p>Data upload itself is species-agnostic — you can upload an expression matrix, comparison table, or clinical dataset for any organism, since these are just numeric tables. However, several built-in tools rely on human (or human + mouse) reference annotations and won't work for other species: FPKM normalisation in Count &amp; Comparison Data Overview (human gene lengths only), Find gene loci / Peak annotation in Tools (human GENCODE annotation), the Cancer Gene Census lookup in Clinical Data Analysis, and the Human &amp; Mouse Gene Converter. The IGV genome browser is the exception — it directly supports human (hg19/hg38) and mouse (mm10/mm39) genomes.</p>
+</details>
+<details class="note">
+<summary>Is there a login system? Is my data private if I share an instance with others?</summary>
+<p>OmicsBridge has no built-in login or user-account system. If you run it locally on your own machine, your data stays on that machine and isn't shared with anyone. If you (or your lab) run one shared instance on a server that multiple people connect to, everyone connecting to that instance sees the same uploaded datasets — there's no per-user separation of data.</p>
+</details>
+<details class="note">
+<summary>Can I undo a save or deletion?</summary>
+<p>No. Actions like saving edits to the database, deleting a dataset, or deleting a custom gene set or cohort all show a confirmation dialog first ("This action cannot be undone."), but once you confirm, the change is permanent — there is no undo or version history.</p>
+</details>
+<details class="note">
+<summary>I just uploaded or edited a dataset, but it's not showing up in a dropdown — why?</summary>
+<p>Dataset dropdowns are loaded once when a section is first opened and don't refresh automatically. Nearly every section that lists datasets has a "Reload your datasets list" (or similarly named) button next to the dropdown — click it to refresh the list with anything uploaded or edited since the page was loaded.</p>
 </details>
 
 
@@ -555,6 +582,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -584,7 +617,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

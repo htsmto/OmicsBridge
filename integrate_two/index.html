@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -572,54 +574,100 @@
 
 
 <h1 id="dataset-integration"><strong>Dataset Integration</strong></h1>
-<p>This section allows users to visualise two datasets side by side, making it easy to see how genes affected in one dataset relate to the other. Users can also merge the datasets to create integrated visualisations.</p>
+<p>This section allows users to visualise two datasets side by side, making it easy to see how genes affected in one dataset relate to the other.</p>
+<p>Users can also merge the datasets to create integrated visualisations.</p>
+<hr />
 <h2 id="1-data-exchanging-side-by-side-comparison"><u> <strong>1. Data exchanging (Side by Side comparison)</strong> </u></h2>
 <p>This feature compares two datasets side by side and transfers information between them to visualise how genes affected in one dataset correspond to their behaviour in another dataset.</p>
 <ol>
-<li>Select the direction:<ul>
+<li>
+<p>Select the direction:</p>
+<ul>
 <li>View selected genes from Data1 (left, the data mapping side) on Data2 (right, the data mapped side)</li>
 <li>View selected genes from Data2 (right, the data mapping side) on Data1 (left, the data mapped side)</li>
 </ul>
+<p>Click "Reload your datasets list" (next to the direction choice) to refresh with any datasets uploaded or edited since the page was loaded.</p>
 </li>
-<li>Choose two datasets (Data1 and Data2) and select the X and Y axes for each.<ul>
+<li>
+<p>Choose two datasets (Data1 and Data2) and select the X and Y axes for each.</p>
+<ul>
 <li>Filter your datasets using "Data from," "Experiment," and/or "Data type" if needed.</li>
 </ul>
 </li>
-<li>Select genes of interest in the data mapping side using either:<ul>
+<li>
+<p>Select genes of interest in the data mapping side using either:</p>
+<ul>
 <li>Setting thresholds for both X and Y axes (default method)</li>
 <li>Manual selection by drawing an area on the plot</li>
 </ul>
+<p>For the threshold method, X and Y are each filtered independently using the same five modes available elsewhere in OmicsBridge: "none" (no filter), "&gt; X1"/"&gt; Y1" (above the first threshold — the default for both axes), "&lt; X2"/"&lt; Y2" (below the second threshold), "X2 &lt; X &lt; X1"/"Y2 &lt; Y &lt; Y1" (between the two thresholds), or "X &lt; X2 or X &gt; X1"/"Y &lt; Y2 or Y &gt; Y1" (beyond either threshold). A "Hide threshold line" switch is also available to hide the threshold lines drawn on the plot.</p>
 </li>
-<li>Once selection is complete, the selected genes will be highlighted in the other dataset's plot. The selected gene information will appear in the Overlap genes section below.</li>
-<li>In the Overlap genes section, you can apply additional filters on the mapped side. The filtered genes will be displayed as a table.</li>
+<li>
+<p>Once selection is complete, the selected genes will be highlighted in the other dataset's plot. The selected gene information will appear in the "Overlap genes" section below.</p>
+</li>
+<li>
+<p>In the "Overlap genes" section, you can apply additional filters on the mapped side, using the same five-mode X/Y threshold system and its own "Hide threshold line" switch.</p>
+<p>The filtered genes will be displayed as a table ("Overlap genes table"), which is downloadable via "Download this table". You can also expand the collapsed "List of the genes" box below it to see the gene names as a simple list.</p>
+</li>
 </ol>
 <p>Important notes: Ensure the column containing gene names is labelled "id" for proper dataset merging. If selected genes aren't present in the other dataset, no highlighting will appear.</p>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure width and height (set independently for the Data1 and Data2 plots)</li>
+<li>Point size</li>
+<li>Highlighted points size</li>
+<li>Highlighted labels size</li>
+<li>X/Y label font size</li>
+<li>X/Y title font size</li>
+<li>Option to switch from white to grey background (defaults to white here, unlike most other modules)</li>
+<li>"Hide labels" switch (defaults to on)</li>
+<li>Colour picker for the highlighted dots</li>
+</ul>
+</details>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
 <source src="../videos/Integrated_two_1_annot_light.mp4" type="video/mp4">
 </video></p>
 </details>
+<hr />
 <h2 id="2-integration-plot"><u> <strong>2. Integration Plot</strong> </u></h2>
 <p>This feature enables you to merge two datasets for integrated visualisation.</p>
 <ol>
-<li>(Select the two datasets in the "Side by Side comparison" section.)</li>
-<li>Select your data source for both X and Y axes to generate a scatter plot.<ul>
+<li>
+<p>(Select the two datasets in the "Side by Side comparison" section.)</p>
+</li>
+<li>
+<p>Select your data source for both X and Y axes, and (optionally) a third variable for the point colour, to generate a scatter plot.</p>
+<ul>
 <li>Data1 columns are prefixed with "Data1_XXX" and Data2 columns with "Data2_XXX"</li>
 <li>X-axis typically represents scores from Data1</li>
 <li>Y-axis typically represents scores from Data2</li>
 <li>For example, plotting LFC from Data1 on the X-axis against LFC from Data2 on the Y-axis helps assess consistency between datasets</li>
 </ul>
+<p>Two reference lines can be toggled on the plot: "Draw y=x line" and "Draw y=-x line" — useful when visually assessing how consistent (or anti-correlated) the two datasets are.</p>
 </li>
-<li>Enter gene names line by line to highlight them in the plot.</li>
-<li>Select a region within the plot using your mouse to label dots with their gene names (IDs)<ul>
-<li>Detailed information about the selected area appears in a table below</li>
+<li>
+<p>Enter gene names line by line to highlight them in the plot.</p>
+<ul>
+<li>"Show gene names" toggles whether their labels are drawn on the plot (on by default)</li>
+<li>"Change colour of the selected genes" lets you pick a custom highlight colour instead of the default red</li>
 </ul>
 </li>
-<li>Filtering options<ul>
-<li>Set thresholds for x and y to highlight dots that exceed these values</li>
-<li>Select a gene set from HALLMARK or custom uploaded gene set lists ('Custom')</li>
-<li>Genes in the filtered area appear in a table below</li>
+<li>
+<p>Select a region within the plot using your mouse to label dots with their gene names (IDs)</p>
+<ul>
+<li>Detailed information about the selected area appears in the "Selected area" table below, which is downloadable via "Download this table" (with a collapsed "List of the genes" box alongside it)</li>
+</ul>
+</li>
+<li>
+<p>Filtering options</p>
+<ul>
+<li>Set thresholds for X and Y to highlight dots that meet them, using the same five-mode system described in Section 1 above (none / above / below / between / beyond either threshold)</li>
+<li>Select a gene set to highlight instead, by toggling "Use pathway genes or custom gene sets" — choices are HALLMARK (human), HALLMARK (mouse), Custom (upload your own GMT file), or Custom gene sets (from your registered custom gene sets)</li>
+<li>"Hide labels" and "Change colour" switches are available for the filtered gene set, separate from the highlighted-gene colour above</li>
+<li>Genes in the filtered area appear in the "Filtered area" table below (collapsed by default), downloadable via "Download this table" (with its own collapsed "List of the genes" box)</li>
 </ul>
 </li>
 </ol>
@@ -629,7 +677,8 @@
 <li>Figure size (width and height)</li>
 <li>Font size of x/y axis and title</li>
 <li>Dot size for all points and highlighted points</li>
-<li>Option to use a white background    </li>
+<li>Label size (font size of the gene ID annotations on the plot)</li>
+<li>Option to use a white background</li>
 </ul>
 </details>
 <details class="example">
@@ -657,6 +706,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -686,7 +741,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

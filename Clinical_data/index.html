@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -450,9 +452,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-cancer-gene-census-cosmos" class="md-nav__link">
+  <a href="#9-cancer-gene-census-cosmic" class="md-nav__link">
     <span class="md-ellipsis">
-      9. Cancer Gene Census (COSMOS)
+      9. Cancer Gene Census (COSMIC)
     </span>
   </a>
   
@@ -518,6 +520,15 @@
   <a href="#1024-mutation-data" class="md-nav__link">
     <span class="md-ellipsis">
       10.2.4. Mutation data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1025-how-to-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.5. How to upload
     </span>
   </a>
   
@@ -829,9 +840,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-cancer-gene-census-cosmos" class="md-nav__link">
+  <a href="#9-cancer-gene-census-cosmic" class="md-nav__link">
     <span class="md-ellipsis">
-      9. Cancer Gene Census (COSMOS)
+      9. Cancer Gene Census (COSMIC)
     </span>
   </a>
   
@@ -902,6 +913,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#1025-how-to-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2.5. How to upload
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -962,8 +982,18 @@
 
 
 <h1 id="clinical-data"><strong>Clinical data</strong></h1>
+<hr />
 <h2 id="1-cohort-selection-and-view-the-data"><u><strong>1. Cohort selection and view the data</strong></u></h2>
-<p>A cohort can be selected in the top. Once selected, its details will be shown on the right. The data can be viewed as an excel format in the “View the data” section. For a gene expression, since this table is usually a large data, by default it shows the first 1000 lines to avoid over memory usage. The uses can choose to show all the data if they want.</p>
+<p>A cohort can be selected in the top. Once selected, its details will be shown on the right.</p>
+<p>Click "Reload your clinical datasets list" to refresh with any cohorts uploaded or edited since the page was loaded.</p>
+<p>The data can be viewed as an interactive, sortable/searchable table in the "View the data" section, split across four tabs:</p>
+<ul>
+<li><strong>Gene expression</strong>: Since this table is usually large, by default it shows only the first 1000 rows to avoid overloading the server's memory. Switch to "Show everything" if you need the full table (may be slow for large datasets).</li>
+<li><strong>Survival</strong>: The patient survival/event data table (see Section 10.2.2 below for its format).</li>
+<li><strong>Meta data</strong>: The patient metadata table. You can also edit it directly here — toggle "Add a new metadata column" to create a new column and fill in its values, or "Delete a metadata column" to remove one.</li>
+<li><strong>Mutation data</strong>: The mutation data table, if one was uploaded for this cohort.</li>
+</ul>
+<hr />
 <h2 id="2-survival-analysis"><u><strong>2. Survival analysis</strong></u></h2>
 <p>This section examines the association between gene expression and survival outcomes within a selected patient cohort.</p>
 <ol>
@@ -975,9 +1005,10 @@
 <li>Manually specifying the two groups by entering sample names directly</li>
 </ul>
 </li>
+<li>Choose sample filtering: "Use all samples" (default), or "Use the selected samples by a specific category" to restrict the analysis to patients matching one metadata category (e.g. a specific treatment group or subtype) before splitting them into groups.</li>
 <li>Select the event type</li>
-<li>Click the start button.<ul>
-<li>It generates a results table showing p-values and hazard ratios for each gene, sorted by the hazard ratio.</li>
+<li>Click "Start the survival analysis".<ul>
+<li>It generates a results table showing p-values and hazard ratios for each gene, sorted by the hazard ratio. The table is downloadable via "Download this table".</li>
 </ul>
 </li>
 <li>Click on any row in the results table to display the corresponding Kaplan–Meier curve.</li>
@@ -985,12 +1016,22 @@
 </ol>
 <p>The survival events available for analysis (such as overall survival or progression-free survival) depend on the metadata included in your cohort dataset. For more details, please refer to <strong>10.2. How to upload your own cohort</strong> section.</p>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Kaplan-Meier curve)</summary>
 <ul>
 <li>The size (width and height) of the figure.</li>
 <li>The size of the X and Y axis/label font size.</li>
 <li>The size of the legend title</li>
 <li>The colour for the high- and low-expression group.</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Expression distribution histogram)</summary>
+<ul>
+<li>The size (width and height) of the figure.</li>
+<li>X and Y axis/label font size, and graph title size.</li>
+<li>The colour of the histogram bars.</li>
+<li>Number of histogram bins (10-100, default: 20).</li>
+<li>Option to switch from grey to white background.</li>
 </ul>
 </details>
 <details class="example">
@@ -999,33 +1040,39 @@
 <source src="../videos/Clinical_1_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="3-gene-correlation"><u><strong>3. Gene correlation</strong></u></h2>
-<p>This section allows you to analyse gene expression correlations within a selected cohort. Users can investigate how the expression level of a specific gene correlates with the expression levels of other genes.</p>
+<p>This section computes and visualises pairwise correlations between the expression levels of multiple genes, across the patients in the selected cohort.</p>
+<p>Enter two or more genes to get a correlation heatmap across all of them, then drill down into any specific pair to see its own scatter plot.</p>
 <ol>
-<li>Enter one name of the target gene (will be shown on the Y-axis of scatter plots).</li>
-<li>Select an analysis mode under Explore type:<ul>
-<li><strong>Explore one gene's correlation with specific genes</strong> (default):<ul>
-<li>In this case, enter the gene names or select a gene set from a custom gene set to investigate the correlation (will be shown on the X-axis)</li>
+<li>Enter the genes to correlate, either by typing gene names line by line, or by toggling "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead.</li>
+<li>Choose sample filtering: "Use all samples" (default), or "Use the selected samples by a specific category" to restrict the analysis to patients matching one metadata category.</li>
+<li>Choose the calculation method: Pearson or Spearman.</li>
+<li>Click "Calculate the correlation" to compute the full pairwise correlation matrix across all your input genes.</li>
+<li>View the results:<ul>
+<li><strong>Correlation table</strong>: Select one of your input genes from the "Select a gene to show its correlation result table" drop-down to see a table of that gene's correlation (r-value and p-value) against every other gene you entered. The table is downloadable via "Download this table".</li>
+<li><strong>Pairwise heatmap</strong>: By default, the "Plot" panel shows a clustered heatmap of the full pairwise correlation matrix across all your input genes — genes are automatically reordered by hierarchical clustering so similarly-correlated genes sit together.</li>
+<li><strong>Scatter plot for one pair</strong>: Once you've selected a gene from the drop-down above, click its row in the correlation table to pick a second gene — the "Plot" panel then switches to a scatter plot of just that gene pair, with an optional regression line.</li>
 </ul>
 </li>
-<li><strong>Explore one gene's correlation with all the genes</strong>:<ul>
-<li>It calculates correlations with all genes in the cohort. This takes several minutes.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Choose correlation method: Pearson (linear relationships) or Spearman (rank-based).</li>
-<li>Click Start to run analysis. It returns a table showing correlation coefficient and p-value for each gene.</li>
-<li>Clicking any gene in the table displays its scatter plot showing correlation with the target gene.</li>
 </ol>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Pairwise heatmap)</summary>
 <ul>
-<li>The size (width and height) of the figure.</li>
-<li>The size of the X and Y axis/label font size.</li>
-<li>Change the background from gray to white</li>
-<li>The colour of the dot</li>
-<li>Show the correlation line</li>
+<li>Figure width and height</li>
+<li>X/Y axis label size (set to 0 to hide the gene name labels entirely)</li>
+<li>Legend font size</li>
+<li>Colour for the lowest correlation (-1), highest correlation (+1), and mid correlation (0)</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Scatter plot)</summary>
+<ul>
+<li>Figure width and height</li>
+<li>X/Y axis label size and title size</li>
+<li>Colour of the dots</li>
+<li>Option to show the correlation line (on by default)</li>
+<li>Option to use a white background</li>
 </ul>
 </details>
 <details class="example">
@@ -1034,6 +1081,7 @@
 <source src="../videos/Clinical_2_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="4-mutation-analysis"><u><strong>4. Mutation analysis</strong></u></h2>
 <p>This section helps you analyse gene mutations in the selected cohort.</p>
 <ol>
@@ -1048,13 +1096,13 @@
 <li>When choosing 'Use the selected samples by a specific category', you can filter samples using metadata (treatment group, cancer subtype, demographics) for targeted analysis</li>
 </ul>
 </li>
-<li>Click the start button. A Results table will appear in the bottom left section. The following plots will be generated in the tabs:<ul>
+<li>Click "Calculate the mutation frequency". A Results table will appear in the bottom left section. The following plots will be generated in the tabs:<ul>
 <li><strong>Frequency Plot</strong> tab: 
 A bar plot showing the frequency or the counts of mutated genes. The Y-axis displays either mutation count or frequency (%). You can adjust the number of genes to display.</li>
 <li><strong>Survival analysis</strong> tab: 
 Select an event for survival analysis. Clicking a gene name displays a Kaplan-Meier curve comparing the wild-type patients and the mutant patients.</li>
 <li><strong>Gene expression plot</strong> tab: 
-This comparison examines the expression levels between the wild-type and mutant groups.<ol>
+This comparison examines the expression levels between the wild-type and mutant groups. Choose a plot type — Box plot, Violin plot, Swarm plot, or Violin + Swarm plot.<ol>
 <li>Click a gene in the mutation analysis results table</li>
 <li>Enter genes in the input field to generate a table listing these genes</li>
 <li>Click a gene from the Input genes table to generate a plot comparing its expression between the wild-type and mutant patients</li>
@@ -1070,7 +1118,8 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Plot size (width and height)</li>
 <li>X and Y label size</li>
 <li>Legend size</li>
-<li>Colours for highest and lowest mutant count/frequency</li>
+<li>Score font size (the value labels drawn on each bar)</li>
+<li>Colour for the highest value, and for zero</li>
 <li>Number of genes to display</li>
 <li>White background option</li>
 <li>Option to hide scores on each bar</li>
@@ -1086,8 +1135,10 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Gene expression plot<ul>
 <li>Plot size (width and height)</li>
 <li>X and Y label size</li>
+<li>Dot size (for the swarm plot)</li>
 <li>Graph title and legend font size</li>
 <li>Colours for wild-type and mutant groups</li>
+<li>White background option</li>
 </ul>
 </li>
 </ol>
@@ -1098,13 +1149,14 @@ This comparison examines the expression levels between the wild-type and mutant 
 <source src="../videos/Clinical_3_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="5-gene-expression-across-subtypes"><u><strong>5. Gene expression across subtypes</strong></u></h2>
 <p>When metadata for the cohort is provided and patients can be divided into subtypes, users can compare gene expression across patient subgroups.</p>
 <ol>
 <li>Enter the genes or select a custom gene set</li>
-<li>Select a category for subtype from the "Group by" drop-down menu</li>
+<li>Select a category for subtype from the "Group by" drop-down menu. If the category has more than two subtypes, you can toggle "Want to compare only two subtypes?" to restrict the comparison to exactly two of them.</li>
 <li>Click "Start comparing" to compare gene expression across subtypes. Note that visualisation may be slow and cluttered when there are many subtypes in the selected group.</li>
-<li>A result table with statistical scores and p-values will be generated. Statistical scores include W values for two subtypes and H values for three or more subtypes.</li>
+<li>A result table with statistical scores and p-values will be generated (downloadable via "Download this table"). Statistical scores include W values for two subtypes and H values for three or more subtypes.</li>
 <li>Clicking any row in the table displays a visualisation on the right. Available plot types include Box plot, Violin plot, Swarm plot, or Violin + Swarm plot</li>
 </ol>
 <details class="success">
@@ -1113,7 +1165,10 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Figure size (width and height)</li>
 <li>X and Y axis/label font size</li>
 <li>Graph title size</li>
-<li>Colour palette for each subtype</li>
+<li>Dot size (for the swarm plot)</li>
+<li>Colour palette for each subtype, or "Use a single colour" to override it with one flat colour</li>
+<li>Option to rotate the X-axis labels</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </details>
 <details class="example">
@@ -1122,6 +1177,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <source src="../videos/Clinical_4_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="6-signature-analysis"><u><strong>6. Signature analysis</strong></u></h2>
 <p>This section performs signature analysis on gene expression data from the selected cohort to evaluate the activity or presence of specific biological processes.</p>
 <ol>
@@ -1130,6 +1186,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Entering gene names line by line</li>
 </ul>
 </li>
+<li>Choose sample filtering: "Use all samples" (default), or "Use the selected samples by a specific category" to restrict the analysis to patients matching one metadata category.</li>
 <li>
 <p>Select the calculation method:</p>
 <ul>
@@ -1137,17 +1194,17 @@ This comparison examines the expression levels between the wild-type and mutant 
 </ul>
 </li>
 <li>
-<p>Click the start button. This generates a result table with scores for each sample.</p>
+<p>Click "Calculate the signature score". This generates a result table with scores for each sample, downloadable via "Download this table".</p>
 </li>
 <li>Three plots are generated:<ul>
 <li><strong>Survival analysis plot</strong> tab:<ul>
 <li>Generates a Kaplan-Meier plot.</li>
-<li>Allows selection of methods to split samples into high and low-score patients: either by median or comparing Top 25% vs Bottom 25%.</li>
+<li>Allows selection of methods to split samples into high and low-score patients: by median, Top 25% vs Bottom 25%, or a custom Top X% vs Bottom Y%.</li>
 </ul>
 </li>
 <li><strong>Score comparison</strong> tab:<ul>
-<li>Select the group to compare signature scores and click the start button.</li>
-<li>Four plot types are available (Box plot, Violin plot, Swarm plot, and Violin + Swarm plot).</li>
+<li>Select the group to compare signature scores. If the group has more than two subtypes, you can toggle "Want to compare only two subtypes?" to restrict the comparison to exactly two of them.</li>
+<li>Click "Show a plot". Four plot types are available (Box plot, Violin plot, Swarm plot, and Violin + Swarm plot).</li>
 </ul>
 </li>
 <li><strong>Distribution</strong> tab:<ul>
@@ -1174,17 +1231,19 @@ This comparison examines the expression levels between the wild-type and mutant 
 </li>
 <li><strong>Score comparison plot</strong><ul>
 <li>Figure size (width and height)</li>
-<li>X and Y axis/label font size</li>
-<li>Legend title size</li>
-<li>Color palette</li>
+<li>X and Y axis/label font size and graph title font size</li>
+<li>Dot size (for the swarm plot)</li>
+<li>Color palette, or "Use a single colour" to override it with one flat colour</li>
+<li>Option to rotate the X-axis labels</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </li>
 <li><strong>Histogram</strong><ul>
 <li>Figure size (width and height)</li>
 <li>X and Y axis/label font size</li>
-<li>Legend title size</li>
 <li>Histogram bin color</li>
 <li>Number of histogram bins</li>
+<li>Option to switch from grey to white background</li>
 </ul>
 </li>
 </ul>
@@ -1195,11 +1254,12 @@ This comparison examines the expression levels between the wild-type and mutant 
 <source src="../videos/Clinical_5_annot.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="7-deconvolution-analysis"><u><strong>7. Deconvolution analysis</strong></u></h2>
 <p>This section provides deconvolution analysis from patients' gene expression data (typically bulk RNAseq). While several deconvolution tools exist, two are available here: <a href="https://github.com/ebecht/MCPcounter">MCPcounter</a> and <a href="https://comphealth.ucsf.edu/app/xcell">xCell</a>.</p>
 <ol>
 <li>Select the cohort</li>
-<li>Choose either MCPcounter or xCell as your method, then click the start button. A deconvolution result table will appear on the right.</li>
+<li>Choose either MCPcounter or xCell as your method, then click "Start deconvolution". A deconvolution result table will appear on the right, downloadable via "Download this table".</li>
 </ol>
 <p>The interface provides two additional analysis tabs. </p>
 <details class="example">
@@ -1230,15 +1290,24 @@ This comparison examines the expression levels between the wild-type and mutant 
 </li>
 </ul>
 </li>
-<li>Click the "Show plots" button to generate a heatmap and barplot on the right</li>
+<li>Click "Show a heatmap" to generate a heatmap and barplot on the right</li>
 </ol>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Heatmap)</summary>
 <ul>
 <li>Figure size (width and height)</li>
 <li>X and Y axis font size</li>
 <li>Legend font size</li>
-<li>Colours for high and low deconvolution score (for the heatmap)</li>
+<li>Colour for the highest value, and for zero</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Barplot)</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>X and Y axis font size</li>
+<li>Legend font size</li>
+<li>"Percentile plot" option: switch from raw scores to percentile-scaled values</li>
 </ul>
 </details>
 <h3 id="72-exploring-correlations-between-gene-expression-and-cell-type-abundance"><u><strong>7.2. Exploring correlations between gene expression and cell type abundance</strong></u></h3>
@@ -1246,8 +1315,9 @@ This comparison examines the expression levels between the wild-type and mutant 
 <ol>
 <li>Enter the gene names line by line (or choose a gene set)</li>
 <li>Select a cell type to investigate</li>
+<li>Choose sample filtering: "Use all samples" (default), or "Use the selected samples by a specific category" to restrict the analysis to patients matching one metadata category.</li>
 <li>Choose a correlation method, either Pearson or Spearman</li>
-<li>Click the start button. This calculates the correlation between gene expression and cell type abundance, generating a table with correlation coefficients and p-values.</li>
+<li>Click "Calculate the correlation". This calculates the correlation between gene expression and cell type abundance, generating a table with correlation coefficients and p-values, downloadable via "Download this table".</li>
 <li>Clicking any row in the result table generates a scatter plot.</li>
 </ol>
 <details class="success">
@@ -1261,6 +1331,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Option to use a white background</li>
 </ul>
 </details>
+<hr />
 <h2 id="8-compare-cohorts"><u><strong>8. Compare cohorts</strong></u></h2>
 <p>In this section, you can compare gene expression or mutation frequency across different cohorts.</p>
 <ol>
@@ -1269,21 +1340,30 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>The list of genes will appear. Click the gene you want to investigate.</li>
 <li>Select the cohorts you want to include.<ul>
 <li>All cohorts stored in OmicsBridge will be listed.</li>
-<li>You can select multiple cohorts, but note that generating figures may take longer, especially for gene expression analysis. (ex. When selecting all TCGA cohorts, it takes ~30 min for the mutation frequency analysis and 2~3 minutes for the gene expression analysis.)</li>
+<li>You can select multiple cohorts, but note that generating figures may take longer, especially for gene expression analysis. (ex. When selecting all TCGA cohorts, it takes ~30 sec for the mutation frequency analysis and ~2 minutes for the gene expression analysis.)</li>
 </ul>
 </li>
-<li>Click the start button in either tab ("Mutation Frequency" or "Gene expression")<ul>
-<li>In "Mutation Frequency," a bar plot will display the number (or percentage) of patients with mutations in the selected gene across the chosen cohorts.</li>
+<li>Click "Compare mutation frequencies" or "Compare gene expressions", depending on the tab you're in ("Mutation Frequency" or "Gene expression")<ul>
+<li>In "Mutation Frequency," a bar plot will display the number or percentage of patients with mutations in the selected gene across the chosen cohorts — choose which via the "Y axis" option.</li>
 <li>In "Gene expression," a box plot is generated that compares gene expression levels across the selected cohorts</li>
 </ul>
 </li>
 </ol>
 <details class="success">
-<summary>Adjustable graph parameters</summary>
+<summary>Adjustable graph parameters (Mutation Frequency)</summary>
 <ul>
 <li>Figure size (width and height)</li>
-<li>Font size for x-axis, y-axis, and legend</li>
-<li>Colour scheme for the bar plot (mutation frequency analysis)</li>
+<li>Font size for x-axis, y-axis, legend, and the score labels on each bar</li>
+<li>Colour for the highest value, and for zero</li>
+<li>Option to use a white background</li>
+<li>Option to hide the score labels on each bar</li>
+</ul>
+</details>
+<details class="success">
+<summary>Adjustable graph parameters (Gene expression)</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>Font size for x-axis and y-axis</li>
 <li>Option to use a white background</li>
 </ul>
 </details>
@@ -1293,11 +1373,12 @@ This comparison examines the expression levels between the wild-type and mutant 
 <source src="../videos/Clinical_9_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
-<h2 id="9-cancer-gene-census-cosmos"><u><strong>9. Cancer Gene Census (COSMOS)</strong></u></h2>
+<hr />
+<h2 id="9-cancer-gene-census-cosmic"><u><strong>9. Cancer Gene Census (COSMIC)</strong></u></h2>
 <p>OmicsBridge includes a database of cancer predisposition genes sourced from <a href="https://cancer.sanger.ac.uk/census">Cancer Gene Census from COSMIC</a>. This feature helps you identify which genes from your input are known to be associated with cancer predisposition.</p>
 <ol>
-<li>Enter gene names line by line.</li>
-<li>If any of the genes you entered are associated with cancer predisposition, they will appear in the results table. If none match, the complete database will be displayed instead.</li>
+<li>Enter gene names line by line, or toggle "Use the genes from the custom gene sets" to pull genes from one of your registered custom gene sets instead.</li>
+<li>If any of the genes you entered are associated with cancer predisposition, they will appear in the results table. If none match, the complete database will be displayed instead. The table is downloadable via "Download this table".</li>
 </ol>
 <details class="example">
 <summary>Example Usage video</summary>
@@ -1305,6 +1386,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <source src="../videos/Clinical_10_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="10-manage-the-cohort-database"><u><strong>10. Manage the cohort database</strong></u></h2>
 <p>The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.</p>
 <h3 id="101-pre-installed-cohort"><u><strong>10.1. Pre-installed cohort</strong></u></h3>
@@ -1510,7 +1592,26 @@ This comparison examines the expression levels between the wild-type and mutant 
 <summary>Example</summary>
 <p><img alt="Example" src="../img/3_mutation_example.png" /></p>
 </details>
+<h4 id="1025-how-to-upload"><u><strong>10.2.5. How to upload</strong></u></h4>
+<p>Once your files are ready in the formats described above, uploading a new cohort works as follows, in the "Upload" box below the "Registered cohort" table:</p>
+<ol>
+<li>Upload your Gene expression and Patient survival information files (both required) in the two upload widgets provided.</li>
+<li>Upload your Metadata file (required) and, if you have one, your Mutation data file (optional) in the two upload widgets below that.</li>
+<li>Enter a "Cohort Name" (required, must be unique across all cohorts) and an optional "Description".</li>
+<li>Check the "Previews" tabs (Expression table, Survival data, Meta data, Mutation data) to confirm each file was read correctly before submitting.</li>
+<li>Click "Add a new cohort" to register the cohort.</li>
+</ol>
+<p>If you want to start over, click "Reset uploaded files" to clear everything you've uploaded so far.</p>
+<details class="warning">
+<summary>Formatting reminders</summary>
+<ul>
+<li>The column containing sample (patient) IDs must be named "sample", and the column containing gene names must be named "id".</li>
+<li>The Cohort Name is mandatory and must be unique.</li>
+<li>Avoid special characters in the Cohort Name; use only letters, numbers, underscores, and dots.</li>
+</ul>
+</details>
 <h3 id="103-edit-or-delete-the-cohort"><u><strong>10.3. Edit or delete the cohort</strong></u></h3>
+<p>Click "Reload the database" (above the "Registered cohort" table) at any time to refresh the table with the latest data from the underlying database file.</p>
 <h4 id="1031-editing"><u> <strong>10.3.1. Editing</strong></u></h4>
 <ol>
 <li>Go to the "Registered cohort" table in the Cohort database section.</li>
@@ -1543,6 +1644,12 @@ This comparison examines the expression levels between the wild-type and mutant 
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -1571,7 +1678,7 @@ This comparison examines the expression levels between the wild-type and mutant 
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>

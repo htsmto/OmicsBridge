@@ -43,6 +43,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -243,7 +245,7 @@
   
   
   <span class="md-ellipsis">
-    Data Overview
+    Count & Comparison Data Overview
     
   </span>
   
@@ -466,6 +468,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3. Find gene loci">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-find-gene-positionsannotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1. Find gene positions/annotations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-peak-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2. Peak annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -598,6 +624,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3. Find gene loci">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-find-gene-positionsannotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1. Find gene positions/annotations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-peak-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2. Peak annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -645,6 +695,7 @@
 
 <h1 id="tools"><strong>Tools</strong></h1>
 <p>This section contains useful tools and functions that support analyses in other sections.</p>
+<hr />
 <h2 id="1-human-mouse-gene-converter"><u> <strong>1. Human &amp; Mouse Gene Converter</strong> </u></h2>
 <p>This tool converts gene symbols between human and mouse.</p>
 <ol>
@@ -652,13 +703,14 @@
 <li>Specify the input and output formats. The tool handles gene symbols and Ensembl gene IDs (with or without version numbers).</li>
 <li>Enter gene names one per line and click "Convert genes."</li>
 </ol>
-<p>A Conversion Table showing corresponding gene names between species will be generated. If no ortholog exists for a gene, that entry remains blank. The "List of Converted Genes" on the right displays only genes with identified orthologs, ready to be copied and used in other sections. This tool utilises the Ensembl genome browser 113 (BioMart, GRCh38.p14 and GRCm39). Note that a single gene may have multiple orthologous matches.</p>
+<p>A Conversion Table showing corresponding gene names between species will be generated, downloadable via "Download this table". If no ortholog exists for a gene, that entry remains blank. The "List of Converted Genes" on the right displays only genes with identified orthologs, ready to be copied and used in other sections. This tool utilises the Ensembl genome browser 113 (BioMart, GRCh38.p14 and GRCm39). Note that a single gene may have multiple orthologous matches.</p>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
 <source src="../videos/Tool_1_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="2-ensembl-id-gene-symbol-converter"><u><strong>2. Ensembl ID &amp; Gene Symbol Converter</strong> </u></h2>
 <p>This tool converts between gene symbols and Ensembl IDs for both human and mouse genes.</p>
 <ol>
@@ -666,27 +718,64 @@
 <li>Specify input and output formats</li>
 <li>Enter gene names line by line and click "Convert genes"</li>
 </ol>
-<p>A Conversion Table will be displayed in the middle. Entries without matches remain blank. The List of Converted Genes on the right provides a clean list of successfully converted names. This tool utilises data from the Ensembl genome browser 113 (GRCh38.p14 and GRCm39).</p>
+<p>A Conversion Table will be displayed in the middle, downloadable via "Download this table". Entries without matches remain blank. The List of Converted Genes on the right provides a clean list of successfully converted names. This tool utilises data from the Ensembl genome browser 113 (GRCh38.p14 and GRCm39).</p>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
 <source src="../videos/Tool_2_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="3-find-gene-loci"><u><strong>3. Find gene loci</strong></u></h2>
+<h3 id="31-find-gene-positionsannotations"><u> <strong>3.1. Find gene positions/annotations</strong> </u></h3>
 <p>This tool displays chromosomal coordinates for genes of interest in humans. It can also identify genes at specific genomic locations.</p>
 <ol>
 <li>Select the method: either find coordinates of genes or find genes at coordinates.</li>
 <li>Enter either gene names or genomic loci line by line. For genomic coordinates, use the format: chromosome number, start and end positions connected by ":" and "-" (e.g., chr1:76021118-7602349).</li>
 <li>Click "Search".</li>
 </ol>
-<p>The tool generates a table showing gene names (both Ensembl ID and gene symbol), chromosome, start position, end position, and strand information. A copyable list of genes or coordinates appears on the right, ready for use in other sections—particularly useful when exploring ChIPseq, ATACseq, or using the Genome browser session. The conversion uses annotation files from <a href="https://www.gencodegenes.org/human/release_42.html">GENCODE</a> (GRCh38.p13)</p>
+<p>The tool generates a table showing gene names (both Ensembl ID and gene symbol), chromosome, start position, end position, and strand information, downloadable via "Download this table". A copyable list of genes or coordinates appears on the right, ready for use in other sections—particularly useful when exploring ChIPseq, ATACseq, or using the Genome browser session. The conversion uses annotation files from <a href="https://www.gencodegenes.org/human/release_42.html">GENCODE</a> (GRCh38.p13)</p>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
 <source src="../videos/Tool_3_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<h3 id="32-peak-annotation"><u> <strong>3.2. Peak annotation</strong> </u></h3>
+<p>This tool annotates the genomic location of each input peak (e.g. a ChIPseq or ATACseq peak) and finds its nearest gene.</p>
+<ol>
+<li>Enter the peak regions, one per line, in the format <code>chr:start-end</code> (e.g. <code>chr1:100000-100100</code>). The width of a peak must not exceed 100,000 bp.</li>
+<li>Choose the genome (currently hg38 only) and click "Annotate the genomic locations".</li>
+</ol>
+<p>If a peak cannot be annotated (e.g. wrong coordinate format, a chromosome not in the genome, or a peak wider than 100,000 bp), it is listed by name in a status message rather than silently dropped. Results for the successfully annotated peaks appear in three tabs:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><strong>Table</strong></label><label for="__tabbed_1_2"><strong>Plots</strong></label><label for="__tabbed_1_3"><strong>Nearest gene names list</strong></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>A table of every annotated peak (labelled by its PeakID, <code>chr:start-end</code>) with its genomic feature annotation (e.g. Promoter, Exon, Intron, Downstream, Distal Intergenic) and nearest gene, downloadable via "Download this table".</p>
+</div>
+<div class="tabbed-block">
+<p>A pie chart (default) or horizontal stacked bar chart showing what proportion of the input peaks fall into each genomic feature category.</p>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>Legend title font size and legend text font size</li>
+<li>X-axis font size (bar plot only)</li>
+</ul>
+</details>
+</div>
+<div class="tabbed-block">
+<p>A plain, copyable list of the nearest gene for each peak, shown either as Ensembl gene ID or gene symbol.</p>
+</div>
+</div>
+</div>
+<details class="example">
+<summary>Example Usage video</summary>
+<p><video width="1000" controls>
+<source src="../videos/Tool_3_annot_light.mp4" type="video/mp4"> 
+</video></p>
+</details>
+<hr />
 <h2 id="4-cross-tabulation-analysis"><u><strong>4. Cross-tabulation analysis</strong></u></h2>
 <p>This section offers a cross-tabulation analysis tool for examining relationships between two categorical variables. Follow these steps:</p>
 <ol>
@@ -694,9 +783,10 @@
 <li>This automatically generates a 2×2 table and a plot</li>
 </ul>
 </li>
-<li>Choose display options:<ul>
-<li>View percentiles (default) or original count values</li>
-<li>Select stacked bar plot (default) or dodge bar plot</li>
+<li>Choose a plot method:<ul>
+<li>"Calculate the percentile (stack bar plot)" — default</li>
+<li>"Use the original count (stack bar plot)"</li>
+<li>"Use the original count (dodge bar plot)"</li>
 </ul>
 </li>
 <li>Check the calculated p-value from either:<ul>
@@ -709,10 +799,10 @@
 <summary>Adjustable graph parameters</summary>
 <ul>
 <li>Figure size (width, height)</li>
-<li>Font size (labels, title, including the legend)</li>
-<li>Colours for each category</li>
+<li>Font size (X label, Y label, title, and legend)</li>
+<li>Colour for each of the two column groups</li>
 <li>Use a white background</li>
-<li>Rotate the X labels for 90°</li>
+<li>"Rotate X labels" switch (off by default), with an adjustable angle (default 45°) once enabled</li>
 </ul>
 </details>
 <details class="example">
@@ -721,6 +811,7 @@
 <source src="../videos/Tool_4_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="5-venn-diagram"><u><strong>5. Venn Diagram</strong></u></h2>
 <p>This section helps users quickly check the overlaps between two or three groups and create a Venn diagram.</p>
 <ol>
@@ -743,6 +834,7 @@
 <source src="../videos/Tool_5_annot_light.mp4" type="video/mp4"> 
 </video></p>
 </details>
+<hr />
 <h2 id="6-network-plot"><u><strong>6. Network Plot</strong></u></h2>
 <p>This section generates a network plot by providing a TSV file containing nodes, edges, and weights.</p>
 <ol>
@@ -783,6 +875,12 @@
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -811,7 +909,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
