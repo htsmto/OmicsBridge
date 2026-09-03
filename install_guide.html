@@ -245,7 +245,14 @@
     <p>Go to <strong>cran.r-project.org/bin/macosx/</strong> and download the latest <code>.pkg</code> installer (choose the Apple Silicon or Intel build matching your Mac — Apple menu → About This Mac tells you which).</p>
     <p>Open the downloaded file and follow the installer, same as any other Mac app.</p>
     <p class="note">Version 4.4.0 or higher is required. If unsure, just install the newest version offered.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-1-cran-download.png" alt="CRAN macOS download page listing the Apple Silicon and Intel .pkg installers">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-1-installer.png" alt="R installer welcome screen">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -254,7 +261,7 @@
     <p>Open <strong>Terminal</strong> (⌘+Space, type <code>Terminal</code>, press Enter) and run:</p>
     <pre><code>xcode-select --install</code></pre>
     <p>A dialog appears — click <strong>Install</strong> and wait for it to finish (a few minutes).</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-2-xcode-tools.png" alt="the Xcode Command Line Tools install dialog">
   </section>
 
   <section>
@@ -266,41 +273,55 @@
   </section>
 
   <section>
-    <h2><span class="step-num">4</span>Download the case study data</h2>
-    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <h2><span class="step-num">4</span>Download the data</h2>
+    <p>Go to the <a href="https://zenodo.org/records/22257376">Zenodo page</a> and download:</p>
     <ul>
-      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
-      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+      <li><code>00_Clinical_dataset.tar.gz</code> — curated TCGA data, <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-4-and-docker-4-zenodo-data.png" alt="Zenodo Files section with the two downloadable files highlighted">
   </section>
 
   <section>
     <h2><span class="step-num">5</span>Unzip the data into the OmicsBridge folder</h2>
     <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then double-click each one — Finder unzips <code>.tar.gz</code> files natively on Mac, no extra software needed.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-5-and-docker-5-unzipped-structure.png" alt="Finder column view showing the unzipped 00_Clinical_dataset folder placed correctly inside OmicsBridge-main, alongside app.R and the launcher files">
   </section>
 
   <section>
     <h2><span class="step-num">6</span>Launch OmicsBridge</h2>
     <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_local_R.command</code>.</p>
-    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_local_R.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"), then <strong>right-click</strong> the file → <strong>Open</strong> → confirm <strong>Open</strong> in the dialog that appears. You only need to do this once.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_local_R.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"). Try <strong>right-click the file → Open → Open</strong> first — if that doesn't work, go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down to the message about this file being blocked, and click <strong>Open Anyway</strong> (you'll be asked for your password or Touch ID). You only need to do this once.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-6-finder-select-launcher.png" alt="launch_with_local_R.command selected in Finder">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-6-privacy-open-anyway.png" alt="System Settings → Privacy & Security, with Open Anyway circled">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">7</span>First run: installing packages</h2>
     <p>A black Terminal window opens and shows <strong>"Step 1/2: Installing required R packages"</strong> — this happens only the first time, and can take anywhere from several minutes up to about an hour depending on your internet connection. Leave it running.</p>
     <p class="note">You'll see a long scroll of package names and download messages — that's normal. Every launch after this one skips straight to starting up.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-7-package-install-log.png" alt="Terminal window mid-way through downloading and installing R packages">
   </section>
 
   <section>
     <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
     <p>Once you see <strong>"Step 2/2: Launching OmicsBridge"</strong> and then <code>Listening on http://127.0.0.1:4191</code>, a browser tab should <strong>open automatically</strong>.</p>
     <p class="note">If it doesn't open by itself, go to <code>http://localhost:4191</code> manually.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-8-listening-log.png" alt="Terminal showing all packages installed and Listening on http://127.0.0.1:4191">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-r-8-browser-home.png" alt="OmicsBridge home page open in the browser">
+      </div>
+    </div>
     <p class="note warn">Keep the Terminal window open — closing it stops OmicsBridge.</p>
   </section>
 
@@ -337,14 +358,22 @@
     <h2><span class="step-num">1</span>Install Docker Desktop</h2>
     <p>Go to <strong>docker.com/products/docker-desktop</strong> and download the Mac installer (choose Apple Silicon or Intel — Apple menu → About This Mac tells you which).</p>
     <p>Open the downloaded <code>.dmg</code>, then drag the Docker icon into the <strong>Applications</strong> folder, same as installing any other Mac app.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-docker-1-install-docker.png" alt="docker.com/products/docker-desktop download page with the OS download menu open">
+
   </section>
 
   <section>
     <h2><span class="step-num">2</span>Confirm Docker is running</h2>
     <p>Open Docker Desktop from Applications. Look for the little whale icon in the <strong>top menu bar</strong> — leave Docker Desktop running in the background for every step that follows.</p>
-    <p class="note">If asked to sign in, look for a small <strong>"Continue without signing in"</strong> link — signing in isn't required.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <p class="note">If asked to sign in, look for a line saying <strong>"You do not have to log in or create an account"</strong> — signing in isn't required.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-2-menubar-whale.png" alt="the whale icon in the Mac menu bar">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-2-engine-running.png" alt="Docker Desktop window showing Engine running at the bottom left">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -356,40 +385,54 @@
   </section>
 
   <section>
-    <h2><span class="step-num">4</span>Download the case study data</h2>
-    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <h2><span class="step-num">4</span>Download the data</h2>
+    <p>Go to the <a href="https://zenodo.org/records/22257376">Zenodo page</a> and download:</p>
     <ul>
-      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
-      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+      <li><code>00_Clinical_dataset.tar.gz</code> — curated TCGA data, <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-4-and-docker-4-zenodo-data.png" alt="Zenodo Files section with the two downloadable files highlighted">
   </section>
 
   <section>
     <h2><span class="step-num">5</span>Unzip the data into the OmicsBridge folder</h2>
     <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then double-click each one — Finder unzips <code>.tar.gz</code> files natively on Mac, no extra software needed.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-r-5-and-docker-5-unzipped-structure.png" alt="Finder column view showing the unzipped 00_Clinical_dataset folder placed correctly inside OmicsBridge-main, alongside app.R and the launcher files">
   </section>
 
   <section>
     <h2><span class="step-num">6</span>Launch OmicsBridge</h2>
     <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_docker.command</code>.</p>
-    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_docker.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"), then <strong>right-click</strong> the file → <strong>Open</strong> → confirm <strong>Open</strong> in the dialog that appears. You only need to do this once.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_docker.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"). Try <strong>right-click the file → Open → Open</strong> first — if that doesn't work, go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down to the message about this file being blocked, and click <strong>Open Anyway</strong> (you'll be asked for your password or Touch ID). You only need to do this once.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-6-finder-select-launcher.png" alt="launch_with_docker.command selected in Finder">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-6-privacy-open-anyway.png" alt="System Settings → Privacy & Security, with Open Anyway circled">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">7</span>First run: downloading the app image</h2>
     <p>A black Terminal window opens. The first time only, Docker downloads the OmicsBridge image (a few GB) before starting it — this can take several minutes depending on your connection. Leave it running.</p>
     <p class="note">Every launch after this one skips straight to starting up.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/mac-docker-7-pull-log.png" alt="Terminal showing Docker Unable to find image locally, then pulling and downloading layers">
   </section>
 
   <section>
     <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
     <p>Once you see a line like <code>Listening on http://0.0.0.0:4191</code>, open <code>http://localhost:4191</code> in your browser.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-8-listening-log.png" alt="Terminal showing the image pull completing and Listening on http://0.0.0.0:4191">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/mac-docker-8-browser-home.png" alt="OmicsBridge home page open in the browser">
+      </div>
+    </div>
     <p class="note warn">Keep the Terminal window open — closing it stops OmicsBridge.</p>
   </section>
 
@@ -430,11 +473,11 @@
   </section>
 
   <section>
-    <h2><span class="step-num">4</span>Download the case study data</h2>
-    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <h2><span class="step-num">4</span>Download the data</h2>
+    <p>Go to the <a href="https://zenodo.org/records/22257376">Zenodo page</a> and download:</p>
     <ul>
-      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
-      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+      <li><code>00_Clinical_dataset.tar.gz</code> — curated TCGA data, <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
     <div class="screenshot-slot">Image TBA</div>
@@ -525,7 +568,7 @@
   <section>
     <h2><span class="step-num">3</span>Confirm Docker is running</h2>
     <p>Look for the little whale icon in the <strong>bottom-right system tray</strong>. Leave Docker Desktop running in the background for every step that follows.</p>
-    <p class="note">If asked to sign in, look for a small <strong>"Continue without signing in"</strong> link — signing in isn't required.</p>
+    <p class="note">If asked to sign in, look for a line saying <strong>"You do not have to log in or create an account"</strong> — signing in isn't required.</p>
     <p class="note warn">Memory limit: Windows (WSL2) defaults to about 8&nbsp;GB of RAM for containers, regardless of how much your PC has. Large analyses may need more — increase it under Docker Desktop → <strong>Settings → Resources → Memory</strong> (or edit <code>.wslconfig</code>) if things run out of memory.</p>
     <div class="screenshot-slot">Image TBA</div>
   </section>
@@ -539,11 +582,11 @@
   </section>
 
   <section>
-    <h2><span class="step-num">5</span>Download the case study data</h2>
-    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <h2><span class="step-num">5</span>Download the data</h2>
+    <p>Go to the <a href="https://zenodo.org/records/22257376">Zenodo page</a> and download:</p>
     <ul>
-      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
-      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+      <li><code>00_Clinical_dataset.tar.gz</code> — curated TCGA data, <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
     <div class="screenshot-slot">Image TBA</div>
