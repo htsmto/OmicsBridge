@@ -20,7 +20,7 @@ git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zendo](https://doi.org/10.5281/zenodo.16410489), uncompress and place the folders in the `OmicsBridge` directory:
+Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zenodo](https://doi.org/10.5281/zenodo.22257376), uncompress and place the folders in the `OmicsBridge` directory:
 
 ```bash
 tar -xzvf 00_Clinical_dataset.tar.gz
@@ -61,6 +61,9 @@ the final file structure should be:
 ```
 
 ## <u>**Quick Start (Easiest — for local computer usage)**</u>
+
+> [!TIP]
+> New to the command line? A screenshot-illustrated, step-by-step guide for non-bioinformaticians is available at [htsmto.github.io/OmicsBridge/install_guide.html](https://htsmto.github.io/OmicsBridge/install_guide.html).
 
 This is the easiest way to get OmicsBridge running, and the recommended path for most users.
 
