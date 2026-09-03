@@ -8,7 +8,8 @@
 #   From terminal : Rscript install_packages.R
 #   From RStudio  : source("install_packages.R")
 #
-# Estimated time: 20-60 minutes depending on network speed and whether
+# Estimated time: around 10 minutes on a typical connection with binary
+#   package installs; can take longer depending on network speed and whether
 #   BSgenome reference packages are included (several GB each).
 #
 # Bioconductor version: 3.21 (matches R 4.6)

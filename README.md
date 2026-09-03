@@ -32,14 +32,18 @@ the final file structure should be:
 ```
 .
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all  # auto-created as empty if not downloaded
+├── 00_Expression_data_all      # auto-created as empty if not downloaded
 ├── app.R
 ├── data
 ├── docs
-├── install_packages.R      # automated package installation script
-├── libraries               # per-module library loaders (loaded lazily on first tab access)
+├── install_packages.R          # automated package installation script
+├── launch_with_local_R.command # macOS: install packages (first run) + launch, using local R
+├── launch_with_local_R.bat     # Windows: install packages (first run) + launch, using local R
+├── launch_with_docker.command  # macOS: launch using Docker (no local R needed)
+├── launch_with_docker.bat      # Windows: launch using Docker (no local R needed)
+├── libraries                   # per-module library loaders (loaded lazily on first tab access)
 ├── mkdocs.yml
-├── modules                 # modularised server and UI code
+├── modules                     # modularised server and UI code
 │   ├── Clinical/
 │   ├── DataOverview/
 │   ├── DatasetsCompare/
@@ -49,12 +53,35 @@ the final file structure should be:
 │   ├── Tools/
 │   ├── scRNA/
 │   ├── wiki_document/
-│   └── *_module.R          # per-module orchestrators
+│   └── *_module.R              # per-module orchestrators
 ├── README.md
-├── ui                      # app-level UI components (header, sidebar, body, home)
+├── ui                          # app-level UI components (header, sidebar, body, home)
 ├── wiki
 └── www
 ```
+
+## <u>**Quick Start (Easiest — for local computer usage)**</u>
+
+This is the easiest way to get OmicsBridge running, and the recommended path for most users.
+
+> This Quick Start is for running OmicsBridge **on your own computer**, where you'll also open the browser. It is not meant for launching OmicsBridge on a remote server (e.g. over SSH with no desktop to double-click from) — if that's your setup, see [Launching the App Manually](#launching-the-app-manually) below, which includes SSH port-forwarding instructions.
+
+First, decide whether you'll use your own **R** installation or **Docker**, and install that (R from [cran.r-project.org](https://cran.r-project.org/), version 4.4.0 or higher; Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)). Then double-click the one file below that matches your system and that choice:
+
+- **macOS + local R** → `launch_with_local_R.command`
+- **macOS + Docker** → `launch_with_docker.command`
+- **Windows + local R** → `launch_with_local_R.bat`
+- **Windows + Docker** → `launch_with_docker.bat`
+
+That single file does everything: the first time you run it, it installs the necessary libraries — for local R this means running `install_packages.R`, and for Docker this means pulling the pre-built image — which takes around 10 minutes either way, depending on your internet connection. It then launches the app. On every later run, it skips straight to launching the app, which takes about 10-20 seconds.
+
+Once it's running, a terminal window will tell you when the app is ready and which URL to open in your browser (`http://localhost:4191`).
+
+> Note (macOS): the first time you double-click a `.command` file, Gatekeeper may block it as "from an unidentified developer." Right-click (or Control-click) the file → **Open** → confirm **Open**. You only need to do this once per file.
+>
+> Note (Windows): the first time you double-click a `.bat` file, Windows Defender SmartScreen may show a "Windows protected your PC" warning. Click **More info**, then **Run anyway**. You only need to do this once per file.
+
+If you'd rather run things manually from the terminal instead of double-clicking, see the sections below.
 
 ## <u>**Dependencies**</u>
 
@@ -64,9 +91,10 @@ We provide a Docker image available from Docker Hub:
 ```bash
 docker pull htsmto/omicsbridge:latest
 ```
+This image already bundles every required package, so no R installation or `install_packages.R` step is needed on your machine — `launch_with_docker.command` / `launch_with_docker.bat` handle the `docker pull`/`docker run` for you.
 
 
-### Manual Installation of Required Libraries
+### Manual Installation of Required Libraries (for a local R environment)
 
 OmicsBridge requires R version *4.4.0 or higher*. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please ensure you install BiocManager version *3.20 or higher*.
 
@@ -78,7 +106,7 @@ An installation script is provided. Run the following in your terminal from the 
 Rscript install_packages.R
 ```
 
-This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.
+This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end. (`launch_with_local_R.command` / `launch_with_local_R.bat` run this for you automatically on first launch.)
 
 #### Alternative: Manual Installation
 
@@ -95,8 +123,11 @@ devtools::install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 devtools::install_github('dviraran/xCell')
 ```
 
-## <u>**Launching the App**</u>
-If you are using a Docker image, open your termiank and
+## <u>**Launching the App Manually**</u>
+
+> Prefer the double-click launchers described in [Quick Start](#quick-start) above — this section is for running things by hand instead.
+
+If you are using a Docker image, open your terminal and:
 
 ```bash
 docker run -it --rm \
@@ -118,7 +149,7 @@ You can customise the port number (4191 in this example) as needed. Once running
 > After logging in, run the Docker command as above on the remote server. Then, open `http://localhost:4191` in your local browser to access the app. <br>
 
 
-If you're using your local R environment instead of Docker, open your teminal and:
+If you're using your local R environment instead of Docker, open your terminal and:
 
 ```bash
 cd ${Your_path_to_OmicsBridge_directory}

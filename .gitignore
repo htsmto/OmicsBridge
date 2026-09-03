@@ -7,3 +7,4 @@ videos/
 site/
 .DS_Store
 data/gencode.v41.primary_assembly.annotation.sqlite
+.omicsbridge_packages_installed
