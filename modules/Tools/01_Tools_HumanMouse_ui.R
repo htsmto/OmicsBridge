@@ -1,5 +1,5 @@
 tools_humanmouse_UI <- function(ns){
-    box(width=12, status='primary',  solidHeader = TRUE, title='Convert Huamns genes with Mouse genes',
+    box(width=12, status='primary',  solidHeader = TRUE, title='Convert Human and Mouse Genes',
         fluidRow(
             column(5,
             box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
@@ -26,7 +26,7 @@ tools_humanmouse_UI <- function(ns){
             )
             ),
             column(3,
-            box(width=12, title='List of converted genes', status='warning', collapsible = TRUE,
+            box(width=12, title='List of Converted Genes', status='warning', collapsible = TRUE,
                 fluidRow(column(12, verbatimTextOutput(ns('status_result')) ))
             )
             )

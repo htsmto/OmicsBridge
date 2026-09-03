@@ -3,7 +3,7 @@ DataOverview_MainPlot_Tables_ui <- function(ns){
         column(12, 
             # display the genes of interest (table)
             conditionalPanel(condition = paste0("input['", ns("show_entered_gene_info"), "'] == true"),
-                box(title='Information of genes of interest', collapsible=TRUE, status='warning',  width=12,
+                box(title='Genes of Interest', collapsible=TRUE, status='warning',  width=12,
                     fluidRow( column(12, verbatimTextOutput(ns('Interesting_gene_outFile_status')) )),
                     fluidRow( column(12, withSpinner(dataTableOutput(ns("Interesting_gene_outFile")), type=5, color='#0dc5c1') )),
                     fluidRow( column(12, downloadButton(ns('Interesting_gene_download'),"Download this table") ))
@@ -13,7 +13,7 @@ DataOverview_MainPlot_Tables_ui <- function(ns){
 
             # display the filtered area (table)
             conditionalPanel(condition = paste0("input['", ns("show_filterin_input_option"), "'] == 'B' & input['", ns("show_information"), "'] == true"),
-                box(title='Filtered genes information', collapsible=TRUE, status='warning', width=12,
+                box(title='Filtered Genes Information', collapsible=TRUE, status='warning', width=12,
                     
                     fluidRow(
                         column(12, h5('\n')),

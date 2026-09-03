@@ -1,7 +1,7 @@
 DatasetsCompare_CompareOneGene_UI <- function(ns){
     fluidRow(
         column(12, # Settings and Inputs
-            box(width=12, collapsible=TRUE, title=strong('Settings and Inputs'), status='info',
+            box(width=12, collapsible=TRUE, title=strong('Inputs and Settings'), status='info',
                 fluidRow( 
                     column(12, helpText(HTML("Please enter genes here and choose which score you use for the y-axis and the colour of the plot. <br>A bar or scatter plot comparing the score (selected as Y-axis) of each gene across the selected datasets will be generated in the end."))),
                     column(6, verbatimTextOutput(ns('Compare_dataset_comparing_one_gene_status_input'))),
@@ -10,7 +10,7 @@ DatasetsCompare_CompareOneGene_UI <- function(ns){
                     column(5, 
                         fluidRow(
                             column(12, htmlOutput(ns("target_gene_for_comparing"))),
-                            column(12, materialSwitch(ns('target_gene_for_comparing_Input_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                            column(12, materialSwitch(ns('target_gene_for_comparing_Input_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                             conditionalPanel(condition = paste0("input['", ns('target_gene_for_comparing_Input_from_custom_geneset'), "'] == true"),
                                 column(12, htmlOutput(ns('target_gene_for_comparing_Input_from_custom_geneset_select')))
                             )
@@ -23,7 +23,7 @@ DatasetsCompare_CompareOneGene_UI <- function(ns){
                         )
                     ),
                     column(3, 
-                        actionButton(ns("comparison_start"), "Start Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")
+                        actionButton(ns("comparison_start"), "Start Comparison Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")
                     )
                 )
             )
@@ -31,14 +31,14 @@ DatasetsCompare_CompareOneGene_UI <- function(ns){
 
         # Input gene list
         column(4,
-            box(width=12, collapsible=TRUE, title=strong('Input genes'), status='primary',
+            box(width=12, collapsible=TRUE, title=strong('Input Genes'), status='primary',
                 fluidRow(
                     column(12, h5('Select a gene below:')),
                     column(12, verbatimTextOutput(ns('Gene_comparing_selected_gene_status'))),
                     column(12, withSpinner(dataTableOutput(ns("Gene_comparing_gene_list_table")), type = 5, color='#0dc5c1') )
                 )
             ),
-            box(width=12, collapsible=TRUE, title=strong('Data information'),  status='warning',
+            box(width=12, collapsible=TRUE, title=strong('Data Information'),  status='warning',
                 fluidRow(
                     column(12, verbatimTextOutput(ns('dataframe_comparing_dataset_status'))),
                     column(12, withSpinner(dataTableOutput(ns("dataframe_comparing_dataset")), type=5, color='#0dc5c1') ),

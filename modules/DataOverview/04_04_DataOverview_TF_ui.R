@@ -6,10 +6,10 @@ DataOverview_TF_ui <- function(ns){
         column(4, 
             box(title='Settings', collapsible=TRUE, width=12, status='info',
                 fluidRow(
-                    column(12, helpText("Here you can estimate the activity of transcription factors (TFs) based on the expression changes of their target genes. \nThis analysis uses the DecoupeR method, which integrates gene expression data with TF-target interactions to infer TF activity. \nPlease select the number of TFs to display in the results and click the 'Start DecoupeR Analysis' button to begin. \nThe results will include a plot of TF activities and a table of TFs with their corresponding activity scores.")),
+                    column(12, helpText("Here you can estimate the activity of transcription factors (TFs) based on the expression changes of their target genes. \nThis analysis uses the decoupleR method, which integrates gene expression data with TF-target interactions to infer TF activity. \nPlease select the number of TFs to display in the results and click the 'Start decoupleR Analysis' button to begin. \nThe results will include a plot of TF activities and a table of TFs with their corresponding activity scores.")),
                     column(12, h5('\n')),
                     column(10, sliderInput(ns('DecoupeR_TF_number'), 'Number of TF to display', min=10, max=200, value=50, step=1)),
-                    column(12, actionButton(ns("DecoupeR_start"), "Start DecoupeR Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
+                    column(12, actionButton(ns("DecoupeR_start"), "Start decoupleR Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000"))
                 )
             ),
         ),
@@ -27,7 +27,7 @@ DataOverview_TF_ui <- function(ns){
                 tabsetPanel(
 
                     # Plot
-                    tabPanel("DecoupeR Plot",
+                    tabPanel("decoupleR Plot",
                         fluidRow(
                             column(12, h2('')),
                             column(10, verbatimTextOutput(ns('DecoupeR_plot_status2')) ),

@@ -37,20 +37,20 @@ dataoverview_swarm_UI <- function(ns){
                         column(2, 
                             dropdownButton( h4(strong("Plot Options")),
                                 fluidRow(
-                                column(6, sliderInput(inputId = ns('Fig.width'), label='fig width', min=300, max=3000, value=800, step=10)),
-                                column(6, sliderInput(inputId = ns('Fig.height'), label='fig height', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput(inputId = ns('Fig.width'), label='Fig width', min=300, max=3000, value=800, step=10)),
+                                column(6, sliderInput(inputId = ns('Fig.height'), label='Fig height', min=300, max=3000, value=500, step=10)),
                                 column(6, sliderInput(inputId = ns('Pt.size'), 'Point size', min=0.1, max=5, value=1, step=0.1)),
                                 column(6, sliderInput(inputId = ns('Xlab.font.size'), label='X label size', min=0, max=10, value=4, step=0.1)),
                                 column(6, sliderInput(inputId = ns('Ylab.font.size'), label='Y label size', min=0, max=10, value=4, step=0.1)),
-                                column(6, sliderInput(inputId = ns('Graph.title.font.size'), 'Y title size', min=0, max=10, value=4, step=0.1))
+                                column(6, sliderInput(inputId = ns('Graph.title.font.size'), 'Graph title size', min=0, max=10, value=4, step=0.1))
                                 ),
                                 fluidRow(
                                     column(12, materialSwitch(ns('White.background'), 'Use white background', value=FALSE, status = "success"))
                                 ),
                                 fluidRow(
-                                    column(6, materialSwitch(ns('change_colour_pallete'), 'Change the colour pallete', value=FALSE, status = "success")),
+                                    column(6, materialSwitch(ns('change_colour_pallete'), 'Change the colour palette', value=FALSE, status = "success")),
                                     conditionalPanel(condition = paste0("input['", ns("change_colour_pallete"), "'] == true"),
-                                        column(6, selectInput(ns('select_colour_pallete'), 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None'))
+                                        column(6, selectInput(ns('select_colour_pallete'), 'Choose a colour palette',  c('None'='None', colour_pallets), selected = 'None'))
                                     )
                                 ),
                                 fluidRow(

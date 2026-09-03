@@ -1,7 +1,7 @@
 tools_findloci_UI <- function(ns){
     tagList(
         # Find gene positions/annotations
-        box(width=12, status='primary',  solidHeader = TRUE, title='Find gene positions/annotations',
+        box(width=12, status='primary',  solidHeader = TRUE, title='Find Gene Positions/Annotations',
             fluidRow(
                 # Input and settings
                 column(4, 
@@ -25,7 +25,7 @@ tools_findloci_UI <- function(ns){
 
                 # results table
                 column(5,
-                    box(width=12, title='Search results', status='danger',collapsible = TRUE,
+                    box(width=12, title='Search Results', status='danger',collapsible = TRUE,
                         fluidRow(
                             column(12, verbatimTextOutput(ns('Find_genome_loci_status_table')) ),
                             column(12, withSpinner(DT::dataTableOutput(ns('Find_genome_loci_table')), type = 5, color = "#0dc5c1") ),
@@ -36,7 +36,7 @@ tools_findloci_UI <- function(ns){
 
                 # result list
                 column(3,
-                    box(width=12, title='List of genes/coordinates', status='warning',collapsible = TRUE,
+                    box(width=12, title='List of Genes/Coordinates', status='warning',collapsible = TRUE,
                         fluidRow(
                         column(12, verbatimTextOutput(ns('Find_genome_loci_status_result')) )
                         )
@@ -46,7 +46,7 @@ tools_findloci_UI <- function(ns){
         ),
 
         # Peak annotation
-        box(width=12, status='primary', solidHeader = TRUE, title='Peak annotation',
+        box(width=12, status='primary', solidHeader = TRUE, title='Peak Annotation',
             fluidRow(
                 # Input and settings
                 column(4,
@@ -64,7 +64,7 @@ tools_findloci_UI <- function(ns){
 
                 # Results table
                 column(8,
-                    box(width=12, status='warning', title='Annotation result',
+                    box(width=12, status='warning', title='Annotation Result',
                         column(12, verbatimTextOutput(ns('Peak_annotation_status_results'))),
                         column(12, h4('')),
                         column(12,
@@ -87,7 +87,7 @@ tools_findloci_UI <- function(ns){
                                     fluidRow(
                                         column(12, h4('')),
                                         column(12, verbatimTextOutput(ns('Peak_annotation_plot_status')) ),
-                                        column(9, radioButtons(ns('Peak_annotation_plot_type'), 'Choose plot type', choices = c('Pieplot'='A', 'Barplot'='B'), inline=TRUE)),
+                                        column(9, radioButtons(ns('Peak_annotation_plot_type'), 'Choose plot type', choices = c('Pie Plot'='A', 'Bar Plot'='B'), inline=TRUE)),
                                         column(3,
                                             dropdownButton( h4(strong("Plot Options")),
                                                 fluidRow(
@@ -106,7 +106,7 @@ tools_findloci_UI <- function(ns){
                                 ),
 
                                 # Result3: nearest gene names list          
-                                tabPanel("Nearest gene names list",
+                                tabPanel("Nearest Gene Names List",
                                     fluidRow(
                                         column(12, h4('')),
                                         column(12, verbatimTextOutput(ns('Peak_annotation_genes_list_status')) ),

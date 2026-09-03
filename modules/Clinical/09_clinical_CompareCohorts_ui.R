@@ -4,7 +4,7 @@ clinical_CompareCohorts_ui <- function(ns){
         box(width=12, title='Inputs and Settings', status='info',
         fluidRow(
             column(7, textAreaInput(ns("Compare_across_cohorts_gene"), 'Enter genes (line by line)')),
-            column(12, materialSwitch(ns('Compare_across_cohorts_gene_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+            column(12, materialSwitch(ns('Compare_across_cohorts_gene_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
             conditionalPanel(
             condition = paste0("input['", ns('Compare_across_cohorts_gene_from_custom_geneset'), "'] == true"),
             column(12, htmlOutput(ns('Compare_across_cohorts_gene_from_custom_geneset_select')))
@@ -44,7 +44,7 @@ clinical_CompareCohorts_ui <- function(ns){
             fluidRow(
                 column(12, h4(strong('Plot'))),
                 column(12, verbatimTextOutput(ns('Compare_across_cohorts_mut_freq_plot_status'))),
-                column(10, radioButtons(ns('Compare_across_cohorts_mut_freq_plot_type'), "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients hacing mytations' = 'B'), selected='B') ),
+                column(10, radioButtons(ns('Compare_across_cohorts_mut_freq_plot_type'), "Y axis" , choices=c('Number of patients having mutations' = 'A', 'Percentage of patients having mutations' = 'B'), selected='B') ),
                 column(2, 
                 dropdownButton( h4(strong("Plot Options")),
                     fluidRow(
@@ -54,7 +54,7 @@ clinical_CompareCohorts_ui <- function(ns){
                     fluidRow(
                     column(6,sliderInput(ns('Compare_across_cohorts_mut_label_size'), 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
                     column(6,sliderInput(ns('Compare_across_cohorts_mut_title_size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                    column(6,sliderInput(ns('Compare_across_cohorts_mut_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                    column(6,sliderInput(ns('Compare_across_cohorts_mut_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                     column(6,sliderInput(ns('Compare_across_cohorts_mut_score_size'), 'Score font size', min=0.1, max=5, value=1, step=0.1)),
                     ),
                     fluidRow(
@@ -75,7 +75,7 @@ clinical_CompareCohorts_ui <- function(ns){
                 column(12, dataTableOutput(ns('Compare_across_cohorts_mut_freq_table'))),
             ),
             ),
-            tabPanel('Gene expression',
+            tabPanel('Gene Expression',
             fluidRow(
                 column(12, h4('')),
                 column(12, h4('')),

@@ -74,6 +74,9 @@ read_percpu_ticks <- function() {
 # Computes each core's busy % since `prev` (a value previously returned by
 # this function's $ticks). `prev` NULL on the first call -> pct is NULL.
 get_percpu_usage <- function(prev) {
+  if (.Platform$OS.type != "unix" || Sys.info()[["sysname"]] != "Linux") {
+    return(list(pct = NULL, ticks = NULL))
+  }
   cur <- read_percpu_ticks()
   pct <- NULL
   if (!is.null(prev)) {
@@ -89,9 +92,21 @@ get_percpu_usage <- function(prev) {
 # Returns current host memory usage as a percentage and a "used / total GB" label.
 get_memory_usage <- function() {
   mem <- ps::ps_system_memory()
+
+  total_gb <- mem$total / 1024^3
+  pct      <- round(mem$percent)
+
+  used_gb  <- total_gb * pct / 100
+  avail_gb <- total_gb - used_gb
+
   list(
-    pct   = round(mem$percent),
-    label = sprintf("%.1f / %.1f GB", mem$used / 1024^3, mem$total / 1024^3)
+    pct = pct,
+    label = sprintf(
+      "<br>- %.1f GB used out of %.1f GB<br>- %.1f GB available",
+      used_gb,
+      total_gb,
+      avail_gb
+    )
   )
 }
 
@@ -126,7 +141,7 @@ systemMonitorServer <- function(input, output, session, interval_ms = 3000) {
 
     mem <- get_memory_usage()
     shinyWidgets::updateProgressBar(session, "mem_usage_bar", value = mem$pct, total = 100,
-                                     title = paste0("RAM usage (", mem$label, ")"))
+                                     title = paste0("RAM usage:", mem$label, ""))
   })
 
   # Per-core text list, e.g. "cpu1: 10%/100%" -- renders under the CPU bar

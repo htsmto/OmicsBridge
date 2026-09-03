@@ -129,8 +129,8 @@ mainplot_filter_server <- function(input, output, session, df_ex, Original_genes
       return()
     }
     gsc <- switch(input$pathway_dataset_select,
-      "HALLMARK (human)" = getGmt("data/h.all.v2023.2.Hs.symbols.gmt"),
-      "HALLMARK (mouse)" = getGmt("data/mh.all.v2023.2.Mm.symbols.gmt"),
+      "HALLMARK (Human)" = getGmt("data/h.all.v2023.2.Hs.symbols.gmt"),
+      "HALLMARK (Mouse)" = getGmt("data/mh.all.v2023.2.Mm.symbols.gmt"),
       "Custom" = {
         tmp <- input$upload_custom_pathway_file
         if (is.null(tmp)) NULL else getGmt(tmp$datapath)

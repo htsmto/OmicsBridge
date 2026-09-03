@@ -1,11 +1,11 @@
 Epigenome_genomevisualisation_UI <- function(ns){
-    box(title='Epigenome visualisation', width=12, status='primary', solidHeader = TRUE,
+    box(title='Epigenome Visualisation', width=12, status='primary', solidHeader = TRUE,
         fluidRow(
         column(4,
             box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
             fluidRow(
                 column(12, htmlOutput(ns('Gviz_data_select'))),
-                column(12, actionButton(ns('reload_database_genomevis'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
+                column(12, actionButton(ns('reload_database_genomevis'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
                 column(12, h5(' ')),
                 column(12, radioButtons(ns('Gviz_data_type'), 'Data type', choices=c('BigWig', 'BAM'), selected='BigWig', inline=TRUE)),
                 column(12, actionButton(ns('Gviz_data_add'), 'Use this dataset', style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
@@ -45,14 +45,14 @@ Epigenome_genomevisualisation_UI <- function(ns){
                     ),
                     fluidRow(
                     column(12, h5(strong('For the following, please re-run the plot'))),
-                    column(6, colourpicker::colourInput(ns('Gviz_plot_bw_col'), 'The colour for the bigwig data', value="#3c6602")),
-                    column(6, colourpicker::colourInput(ns('Gviz_plot_bam_col'), 'The colour for the bam data', value="#f21392")),
-                    column(6, colourpicker::colourInput(ns('Gviz_plot_refseq_col'), 'The colour for the reference data', value="#311fbf")),
+                    column(6, colourpicker::colourInput(ns('Gviz_plot_bw_col'), 'Colour for the bigwig data', value="#3c6602")),
+                    column(6, colourpicker::colourInput(ns('Gviz_plot_bam_col'), 'Colour for the bam data', value="#f21392")),
+                    column(6, colourpicker::colourInput(ns('Gviz_plot_refseq_col'), 'Colour for the reference data', value="#311fbf")),
                     ),
                     fluidRow(
-                    column(6, numericInput(ns('Gviz_plot_height_bw'), 'The height of the bigwig data', min=1, value=20, step=1)),
-                    column(6, numericInput(ns('Gviz_plot_height_bam'), 'The height of the bam data', min=1, value=30, step=1)),
-                    column(6, numericInput(ns('Gviz_plot_height_ref'), 'The height of the reference data', min=1, value=20, step=1))
+                    column(6, numericInput(ns('Gviz_plot_height_bw'), 'Height of the bigwig data', min=1, value=20, step=1)),
+                    column(6, numericInput(ns('Gviz_plot_height_bam'), 'Height of the bam data', min=1, value=30, step=1)),
+                    column(6, numericInput(ns('Gviz_plot_height_ref'), 'Height of the reference data', min=1, value=20, step=1))
                     ),
                     fluidRow(
                     column(6, materialSwitch(ns('Gviz_plot_ylim_bw'), 'Use Y-axis limit for the bigwig data', value=FALSE, status = "success")),

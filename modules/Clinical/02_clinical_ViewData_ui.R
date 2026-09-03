@@ -2,7 +2,7 @@ clinical_ViewData_ui <- function(ns){
     tabsetPanel(
         # show a gene expression table
         # by default, only show the first 1000 headers, but allow users to show everything 
-        tabPanel("Gene expression", 
+        tabPanel("Gene Expression",
             box(width=12,
                 fluidRow(
                     column(12, h5('')),
@@ -25,7 +25,7 @@ clinical_ViewData_ui <- function(ns){
         ),
 
         # Show a meta data
-        tabPanel("Meta data", 
+        tabPanel("Metadata",
             box(width=12,
                 # data table
                 fluidRow(
@@ -74,7 +74,7 @@ clinical_ViewData_ui <- function(ns){
         ),
 
         # Show a mutation data
-        tabPanel("Mutation data", 
+        tabPanel("Mutation Data",
             box(width=12,
                 fluidRow(
                     column(12, h5('')),

@@ -8,7 +8,7 @@ clinical_Signature_ui <- function(ns){
                     column(3, 
                         fluidRow(
                             column(12, htmlOutput(ns('Signature_genes'))),
-                            column(12, materialSwitch(ns('Signature_genes_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                            column(12, materialSwitch(ns('Signature_genes_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                             column(12, htmlOutput(ns('Signature_genes_from_custom_geneset_select'))),
                             column(12, verbatimTextOutput(ns('Signature_genes_status')))
                         )
@@ -46,7 +46,7 @@ clinical_Signature_ui <- function(ns){
                                             0. Select a cohort.<br>
                                             1. Set the input genes. Select a custom geneset or write down the genes list. <br>
                                             2. Choose a method.<br>
-                                            3. Click the 'Calculate the signature score'. A result table with the score for each sample will be shown and a Kaplan-Meier cureve and a histogran will be automatically generated (in the Survival analysis section and the Distribution section). <br>
+                                            3. Click the 'Calculate the signature score'. A result table with the score for each sample will be shown and a Kaplan-Meier curve and a histogram will be automatically generated (in the Survival analysis section and the Distribution section). <br>
                                             4. For the Score comparison part, select a group to compare and click 'Show a Plot'.<br>
                                         "))
                                     ),
@@ -65,7 +65,7 @@ clinical_Signature_ui <- function(ns){
         ),
     # Results
     column(4, 
-        box(width=12, title='Results (Signature scores)', status='warning',
+        box(width=12, title='Signature Score Results', status='warning',
         fluidRow(
             column(12, verbatimTextOutput(ns('Signature_analysis_status')) ),
             column(12, h2('')),
@@ -102,7 +102,7 @@ clinical_Signature_ui <- function(ns){
                                 fluidRow(
                                     column(6,sliderInput(ns('Signature_Survival_plot_label_size'), 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
                                     column(6,sliderInput(ns('Signature_Survival_plot_title_size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(6,sliderInput(ns('Signature_Survival_plot_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                    column(6,sliderInput(ns('Signature_Survival_plot_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                                 ),
                                 fluidRow(
                                     column(6, colourpicker::colourInput(ns('Signature_Survival_plot_High_colour'), 'Colour for the "High" group:', value='#ec00ec')),
@@ -127,14 +127,14 @@ clinical_Signature_ui <- function(ns){
                                 column(12, htmlOutput(ns('Signature_subtype_groupBy')) ),
                                 column(12, verbatimTextOutput(ns('Signature_subtype_subtype_number')) ),
                                 column(12, h5(span('Note: When there are too many subtypes, it takes longer time to visualise and the figure will be messy.', style="color: red;"))),
-                                column(12, materialSwitch(ns('Signature_subtype_choose_two_subtypes_only'), 'Want to compare only two subtypes?', value=FALSE, status='info') ),
+                                column(12, materialSwitch(ns('Signature_subtype_choose_two_subtypes_only'), 'Compare only two subtypes', value=FALSE, status='info') ),
                                 column(12, verbatimTextOutput(ns('Signature_subtype_choose_two_subtypes_only_select_status'))),
                                 column(12, htmlOutput(ns('Signature_subtype_choose_two_subtypes_only_select')))
                             )
                         ), 
                         column(4, 
                             h4(''),
-                            radioButtons(ns('Signature_subtype_figtype'), 'Figure type:', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A')
+                            radioButtons(ns('Signature_subtype_figtype'), 'Plot type', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A')
                         ),
                         column(2,
                             fluidRow(
@@ -165,7 +165,7 @@ clinical_Signature_ui <- function(ns){
                                     column(6, materialSwitch(ns('Signature_subtype_rotate_x'), 'Rotate X axis label', value=FALSE, status = "success"))
                                 ),
                                 fluidRow(
-                                    column(6, selectInput(ns('Signature_subtype_select_colour_pallete'), 'Choose a colour pallete',  c('None'='None', colour_pallets), selected = 'None')),
+                                    column(6, selectInput(ns('Signature_subtype_select_colour_pallete'), 'Choose a colour palette',  c('None'='None', colour_pallets), selected = 'None')),
                                 ),
                                 fluidRow(
                                     column(6, materialSwitch(ns('Signature_subtype_use_single_colour'), 'Use a single colour', value=FALSE, status = "success")),

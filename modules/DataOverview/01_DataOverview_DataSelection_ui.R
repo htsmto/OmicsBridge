@@ -18,7 +18,7 @@ dataoverview_dataselection_UI <- function(ns){
                     )
                 ),
                 column(4, 
-                    actionButton(ns('reload_database'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")
+                    actionButton(ns('reload_database'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")
                 )
             )
             

@@ -50,16 +50,16 @@ DataOverview_MainPlot_DisplayOption_ui <- function(ns){
             ## other options
             fluidRow(
                 column(12, h5('\n')),
-                column(12, materialSwitch(ns("show_label"), "show gene names in the plot", value=FALSE, status='info')),
-                column(12, materialSwitch(ns("show_entered_gene_info"), "show the highlighted genes information as a table", value=FALSE, status='info'))
+                column(12, materialSwitch(ns("show_label"), "Show gene names in the plot", value=FALSE, status='info')),
+                column(12, materialSwitch(ns("show_entered_gene_info"), "Show the highlighted genes information as a table", value=FALSE, status='info'))
             )
         ), 
 
         ## filtering options
-        box(width=12, collapsible=TRUE, status='info', title='Highlight filterd genes or gene sets in the plot',
+        box(width=12, collapsible=TRUE, status='info', title='Highlight Filtered Genes',
             fluidRow(
                 column(12, helpText("You can highlight the filtered genes by setting the thresholds, or highlight the genes in a specific pathway or custom gene sets.")),
-                column(12, radioButtons(ns("show_filterin_input_option"), "Please Choose one below:", choices=c("None"="A", "Filtered genes"="B", "Pathway genes"="C", "Custom genesets"="D"), selected="A", inline=TRUE),)
+                column(12, radioButtons(ns("show_filterin_input_option"), "Please choose one below:", choices=c("None"="A", "Filtered genes"="B", "Pathway genes"="C", "Custom gene sets"="D"), selected="A", inline=TRUE),)
             ),
 
             ## filtered genes/pathway genes/custom gene sets options. 
@@ -126,7 +126,7 @@ DataOverview_MainPlot_DisplayOption_ui <- function(ns){
                     fluidRow(
                         column(12, h3('\n')),
                         column(12, helpText("You can select the pathway from the MSigDB hallmark gene sets (for human and mouse) or upload your own gene set in a gmt file.")),
-                        column(4, radioButtons(ns("pathway_dataset_select"), "pathways from:", choices = c("HALLMARK (human)", "HALLMARK (mouse)", "Custom"))),
+                        column(4, radioButtons(ns("pathway_dataset_select"), "Pathways from", choices = c("HALLMARK (Human)", "HALLMARK (Mouse)", "Custom"))),
                         column(8,
                             fluidRow(
                                 column(12, # when you have to upload a custom gmt
@@ -208,7 +208,7 @@ DataOverview_MainPlot_DisplayOption_ui <- function(ns){
                 ## common options
                 fluidRow(
                     column(12, h5('\n')),        
-                    column(6, materialSwitch(ns('show_gene_label'), 'show gene names in the plot', value=FALSE, status='info')),
+                    column(6, materialSwitch(ns('show_gene_label'), 'Show gene names in the plot', value=FALSE, status='info')),
                     column(6, materialSwitch(ns('show_outliers_bar_plot'), 'Show in a bar plot', value=FALSE, status='info')),
                     column(12, materialSwitch(ns("outlier_gene_colour"), "Change the colour", value=FALSE, status='info')),
                     conditionalPanel(

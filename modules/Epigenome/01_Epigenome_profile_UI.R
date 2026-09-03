@@ -24,14 +24,14 @@ Epigenome_profile_UI <- function(ns){
                                 )
                             )
                         ),
-                        column(12, actionButton(ns('reload_database_profile'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708") ),
+                        column(12, actionButton(ns('reload_database_profile'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708") ),
                         column(12, h5(' ')),
                         column(6, actionButton(ns('Profile_Plot_sample_import'), 'Import the selected sample',style="color: #ffffff; background-color: #33c481; border-color: #04915e") ),
                         column(6, helpText('It takes a while to import the bigwig data. Please be patient after clicking the button.')),
                         column(12, h5('')),
                         column(12, verbatimTextOutput(ns('Profile_Plot_sample_selection_status'))),
                         column(12, h2('')),
-                        column(12, h5(strong('List of imported dataset:'))),
+                        column(12, h5(strong('List of imported datasets:'))),
                         column(12, helpText('The following samples are used for the profile plot.')),
                         column(12, withSpinner(DT::dataTableOutput(ns("Profile_Plot_imported_sample_table")), type=5, color='#0dc5c1')),
                         column(6, actionButton(ns('Profile_Plot_sample_remove'), 'Remove the selected sample',style="color: #ffffff; background-color:#0e98e8; border-color: #0772b0") ),
@@ -50,7 +50,7 @@ Epigenome_profile_UI <- function(ns){
 
             # Plot
             column(8,
-                box(title='Profile Plot', width=12, status='danger',
+                box(title='Plot', width=12, status='danger',
                     fluidRow(
                         column(10, verbatimTextOutput(ns('Profile_Plot_status'))),
                         column(2, 

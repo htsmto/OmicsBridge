@@ -6,7 +6,7 @@ scRNA_Feature_ui <- function(ns) {
                 fluidRow(
                     column(12, helpText(HTML("You can draw a feature plot to show the expression of a gene across all the cells in the UMAP plot here."))),
                     column(12, htmlOutput(ns("scRNA_FeaturePlot_gene"))),
-                    column(12, materialSwitch(ns('scRNA_FeaturePlot_gene_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                    column(12, materialSwitch(ns('scRNA_FeaturePlot_gene_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                     conditionalPanel(condition = paste0("input['", ns("scRNA_FeaturePlot_gene_from_custom_geneset"), "'] == true"),
                         column(12, htmlOutput(ns('scRNA_FeaturePlot_gene_from_custom_geneset_select')))
                     ),
@@ -67,12 +67,12 @@ scRNA_Feature_ui <- function(ns) {
                                         column(6,sliderInput(ns('scRNA_vln_vln_X_label_size'), 'X label size', min=0.1, max=10, value=3, step=0.1)),
                                         column(6,sliderInput(ns('scRNA_vln_vln_Y_label_size'), 'Y label size', min=0.1, max=10, value=4, step=0.1)),
                                         column(6,sliderInput(ns('scRNA_vln_vln_Y_title_size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(6,sliderInput(ns('scRNA_vln_vln_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput(ns('scRNA_vln_vln_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                                         column(12, h5(strong('Graph display area:'))),
                                         column(6, numericInput(ns('scRNA_vln_vln_ylim_min'), 'Min Y-axis:', value=NA, step=0.1)),
                                         column(6, numericInput(ns('scRNA_vln_vln_ylim_max'), 'Max Y-axis:', value=NA, step=0.1)),
                                         column(4, materialSwitch(ns('scRNA_vln_vln_white_back'), 'Use white background',  status = "success")),
-                                        column(4, materialSwitch(ns('scRNA_vln_vln_rotate_x'), 'Rotate X labels', status = "success")),
+                                        column(4, materialSwitch(ns('scRNA_vln_vln_rotate_x'), 'Rotate X axis label', status = "success")),
                                         column(4, materialSwitch(ns('scRNA_vln_vln_hide_jitter'), 'Hide jitter plots', status = "success", value=TRUE)),
                                     ),circle = FALSE, status = "success", icon = icon("gear"), width = "700px", right=TRUE, tooltip = tooltipOptions(title = "Plot Options")
                                 )
@@ -111,7 +111,7 @@ scRNA_Feature_ui <- function(ns) {
                                         column(6,sliderInput(ns('scRNA_dot_X_label_size'), 'X label size', min=0.1, max=10, value=2, step=0.1)),
                                         column(6,sliderInput(ns('scRNA_dot_Y_label_size'), 'Y label size', min=0.1, max=10, value=2.5, step=0.1)),
                                         column(6,sliderInput(ns('scRNA_dot_Y_title_size'), 'Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                        column(6,sliderInput(ns('scRNA_dot_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                        column(6,sliderInput(ns('scRNA_dot_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                                         column(6,sliderInput(ns('scRNA_dot_dotScale'), 'Dot scale', min=0.1, max=5, value=0.9, step=0.1))
                                     ),
                                     fluidRow(
@@ -126,7 +126,7 @@ scRNA_Feature_ui <- function(ns) {
                             column(6, htmlOutput(ns('scRNA_DotPlot_groupBy')) ),
                             column(6,
                                 h3('\n'),
-                                materialSwitch(ns('scRNA_DotPlot_dot_show_all_genes'), 'Show all the input genes?', value=FALSE, status='danger') ,
+                                materialSwitch(ns('scRNA_DotPlot_dot_show_all_genes'), 'Show all the input genes', value=FALSE, status='danger') ,
                                 helpText(HTML("If you select this option, all the input genes will be shown in the dot plot together. The order of the genes will be preserved. Please note that if you have too many input genes, the dot plot may take a while to show up."))
                             ),
 
@@ -145,7 +145,7 @@ scRNA_Feature_ui <- function(ns) {
                     ),
 
                     # Pie chart
-                    tabPanel('Pie chart',        
+                    tabPanel('Pie Chart',
                         fluidRow(
                             column(12, h4('\n') ) ,
 
@@ -188,7 +188,7 @@ scRNA_Feature_ui <- function(ns) {
                     ),
 
                     # Signature analysis
-                    tabPanel('Gene Set Signature (AUC score) Feature Plot',          
+                    tabPanel('Gene Set Signature (AUC Score) Feature Plot',
                         column(12, helpText(HTML("This will calculate the signature score for each cell based on the input gene list using the AUCell method, and show the signature score in the feature plot (UMAP and violin plot). <br>
                                 Here, all the genes in the input gene list will be used to calculate the signature score, not the only gene you selected. <br>
                                 Please note that the AUCell method will determine the active gene set in each cell based on the ranking of the gene expression in that cell. So, if you want to use this method to calculate the signature score for a gene set, it is recommended to input a gene set with more than 10 genes. <br>
@@ -250,7 +250,7 @@ scRNA_Feature_ui <- function(ns) {
                                                     column(6, numericInput(ns('scRNA_violin_gene_signature_ylim_min'), 'Min Y-axis:', value=NA, step=0.1)),
                                                     column(6, numericInput(ns('scRNA_violin_gene_signature_ylim_max'), 'Max Y-axis:', value=NA, step=0.1)),
                                                     column(4, materialSwitch(ns('scRNA_violin_gene_signature_white_background'), 'Use white background', value=FALSE, status = "success")),
-                                                    column(4, materialSwitch(ns('scRNA_violin_gene_signature_rotate_x'), 'Rotate X labels', value=TRUE, status = "success")),
+                                                    column(4, materialSwitch(ns('scRNA_violin_gene_signature_rotate_x'), 'Rotate X axis label', value=TRUE, status = "success")),
                                                     column(4, materialSwitch(ns('scRNA_violin_gene_signature_hide_jitter'), 'Hide jitter plots', status = "success", value=TRUE)),
                                                 ),circle = FALSE, status = "success", right=TRUE, icon = icon("gear"), width = "700px",  tooltip = tooltipOptions(title = "Plot Options")
                                             )

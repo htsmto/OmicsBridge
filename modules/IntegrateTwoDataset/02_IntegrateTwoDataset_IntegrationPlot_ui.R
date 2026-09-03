@@ -41,7 +41,7 @@ IntegrateTwoDataset_IntegrationPlot_UI <- function(ns) {
 
             # Display options
             column(6,  
-                box(width=12, title='Highligh genes', collapsible=TRUE,status='info',
+                box(width=12, title='Highlight Genes', collapsible=TRUE,status='info',
 
                     # Input sepecifc genes
                     fluidRow(
@@ -134,7 +134,7 @@ IntegrateTwoDataset_IntegrationPlot_UI <- function(ns) {
 
             # Filtered area
             column(12, 
-                box(width=12, title='Filtered area', collapsible=TRUE, collapsed=TRUE,status='warning',
+                box(width=12, title='Filtered Area', collapsible=TRUE, collapsed=TRUE,status='warning',
                     fluidRow(column(12, verbatimTextOutput(ns('Integrate_data1_plus_2_filtered_status')))),
                     fluidRow(column(12, dataTableOutput(ns("Integrate_data1_plus_2_filtered")))),
                     fluidRow(column(12, h4(''))),
@@ -147,7 +147,7 @@ IntegrateTwoDataset_IntegrationPlot_UI <- function(ns) {
 
             #Selected area
             column(12, 
-                box(width=12, title='Selected area', collapsible=TRUE,status='warning',
+                box(width=12, title='Selected Area', collapsible=TRUE,status='warning',
                     fluidRow(column(12, dataTableOutput(ns("Integrate_data1_plus_2_selected")))),
                     fluidRow(
                     column(4, downloadButton(ns('Integrate_data1_plus_2_selected_download'),"Download this table")),

@@ -12,10 +12,10 @@ scRNA_UMAP_ui <- function(ns) {
                         fluidRow(
                             column(6, sliderInput(ns('scRNA_umap1_fig.width'), 'Fig width', min=300, max=3000, value=900, step=10) ),
                             column(6, sliderInput(ns('scRNA_umap1_fig.height'), 'Fig height', min=300, max=3000, value=700, step=10) ),
-                            column(6, sliderInput(ns('scRNA_umap1_XY_label'), 'XY label size', min=0.1, max=10, value=4, step=0.1) ),
-                            column(6, sliderInput(ns('scRNA_umap1_XY_title'), 'XY title size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(6, sliderInput(ns('scRNA_umap1_XY_label'), 'X/Y label size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(6, sliderInput(ns('scRNA_umap1_XY_title'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1) ),
                             column(6, sliderInput(ns('scRNA_umap1_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1) ),
-                            column(6, sliderInput(ns('scRNA_umap1_graph_title'), 'Title size', min=0.1, max=10, value=4, step=0.1) ),
+                            column(6, sliderInput(ns('scRNA_umap1_graph_title'), 'Graph title size', min=0.1, max=10, value=4, step=0.1) ),
                             column(6, sliderInput(ns('scRNA_umap1_graph_dot_size'), 'Dot size', min=0.01, max=2, value=0.01, step=0.01) )
                         ),
                         fluidRow(
@@ -31,7 +31,7 @@ scRNA_UMAP_ui <- function(ns) {
 
         # Setting
         column(4, 
-            box(width=12, collapsible = TRUE, status = 'info', title='Setting',
+            box(width=12, collapsible = TRUE, status = 'info', title='Settings',
                 fluidRow(
                 column(12, h4('')),
                 column(10, htmlOutput(ns("scRNA_UMAP1_groupBy"))),

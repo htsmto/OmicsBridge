@@ -1,11 +1,11 @@
 IntegrateTwoDataset_SideBySide_UI <- function(ns) {
-    box(width=12, title='Side by Side comparison', collapsible=TRUE, status='primary', solidHeader = TRUE,
+    box(width=12, title='Side by Side Comparison', collapsible=TRUE, status='primary', solidHeader = TRUE,
         # Direction
             box(width=12, title='Direction', collapsible=TRUE, status='info',
                 fluidRow(
                     column(5, radioButtons(ns("Integrate_data_map_direction"), "", choices = c('See the selected genes from Data1 onto Data2'='A', 'See the selected genes from Data2 onto Data1'='B'), selected='A')),
                     column(5, h3('\n'), verbatimTextOutput(ns('Integrate_data_map_direction_note'))),
-                    column(2, h3('\n'), actionButton(ns('reload_database'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))
+                    column(2, h3('\n'), actionButton(ns('reload_database'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708"))
                 )
 
             ),
@@ -43,7 +43,7 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
 
                 # X/Y axis selection
                 fluidRow( 
-                    column(12, h5(strong('Please select x/y axis:')) ),  
+                    column(12, h5(strong('Please select X/Y axis')) ),  
                     column(6, htmlOutput(ns("Integrate_data1_Scat.X"))), 
                     column(6, htmlOutput(ns("Integrate_data1_Scat.Y")))
                 ),
@@ -65,7 +65,7 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
                             fluidRow(
                                 column(6, materialSwitch(ns('Integrate_data1_while_background'), 'Use white background', value=TRUE, status = "success")),
                                 column(6, materialSwitch(ns('Integrate_data1_hide_labels'), 'Hide labels', value=TRUE, status='primary')),
-                                column(6, colourpicker::colourInput(ns('Integrate_data1_colour_id'), 'highlighted dots colour:', value='red'))
+                                column(6, colourpicker::colourInput(ns('Integrate_data1_colour_id'), 'Highlighted dots colour', value='red'))
                             ),circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                         )
                     ),
@@ -137,7 +137,7 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
 
                 # X/Y axis selection
                 fluidRow( 
-                    column(12, h5(strong('Please select x/y axis:'))),
+                    column(12, h5(strong('Please select X/Y axis'))),
                     column(6, htmlOutput(ns("Integrate_data2_Scat.X"))), 
                     column(6, htmlOutput(ns("Integrate_data2_Scat.Y"))),
                 ),
@@ -159,7 +159,7 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
                             fluidRow(
                                 column(6, materialSwitch(ns('Integrate_data2_while_background'), 'Use white background', value=TRUE, status = "success")),
                                 column(6, materialSwitch(ns('Integrate_data2_hide_labels'), 'Hide labels', value=TRUE, status='primary')),
-                                column(6, colourpicker::colourInput(ns('Integrate_data2_colour_id'), 'highlighted dots colour:', value='red'))
+                                column(6, colourpicker::colourInput(ns('Integrate_data2_colour_id'), 'Highlighted dots colour', value='red'))
                             ),circle = FALSE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options"), right=TRUE
                         )
                     ),
@@ -193,24 +193,24 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
         #
 
     ## display overlap genes
-        box(width=12, title='Overlap genes', collapsible=TRUE, status='warning', 
+        box(width=12, title='Overlap Genes', collapsible=TRUE, status='warning',
             # filtering for the mapped side
             fluidRow(
                 column(12, 
                     helpText(HTML('A list of genes that meet the filter settings in both datasets is displayed here.
-                        <br>Please set the threshoolds for the data to which the selected genes are mapped.'))
+                        <br>Please set the thresholds for the data to which the selected genes are mapped.'))
                 ),
                 column(12, 
                     div(id='filterin_dropdown',
                         dropdownButton( 
                             fluidRow( 
-                                column(12, h4(strong('Set the filtering for the mapped side'))),
+                                column(12, h4(strong('Filtering for the Mapped Side'))),
                                 column(3, fluidRow( column(12, numericInput(ns('Integrate_data_mapped_thr_X1'), 'X1',  value=1, step=0.1) ), column(12, numericInput(ns('Integrate_data_mapped_thr_X2'), 'X2',  value=-1, step=0.1) ) ) ), 
                                 column(3, fluidRow( column(12, numericInput(ns('Integrate_data_mapped_thr_Y1'), 'Y1',  value=1, step=0.1) ), column(12, numericInput(ns('Integrate_data_mapped_thr_Y2'), 'Y2',  value=-1, step=0.1) ) )  ),
                                 column(3, radioButtons(ns("Integrate_data_mapped_thr_X_method"), "X filter", choices = c("none"='A', "X > X1"='B', "X < X2"='C', "X2 < X < X1"='D', "X < X2 or X > X1"='E'), selected='A')),
                                 column(3, radioButtons(ns("Integrate_data_mapped_thr_Y_method"), "Y filter", choices = c("none"='A', "Y > Y1"='B', "Y < Y2"='C', "Y2 < Y < Y1"='D', "Y < Y2 or Y > Y1"='E'), selected='A')),
                                 column(6, materialSwitch(ns('Integrate_data_mapped_hide_threshold'), 'Hide threshold line', value=FALSE, status='primary'))
-                            ),label='The filtering for the mapped side', circle = FALSE, status = "primary", icon = icon("sliders"), width = "900px",  tooltip = tooltipOptions(title = "Dataset filtering")
+                            ),label='Filtering for the Mapped Side', circle = FALSE, status = "primary", icon = icon("sliders"), width = "900px",  tooltip = tooltipOptions(title = "Dataset filtering")
                         )
                     ) 
                 )
@@ -219,7 +219,7 @@ IntegrateTwoDataset_SideBySide_UI <- function(ns) {
             # show a table of the overlap genes
             fluidRow(
                 column(12, h5('\n')),
-                column(12, h4('Overlap genes table') ),
+                column(12, h4('Overlap Genes Table') ),
                 column(12, verbatimTextOutput(ns('Integrate_Overlapped_gene_table_status')) ),
                 column(12, dataTableOutput(ns("Integrate_Overlapped_gene_table")) ),
             ),

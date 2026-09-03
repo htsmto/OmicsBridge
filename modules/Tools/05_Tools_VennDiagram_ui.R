@@ -6,14 +6,14 @@ tools_venndiagram_UI <- function(ns){
             column(4,
 
                 # Input the data
-                box(width=12, title='Information of each group',collapsible = TRUE, status='info',
+                box(width=12, title='Group Information',collapsible = TRUE, status='info',
                     fluidRow(
                         # show help text and the status
                         column(12, helpText("Input the group names and elements to create a Venn diagram. Then you can plot the Venn diagram and show the overlap elements.")),
                         column(12, verbatimTextOutput(ns("Venn_Diagram_status_input"))),
 
                         # selection of 2D or 3D Venn diagram
-                        column(12, radioButtons(ns('Venn_Diagram_method'), 'Choose a method', choices=c('2D Venn diagram'='A', '3D Venn diagram'='B'), selected='A')),
+                        column(12, radioButtons(ns('Venn_Diagram_method'), 'Choose a method', choices=c('2D Venn Diagram'='A', '3D Venn Diagram'='B'), selected='A')),
 
                         # Group1
                         column(12, textInput(ns("Venn_Diagram_Group1_name"), "Group 1 title")),
@@ -29,7 +29,7 @@ tools_venndiagram_UI <- function(ns){
                 ),
 
                 # show the overlap elements
-                box(width=12, title='Overlap elements',collapsible = TRUE, status='warning',
+                box(width=12, title='Overlap Elements',collapsible = TRUE, status='warning',
                     fluidRow(
                         # helptext and status
                         column(12, helpText("You can choose a category to show the overlap elements.")),
@@ -75,8 +75,8 @@ tools_venndiagram_UI <- function(ns){
                     column(2, 
                         dropdownButton( h4(strong("Plot Options")),
                             fluidRow(
-                                column(6, sliderInput(ns('Venn_Diagram_plot.width'), 'Fig width (Feature plot)', min=300, max=3000, value=500, step=10)),
-                                column(6, sliderInput(ns('Venn_Diagram_plot.height'), 'Fig height (Feature plot)', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput(ns('Venn_Diagram_plot.width'), 'Fig width', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput(ns('Venn_Diagram_plot.height'), 'Fig height', min=300, max=3000, value=500, step=10)),
                                 column(6, sliderInput(ns('Venn_Diagram_plot_label.font.size'), 'Label font size', min=0.01, max=3, value=0.5, step=0.01)),
                                 column(6, sliderInput(ns('Venn_Diagram_plot_legend_size'), 'Legend font size', min=0.01, max=3, value=0.5, step=0.01)),
                                 column(6, colourpicker::colourInput(ns('Venn_Diagram_plot_col1_colour'), 'Colour for Column-Group 1', value='#AEECF5')),

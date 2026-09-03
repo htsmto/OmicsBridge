@@ -24,7 +24,7 @@ database_upload_UI <- function(ns){
                 div(id='help',
                 dropdownButton( 
                     fluidRow(
-                        column(12, h4(strong("Data upload quick guide"))),
+                        column(12, h4(strong("Quick upload guide"))),
                         column(12, 
                             helpText(HTML("
                             - Make sure that the column name containing gene names is set 'id'. <br>
@@ -59,7 +59,7 @@ database_upload_UI <- function(ns){
         fluidRow( 
             column(6, selectInput(ns('upload_Data_Class'), HTML('Data Class * <br/> Please choose one.'), 
                 c('A: Count data/Expression matrix'='A', 
-                    'B: Comparison data (Any table contain log fold change velues)'='B', 
+                    'B: Comparison data (any table containing log fold change values)'='B',
                     'C: single cell RNA'='C', 
                     'D: bed/narrowPeak file from ATAC/ChIP/CUT&RUN etc'='D', 
                     'E: bigwig file'='E', 
@@ -88,12 +88,12 @@ database_upload_UI <- function(ns){
 
         ## upload button
         fluidRow( 
-            column(12, h4(strong("3. Upload the dataset to the database")))
+            column(12, h4(strong("3. Register the dataset")))
         ),
         fluidRow(
             column(3, 
                 fluidRow(
-                    column(6, actionButton(ns("upload_data"), 'Add to the dataset',style="width:240px; color: #ffffff; background-color: #387842; ")),
+                    column(6, actionButton(ns("upload_data"), 'Register dataset',style="width:240px; color: #ffffff; background-color: #387842; ")),
                     # column(6, actionButton(ns("upload_reset"), 'Reset',style="width:240px; color: #ffffff; background-color: #387842; "))
                 ),
             ),
@@ -102,7 +102,7 @@ database_upload_UI <- function(ns){
 
         ## data preview
         fluidRow(
-            column(12, h4(strong('Preview:')))
+            column(12, h4(strong('4. Preview')))
         ),
         fluidRow(
             column(9, verbatimTextOutput(ns('data_preview_status')))

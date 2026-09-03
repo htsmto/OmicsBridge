@@ -3,7 +3,7 @@ source("modules/IntegrateTwoDataset/02_IntegrateTwoDataset_IntegrationPlot_ui.R"
 
 IntegrateTwoDataset_UI <- function(ns) {
   tabItem(tabName = "Integrate_two_dataset",
-    h2(' Integrate two datasets'),
+    h2(' Two Datasets Integration'),
     IntegrateTwoDataset_SideBySide_UI(ns),
     IntegrateTwoDataset_IntegrationPlot_UI(ns)
   )

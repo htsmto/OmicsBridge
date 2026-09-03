@@ -9,22 +9,22 @@ tools_UI <- function(ns) {
   tabItem(tabName = "Tools",
     h2('Tools'),
     tabsetPanel(
-        tabPanel(strong('Human <=> Mouse'), 
+        tabPanel(strong('Human <=> Mouse'),
           tools_humanmouse_UI(ns)
         ),
-        tabPanel(strong('Gene symbol <=> Ensembl'),
+        tabPanel(strong('Gene Symbol <=> Ensembl'),
           tools_symbolens_UI(ns)
         ),
-        tabPanel(strong('Find gene positions/annotations'),
+        tabPanel(strong('Find Gene Positions/Annotations'),
           tools_findloci_UI(ns)
         ),
-        tabPanel(strong('Cross-tabulation analysis'),
+        tabPanel(strong('Cross-Tabulation Analysis'),
           tools_crosstabular_UI(ns)
         ),
         tabPanel(strong('Venn Diagram'),
           tools_venndiagram_UI(ns)
         ),
-        tabPanel(strong('Network plot'), 
+        tabPanel(strong('Network Plot'),
           tools_networkplot_UI(ns)
         )
     )

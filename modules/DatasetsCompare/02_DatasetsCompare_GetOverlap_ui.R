@@ -1,7 +1,7 @@
 DatasetsCompare_GetOverlap_UI <- function(ns){
     fluidRow(
         column(12, # Settings and Inputs
-            box(width=12, title=strong('Settings and Inputs'), collapsible = TRUE, status='info',
+            box(width=12, title=strong('Inputs and Settings'), collapsible = TRUE, status='info',
                 fluidRow( 
                     column(12, helpText(HTML("Please select the score for ranking (ex. LFC), choose the direction (either top or bottom), set the threshold, and click 'Investigate the Overlap'. <br>A table displaying how often each gene ranks in the top or bottom X% of the selected datasets will appear below."))) ,
 
@@ -15,15 +15,15 @@ DatasetsCompare_GetOverlap_UI <- function(ns){
                     column(3, htmlOutput(ns('Compare_dataset_get_overview_select_score'))),
 
                     # select direction (top or bottom)
-                    column(2, radioButtons(ns('Compare_dataset_get_overview_direction'), 'Direction:', choices=c('Top X%', 'Bottom X%'))),
+                    column(2, radioButtons(ns('Compare_dataset_get_overview_direction'), 'Direction', choices=c('Top X%', 'Bottom X%'))),
 
                     # set threshold
-                    column(5, 
+                    column(5,
                         fluidRow(
-                            column(12, sliderInput(ns('Compare_dataset_get_overview_threshold'), 'Threshold X(%)=', min=0, max=100, value=5, step=1)),
-                            column(7, numericInput(ns('Compare_dataset_get_overview_threshold_for_display'), 'Show genes with Overlap_time more than:', value=0, min=0, max=1000, step=1)),
+                            column(12, sliderInput(ns('Compare_dataset_get_overview_threshold'), 'Threshold (Top/Bottom X%)', min=0, max=100, value=5, step=1)),
+                            column(7, numericInput(ns('Compare_dataset_get_overview_threshold_for_display'), 'Show genes that overlap in more than:', value=0, min=0, max=1000, step=1)),
                             column(5, ''),
-                            column(12, helpText(HTML("ex. if you set Top 5% and show genes with Overlap_time more than 2, it means that you want to see the genes that are ranked in the top 5% in at least 2 datasets.")))
+                            column(12, helpText(HTML("ex. if you set Top 5% and show genes that appear in more than 2 datasets, it means that you want to see the genes that are ranked in the top 5% in at least 2 datasets.")))
                         )
                     ),
                 ),
@@ -36,7 +36,7 @@ DatasetsCompare_GetOverlap_UI <- function(ns){
             ),                      
         ),
         column(4, # Overlapped hits
-            box(width=12, title=strong('Overlapped hits'), collapsible = TRUE, status='warning',
+            box(width=12, title=strong('Overlapped Hits'), collapsible = TRUE, status='warning',
                 fluidRow( 
                     column(12, verbatimTextOutput(ns('Compare_dataset_get_overview_table_status'))),
                     column(12, withSpinner(dataTableOutput(ns("Compare_dataset_get_overview_overlap")), type=5, color='#0dc5c1') ),
@@ -59,7 +59,7 @@ DatasetsCompare_GetOverlap_UI <- function(ns){
             ),
         ),
         column(8, # barplot
-            box(width=12, title=strong('barplot'), collapsible = TRUE,status='danger',
+            box(width=12, title=strong('Bar Plot'), collapsible = TRUE,status='danger',
                 fluidRow(
                     column(10, verbatimTextOutput(ns('Compare_dataset_get_overview_barplot_status'))),
                     column(2,

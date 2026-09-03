@@ -24,7 +24,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
                   column(9,
                     helpText("This tool calculates the correlation between RNA-seq gene expression and ATAC-seq peak intensity for a specified gene across matched samples.")
                   ),
-                  column(3, actionButton(ns('reload_database_enhancer'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
+                  column(3, actionButton(ns('reload_database_enhancer'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
                   column(12, h2('')),
                   column(10, htmlOutput(ns('Enhancer_Find_data_select_RNAseq'))),
                   column(2,
@@ -87,7 +87,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
                   column(12, textAreaInput(ns('Enhancer_Find_sample_select'), 'Enter sample names (RNA_sample,ATAC_sample)', placeholder = 'Name in RNAseq,Name.in.ATACseq \nSample1_RNA_Rep1,Sample1_ATAC_Rep1\nSample2_RNA_Rep1,Sample2_ATAC_Rep1')),
                   column(12, verbatimTextOutput(ns('Enhancer_Find_sample_status'))),
                   column(12, textAreaInput(ns('Enhancer_Find_input_gene'), 'Enter genes (line by line)', placeholder='Gene1\nGene2\nGene3')),
-                  column(12, materialSwitch(ns('Enhancer_Find_use_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                  column(12, materialSwitch(ns('Enhancer_Find_use_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                   column(12,
                     conditionalPanel(
                       condition = paste0("input['", ns('Enhancer_Find_use_custom_geneset'), "'] == true"),
@@ -120,7 +120,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
               box(width=12, title='Results', status='warning', collapsible = TRUE,
                 # Three tabs: 1) Correlation result, 2) RNAseq data table, 3) ATACseq data table
                 tabsetPanel(
-                  tabPanel('Correlation result',
+                  tabPanel('Correlation Result',
                     h4(''),
                     fluidRow(
                       column(12, verbatimTextOutput(ns('Enhancer_Find_table_status')) ),
@@ -150,7 +150,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
                       column(12, withSpinner(plotOutput(ns("Enhancer_Find_table_plot"), width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                     )
                   ),
-                  tabPanel('RNAseq data table',
+                  tabPanel('RNAseq Data Table',
                     h4(''),
                     fluidRow(
                       column(12, verbatimTextOutput(ns('Enhancer_Find_RNAseq_data_status')) ),
@@ -178,7 +178,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
                       column(12, withSpinner(plotOutput(ns("Enhancer_Find_RNAseq_data_plot"), width="100%", height="100%"), type = 5, color = "#0dc5c1"))
                     )
                   ),
-                  tabPanel('ATACseq data table',
+                  tabPanel('ATACseq Data Table',
                     h4(''),
                     fluidRow(
                       column(12, verbatimTextOutput(ns('Enhancer_Find_ATACseq_data_status')) ),
@@ -209,7 +209,7 @@ Epigenome_findEnhancerPromoter_UI <- function(ns) {
               )
             ),
             column(12,
-              box(width=12, title='Show the potential enhancer/promoter list', status='danger', collapsible = TRUE,
+              box(width=12, title='Potential Enhancers/Promoters', status='danger', collapsible = TRUE,
                 fluidRow(
                   column(4,
                     fluidRow(

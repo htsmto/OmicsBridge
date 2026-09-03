@@ -11,7 +11,7 @@ clinical_Survival_ui <- function(ns){
                         column(3,
                             fluidRow(
                                 column(12, htmlOutput(ns('Clinical_Survival_genes'))),
-                                column(12, materialSwitch(ns('Clinical_Survival_genes_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                column(12, materialSwitch(ns('Clinical_Survival_genes_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                                 column(12, 
                                     conditionalPanel( condition = paste0("input['", ns('Clinical_Survival_genes_from_custom_geneset'), "'] == true"),
                                         htmlOutput(ns('Clinical_Survival_genes_from_custom_geneset_select'))
@@ -131,7 +131,7 @@ clinical_Survival_ui <- function(ns){
                                     fluidRow(
                                     column(4,sliderInput(ns('Clinical_Survival_label_size'), 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
                                     column(4,sliderInput(ns('Clinical_Survival_title_size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                    column(4,sliderInput(ns('Clinical_Survival_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                    column(4,sliderInput(ns('Clinical_Survival_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                                     ),
                                     fluidRow(
                                     column(5, colourpicker::colourInput(ns('Clinical_Survival_High_colour'), 'Colour for the "High" group (or Group 1):', value='#ec00ec')),

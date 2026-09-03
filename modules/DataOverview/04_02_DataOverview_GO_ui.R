@@ -5,7 +5,7 @@ DataOverview_GO_ui <- function(ns){
 
         box(title=strong('Inputs and Settings'), collapsible=TRUE, width=4,status='info',
             fluidRow(
-                column(12, helpText("You can perform GO or KEGG enrichment analysis. The genes can be either mannyally inputted, or automatically retrieved from the filtered genes (results from 'Show outliers' above) or selected genes (selected area in the Main plot)."))
+                column(12, helpText("You can perform GO or KEGG enrichment analysis. The genes can be either manually inputted, or automatically retrieved from the filtered genes (results from 'Show outliers' above) or selected genes (selected area in the Main plot)."))
             ),
 
             # Input
@@ -113,7 +113,7 @@ DataOverview_GO_ui <- function(ns){
                         ),
 
                         # Network Plot
-                        tabPanel(strong("Network plot"), 
+                        tabPanel(strong("Network Plot"),
                             fluidRow(
                                 column(12, h4('')),
                                 column(12, helpText("Note: If the plot fails to generate due to insufficient width, click the reset button and increase the width.")),

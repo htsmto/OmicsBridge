@@ -12,7 +12,7 @@ clinical_Deconvolution_ui <- function(ns){
                 ),
                 column(10,
                 fluidRow(
-                    column(12, h4('Deconvolution Result table:') ),
+                    column(12, h4('Deconvolution Results Table') ),
                     column(12, h3('')),
                     column(12, verbatimTextOutput(ns('Deconvolution_status')) ),
                     column(12, withSpinner(dataTableOutput(ns("Deconvolution_results")), type = 5, color = "#0dc5c1" )),
@@ -23,7 +23,7 @@ clinical_Deconvolution_ui <- function(ns){
         ),
 
         # further analysis
-        box(width=12, title=strong('Futher analysis'), status='primary',
+        box(width=12, title=strong('Further Analysis'), status='primary',
             tabsetPanel(
                 tabPanel("Heatmap/Barplot",
                     fluidRow(
@@ -32,7 +32,7 @@ clinical_Deconvolution_ui <- function(ns){
                         column(4,
                             box(title='Inputs and Settings', width=12, status='info', collapsible=TRUE,
                                 fluidRow(
-                                    column(12, helpText("Here, you can generate heatmaps or barplots of the deconvolution results (abondunce of each cell type across samples).")),
+                                    column(12, helpText("Here, you can generate heatmaps or barplots of the deconvolution results (abundance of each cell type across samples).")),
                                     column(12, radioButtons(ns('Deconvolution_Heatmap_sample_selection'), 'Sample selection', choices=c('All samples'='A', 'Filter from metadata'='B', 'Text input'='C'), selected='A') ),
                                     column(12, htmlOutput(ns('Deconvolution_Heatmap_sample_selection_meta_data')) ),
                                     column(12, htmlOutput(ns('Deconvolution_Heatmap_sample_selection_meta_data_group')) ),
@@ -124,7 +124,7 @@ clinical_Deconvolution_ui <- function(ns){
                                     column(4, 
                                         fluidRow(
                                             column(12, htmlOutput(ns('Deconvolution_Gene_correlation_genes'))),
-                                            column(12, materialSwitch(ns('Deconvolution_Gene_correlation_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                            column(12, materialSwitch(ns('Deconvolution_Gene_correlation_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                                             column(12, htmlOutput(ns('Deconvolution_Gene_correlation_from_custom_geneset_select'))),
                                             column(12, verbatimTextOutput(ns('Deconvolution_Gene_correlation_genes_status')))
                                         )

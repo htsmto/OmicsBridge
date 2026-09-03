@@ -12,7 +12,7 @@ clinical_GeneCorrelation_ui <- function(ns){
                         column(4,
                             fluidRow(
                                 column(12, htmlOutput(ns('Clinical_GeneCorrelation_genes'))),
-                                column(12, materialSwitch(ns('Clinical_GeneCorrelation_genes_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                column(12, materialSwitch(ns('Clinical_GeneCorrelation_genes_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                                 column(12, 
                                     conditionalPanel( condition = paste0("input['", ns('Clinical_GeneCorrelation_genes_from_custom_geneset'), "'] == true"),
                                         htmlOutput(ns('Clinical_GeneCorrelation_genes_from_custom_geneset_select'))

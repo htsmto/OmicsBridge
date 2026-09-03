@@ -27,7 +27,7 @@ mainplot_barplot_server <- function(input, output, session,
 
     if (length(input$show_filterin_input_option) == 0 || is.null(input$show_filterin_input_option) ||
         input$show_filterin_input_option == "A") {
-      Gene_ex_barplot_status("Please choose 'Filtered genes', 'Pathway genes', or 'Custom genesets' and turn on 'Show in a bar plot'.")
+      Gene_ex_barplot_status("Please choose 'Filtered genes', 'Pathway genes', or 'Custom gene sets' and turn on 'Show in a bar plot'.")
       return(ggplot())
     }
 

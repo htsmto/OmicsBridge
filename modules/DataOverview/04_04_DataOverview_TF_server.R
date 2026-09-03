@@ -14,7 +14,7 @@ dataoverview_TF_Server <- function(input, output, session, df_ex) {
 
     ## Start DecoupeR
         # status
-            DecoupeR_plot_status <- reactiveVal("Set the parameters and click 'Start DecoupeR Analysis' to run the analysis.")
+            DecoupeR_plot_status <- reactiveVal("Set the parameters and click 'Start decoupleR Analysis' to run the analysis.")
             output$DecoupeR_plot_status <- renderText({ DecoupeR_plot_status() })
         #
 

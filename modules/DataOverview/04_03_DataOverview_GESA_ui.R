@@ -13,7 +13,7 @@ DataOverview_GSEA_ui <- function(ns){
                             # choose 
                             column(5, 
                                 fluidRow(
-                                    column(12, radioButtons(ns("GSEA_pathway_dataset_select"), "pathways from:", choices = c("HALLMARK (human)"='B', "HALLMARK (mouse)"='C', "Upload a gmt file (other gene sets)"='D', "Calculate the enrichment of one gene set"='E'), selected="B")),
+                                    column(12, radioButtons(ns("GSEA_pathway_dataset_select"), "Pathways from", choices = c("HALLMARK (Human)"='B', "HALLMARK (Mouse)"='C', "Upload a gmt file (other gene sets)"='D', "Calculate the enrichment of one gene set"='E'), selected="B")),
                                     column(12, verbatimTextOutput(ns('GSEA_pathway_dataset_select_status'))),
                                 )
                                 
@@ -49,7 +49,7 @@ DataOverview_GSEA_ui <- function(ns){
 
                         # start GSEA analysis
                         fluidRow( 
-                            column(3, actionButton(ns("GSEA_start"), "Start GESA Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                            column(3, actionButton(ns("GSEA_start"), "Start GSEA Analysis",style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
                             column(9, verbatimTextOutput(ns('GSEA_analysis_status')))
                         )
                     )
@@ -60,7 +60,7 @@ DataOverview_GSEA_ui <- function(ns){
 
         # results table and plot
         column(12,
-            box(title=strong('GSEA results table'), collapsible=TRUE, width=4, status='warning',
+            box(title=strong('GSEA Results Table'), collapsible=TRUE, width=4, status='warning',
                 fluidRow( 
                     column(12, verbatimTextOutput(ns('GSEA_goTable_status'))),
                     column(12, withSpinner(DT::dataTableOutput(ns("GSEA_goTable"), width="100%", height="100%"), type=5, color='#0dc5c1') ), 

@@ -1,5 +1,5 @@
 tools_symbolens_UI <- function(ns){
-    box(width=12, status='primary',  solidHeader = TRUE, title='Convert Ensemble gene ids with Gene symbols',
+    box(width=12, status='primary',  solidHeader = TRUE, title='Convert Gene Symbols and Ensembl Gene IDs',
     fluidRow(
         column(5, 
         box(width=12,  title='Inputs and Settings', status='info',collapsible = TRUE,
@@ -29,7 +29,7 @@ tools_symbolens_UI <- function(ns){
             )
         ),
         column(3, 
-            box(width=12, title='List of converted genes', status='warning',collapsible = TRUE,
+            box(width=12, title='List of Converted Genes', status='warning',collapsible = TRUE,
                 fluidRow(
                 column(12, verbatimTextOutput(ns('symbolens_status_result')) )
                 )

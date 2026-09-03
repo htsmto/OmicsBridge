@@ -6,7 +6,7 @@ DatasetsCompare_DataSelection_UI <- function(ns){
         column(6, htmlOutput(ns("choose_data_type"))),
         column(2, 
             h3('\n'),
-            actionButton(ns('Reload_your_databse'), 'Reload your database', style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")
+            actionButton(ns('Reload_your_databse'), 'Refresh list', style="color: #ffffff; background-color: #ee9d29; border-color: #e48803")
         ),
         column(4, h4('')),
 

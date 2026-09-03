@@ -7,10 +7,10 @@ source("modules/Epigenome/05_Epigenome_motifScan_UI.R")
 
 Epigenome_UI <- function(ns) {
     tagList(
-    h2('Epigenetic Data Analysis'),
+    h2('Epigenome Visualisation'),
     tabsetPanel(
-        tabPanel( 'Profile plot', Epigenome_profile_UI(ns)),
-        tabPanel('Genome visualisation', Epigenome_genomevisualisation_UI(ns)),
+        tabPanel( 'Profile Plot', Epigenome_profile_UI(ns)),
+        tabPanel('Genome Visualisation', Epigenome_genomevisualisation_UI(ns)),
         tabPanel( 'IGV', Epigenome_igv_UI(ns)),
         tabPanel('Find Enhancer/Promoter', Epigenome_findEnhancerPromoter_UI(ns)),
         tabPanel('Motif Scan', Epigenome_motifScan_UI(ns))

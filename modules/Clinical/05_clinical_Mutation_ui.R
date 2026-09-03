@@ -10,7 +10,7 @@ clinical_Mutation_ui <- function(ns){
                     column(4,
                         fluidRow(
                             column(12, htmlOutput(ns('Clinical_Mutation_genes'))),
-                            column(12, materialSwitch(ns('Clinical_Mutation_genes_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                            column(12, materialSwitch(ns('Clinical_Mutation_genes_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                             column(12, materialSwitch(ns('Clinical_Mutation_genes_from_the_cohort'), 'Use all the genes from the cohort', value=FALSE, status='info') ),
                             column(12, htmlOutput(ns('Clinical_Mutation_genes_from_custom_geneset_select'))),
                             # show the number of the input 
@@ -71,7 +71,7 @@ clinical_Mutation_ui <- function(ns){
 
         # Results
         column(3, 
-            box(width=12, status='warning', title='Results (Mutation Frequency table)', collapsible=TRUE,
+            box(width=12, status='warning', title='Mutation Frequency Results', collapsible=TRUE,
             fluidRow(
                 column(12, verbatimTextOutput(ns('Clinical_Mutation_frequency_plot_status_table')) ),
                 column(12, withSpinner(dataTableOutput(ns("Clinical_Mutation_frequency_table")), type = 5, color = "#0dc5c1" ))
@@ -90,10 +90,10 @@ clinical_Mutation_ui <- function(ns){
                     # setting for the frequency plot
                     fluidRow(
                         column(12, h3('')),
-                        column(5, radioButtons(ns('Clinical_Mutation_frequency_plot_type'), 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients hacing mytations"='B'), selected='A') ),
-                        column(3, 
+                        column(5, radioButtons(ns('Clinical_Mutation_frequency_plot_type'), 'Y axis:', choices=c("Number of patients having mutations"='A', "Percentage of patients having mutations"='B'), selected='A') ),
+                        column(3,
                             h5('\n'),
-                            numericInput(ns('Clinical_Mutation_frequency_plot_top_X'), 'Show top X frequntly mutated genes:', min=1, value=15, step=1) 
+                            numericInput(ns('Clinical_Mutation_frequency_plot_top_X'), 'Show top X frequently mutated genes:', min=1, value=15, step=1)
                         ),
                         column(4, h4('') ),
                     ),
@@ -109,7 +109,7 @@ clinical_Mutation_ui <- function(ns){
                                 ),
                                 fluidRow(
                                     column(6,sliderInput(ns('Clinical_Mutation_frequency_label_size'), 'X label size', min=1, max=15, value=2.5, step=0.1)),
-                                    column(6,sliderInput(ns('Clinical_Mutation_frequency_title_size'), 'Y lable/title size', min=1, max=15, value=5, step=0.1)),
+                                    column(6,sliderInput(ns('Clinical_Mutation_frequency_title_size'), 'Y label/title size', min=1, max=15, value=5, step=0.1)),
                                     column(6,sliderInput(ns('Clinical_Mutation_frequency_legend_size'), 'Legend font size', min=1, max=15, value=4, step=0.1)),
                                     column(6,sliderInput(ns('Clinical_Mutation_frequency_score_size'), 'Score font size', min=0.1, max=5, value=1, step=0.1)),
                                 ),
@@ -126,7 +126,7 @@ clinical_Mutation_ui <- function(ns){
                 ),
 
                 # Survival analysis (Kaplan-Meier Plot)
-                tabPanel('Survival analysis (Kaplan-Meier Plot)',
+                tabPanel('Survival Analysis (Kaplan-Meier Plot)',
                     fluidRow(
                         column(12, h3('') ),
                         column(10, verbatimTextOutput(ns('Clinical_Mutation_Kaplan_plot_status')) ),
@@ -139,7 +139,7 @@ clinical_Mutation_ui <- function(ns){
                                 fluidRow(
                                 column(6,sliderInput(ns('Clinical_Mutation_Kaplan_label_size'), 'X/Y label size', min=0.1, max=10, value=4, step=0.1)),
                                 column(6,sliderInput(ns('Clinical_Mutation_Kaplan_title_size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                column(6,sliderInput(ns('Clinical_Mutation_Kaplan_legend_size'), 'legend size', min=0.1, max=10, value=4, step=0.1)),
+                                column(6,sliderInput(ns('Clinical_Mutation_Kaplan_legend_size'), 'Legend size', min=0.1, max=10, value=4, step=0.1)),
                                 ),
                                 fluidRow(
                                 column(6, colourpicker::colourInput(ns('Clinical_Mutation_Kaplan_High_colour'), 'Colour for the "High" group:', value='#ec00ec')),
@@ -155,19 +155,19 @@ clinical_Mutation_ui <- function(ns){
                 ),
 
                 # Gene expression compare
-                tabPanel('Gene expression compare',
+                tabPanel('Gene Expression Compare',
                     fluidRow(
                         column(12, h3('') ),
                         column(12, 
 
                             # Input for gene expression comparison
-                            box(width=12, title='Input and Setting', status='info', collapsible=TRUE,
+                            box(width=12, title='Inputs and Settings', status='info', collapsible=TRUE,
                                 fluidRow(
                                     column(12, helpText(HTML("Here, you can compare the expression of a gene between the mutant and wild-type groups of a specific gene selected from the mutation frequency table. "))),
                                     column(5, 
                                         fluidRow(                                          
                                             column(12, htmlOutput(ns('Clinical_Mutation_Gene_expression_geneInput'))),
-                                            column(12, materialSwitch(ns('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                                            column(12, materialSwitch(ns('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                                             column(12, htmlOutput(ns('Clinical_Mutation_Gene_expression_geneInput_from_custom_geneset_select'))),
                                             column(12, verbatimTextOutput(ns('Clinical_Mutation_Gene_expression_genes_input_status')))
                                             
@@ -181,7 +181,7 @@ clinical_Mutation_ui <- function(ns){
                         column(3, 
 
                             # Input gene table
-                            box(width=12, title='Input genes table', status='primary', collapsible=TRUE,
+                            box(width=12, title='Input Genes Table', status='primary', collapsible=TRUE,
                                 fluidRow(
                                 column(12, verbatimTextOutput(ns("Clinical_Mutation_Gene_expression_geneInput_selecttable_status"))),
                                 column(12, withSpinner(dataTableOutput(ns("Clinical_Mutation_Gene_expression_geneInput_selecttable")), type = 5, color = "#0dc5c1" ) )
@@ -191,7 +191,7 @@ clinical_Mutation_ui <- function(ns){
                         column(9,
 
                             # Plot
-                            box(width=12, title='Plot for Gene expression comparison', status='danger', collapsible=TRUE,
+                            box(width=12, title='Gene Expression Comparison Plot', status='danger', collapsible=TRUE,
                                 column(10, verbatimTextOutput(ns('Clinical_Mutation_Gene_expression_geneInput_plot_status'))),
                                 column(2, 
                                     dropdownButton( h4(strong("Plot Options")),

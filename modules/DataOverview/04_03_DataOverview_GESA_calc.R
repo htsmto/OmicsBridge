@@ -48,7 +48,7 @@ gsea_calc_server <- function(input, output, session, df_ex, Original_geneset_lis
                 if(input$GSEA_pathway_dataset_select == 'B'){
                     gsc <- gmtPathways('data/h.all.v2023.2.Hs.symbols.gmt')
                     GSEA_Gene_set(gsc)
-                    GSEA_pathway_dataset_select_status(paste0(length(gsc), ' gene sets were selected from the HALLMARK (human) dataset.'))
+                    GSEA_pathway_dataset_select_status(paste0(length(gsc), ' gene sets were selected from the HALLMARK (Human) dataset.'))
                     return()
                 }
 
@@ -56,7 +56,7 @@ gsea_calc_server <- function(input, output, session, df_ex, Original_geneset_lis
                 else if(input$GSEA_pathway_dataset_select == 'C'){
                     gsc <- gmtPathways('data/mh.all.v2023.2.Mm.symbols.gmt')
                     GSEA_Gene_set(gsc)
-                    GSEA_pathway_dataset_select_status(paste0(length(gsc), ' gene sets were selected from the HALLMARK (mouse) dataset.'))
+                    GSEA_pathway_dataset_select_status(paste0(length(gsc), ' gene sets were selected from the HALLMARK (Mouse) dataset.'))
                 }
 
                 # from uploaded gmt file

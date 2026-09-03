@@ -16,7 +16,7 @@ Epigenome_igv_UI <- function(ns){
                                 )
                             )
                         ),
-                        column(4, actionButton(ns('reload_database_igv'), 'Reload your datasets list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
+                        column(4, actionButton(ns('reload_database_igv'), 'Refresh list', style="color: #ffffff; background-color: #1C9600; border-color: #2A8708")),
                         column(12, h2('')),
                         column(12, 
                             fluidRow(

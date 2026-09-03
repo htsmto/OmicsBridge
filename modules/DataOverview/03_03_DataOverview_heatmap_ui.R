@@ -25,7 +25,7 @@ dataoverview_heatmap_UI <- function(ns){
 
                     # Sample selection
                     fluidRow(
-                        column(12, h4(HTML('<br><u>Select the samples:</u>'))),
+                        column(12, h4(HTML('<br><u>Select the samples</u>'))),
                         column(12, verbatimTextOutput(ns('Data_Overview_heatmap_sample_table_status'))),
                         column(12, dataTableOutput(ns("Data_Overview_heatmap_sample_table")))
                     ),
@@ -48,8 +48,8 @@ dataoverview_heatmap_UI <- function(ns){
                     column(2, 
                         dropdownButton( h4(strong("Plot Options")),
                             fluidRow(
-                                column(6, sliderInput(inputId = ns('Data_Overview_heatmap_fig.width'), label='fig width', min=300, max=3000, value=700, step=10)),
-                                column(6, sliderInput(inputId = ns('Data_Overview_heatmap_fig.height'), label='fig height', min=300, max=3000, value=500, step=10)),
+                                column(6, sliderInput(inputId = ns('Data_Overview_heatmap_fig.width'), label='Fig width', min=300, max=3000, value=700, step=10)),
+                                column(6, sliderInput(inputId = ns('Data_Overview_heatmap_fig.height'), label='Fig height', min=300, max=3000, value=500, step=10)),
                                 column(6, sliderInput(inputId = ns('Data_Overview_heatmap_xlab.font.size'), label='X label size', min=0, max=10, value=1, step=0.1)),
                                 column(6, sliderInput(inputId = ns('Data_Overview_heatmap_ylab.font.size'), label='Y label size', min=0, max=10, value=3, step=0.1)),
                                 column(6, sliderInput(inputId = ns('Data_Overview_heatmap_legend.size'), label='Legend size', min=1, max=10, value=3, step=1)),

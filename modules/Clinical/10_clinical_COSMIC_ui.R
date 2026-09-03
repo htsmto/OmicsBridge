@@ -1,5 +1,5 @@
 clinical_COSMIC_ui <- function(ns){
-    box(width=12,title='Cacner Gene Census (COSMIC)', status='primary',
+    box(width=12,title='Cancer Gene Census (COSMIC)', status='primary',
         fluidRow(
             column(12, 
                 helpText(HTML('We are using the <a href="https://cancer.sanger.ac.uk/census" target="_blank">Cancer Gene Census from COSMIC</a>. <br>
@@ -14,7 +14,7 @@ clinical_COSMIC_ui <- function(ns){
                 box(width=12, title='Inputs and Settings', status='info', collapsible = TRUE,
                     fluidRow(
                         column(12, htmlOutput(ns('CGC_input_gene'))),
-                        column(12, materialSwitch(ns('CGC_input_gene_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                        column(12, materialSwitch(ns('CGC_input_gene_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                         column(12, htmlOutput(ns('CGC_input_gene_from_custom_geneset_select')) ),
                         column(12, verbatimTextOutput(ns('CGC_input_gene_status')) )
                     )

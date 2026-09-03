@@ -11,15 +11,15 @@ dataoverview_pca_UI <- function(ns){
                         column(2,
                             dropdownButton( h4(strong("Plot Options")),
                                 fluidRow(
-                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_fig.width'), label='fig width', min=300, max=3000, value=800, step=10)),
-                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_fig.height'), label='fig height', min=300, max=3000, value=600, step=10))
+                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_fig.width'), label='Fig width', min=300, max=3000, value=800, step=10)),
+                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_fig.height'), label='Fig height', min=300, max=3000, value=600, step=10))
                                 ),
                                 fluidRow(
                                     column(6, sliderInput(inputId = ns('Data_Overview_PCA_xy.font.size'), label='X/Y label size', min=0.1, max=10, value=4, step=0.1)),
                                     column(6, sliderInput(inputId = ns('Data_Overview_PCA_xy.title.size'), label='X/Y title size', min=0.1, max=10, value=4, step=0.1))
                                 ),
                                 fluidRow(
-                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_point_size'), label='Points size', min=0.1, max=5, value=1, step=0.1)),
+                                    column(6, sliderInput(inputId = ns('Data_Overview_PCA_point_size'), label='Point size', min=0.1, max=5, value=1, step=0.1)),
                                     column(6, sliderInput(inputId = ns('Data_Overview_PCA_label_size'), label='Sample label size', min=0.1, max=5, value=1, step=0.1)),
                                     column(6, sliderInput(inputId = ns('Data_Overview_PCA_legend_size'), label='Legend size', min=0.1, max=5, value=4, step=0.1))
                                 ),
@@ -41,7 +41,7 @@ dataoverview_pca_UI <- function(ns){
             column(4, 
                 box(width=12, title=strong("Settings"), collapsible = TRUE,  status='info',
                     fluidRow(
-                        column(12, radioButtons(ns('Data_Overview_PCA_plot_type'), 'Plot type', choices = c('PCA'='A', 'tSNE'='B', 'Umap'='C'), selected='A')),
+                        column(12, radioButtons(ns('Data_Overview_PCA_plot_type'), 'Plot type', choices = c('PCA'='A', 'tSNE'='B', 'UMAP'='C'), selected='A')),
                         conditionalPanel(condition = paste0("input['", ns('Data_Overview_PCA_plot_type'), "'] == 'B'"),
                             column(12, sliderInput(ns('Data_Overview_PCA_tSNE_perplexity'), 'tSNE perplexity', min=1, max=100, value=30, step=1))
                         ),

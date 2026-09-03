@@ -15,7 +15,7 @@ dataoverview_correlation_UI <- function(ns){
                         column(12, helpText('Here you can explore the correlation of gene expression in your dataset. The correlation will be calculated pairwise and displayed in a table. By selecting a gene pair in the table, a scatter plot will be generated to show the correlation between the two genes.')),
                         column(12, h4(HTML('<u>Set the input genes</u>'))),
                         column(12, htmlOutput(ns('Two_gene_corr_input'))),
-                        column(12, materialSwitch(ns('Two_gene_corr_input_from_custom_geneset'), 'Use the genes from the custom gene sets', value=FALSE, status='info') ),
+                        column(12, materialSwitch(ns('Two_gene_corr_input_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                         column(12, htmlOutput(ns('Two_gene_corr_input_from_custom_geneset_select'))),
                         column(12, verbatimTextOutput(ns('Two_gene_corr_genes_status')))
                     ),
@@ -24,21 +24,21 @@ dataoverview_correlation_UI <- function(ns){
                     fluidRow(
                         column(12, h4('') ),
                         column(12, h4(HTML('<br><u>Correlation settings</u>'))),
-                        column(5, radioButtons(ns('Two_gene_corr_Correlation_method'), "Correlation calculation method:", choices=c('pearson', 'spearman'), selected='pearson')),
+                        column(5, radioButtons(ns('Two_gene_corr_Correlation_method'), "Correlation calculation method", choices=c('pearson', 'spearman'), selected='pearson')),
                         column(7, h3('\n'), materialSwitch(ns("Two_gene_corr_log"), "Use log scale", value=FALSE, status='info')),
                         column(12, h4('') )
                     ),
 
                     # sample selection
                     fluidRow(
-                        column(12, h4(HTML('<br><u>Select the samples:</u>'))),
+                        column(12, h4(HTML('<br><u>Select the samples</u>'))),
                         column(12, verbatimTextOutput(ns('Two_gene_corr_sample_table_status'))),
                         column(12, dataTableOutput(ns("Two_gene_corr_sample_table")))
                     ),
 
                     # start button
                     fluidRow(
-                        column(12, actionButton(ns('Two_gene_corr_start_pairwise'), 'Calculate the correlations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
+                        column(12, actionButton(ns('Two_gene_corr_start_pairwise'), 'Calculate correlations',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000")),
                         column(12, h4('') ),
                         column(12, verbatimTextOutput(ns('Two_gene_corr_status')) )
                     )
