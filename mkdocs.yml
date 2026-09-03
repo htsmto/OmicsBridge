@@ -1,6 +1,7 @@
 site_name: OmicsBridge
 nav:
   - Home: index.md
+  - Installation Guide for Non-Bioinformaticians: installation.md
   - Database and Data Upload: Database.md
   - Count & Comparison Data Overview: Data_Overview.md
   - Compare Across Datasets: Compare_across_datasets.md
