@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmicsBridge — Local Deployment Guide</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme">
+
+<style>
+  /* ---- Project-specific tweaks on top of the reveal.js "white" theme ---- */
+  :root{
+    --ob-accent:#006bb4;      /* DKFZ blue-100 */
+    --ob-accent-2:#009ee3;    /* DKFZ cyan */
+    --ob-dark:#1f3147;        /* DKFZ near-black navy */
+    --ob-warn:#ed0808;        /* DKFZ error red */
+    --ob-bg-soft:#f2f5fb;     /* DKFZ blue-5 */
+  }
+  .reveal { font-size: 30px; }
+  .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: 0; }
+  .reveal h1 { color: var(--ob-accent); font-size: 1.5em; }
+  .reveal h2 { color: var(--ob-accent); font-size: 1.15em; }
+  .reveal h3 { color: #333; font-size: 0.95em; }
+  .reveal section { text-align: left; }
+  .reveal section.center { text-align: center; }
+  /* Safety net: if a slide's content is taller than the fixed slide box
+     (e.g. a long table), scroll inside the slide instead of clipping it.
+     The bottom padding keeps borders/edges from being clipped flush
+     against the boundary (which happened even with content visible). */
+  .reveal .slides section { overflow-y: auto; max-height: 100%; padding-bottom: 24px; box-sizing: border-box; }
+
+  .reveal pre { width: 100%; box-shadow: none; }
+  .reveal pre code {
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    font-size: 0.62em;
+    line-height: 1.4;
+    padding: 14px 18px;
+    background: var(--ob-dark);
+    color: #d3dff3;
+    border-radius: 8px;
+    max-height: none;
+  }
+
+  .badge {
+    display:inline-block; padding: 2px 12px; border-radius: 999px;
+    font-size: 0.5em; font-weight: 600; color:#fff; vertical-align: middle;
+  }
+  .badge.docker   { background: #007cc9; }
+  .badge.rlang    { background: #518ac9; }
+  .badge.faq      { background: var(--ob-warn); }
+  .badge.quick    { background: var(--ob-dark); }
+  .badge.advanced { background: #7a8699; }
+
+  .screenshot-slot {
+    border: 2px dashed #9db3c9;
+    background: var(--ob-bg-soft);
+    border-radius: 10px;
+    padding: 28px 18px;
+    text-align: center;
+    color: #667;
+    font-size: 0.6em;
+    margin-top: 14px;
+  }
+  .screenshot-slot .cam { font-size: 1.8em; display:block; margin-bottom: 6px; }
+
+  .screenshot {
+    display:block; max-width:100%; margin-top: 14px;
+    border: 1px solid #d3dff3; border-radius: 10px;
+  }
+
+  .two-col { display: flex; gap: 28px; }
+  .two-col > div { flex: 1; }
+
+  .card {
+    border: 1px solid #d3dff3; border-radius: 10px; padding: 16px 20px;
+    background: #fff;
+  }
+  .card h3 { margin-top: 0; }
+
+  .step-num {
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 1.3em; height: 1.3em; border-radius: 50%;
+    background: var(--ob-accent); color:#fff; font-size: 0.55em; margin-right: 10px;
+  }
+
+  /* border-collapse hairlines can round away to 0px under reveal.js's
+     fractional slide-scaling transform, so the table gets a solid outer
+     border (thick enough to survive rounding) instead of relying on the
+     collapsed grid lines to close off the bottom/right edges. */
+  table.compare {
+    width:100%; border-collapse: separate; border-spacing: 0;
+    font-size: 0.65em; border: 2px solid #a9c3ea; border-radius: 8px; overflow: hidden;
+  }
+  table.compare th, table.compare td {
+    border-bottom: 1px solid #d3dff3; border-right: 1px solid #d3dff3;
+    padding: 10px 14px; text-align: left;
+  }
+  table.compare th:last-child, table.compare td:last-child { border-right: none; }
+  table.compare tr:last-child td { border-bottom: none; }
+  table.compare th { background: var(--ob-bg-soft); }
+
+  .note {
+    font-size: 0.55em; color: #555; margin-top: 10px;
+  }
+  .note.warn { color: var(--ob-warn); font-weight: 600; }
+
+  .callout {
+    border: 2px solid var(--ob-accent-2);
+    background: var(--ob-bg-soft);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 0.62em;
+    font-weight: 600;
+    color: var(--ob-dark);
+  }
+  .callout .skip-tag {
+    display: inline-block; background: var(--ob-accent-2); color: #fff;
+    font-size: 0.85em; font-weight: 700; letter-spacing: 0.02em;
+    border-radius: 999px; padding: 2px 12px; margin-right: 8px;
+  }
+
+  /* Highlighted placeholder inside dark code blocks — needs strong contrast
+     against the dark navy code background, so it gets its own explicit
+     text colour rather than inheriting the light code text colour. */
+  .path-fill {
+    display:inline-block; background: var(--ob-accent-2); color: var(--ob-dark);
+    border:1px solid #007cc9; font-weight:700;
+    border-radius:4px; padding:0 6px; font-family: monospace;
+  }
+
+  footer.slide-footer {
+    position:absolute; bottom: 10px; right: 20px; font-size: 0.4em; color:#99a;
+  }
+
+  .toc-list { display:flex; flex-direction:column; gap: 10px; margin-top: 20px; }
+  .toc-row {
+    display:flex; align-items:center; gap: 14px;
+    border: 1px solid #d3dff3; border-radius: 10px;
+    padding: 12px 18px; text-decoration:none; color: inherit;
+    background:#fff; transition: background-color .15s, border-color .15s;
+    font-size: 0.62em;
+  }
+  .toc-row:hover { background: var(--ob-bg-soft); border-color: var(--ob-accent); }
+  .toc-row .badge { flex: 0 0 auto; }
+  .toc-title { font-weight: 700; color: var(--ob-dark); }
+  .toc-sub { color: #667; margin-left: auto; text-align: right; font-weight: 400; }
+
+  /* "Which path are you on?" branching cards on the routing slide */
+  .route-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 26px; }
+  .route-card {
+    display:block; border: 2px solid #d3dff3; border-radius: 14px;
+    padding: 26px 28px; text-decoration:none; color: inherit;
+    background:#fff; transition: background-color .15s, border-color .15s, transform .15s;
+  }
+  .route-card:hover { background: var(--ob-bg-soft); border-color: var(--ob-accent); transform: translateY(-2px); }
+  .route-card .route-os {
+    font-size: 1.1em; font-weight: 700; color: var(--ob-dark);
+    display:flex; align-items:center; gap: 12px;
+  }
+  .route-card .route-os .icon { font-size: 1.6em; }
+  .route-card .route-method {
+    margin-top: 10px; display:inline-block;
+    background: var(--ob-accent); color:#fff; font-weight:700;
+    font-size: 0.55em; border-radius: 999px; padding: 4px 14px;
+  }
+  .route-card.docker .route-method { background: #007cc9; }
+  .route-card.rlang .route-method { background: #518ac9; }
+  .route-card .route-sub { margin-top: 12px; font-size: 0.55em; color: #667; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 1: TITLE -->
+  <!-- ============================================================ -->
+  <section class="center">
+    <h1>Setting up OmicsBridge<br>on your own computer</h1>
+    <p>An easy, local installation guide.</p>
+    <p class="note">DRAFT — screenshots not yet added.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 2: ABOUT THIS GUIDE -->
+  <!-- ============================================================ -->
+  <section>
+    <h2>About this guide</h2>
+    <p>This is a <strong>step-by-step guide for experimentalists</strong> — not informaticians. You do not need to know R, Docker, or the command line to follow it.</p>
+    <div class="two-col">
+      <div class="card">
+        <h3>Who this is for</h3>
+        <p>Wet-lab researchers who want OmicsBridge running on their own Mac or Windows computer, with no bioinformatics background required.</p>
+      </div>
+      <div class="card">
+        <h3>How to use it</h3>
+        <p>On the next slide, pick the one path that matches your computer and preference. Every step from there is spelled out in full — no need to read the other three paths.</p>
+      </div>
+    </div>
+    <p class="note">Each step includes exactly what to click and what you should see, with a screenshot alongside it.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 3: ROUTING — WHERE ARE YOU STARTING FROM? -->
+  <!-- ============================================================ -->
+  <section id="routing">
+    <h2>Where are you starting from?</h2>
+    <p class="note">Click the card that matches your computer and your preference. If you're not sure, "Docker" is the safer default — it needs no R knowledge.</p>
+    <div class="route-grid">
+      <a class="route-card rlang" href="#/mac-r">
+        <div class="route-os">Mac</div>
+        <span class="route-method">My own R</span>
+        <div class="route-sub">I already have R installed, or want to install R myself.</div>
+      </a>
+      <a class="route-card docker" href="#/mac-docker">
+        <div class="route-os">Mac</div>
+        <span class="route-method">Docker Desktop</span>
+        <div class="route-sub">I already have Docker Desktop, or want to use it instead of R.</div>
+      </a>
+      <a class="route-card rlang" href="#/win-r">
+        <div class="route-os">Windows</div>
+        <span class="route-method">My own R</span>
+        <div class="route-sub">I already have R installed, or want to install R myself.</div>
+      </a>
+      <a class="route-card docker" href="#/win-docker">
+        <div class="route-os">Windows</div>
+        <span class="route-method">Docker Desktop</span>
+        <div class="route-sub">I already have Docker Desktop, or want to use it instead of R.</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PATH A: MAC + LOCAL R -->
+  <!-- ============================================================ -->
+  <section id="mac-r" class="center">
+    <h1>Mac <span class="badge rlang">Your own R</span></h1>
+    <p class="note">Everything below is specific to this path — just follow along top to bottom.</p>
+  </section>
+
+  <section>
+    <h2><span class="step-num">1</span>Install R</h2>
+    <p>Go to <strong>cran.r-project.org/bin/macosx/</strong> and download the latest <code>.pkg</code> installer (choose the Apple Silicon or Intel build matching your Mac — Apple menu → About This Mac tells you which).</p>
+    <p>Open the downloaded file and follow the installer, same as any other Mac app.</p>
+    <p class="note">Version 4.4.0 or higher is required. If unsure, just install the newest version offered.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">2</span>Install Xcode Command Line Tools</h2>
+    <p>Some R packages need to be compiled — without this, package installation can fail partway through.</p>
+    <p>Open <strong>Terminal</strong> (⌘+Space, type <code>Terminal</code>, press Enter) and run:</p>
+    <pre><code>xcode-select --install</code></pre>
+    <p>A dialog appears — click <strong>Install</strong> and wait for it to finish (a few minutes).</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">3</span>Get the OmicsBridge files</h2>
+    <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
+    <p>Double-click the downloaded ZIP in Finder to unzip it — pick somewhere easy to find, e.g. your Desktop.</p>
+    <p class="note">The unzipped folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
+    <img class="screenshot" src="img/install_guide/mac-r-3-and-docker-3.png" alt="GitHub Code button, Download ZIP, and the unzipped folder in Finder">
+  </section>
+
+  <section>
+    <h2><span class="step-num">4</span>Download the case study data</h2>
+    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <ul>
+      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+    </ul>
+    <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">5</span>Unzip the data into the OmicsBridge folder</h2>
+    <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then double-click each one — Finder unzips <code>.tar.gz</code> files natively on Mac, no extra software needed.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">6</span>Launch OmicsBridge</h2>
+    <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_local_R.command</code>.</p>
+    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_local_R.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"), then <strong>right-click</strong> the file → <strong>Open</strong> → confirm <strong>Open</strong> in the dialog that appears. You only need to do this once.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">7</span>First run: installing packages</h2>
+    <p>A black Terminal window opens and shows <strong>"Step 1/2: Installing required R packages"</strong> — this happens only the first time, and can take anywhere from several minutes up to about an hour depending on your internet connection. Leave it running.</p>
+    <p class="note">You'll see a long scroll of package names and download messages — that's normal. Every launch after this one skips straight to starting up.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
+    <p>Once you see <strong>"Step 2/2: Launching OmicsBridge"</strong> and then <code>Listening on http://127.0.0.1:4191</code>, a browser tab should <strong>open automatically</strong>.</p>
+    <p class="note">If it doesn't open by itself, go to <code>http://localhost:4191</code> manually.</p>
+    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">Keep the Terminal window open — closing it stops OmicsBridge.</p>
+  </section>
+
+  <section>
+    <h3>Next time</h3>
+    <p>Just double-click <code>launch_with_local_R.command</code> again — packages are already installed, so it skips straight to starting up (about 10–20 seconds).</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PATH B: MAC + DOCKER -->
+  <!-- ============================================================ -->
+  <section id="mac-docker" class="center">
+    <h1>Mac <span class="badge docker">Docker Desktop</span></h1>
+    <p class="note">Everything below is specific to this path — just follow along top to bottom.</p>
+  </section>
+
+  <section>
+    <h2>What is Docker?</h2>
+    <p>Docker Desktop lets you run OmicsBridge inside a self-contained "box" (called a <strong>container</strong>) that already has R and every package it needs pre-installed and tested — you never install R or any package yourself.</p>
+    <div class="two-col">
+      <div class="card">
+        <h3>Trade-off</h3>
+        <p>A bigger one-time download (a few GB) to fetch that pre-built box.</p>
+      </div>
+      <div class="card">
+        <h3>Benefit</h3>
+        <p>Zero package installation, zero chance of a package failing to compile on your machine.</p>
+      </div>
+    </div>
+    <p class="note">Good if you'd simply rather not deal with R packages at all.</p>
+  </section>
+
+  <section>
+    <h2><span class="step-num">1</span>Install Docker Desktop</h2>
+    <p>Go to <strong>docker.com/products/docker-desktop</strong> and download the Mac installer (choose Apple Silicon or Intel — Apple menu → About This Mac tells you which).</p>
+    <p>Open the downloaded <code>.dmg</code>, then drag the Docker icon into the <strong>Applications</strong> folder, same as installing any other Mac app.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">2</span>Confirm Docker is running</h2>
+    <p>Open Docker Desktop from Applications. Look for the little whale icon in the <strong>top menu bar</strong> — leave Docker Desktop running in the background for every step that follows.</p>
+    <p class="note">If asked to sign in, look for a small <strong>"Continue without signing in"</strong> link — signing in isn't required.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">3</span>Get the OmicsBridge files</h2>
+    <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
+    <p>Double-click the downloaded ZIP in Finder to unzip it — pick somewhere easy to find, e.g. your Desktop.</p>
+    <p class="note">The unzipped folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
+    <img class="screenshot" src="img/install_guide/mac-r-3-and-docker-3.png" alt="GitHub Code button, Download ZIP, and the unzipped folder in Finder">
+  </section>
+
+  <section>
+    <h2><span class="step-num">4</span>Download the case study data</h2>
+    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <ul>
+      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+    </ul>
+    <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">5</span>Unzip the data into the OmicsBridge folder</h2>
+    <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then double-click each one — Finder unzips <code>.tar.gz</code> files natively on Mac, no extra software needed.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">6</span>Launch OmicsBridge</h2>
+    <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_docker.command</code>.</p>
+    <p class="note warn">You'll likely see: <em>"Apple could not verify 'launch_with_docker.command' is free of malware..."</em> Click <strong>Done</strong> (not "Move to Bin"), then <strong>right-click</strong> the file → <strong>Open</strong> → confirm <strong>Open</strong> in the dialog that appears. You only need to do this once.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">7</span>First run: downloading the app image</h2>
+    <p>A black Terminal window opens. The first time only, Docker downloads the OmicsBridge image (a few GB) before starting it — this can take several minutes depending on your connection. Leave it running.</p>
+    <p class="note">Every launch after this one skips straight to starting up.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
+    <p>Once you see a line like <code>Listening on http://0.0.0.0:4191</code>, open <code>http://localhost:4191</code> in your browser.</p>
+    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">Keep the Terminal window open — closing it stops OmicsBridge.</p>
+  </section>
+
+  <section>
+    <h3>Next time</h3>
+    <p>Just double-click <code>launch_with_docker.command</code> again — the image is already on your computer, so it skips straight to starting up.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PATH C: WINDOWS + LOCAL R -->
+  <!-- ============================================================ -->
+  <section id="win-r" class="center">
+    <h1>Windows <span class="badge rlang">Your own R</span></h1>
+    <p class="note">Everything below is specific to this path — just follow along top to bottom.</p>
+  </section>
+
+  <section>
+    <h2><span class="step-num">1</span>Install R</h2>
+    <p>Go to <strong>cran.r-project.org/bin/windows/base/</strong> and download the installer (<code>.exe</code>).</p>
+    <p>Run the installer and accept the default options, same as installing any other Windows application.</p>
+    <p class="note">Version 4.4.0 or higher is required. If unsure, just install the newest version offered.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">2</span>Install Rtools</h2>
+    <p>Some R packages need to be compiled — without this, package installation can fail partway through.</p>
+    <p>Go to <strong>cran.r-project.org/bin/windows/Rtools/</strong>, download the Rtools version matching your R version, and run the installer with default options.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">3</span>Get the OmicsBridge files</h2>
+    <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
+    <p>Right-click the downloaded ZIP → <strong>Extract All...</strong> → choose a destination (e.g. Desktop) → <strong>Extract</strong>.</p>
+    <p class="note">The extracted folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">4</span>Download the case study data</h2>
+    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <ul>
+      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+    </ul>
+    <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">5</span>Unzip the data into the OmicsBridge folder</h2>
+    <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then right-click each one → <strong>Extract All...</strong> → <strong>Extract</strong>.</p>
+    <p class="note warn">Watch out: Windows' "Extract All" suggests a destination folder with the <em>same name as the archive</em>. If you accept that default, you'll end up with a doubled-up folder like <code>00_Clinical_dataset\00_Clinical_dataset\...</code>. Before clicking Extract, edit the destination path to remove that extra trailing folder name, so the data lands directly in <code>OmicsBridge\00_Clinical_dataset\...</code>.</p>
+    <p class="note">Already got the doubled folder? Open the inner <code>00_Clinical_dataset</code> folder, select all its contents, cut, go up one level, paste, then delete the now-empty inner folder.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">6</span>Launch OmicsBridge</h2>
+    <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_local_R.bat</code>.</p>
+    <p class="note warn">You'll likely see a blue <strong>"Windows protected your PC"</strong> screen (SmartScreen, since the script is unsigned). Click <strong>More info</strong> → <strong>Run anyway</strong>. You only need to do this once.</p>
+    <p class="note">The script automatically finds R even if it isn't on your Windows PATH, so no extra setup is needed here.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">7</span>First run: installing packages</h2>
+    <p>A black window opens and shows <strong>"Step 1/2: Installing required R packages"</strong> — this happens only the first time, and can take anywhere from several minutes up to about an hour depending on your internet connection. Leave it running.</p>
+    <p class="note">You'll see a long scroll of package names and download messages — that's normal. Every launch after this one skips straight to starting up.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
+    <p>Once you see <strong>"Step 2/2: Launching OmicsBridge"</strong> and then <code>Listening on http://127.0.0.1:4191</code>, a browser tab should <strong>open automatically</strong>.</p>
+    <p class="note">If it doesn't open by itself, go to <code>http://localhost:4191</code> manually.</p>
+    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">Keep the black window open — closing it stops OmicsBridge.</p>
+  </section>
+
+  <section>
+    <h3>Next time</h3>
+    <p>Just double-click <code>launch_with_local_R.bat</code> again — packages are already installed, so it skips straight to starting up (about 10–20 seconds).</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PATH D: WINDOWS + DOCKER -->
+  <!-- ============================================================ -->
+  <section id="win-docker" class="center">
+    <h1>Windows <span class="badge docker">Docker Desktop</span></h1>
+    <p class="note">Everything below is specific to this path — just follow along top to bottom.</p>
+  </section>
+
+  <section>
+    <h2>What is Docker?</h2>
+    <p>Docker Desktop lets you run OmicsBridge inside a self-contained "box" (called a <strong>container</strong>) that already has R and every package it needs pre-installed and tested — you never install R or any package yourself.</p>
+    <div class="two-col">
+      <div class="card">
+        <h3>Trade-off</h3>
+        <p>A bigger one-time download (a few GB) to fetch that pre-built box.</p>
+      </div>
+      <div class="card">
+        <h3>Benefit</h3>
+        <p>Zero package installation, zero chance of a package failing to compile on your machine.</p>
+      </div>
+    </div>
+    <p class="note">Good if you'd simply rather not deal with R packages at all.</p>
+  </section>
+
+  <section>
+    <h2><span class="step-num">1</span>Install WSL2</h2>
+    <p>Docker Desktop for Windows runs on top of <strong>WSL2</strong> (Windows Subsystem for Linux), which needs to be installed first.</p>
+    <ol>
+      <li>Click Start, type <strong>PowerShell</strong>, then <strong>right-click</strong> it → <strong>Run as administrator</strong> → confirm the "Yes" prompt</li>
+      <li>Check the title bar says <strong>"Administrator: Windows PowerShell"</strong></li>
+      <li>Run: <code>wsl --install</code></li>
+      <li>Restart your PC when prompted</li>
+    </ol>
+    <div class="screenshot-slot">Image TBA</div>
+    <div class="callout"><span class="skip-tag">Institute PC?</span> If <code>wsl --install</code> fails with an <strong>elevation error</strong> even after "Run as administrator", or Docker Desktop later shows <strong>"Virtualisation support not detected"</strong>, this is very likely IT policy on a managed laptop blocking virtualization — not something you can fix yourself. Either ask your IT department to enable virtualization + WSL2, or switch to the <a href="#/win-r">Windows + Your own R</a> path instead — it needs no virtualization and usually no admin rights.</div>
+    <p class="note">"Virtualisation support not detected" on a PC you <em>do</em> control? Hardware virtualization (Intel VT-x / AMD-V) needs enabling in the BIOS/UEFI — restart, enter BIOS setup (often <code>F2</code>/<code>F10</code>/<code>Del</code> at boot), enable it under CPU/Advanced/Security settings, save and reboot.</p>
+  </section>
+
+  <section>
+    <h2><span class="step-num">2</span>Install Docker Desktop</h2>
+    <p>Go to <strong>docker.com/products/docker-desktop</strong> and download the Windows installer.</p>
+    <p>Run the installer and follow the on-screen steps.</p>
+    <p class="note">If asked to choose <strong>"System (per-machine)"</strong> vs <strong>"Per-user install"</strong> — pick <strong>System</strong> if you have admin rights on this PC (the safer default). No admin rights (e.g. an institute-managed laptop)? Choose <strong>Per-user</strong> instead — no admin password needed.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">3</span>Confirm Docker is running</h2>
+    <p>Look for the little whale icon in the <strong>bottom-right system tray</strong>. Leave Docker Desktop running in the background for every step that follows.</p>
+    <p class="note">If asked to sign in, look for a small <strong>"Continue without signing in"</strong> link — signing in isn't required.</p>
+    <p class="note warn">Memory limit: Windows (WSL2) defaults to about 8&nbsp;GB of RAM for containers, regardless of how much your PC has. Large analyses may need more — increase it under Docker Desktop → <strong>Settings → Resources → Memory</strong> (or edit <code>.wslconfig</code>) if things run out of memory.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">4</span>Get the OmicsBridge files</h2>
+    <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
+    <p>Right-click the downloaded ZIP → <strong>Extract All...</strong> → choose a destination (e.g. Desktop) → <strong>Extract</strong>.</p>
+    <p class="note">The extracted folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">5</span>Download the case study data</h2>
+    <p>Go to the <a href="https://doi.org/10.5281/zenodo.16410489">Zenodo page</a> and download:</p>
+    <ul>
+      <li><code>00_Clinical_dataset.tar.gz</code> — <strong>required</strong></li>
+      <li><code>00_Expression_data_all.tar.gz</code> — <strong>optional</strong></li>
+    </ul>
+    <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">6</span>Unzip the data into the OmicsBridge folder</h2>
+    <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then right-click each one → <strong>Extract All...</strong> → <strong>Extract</strong>.</p>
+    <p class="note warn">Watch out: Windows' "Extract All" suggests a destination folder with the <em>same name as the archive</em>. If you accept that default, you'll end up with a doubled-up folder like <code>00_Clinical_dataset\00_Clinical_dataset\...</code>. Before clicking Extract, edit the destination path to remove that extra trailing folder name, so the data lands directly in <code>OmicsBridge\00_Clinical_dataset\...</code>.</p>
+    <p class="note">Already got the doubled folder? Open the inner <code>00_Clinical_dataset</code> folder, select all its contents, cut, go up one level, paste, then delete the now-empty inner folder.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">7</span>Launch OmicsBridge</h2>
+    <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_docker.bat</code>.</p>
+    <p class="note warn">You'll likely see a blue <strong>"Windows protected your PC"</strong> screen (SmartScreen, since the script is unsigned). Click <strong>More info</strong> → <strong>Run anyway</strong>. You only need to do this once.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">8</span>First run: downloading the app image</h2>
+    <p>A black window opens. The first time only, Docker downloads the OmicsBridge image (a few GB) before starting it — this can take several minutes depending on your connection. Leave it running.</p>
+    <p class="note">Every launch after this one skips straight to starting up.</p>
+    <div class="screenshot-slot">Image TBA</div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">9</span>Open OmicsBridge in your browser</h2>
+    <p>Once you see a line like <code>Listening on http://0.0.0.0:4191</code>, open <code>http://localhost:4191</code> in your browser.</p>
+    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">Keep the black window open — closing it stops OmicsBridge.</p>
+  </section>
+
+  <section>
+    <h3>Next time</h3>
+    <p>Just double-click <code>launch_with_docker.bat</code> again — the image is already on your computer, so it skips straight to starting up.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FAQ -->
+  <!-- ============================================================ -->
+  <section id="faq" class="center">
+    <h1><span class="badge faq">FAQ</span><br>Troubleshooting</h1>
+  </section>
+
+  <section>
+    <h3>"Port already in use"</h3>
+    <p>Another program is using port 4191. Open your <code>launch_with_...</code> file in a plain text editor, change every <code>4191</code> to a free port such as <code>4192</code>, save, and run it again — then open <code>http://localhost:4192</code>.</p>
+  </section>
+
+  <section>
+    <h3>Nothing loads in the browser, even after waiting</h3>
+    <p>Fully quit Docker Desktop (not just close its window) and reopen it, then run the launcher again. If a port genuinely refuses to work no matter what, try a different port number (see above) — some numbers can get "stuck" after many restarts during testing.</p>
+  </section>
+
+  <section>
+    <h3>A package fails to install / fails to compile (R paths)</h3>
+    <p>This is almost always a missing compiler toolchain. Double check:</p>
+    <ul>
+      <li>Mac: Xcode Command Line Tools were installed (<code>xcode-select --install</code>)</li>
+      <li>Windows: Rtools is installed and matches your R version</li>
+    </ul>
+    <p>Then double-click the launcher again to retry — it re-runs <code>install_packages.R</code> automatically since the marker file wasn't created yet.</p>
+  </section>
+
+  <section>
+    <h3>Bioconductor version mismatch (R paths)</h3>
+    <p>Make sure <code>BiocManager</code> is version 3.20 or higher:</p>
+    <pre><code>BiocManager::install(version = "3.20")</code></pre>
+  </section>
+
+  <section>
+    <h3>Running on a remote server instead of your own computer?</h3>
+    <p>This guide assumes you'll open the browser on the same machine. For a remote server (e.g. over SSH with no desktop to double-click from), forward the port first:</p>
+    <pre><code>ssh -L 4191:localhost:4191 your_username@remote_server_address</code></pre>
+    <p>Then run the equivalent manual command on the remote server, and open <code>http://localhost:4191</code> in your local browser. See the README for the exact manual commands.</p>
+  </section>
+
+  <section>
+    <h3>Still stuck?</h3>
+    <p>Open an issue on <a href="https://github.com/htsmto/OmicsBridge/issues">GitHub Issues</a>, or contact:</p>
+    <pre><code>Hitoshi Matsuo
+German Cancer Research Center (DKFZ) Heidelberg
+hitoshi.matsuo[at]dkfz-heidelberg.de</code></pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- NEXT STEPS -->
+  <!-- ============================================================ -->
+  <section id="next-steps" class="center">
+    <h1>You're all set</h1>
+    <p>For a guided tour of each analysis module, see the<br>
+    <a href="https://htsmto.github.io/OmicsBridge/">OmicsBridge Wiki</a> — with short demo videos for every feature.</p>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: true,
+    transition: 'slide',
+    width: 1100,
+    height: 750,
+    margin: 0.08,
+    pdfSeparateFragments: false
+  });
+</script>
+
+</body>
+</html>

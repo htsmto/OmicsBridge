@@ -10,7 +10,7 @@
       
       
       
-        <link rel="next" href="Database/">
+        <link rel="next" href="installation/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
@@ -262,6 +262,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#quick-start-easiest-for-local-computer-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start (Easiest — for local computer usage)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       Dependencies
@@ -281,13 +290,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#manual-installation-of-required-libraries" class="md-nav__link">
+  <a href="#manual-installation-of-required-libraries-for-a-local-r-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Installation of Required Libraries
+      Manual Installation of Required Libraries (for a local R environment)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Manual Installation of Required Libraries">
+    <nav class="md-nav" aria-label="Manual Installation of Required Libraries (for a local R environment)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -319,9 +328,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#launching-the-app" class="md-nav__link">
+  <a href="#launching-the-app-manually" class="md-nav__link">
     <span class="md-ellipsis">
-      Launching the App
+      Launching the App Manually
     </span>
   </a>
   
@@ -367,6 +376,28 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation Guide for Non-Bioinformaticians
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -658,6 +689,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#quick-start-easiest-for-local-computer-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start (Easiest — for local computer usage)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       Dependencies
@@ -677,13 +717,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#manual-installation-of-required-libraries" class="md-nav__link">
+  <a href="#manual-installation-of-required-libraries-for-a-local-r-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Installation of Required Libraries
+      Manual Installation of Required Libraries (for a local R environment)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Manual Installation of Required Libraries">
+    <nav class="md-nav" aria-label="Manual Installation of Required Libraries (for a local R environment)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -715,9 +755,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#launching-the-app" class="md-nav__link">
+  <a href="#launching-the-app-manually" class="md-nav__link">
     <span class="md-ellipsis">
-      Launching the App
+      Launching the App Manually
     </span>
   </a>
   
@@ -798,14 +838,18 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 <p>the final file structure should be:
 <div class="highlight"><pre><span></span><code>.
 ├── 00_Clinical_dataset
-├── 00_Expression_data_all  # auto-created as empty if not downloaded
+├── 00_Expression_data_all      # auto-created as empty if not downloaded
 ├── app.R
 ├── data
 ├── docs
-├── install_packages.R      # automated package installation script
-├── libraries               # per-module library loaders (loaded lazily on first tab access)
+├── install_packages.R          # automated package installation script
+├── launch_with_local_R.command # macOS: install packages (first run) + launch, using local R
+├── launch_with_local_R.bat     # Windows: install packages (first run) + launch, using local R
+├── launch_with_docker.command  # macOS: launch using Docker (no local R needed)
+├── launch_with_docker.bat      # Windows: launch using Docker (no local R needed)
+├── libraries                   # per-module library loaders (loaded lazily on first tab access)
 ├── mkdocs.yml
-├── modules                 # modularised server and UI code
+├── modules                     # modularised server and UI code
 │   ├── Clinical/
 │   ├── DataOverview/
 │   ├── Database/
@@ -816,24 +860,44 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 │   ├── Tools/
 │   ├── scRNA/
 │   ├── wiki_document/
-│   └── *_module.R          # per-module orchestrators
+│   └── *_module.R              # per-module orchestrators
 ├── README.md
-├── ui                      # app-level UI components (header, sidebar, body, home)
+├── ui                          # app-level UI components (header, sidebar, body, home)
 ├── wiki
 └── www
 </code></pre></div></p>
+<h2 id="quick-start-easiest-for-local-computer-usage"><u><strong>Quick Start (Easiest — for local computer usage)</strong></u></h2>
+<p>This is the easiest way to get OmicsBridge running, and the recommended path for most users.</p>
+<blockquote>
+<p>This Quick Start is for running OmicsBridge <strong>on your own computer</strong>, where you'll also open the browser. It is not meant for launching OmicsBridge on a remote server (e.g. over SSH with no desktop to double-click from) — if that's your setup, see <a href="#launching-the-app-manually">Launching the App Manually</a> below, which includes SSH port-forwarding instructions.</p>
+</blockquote>
+<p>First, decide whether you'll use your own <strong>R</strong> installation or <strong>Docker</strong>, and install that (R from <a href="https://cran.r-project.org/">cran.r-project.org</a>, version 4.4.0 or higher; Docker Desktop from <a href="https://www.docker.com/products/docker-desktop/">docker.com</a>). Then double-click the one file below that matches your system and that choice:</p>
+<ul>
+<li><strong>macOS + local R</strong> → <code>launch_with_local_R.command</code></li>
+<li><strong>macOS + Docker</strong> → <code>launch_with_docker.command</code></li>
+<li><strong>Windows + local R</strong> → <code>launch_with_local_R.bat</code></li>
+<li><strong>Windows + Docker</strong> → <code>launch_with_docker.bat</code></li>
+</ul>
+<p>That single file does everything: the first time you run it, it installs the necessary libraries — for local R this means running <code>install_packages.R</code>, and for Docker this means pulling the pre-built image — which takes around 10 minutes either way, depending on your internet connection. It then launches the app. On every later run, it skips straight to launching the app, which takes about 10-20 seconds.</p>
+<p>Once it's running, a terminal window will tell you when the app is ready and which URL to open in your browser (<code>http://localhost:4191</code>).</p>
+<blockquote>
+<p>Note (macOS): the first time you double-click a <code>.command</code> file, Gatekeeper may block it as "from an unidentified developer." Right-click (or Control-click) the file → <strong>Open</strong> → confirm <strong>Open</strong>. You only need to do this once per file.</p>
+<p>Note (Windows): the first time you double-click a <code>.bat</code> file, Windows Defender SmartScreen may show a "Windows protected your PC" warning. Click <strong>More info</strong>, then <strong>Run anyway</strong>. You only need to do this once per file.</p>
+</blockquote>
+<p>If you'd rather run things manually from the terminal instead of double-clicking, see the sections below.</p>
 <h2 id="dependencies"><u><strong>Dependencies</strong></u></h2>
 <h3 id="docker-image">Docker Image</h3>
 <p>We provide a Docker image available from Docker Hub:
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>htsmto/omicsbridge:latest
-</code></pre></div></p>
-<h3 id="manual-installation-of-required-libraries">Manual Installation of Required Libraries</h3>
+</code></pre></div>
+This image already bundles every required package, so no R installation or <code>install_packages.R</code> step is needed on your machine — <code>launch_with_docker.command</code> / <code>launch_with_docker.bat</code> handle the <code>docker pull</code>/<code>docker run</code> for you.</p>
+<h3 id="manual-installation-of-required-libraries-for-a-local-r-environment">Manual Installation of Required Libraries (for a local R environment)</h3>
 <p>OmicsBridge requires R version <em>4.4.0 or higher</em>. While it may work with earlier versions, some packages (such as GSVA) might cause unexpected errors. Please ensure you install BiocManager version <em>3.20 or higher</em>.</p>
 <h4 id="automated-installation-recommended">Automated Installation (Recommended)</h4>
 <p>An installation script is provided. Run the following in your terminal from the project root:</p>
 <div class="highlight"><pre><span></span><code>Rscript<span class="w"> </span>install_packages.R
 </code></pre></div>
-<p>This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end.</p>
+<p>This installs all required CRAN, Bioconductor, and GitHub packages automatically and prints a summary of installed versions at the end. (<code>launch_with_local_R.command</code> / <code>launch_with_local_R.bat</code> run this for you automatically on first launch.)</p>
 <h4 id="alternative-manual-installation">Alternative: Manual Installation</h4>
 <div class="highlight"><pre><span></span><code><span class="c1">## Bootstrap packages (needed to install everything else)</span>
 <span class="nf">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;BiocManager&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;remotes&#39;</span><span class="p">))</span>
@@ -849,8 +913,11 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 <span class="n">remotes</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&#39;ebecht/MCPcounter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;master&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">subdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Source&#39;</span><span class="p">)</span>
 <span class="n">remotes</span><span class="o">::</span><span class="nf">install_github</span><span class="p">(</span><span class="s">&#39;dviraran/xCell&#39;</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="launching-the-app"><u><strong>Launching the App</strong></u></h2>
-<p>If you are using a Docker image, open your termiank and</p>
+<h2 id="launching-the-app-manually"><u><strong>Launching the App Manually</strong></u></h2>
+<blockquote>
+<p>Prefer the double-click launchers described in <a href="#quick-start-easiest--for-local-computer-usage">Quick Start</a> above — this section is for running things by hand instead.</p>
+</blockquote>
+<p>If you are using a Docker image, open your terminal and</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="si">${</span><span class="nv">Your_path_to_OmicsBridge_directory</span><span class="si">}</span>:/app<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-w<span class="w"> </span>/app<span class="w"> </span><span class="se">\</span>
@@ -865,7 +932,7 @@ tar<span class="w"> </span>-xzvf<span class="w"> </span>00_Expression_data_all.t
 </code></pre></div>
 <p>After logging in, run the Docker command as above on the remote server. Then, open <code>http://localhost:4191</code> in your local browser to access the app. <br></p>
 </blockquote>
-<p>If you're using your local R environment instead of Docker, open your teminal and:</p>
+<p>If you're using your local R environment instead of Docker, open your terminal and:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">Your_path_to_OmicsBridge_directory</span><span class="si">}</span>
 Rscript<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;shiny::runApp(&#39;app.R&#39;)&quot;</span>
 </code></pre></div>
