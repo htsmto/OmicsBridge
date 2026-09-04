@@ -13,6 +13,7 @@ nav:
   - Tools: Tools.md
   - FAQ: FAQ.md
   - Case study: Case_study.md
+  - Function Reference (Supplementary Table): Function_Reference.md
 theme:
   name: material
   features:
@@ -23,6 +24,7 @@ theme:
 extra_css:
   - css/extra.css
 markdown_extensions:
+  - tables
   - admonition
   - pymdownx.details
   - pymdownx.superfences

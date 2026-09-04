@@ -132,7 +132,7 @@ remotes::install_github('dviraran/xCell')
 
 ## <u>**Launching the App Manually**</u>
 
-> Prefer the double-click launchers described in [Quick Start](#quick-start-easiest--for-local-computer-usage) above — this section is for running things by hand instead.
+> Prefer the double-click launchers described in [Quick Start](#quick-start-easiest-for-local-computer-usage) above — this section is for running things by hand instead.
 
 If you are using a Docker image, open your terminal and
 
