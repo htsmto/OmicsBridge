@@ -70,3 +70,79 @@
   background-color: #1c54b2;
   color: #ffffff !important;
 }
+
+/* --- Function Reference table (Function_Reference.md) ---------------------
+   This table has 9 columns including several long free-text ones, so the
+   default Material table (nowrap cells inside a horizontally-scrolling
+   wrapper) forced readers to scroll sideways to read it. Two changes fix
+   that:
+   1. Widen the content column just on this page ( `:has()` scopes it to
+      pages containing `.func-ref-wrap`, so no other page is affected).
+   2. Force the table itself to a fixed layout with explicit per-column
+      percentage widths (set via <colgroup> in the page) and wrap long text
+      instead of growing the column - so the table now fits the viewport
+      and grows taller (more rows visible via normal vertical scroll)
+      rather than wider. */
+.md-content:has(.func-ref-wrap) .md-content__inner {
+  max-width: none;
+}
+/* .md-grid is an ANCESTOR of .md-content (not a descendant), so it needs
+   its own :has() check against the table wrapper rather than being nested
+   under the .md-content selector above. This is what actually frees up
+   the ~1220px page cap so the flex-grow:1 content column can use the
+   extra room instead of staying pinned to its default share. */
+.md-grid:has(.func-ref-wrap) {
+  max-width: 100%;
+}
+
+.func-ref-wrap {
+  overflow-x: auto; /* safety net only - fixed layout below should avoid needing it */
+}
+
+.func-ref-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+
+.func-ref-table th,
+.func-ref-table td {
+  padding: 0.5em 0.6em;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.func-ref-table thead th {
+  background-color: #1c54b2;
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* The "#" column only needs room for a 1-2 digit number - shrink it and
+   centre the value so it doesn't take a full text column's worth of width
+   the way the other, prose-heavy columns need. */
+.func-ref-table td.col-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Light, colour-coded rows by Section - one pastel per Section so readers
+   can visually group rows belonging to the same app section while
+   scrolling, without the colours being strong enough to fight with the
+   text itself. Dark text is kept throughout since these are light tints. */
+.func-ref-table tbody tr.sec-1 { background-color: #eaf3ff; } /* Database and Data Upload - light blue */
+.func-ref-table tbody tr.sec-2 { background-color: #eaf9ef; } /* Count & Comparison Data Overview - light green */
+.func-ref-table tbody tr.sec-3 { background-color: #fff8e1; } /* Compare Across Datasets - light amber */
+.func-ref-table tbody tr.sec-4 { background-color: #f3ebfa; } /* Integrate Two Datasets - light purple */
+.func-ref-table tbody tr.sec-5 { background-color: #ffecee; } /* Clinical Data Analysis - light pink */
+.func-ref-table tbody tr.sec-6 { background-color: #e3f8f7; } /* scRNAseq Analysis - light teal */
+.func-ref-table tbody tr.sec-7 { background-color: #fff0e3; } /* Epigenome Visualisation - light orange */
+.func-ref-table tbody tr.sec-8 { background-color: #eef0f2; } /* Custom Gene Sets - light grey */
+.func-ref-table tbody tr.sec-9 { background-color: #edeeff; } /* Tools - light indigo */
