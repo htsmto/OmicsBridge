@@ -1,5 +1,4 @@
 @echo off
-setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo ============================================
@@ -7,25 +6,17 @@ echo   OmicsBridge - Setup ^& Launch
 echo ============================================
 echo.
 
-REM Locate Rscript.exe. On Windows, R is not added to PATH by default,
-REM so search common install locations if it isn't found on PATH.
+rem Locate Rscript.exe. On Windows, R is not added to PATH by default,
+rem so search common install locations if it isn't found on PATH.
 set "RSCRIPT_BIN="
 
 where Rscript >nul 2>nul
-if %errorlevel%==0 (
-    set "RSCRIPT_BIN=Rscript"
-) else (
-    for /f "delims=" %%D in ('dir /b /ad /o-n "C:\Program Files\R\R-*" 2^>nul') do (
-        if not defined RSCRIPT_BIN (
-            if exist "C:\Program Files\R\%%D\bin\Rscript.exe" (
-                set "RSCRIPT_BIN=C:\Program Files\R\%%D\bin\Rscript.exe"
-            )
-        )
-    )
-)
+if %errorlevel%==0 set "RSCRIPT_BIN=Rscript"
+
+if not defined RSCRIPT_BIN call :FindRscript
 
 if not defined RSCRIPT_BIN (
-    echo [!] Could not find R (Rscript) on this computer.
+    echo [!] Could not find R ^(Rscript^) on this computer.
     echo     Please install R first from https://cran.r-project.org/bin/windows/base/
     echo     then double-click this file again.
     echo.
@@ -36,8 +27,8 @@ if not defined RSCRIPT_BIN (
 echo Using R at: %RSCRIPT_BIN%
 echo.
 
-REM A marker file records that setup has completed, so re-launching the app
-REM later doesn't reinstall everything from scratch every time.
+rem A marker file records that setup has completed, so re-launching the app
+rem later doesn't reinstall everything from scratch every time.
 set "SETUP_MARKER=.omicsbridge_packages_installed"
 
 if not exist "%SETUP_MARKER%" (
@@ -83,3 +74,10 @@ echo.
 echo.
 echo OmicsBridge has stopped. You can close this window.
 pause
+goto :eof
+
+:FindRscript
+for /f "delims=" %%D in ('dir /b /ad /o-n "C:\Program Files\R\R-*" 2^>nul') do (
+    if not defined RSCRIPT_BIN if exist "C:\Program Files\R\%%D\bin\Rscript.exe" set "RSCRIPT_BIN=C:\Program Files\R\%%D\bin\Rscript.exe"
+)
+exit /b
