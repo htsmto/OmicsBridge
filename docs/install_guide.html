@@ -180,7 +180,6 @@
   <section class="center">
     <h1>Setting up OmicsBridge<br>on your own computer</h1>
     <p>An easy, local installation guide.</p>
-    <p class="note">DRAFT — screenshots not yet added.</p>
   </section>
 
   <!-- ============================================================ -->
@@ -307,6 +306,7 @@
     <h2><span class="step-num">7</span>First run: installing packages</h2>
     <p>A black Terminal window opens and shows <strong>"Step 1/2: Installing required R packages"</strong> — this happens only the first time, and can take anywhere from several minutes up to about an hour depending on your internet connection. Leave it running.</p>
     <p class="note">You'll see a long scroll of package names and download messages — that's normal. Every launch after this one skips straight to starting up.</p>
+    <p class="note warn">It's fine if a handful of packages fail here — OmicsBridge can often still run even with a few missing. Scroll up in the log to find the final <strong>"Installation Summary"</strong> table; any package marked <strong>FAILED</strong> can be installed separately by opening R (or RStudio) on its own and running <code>install.packages("package_name")</code> or <code>BiocManager::install("package_name")</code> for each one. This can get fiddly depending on your machine — if you get stuck, it's worth asking a bioinformatician colleague to handle just this step, or switching to the <a href="#/mac-docker">Docker-based install</a> instead, which avoids package compilation entirely.</p>
     <img class="screenshot" src="img/install_guide/mac-r-7-package-install-log.png" alt="Terminal window mid-way through downloading and installing R packages">
   </section>
 
@@ -454,14 +454,34 @@
     <p>Go to <strong>cran.r-project.org/bin/windows/base/</strong> and download the installer (<code>.exe</code>).</p>
     <p>Run the installer and accept the default options, same as installing any other Windows application.</p>
     <p class="note">Version 4.4.0 or higher is required. If unsure, just install the newest version offered.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-1-cran-download.png" alt="CRAN Windows download page for R 4.6.1">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-1-license.png" alt="R setup wizard showing the license agreement">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-1-installing.png" alt="R setup wizard installing files">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">2</span>Install Rtools</h2>
     <p>Some R packages need to be compiled — without this, package installation can fail partway through.</p>
     <p>Go to <strong>cran.r-project.org/bin/windows/Rtools/</strong>, download the Rtools version matching your R version, and run the installer with default options.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-2-rtools-page.png" alt="CRAN Rtools page listing available Rtools versions">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-2-installer-link.png" alt="Rtools45 page with the installer link highlighted">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-2-destination.png" alt="Rtools setup wizard showing the default destination folder">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -469,7 +489,14 @@
     <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
     <p>Right-click the downloaded ZIP → <strong>Extract All...</strong> → choose a destination (e.g. Desktop) → <strong>Extract</strong>.</p>
     <p class="note">The extracted folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-3-and-docker-4-github-download.png" alt="GitHub Code button and Download ZIP option">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-3-and-docker-4-extract-zip.png" alt="Right-click the downloaded ZIP in Explorer showing the Extract All option">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -480,7 +507,7 @@
       <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-r-4-and-docker-5-zenodo-data.png" alt="Zenodo Files section with the two downloadable files">
   </section>
 
   <section>
@@ -488,7 +515,16 @@
     <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then right-click each one → <strong>Extract All...</strong> → <strong>Extract</strong>.</p>
     <p class="note warn">Watch out: Windows' "Extract All" suggests a destination folder with the <em>same name as the archive</em>. If you accept that default, you'll end up with a doubled-up folder like <code>00_Clinical_dataset\00_Clinical_dataset\...</code>. Before clicking Extract, edit the destination path to remove that extra trailing folder name, so the data lands directly in <code>OmicsBridge\00_Clinical_dataset\...</code>.</p>
     <p class="note">Already got the doubled folder? Open the inner <code>00_Clinical_dataset</code> folder, select all its contents, cut, go up one level, paste, then delete the now-empty inner folder.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-extract-data.png" alt="Right-click a downloaded .tar.gz file in Explorer showing the Extract All option">
+    <p class="note">Example: here <code>OmicsBridge-main</code> sits inside a folder called <code>Folder for OmicsBridge</code> on the Desktop. Extracting <code>00_Clinical_dataset.tar.gz</code> (and optionally <code>00_Expression_data_all.tar.gz</code>) directly into <code>OmicsBridge-main</code> — alongside <code>app.R</code> and the launcher files — turns the folder on the left into the one on the right.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-unzip-example-before.png" alt="OmicsBridge-main folder before the data is unzipped into it">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-unzip-example-after.png" alt="OmicsBridge-main folder after 00_Clinical_dataset and 00_Expression_data_all are unzipped into it, alongside app.R and the launcher files">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -496,21 +532,37 @@
     <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_local_R.bat</code>.</p>
     <p class="note warn">You'll likely see a blue <strong>"Windows protected your PC"</strong> screen (SmartScreen, since the script is unsigned). Click <strong>More info</strong> → <strong>Run anyway</strong>. You only need to do this once.</p>
     <p class="note">The script automatically finds R even if it isn't on your Windows PATH, so no extra setup is needed here.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">If package installation fails with a message like <code>'C:/Program Files/R/R-x.y.z/library' is not writable</code>, R doesn't have permission to write to its install folder. Right-click <code>launch_with_local_R.bat</code> → <strong>Run as administrator</strong>, then try again.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-6-select-launcher.png" alt="launch_with_local_R.bat selected in File Explorer">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-6-security-warning.png" alt="Windows security warning dialog when opening the launcher, with the source path redacted">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">7</span>First run: installing packages</h2>
     <p>A black window opens and shows <strong>"Step 1/2: Installing required R packages"</strong> — this happens only the first time, and can take anywhere from several minutes up to about an hour depending on your internet connection. Leave it running.</p>
     <p class="note">You'll see a long scroll of package names and download messages — that's normal. Every launch after this one skips straight to starting up.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <p class="note warn">It's fine if a handful of packages fail here — OmicsBridge can often still run even with a few missing. Scroll up in the log to find the final <strong>"Installation Summary"</strong> table; any package marked <strong>FAILED</strong> can be installed separately by opening R on its own and running <code>install.packages("package_name")</code> or <code>BiocManager::install("package_name")</code> for each one. This can get fiddly depending on your machine — if you get stuck, it's worth asking a bioinformatician colleague to handle just this step, or switching to the <a href="#/win-docker">Docker-based install</a> instead, which avoids package compilation entirely.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-7-package-install-log.png" alt="Command window mid-way through downloading and installing R packages">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-7-installation-summary.png" alt="Command window showing the installation summary with any FAILED packages listed, followed by Step 2/2 launching">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">8</span>Open OmicsBridge in your browser</h2>
     <p>Once you see <strong>"Step 2/2: Launching OmicsBridge"</strong> and then <code>Listening on http://127.0.0.1:4191</code>, a browser tab should <strong>open automatically</strong>.</p>
     <p class="note">If it doesn't open by itself, go to <code>http://localhost:4191</code> manually.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-r-8-browser-home.png" alt="OmicsBridge home page open in the browser">
     <p class="note warn">Keep the black window open — closing it stops OmicsBridge.</p>
   </section>
 
@@ -549,10 +601,18 @@
     <ol>
       <li>Click Start, type <strong>PowerShell</strong>, then <strong>right-click</strong> it → <strong>Run as administrator</strong> → confirm the "Yes" prompt</li>
       <li>Check the title bar says <strong>"Administrator: Windows PowerShell"</strong></li>
-      <li>Run: <code>wsl --install</code></li>
-      <li>Restart your PC when prompted</li>
+      <li>Run: <code>wsl --install</code>, and wait for it to download and set up Ubuntu — this can take a few minutes</li>
+      <li>Partway through (or, on some PCs, after a restart it asks for), you'll be asked to create a <strong>UNIX username and password</strong>. This is just for the Linux environment inside WSL — not your Windows login. Pick anything you like (e.g. your first name), and note that the password won't show any characters as you type it. You won't need to remember or use these again for OmicsBridge itself.</li>
+      <li>If it asks you to restart your PC, do so — Ubuntu will then finish setting up on its own (or launch <strong>Ubuntu</strong> from the Start menu if it doesn't)</li>
     </ol>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-1-powershell-wsl-install.png" alt="Administrator PowerShell running wsl --install">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-1-ubuntu-setup.png" alt="PowerShell showing Ubuntu installed and prompting to create a default Unix user account">
+      </div>
+    </div>
     <div class="callout"><span class="skip-tag">Institute PC?</span> If <code>wsl --install</code> fails with an <strong>elevation error</strong> even after "Run as administrator", or Docker Desktop later shows <strong>"Virtualisation support not detected"</strong>, this is very likely IT policy on a managed laptop blocking virtualization — not something you can fix yourself. Either ask your IT department to enable virtualization + WSL2, or switch to the <a href="#/win-r">Windows + Your own R</a> path instead — it needs no virtualization and usually no admin rights.</div>
     <p class="note">"Virtualisation support not detected" on a PC you <em>do</em> control? Hardware virtualization (Intel VT-x / AMD-V) needs enabling in the BIOS/UEFI — restart, enter BIOS setup (often <code>F2</code>/<code>F10</code>/<code>Del</code> at boot), enable it under CPU/Advanced/Security settings, save and reboot.</p>
   </section>
@@ -562,7 +622,14 @@
     <p>Go to <strong>docker.com/products/docker-desktop</strong> and download the Windows installer.</p>
     <p>Run the installer and follow the on-screen steps.</p>
     <p class="note">If asked to choose <strong>"System (per-machine)"</strong> vs <strong>"Per-user install"</strong> — pick <strong>System</strong> if you have admin rights on this PC (the safer default). No admin rights (e.g. an institute-managed laptop)? Choose <strong>Per-user</strong> instead — no admin password needed.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-2-download-page.png" alt="docker.com/products/docker-desktop download page with the Windows download options">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-2-installing.png" alt="Docker Desktop installer unpacking files">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -570,7 +637,14 @@
     <p>Look for the little whale icon in the <strong>bottom-right system tray</strong>. Leave Docker Desktop running in the background for every step that follows.</p>
     <p class="note">If asked to sign in, look for a line saying <strong>"You do not have to log in or create an account"</strong> — signing in isn't required.</p>
     <p class="note warn">Memory limit: Windows (WSL2) defaults to about 8&nbsp;GB of RAM for containers, regardless of how much your PC has. Large analyses may need more — increase it under Docker Desktop → <strong>Settings → Resources → Memory</strong> (or edit <code>.wslconfig</code>) if things run out of memory.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-3-tray-icon.png" alt="the whale icon among the Windows system tray icons">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-3-engine-running.png" alt="Docker Desktop window showing Engine running at the bottom left">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -578,7 +652,14 @@
     <p>Go to <a href="https://github.com/htsmto/OmicsBridge">github.com/htsmto/OmicsBridge</a>, click the green <strong>Code</strong> button → <strong>Download ZIP</strong>.</p>
     <p>Right-click the downloaded ZIP → <strong>Extract All...</strong> → choose a destination (e.g. Desktop) → <strong>Extract</strong>.</p>
     <p class="note">The extracted folder is named <code>OmicsBridge-main</code> (not just <code>OmicsBridge</code>) — that's fine, no need to rename it. This guide just calls it "the OmicsBridge folder."</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-3-and-docker-4-github-download.png" alt="GitHub Code button and Download ZIP option">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-3-and-docker-4-extract-zip.png" alt="Right-click the downloaded ZIP in Explorer showing the Extract All option">
+      </div>
+    </div>
   </section>
 
   <section>
@@ -589,7 +670,7 @@
       <li><code>00_Expression_data_all.tar.gz</code> — demo data, <strong>optional</strong></li>
     </ul>
     <div class="callout"><span class="skip-tag">Can skip</span> <code>00_Expression_data_all.tar.gz</code> is demo data only, and it's large. OmicsBridge runs fine without it — skip it now and come back for it later if you want the full demo.</div>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-r-4-and-docker-5-zenodo-data.png" alt="Zenodo Files section with the two downloadable files">
   </section>
 
   <section>
@@ -597,27 +678,43 @@
     <p>Move the downloaded <code>.tar.gz</code> file(s) into the <code>OmicsBridge</code> folder, then right-click each one → <strong>Extract All...</strong> → <strong>Extract</strong>.</p>
     <p class="note warn">Watch out: Windows' "Extract All" suggests a destination folder with the <em>same name as the archive</em>. If you accept that default, you'll end up with a doubled-up folder like <code>00_Clinical_dataset\00_Clinical_dataset\...</code>. Before clicking Extract, edit the destination path to remove that extra trailing folder name, so the data lands directly in <code>OmicsBridge\00_Clinical_dataset\...</code>.</p>
     <p class="note">Already got the doubled folder? Open the inner <code>00_Clinical_dataset</code> folder, select all its contents, cut, go up one level, paste, then delete the now-empty inner folder.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-extract-data.png" alt="Right-click a downloaded .tar.gz file in Explorer showing the Extract All option">
+    <p class="note">Example: here <code>OmicsBridge-main</code> sits inside a folder called <code>Folder for OmicsBridge</code> on the Desktop. Extracting <code>00_Clinical_dataset.tar.gz</code> (and optionally <code>00_Expression_data_all.tar.gz</code>) directly into <code>OmicsBridge-main</code> — alongside <code>app.R</code> and the launcher files — turns the folder on the left into the one on the right.</p>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-unzip-example-before.png" alt="OmicsBridge-main folder before the data is unzipped into it">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-r-5-and-docker-6-unzip-example-after.png" alt="OmicsBridge-main folder after 00_Clinical_dataset and 00_Expression_data_all are unzipped into it, alongside app.R and the launcher files">
+      </div>
+    </div>
   </section>
 
   <section>
     <h2><span class="step-num">7</span>Launch OmicsBridge</h2>
     <p>In the <code>OmicsBridge</code> folder, double-click <code>launch_with_docker.bat</code>.</p>
     <p class="note warn">You'll likely see a blue <strong>"Windows protected your PC"</strong> screen (SmartScreen, since the script is unsigned). Click <strong>More info</strong> → <strong>Run anyway</strong>. You only need to do this once.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-docker-7-select-launcher.png" alt="launch_with_docker.bat selected in File Explorer">
   </section>
 
   <section>
     <h2><span class="step-num">8</span>First run: downloading the app image</h2>
     <p>A black window opens. The first time only, Docker downloads the OmicsBridge image (a few GB) before starting it — this can take several minutes depending on your connection. Leave it running.</p>
     <p class="note">Every launch after this one skips straight to starting up.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <img class="screenshot" src="img/install_guide/windows-docker-8-pull-log.png" alt="Command window showing Docker pulling and downloading the OmicsBridge image layers">
   </section>
 
   <section>
     <h2><span class="step-num">9</span>Open OmicsBridge in your browser</h2>
     <p>Once you see a line like <code>Listening on http://0.0.0.0:4191</code>, open <code>http://localhost:4191</code> in your browser.</p>
-    <div class="screenshot-slot">Image TBA</div>
+    <div class="two-col">
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-9-listening-log.png" alt="Command window showing the image pull completing and Listening on http://0.0.0.0:4191">
+      </div>
+      <div>
+        <img class="screenshot" src="img/install_guide/windows-docker-9-browser-home.png" alt="OmicsBridge home page open in the browser">
+      </div>
+    </div>
     <p class="note warn">Keep the black window open — closing it stops OmicsBridge.</p>
   </section>
 
