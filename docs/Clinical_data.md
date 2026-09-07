@@ -352,10 +352,10 @@ The users can manage the cohort database and upload or delete datasets in the â€
 
     | File | Xena hub | Dataset | Version |
     | --- | --- | --- | --- |
-    | Gene expression | TCGA Hub | `HiSeqV2` | 2017-10-13 (2017-09-08 for the 3 combined cohorts) |
-    | Clinical / metadata | TCGA Hub | `clinicalMatrix` | 2019-12-06 |
-    | Survival | TCGA Hub | `survival` | 2018-09-13 (2020-05-15 for TCGA_LUNG) |
-    | Mutation | GDC Hub | `mutect2_snv` (MuTect2 calls) | 2019-07-19 |
+    | Gene expression | TCGA Hub | gene expression RNAseq > Illumina Hiseq | 2017-10-13 (2017-09-08 for the 3 combined cohorts) |
+    | Clinical / metadata | TCGA Hub | phenotype > Curated survival data | 2019-12-06 |
+    | Survival | TCGA Hub | phenotype > Phenotypes | 2018-09-13 (2020-05-15 for TCGA_LUNG) |
+    | Mutation | GDC Hub | somatic mutation > mutect2 snv (deprecated)  | 2019-07-19 |
 
     The mutation files originally used a 16-character sample ID format (with a trailing sample-portion letter, e.g. `TCGA-2F-A9KO-01A`), while the other three files use a 15-character format (e.g. `TCGA-2F-A9KO-01`). This trailing character was removed from the mutation filesâ€™ sample IDs so that samples can be matched across all four data types; no other value was changed.
 
