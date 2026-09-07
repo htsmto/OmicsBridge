@@ -1,1 +1,7 @@
 data/gencode.v41.primary_assembly.annotation.sqlite filter=lfs diff=lfs merge=lfs -text
+
+# Windows batch files must use CRLF line endings, or cmd.exe's parser can
+# fail on multi-line parenthesized blocks (e.g. "was unexpected at this
+# time." errors). Mac/Linux shell scripts must keep LF.
+*.bat text eol=crlf
+*.command text eol=lf
