@@ -51,7 +51,7 @@ body <- dashboardBody(
   ),
   ## Footer
   tags$div(class = "app-footer",
-    "OmicsBridge | Version 1.3.0 | Last updated: 31st August 2026", tags$br(),
+    "OmicsBridge | Version 1.3.1 | Last updated: 10th October 2026", tags$br(),
     "© 2026, Immune Regulation in Cancer, German Cancer Research Center (DKFZ).", tags$br(),
     tags$a(
       href = "https://github.com/htsmto/OmicsBridge",

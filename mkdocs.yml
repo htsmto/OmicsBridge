@@ -14,6 +14,7 @@ nav:
   - FAQ: FAQ.md
   - Case study: Case_study.md
   - Function Reference (Supplementary Table): Function_Reference.md
+  - Changelog: Changelog.md
 theme:
   name: material
   features:
@@ -31,6 +32,10 @@ markdown_extensions:
   - attr_list
   - pymdownx.tabbed:
       alternate_style: true
+  # used by docs/Changelog.md to include CHANGELOG.md from the repository root
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg

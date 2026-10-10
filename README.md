@@ -11,6 +11,12 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ![Interface overview](docs/img/interface_overview.png)
 
+## <u>**Version**</u>
+
+Current version: v1.3.1 <br>
+Release date: October 2026 <br>
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
+
 ## <u>**Installation**</u>
 
 Please clone this repository first. In the terminal:
@@ -168,11 +174,6 @@ A new browser tab should open automatically. If it doesn't, check your terminal 
 ## <u>**Usage Guide**</u>
 We provide a comprehensive Wiki for the interface at https://htsmto.github.io/OmicsBridge/.
 The Wiki contains concise instructions and short demo videos for each visualization and analysis feature.
-
-## <u>**Version**</u>
-
-Current version: v1.3.0 <br>
-Release date: August 2026
 
 ## <u>**Citation**</u>
 
