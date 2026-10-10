@@ -459,6 +459,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#73-association-between-mutations-and-cell-type-abundance" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3. Association between mutations and cell type abundance
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -761,6 +770,28 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -864,6 +895,15 @@
   <a href="#72-exploring-correlations-between-gene-expression-and-cell-type-abundance" class="md-nav__link">
     <span class="md-ellipsis">
       7.2. Exploring correlations between gene expression and cell type abundance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-association-between-mutations-and-cell-type-abundance" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3. Association between mutations and cell type abundance
     </span>
   </a>
   
@@ -1305,7 +1345,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Select the cohort</li>
 <li>Choose either MCPcounter or xCell as your method, then click "Start deconvolution". A deconvolution result table will appear on the right, downloadable via "Download this table".</li>
 </ol>
-<p>The interface provides two additional analysis tabs. </p>
+<p>The interface provides three additional analysis tabs. </p>
 <details class="example">
 <summary>Example Usage video</summary>
 <p><video width="1000" controls>
@@ -1373,6 +1413,32 @@ This comparison examines the expression levels between the wild-type and mutant 
 <li>Dot and correlation line colours</li>
 <li>Option to display or hide the correlation line</li>
 <li>Option to use a white background</li>
+</ul>
+</details>
+<h3 id="73-association-between-mutations-and-cell-type-abundance"><u><strong>7.3. Association between mutations and cell type abundance</strong></u></h3>
+<p>This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. Only the samples present in both the deconvolution result and the mutation data are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample.</p>
+<ol>
+<li>Enter the gene names line by line (or choose a gene set)</li>
+<li>Select a cell type to investigate</li>
+<li>Click "Start comparing". For each gene, the abundance of the selected cell type is compared between the Mutant and WT groups using the Wilcoxon rank-sum test. A result table (gene, number of mutant/WT samples, statistic, and p-value) sorted by p-value is generated, downloadable via "Download this table".<ul>
+<li>Genes without mutated samples are listed above the table.</li>
+<li>If none of the input genes have mutated samples, no table is generated.</li>
+<li>If the cohort has no mutation data, a message is shown.</li>
+</ul>
+</li>
+<li>Clicking any row in the result table generates a box plot (default), violin plot, swarm plot, or violin + swarm plot.</li>
+<li>Turn on "Split the mutant group by the type of mutation" to show only the mutant samples, split by amino acid change (the <code>Amino_Acid_Change</code> column in TCGA data), as a swarm plot. Samples with several amino acid changes in the gene are grouped as "Multiple". Only the top X most frequent amino acid changes (10 by default, adjustable) are shown, and the rest are grouped as "Others". If the mutation data does not contain the type of mutation for the selected gene, an error message is shown and the switch is turned off.</li>
+</ol>
+<details class="success">
+<summary>Adjustable graph parameters</summary>
+<ul>
+<li>Figure size (width and height)</li>
+<li>Dot size (swarm plot)</li>
+<li>X and Y axis label/title font size, and graph title font size</li>
+<li>Colours for the mutant and wild type groups</li>
+<li>Colour palette for the mutation types</li>
+<li>Option to use a white background</li>
+<li>Option to rotate the X axis labels</li>
 </ul>
 </details>
 <hr />
