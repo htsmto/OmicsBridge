@@ -100,21 +100,21 @@ clinical_GeneCorrelation_ui <- function(ns){
                                 ),
                                 fluidRow(
                                     column(6,sliderInput(ns('Gene_correlation_label_size'), 'X/Y label size', min=0, max=10, value=3, step=0.1)),
-                                    conditionalPanel( condition=paste0("input['", ns('Gene_correlation_table_rows_selected'), "'].length > 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Gene_correlation_table_rows_selected'), "'] || []).length > 0"),
                                         column(6,sliderInput(ns('Gene_correlation_title_size'), 'X/Y title size', min=0.1, max=10, value=3, step=0.1))
                                     ),
-                                    conditionalPanel( condition=paste0("input['", ns('Gene_correlation_table_rows_selected'), "'].length == 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Gene_correlation_table_rows_selected'), "'] || []).length == 0"),
                                         column(6,sliderInput(ns('Gene_correlation_legend_size'), 'Legend font size', min=0.1, max=5, value=2.5, step=0.1))
                                     )
                                     ),
-                                    conditionalPanel( condition=paste0("input['", ns('Gene_correlation_table_rows_selected'), "'].length > 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Gene_correlation_table_rows_selected'), "'] || []).length > 0"),
                                         fluidRow(
                                             column(4, colourpicker::colourInput(ns('Gene_correlation_colour'), 'Colour of the dots:', value='#ec00ec')),
                                             column(4, materialSwitch(ns('Gene_correlation_show_correlation_line'), 'Show the correlation line', value=TRUE, status = "success")),
                                             column(4, materialSwitch(ns('Gene_correlation_white_background'), 'Use white background', value=FALSE, status = "success"))
                                         )
                                     ),
-                                    conditionalPanel( condition=paste0("input['", ns('Gene_correlation_table_rows_selected'), "'].length == 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Gene_correlation_table_rows_selected'), "'] || []).length == 0"),
                                         fluidRow( 
                                             column(4, colourpicker::colourInput(ns('Gene_correlation_pairwise_col_low'), 'Colour of the lowest correlation (-1):', value='#2e00fa')),
                                             column(4, colourpicker::colourInput(ns('Gene_correlation_pairwise_col_high'), 'Colour of the highest correlation (1):', value='#ec00ec')),

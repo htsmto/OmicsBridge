@@ -71,7 +71,7 @@ dataoverview_correlation_UI <- function(ns){
                                     column(6, sliderInput(ns('Two_gene_corr_fig.height'), 'Fig height', min=300, max=3000, value=500, step=10)),
                                     column(6, sliderInput(ns('Two_gene_corr_legend.font.size'), 'Legend font size', min=0.1, max=10, value=4, step=0.1)),
                                     column(6, sliderInput(ns('Two_gene_corr_label.font.size'), 'X/Y label font size', min=0, max=10, value=4, step=0.1)),
-                                    conditionalPanel( condition=paste0("input['", ns('Two_gene_corr_table_rows_selected'), "'].length > 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Two_gene_corr_table_rows_selected'), "'] || []).length > 0"),
                                         column(6, sliderInput(ns('Two_gene_corr_title.font.size'), 'X/Y title font size', min=0.1, max=10, value=4, step=0.1)),
                                         column(6, sliderInput(ns('Two_gene_corr_pt.size'), 'Point size', min=0.01, max=5, value=1, step=0.01)),
                                         column(6, materialSwitch(ns('Two_gene_corr_white_background'), 'Use white background', value=FALSE, status = "success")),
@@ -81,7 +81,7 @@ dataoverview_correlation_UI <- function(ns){
                                             column(6, colourpicker::colourInput(ns('Two_gene_corr_colour'), 'Colour of the dots:', value='#ec00ec'))
                                         )
                                     ),   
-                                    conditionalPanel( condition=paste0("input['", ns('Two_gene_corr_table_rows_selected'), "'].length == 0"),
+                                    conditionalPanel( condition=paste0("(input['", ns('Two_gene_corr_table_rows_selected'), "'] || []).length == 0"),
                                         column(6, colourpicker::colourInput(ns('Two_gene_corr_pairwise_col_high'), 'Colour for the highest correlation (1)', value='red')),
                                         column(6, colourpicker::colourInput(ns('Two_gene_corr_pairwise_col_low'), 'Colour for the lowest correlation (-1)', value='blue')),
                                         column(6, colourpicker::colourInput(ns('Two_gene_corr_pairwise_col_mid'), 'Colour for zero', value='white'))
