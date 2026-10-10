@@ -202,6 +202,82 @@ clinical_Deconvolution_ui <- function(ns){
                             )
                         )
                     )
+                ),
+                tabPanel("Association with mutations",
+                    fluidRow(
+
+                        # Inputs and Settings / Test results
+                        column(4,
+                            box(width=12, title='Inputs and Settings', status='info', collapsible=TRUE,
+                                fluidRow(
+                                    column(12, helpText("Here, you can compare the abundance of a specific cell type between the samples with and without mutations (WT) in each gene. The samples present in both the deconvolution result and the mutation data are used.")),
+                                    column(12, htmlOutput(ns('Deconvolution_Mutation_genes'))),
+                                    column(12, materialSwitch(ns('Deconvolution_Mutation_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
+                                    column(12, htmlOutput(ns('Deconvolution_Mutation_from_custom_geneset_select'))),
+                                    column(12, verbatimTextOutput(ns('Deconvolution_Mutation_genes_status'))),
+                                    column(12, htmlOutput(ns('Deconvolution_Mutation_select_celltype')) ),
+                                    column(12, actionButton(ns('Deconvolution_Mutation_start'), 'Start comparing',style="color: #ffffff; background-color: #d82a2a; border-color: #bd0000" ) ),
+                                    column(12, h4('') ),
+                                    column(12, verbatimTextOutput(ns('Deconvolution_Mutation_status0')) )
+                                )
+                            ),
+                            box(width=12, title='Test Results', status='warning', collapsible=TRUE,
+                                fluidRow(
+                                    column(12, verbatimTextOutput(ns('Deconvolution_Mutation_table_note')) ),
+                                    column(12, verbatimTextOutput(ns('Deconvolution_Mutation_table_status')) ),
+                                    column(12, withSpinner(dataTableOutput(ns("Deconvolution_Mutation_table")), type = 5, color = "#0dc5c1" )),
+                                    column(12, downloadButton(ns('Deconvolution_Mutation_table_download'),"Download this table") )
+                                )
+                            )
+                        ),
+
+                        # Plot
+                        column(8,
+                            box(width=12, title='Plot', status='danger', collapsible=TRUE,
+                                fluidRow(
+                                    column(10, verbatimTextOutput(ns('Deconvolution_Mutation_plot_status')) ),
+                                    column(2,
+                                        dropdownButton( h4(strong("Plot Options")),
+                                            fluidRow(
+                                                column(6, sliderInput(ns('Deconvolution_Mutation_fig.width'), 'Fig width', min=300, max=3000, value=750, step=10)),
+                                                column(6, sliderInput(ns('Deconvolution_Mutation_fig.height'), 'Fig height', min=300, max=3000, value=750, step=10)),
+                                                conditionalPanel(
+                                                    condition = paste0("input['", ns('Deconvolution_Mutation_figtype'), "'] == 'C' || input['", ns('Deconvolution_Mutation_figtype'), "'] == 'D' || input['", ns('Deconvolution_Mutation_split_by_type'), "'] == true"),
+                                                    column(6, sliderInput(ns('Deconvolution_Mutation_dot.size'), 'Dot size (swarm plot)', min=0.01, max=3, value=0.3, step=0.01))
+                                                )
+                                            ),
+                                            fluidRow(
+                                                column(6, sliderInput(ns('Deconvolution_Mutation_XY_label.font.size'), 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
+                                                column(6, sliderInput(ns('Deconvolution_Mutation_XY_title.font.size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
+                                                column(6, sliderInput(ns('Deconvolution_Mutation_title.font.size'), 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
+                                            ),
+                                            fluidRow(
+                                                column(6, colourpicker::colourInput(ns('Deconvolution_Mutation_col_mut'), 'Colour (mutation)', value='#cd0202')),
+                                                column(6, colourpicker::colourInput(ns('Deconvolution_Mutation_col_wt'), 'Colour (wild type)', value='#3f48ee')),
+                                                column(6, selectInput(ns('Deconvolution_Mutation_select_colour_pallete'), 'Colour palette for mutation types', c('None'='None', colour_pallets), selected = 'None'))
+                                            ),
+                                            fluidRow(
+                                                column(6, materialSwitch(ns('Deconvolution_Mutation_white_background'), 'Use white background', value=FALSE, status = "success")),
+                                                column(6, materialSwitch(ns('Deconvolution_Mutation_rotate_x'), 'Rotate X axis label', value=FALSE, status = "success"))
+                                            ),
+                                            circle = FALSE, right=TRUE, status = "success", icon = icon("gear"), width = "600px",  tooltip = tooltipOptions(title = "Plot Options")
+                                        )
+                                    ),
+                                    # the mutation-type view is always a swarm plot, so hide the plot type options when the switch is on
+                                    conditionalPanel(
+                                        condition = paste0("input['", ns('Deconvolution_Mutation_split_by_type'), "'] != true"),
+                                        column(12, radioButtons(ns('Deconvolution_Mutation_figtype'), 'Plot type', choices = c('Box plot'='A', 'Violin plot'='B', 'Swarm plot'='C', 'Violin + Swarm plot'='D'), selected='A', inline=TRUE) )
+                                    ),
+                                    column(12, materialSwitch(ns('Deconvolution_Mutation_split_by_type'), 'Split the mutant group by the type of mutation', value=FALSE, status='info') ),
+                                    conditionalPanel(
+                                        condition = paste0("input['", ns('Deconvolution_Mutation_split_by_type'), "'] == true"),
+                                        column(4, numericInput(ns('Deconvolution_Mutation_top_types'), 'Show top X mutation types (the rest are grouped as "Others")', min=1, value=10, step=1))
+                                    ),
+                                    column(12, withSpinner(plotOutput(ns("Deconvolution_Mutation_plot"), width="100%", height="100%"), type = 5, color = "#0dc5c1" ))
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )  

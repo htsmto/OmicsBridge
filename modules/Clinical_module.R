@@ -101,6 +101,7 @@ clinicalModuleServer <- function(id) {
       loaded_data_table$Gene_expression,
       loaded_data_table$Survival,
       loaded_data_table$Meta_data,
+      loaded_data_table$Mutation_data,
       Custom_genesets)
     clinical_CompareCohorts_server(input, output, session,
       data_path_list$Clinical_dataset,
