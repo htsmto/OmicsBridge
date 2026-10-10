@@ -237,7 +237,7 @@ This section provides deconvolution analysis from patients' gene expression data
 1. Select the cohort
 2. Choose either MCPcounter or xCell as your method, then click "Start deconvolution". A deconvolution result table will appear on the right, downloadable via "Download this table".
 
-The interface provides two additional analysis tabs. 
+The interface provides three additional analysis tabs. 
 
 ??? example  "Example Usage video"
     <video width="1000" controls>
@@ -292,6 +292,29 @@ This feature allows you to analyse the relationship between specific gene expres
     - Dot and correlation line colours
     - Option to display or hide the correlation line
     - Option to use a white background
+
+
+### <u>**7.3. Association between mutations and cell type abundance**</u>
+
+This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. Only the samples present in both the deconvolution result and the mutation data are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample.
+
+1. Enter the gene names line by line (or choose a gene set)
+2. Select a cell type to investigate
+3. Click "Start comparing". For each gene, the abundance of the selected cell type is compared between the Mutant and WT groups using the Wilcoxon rank-sum test. A result table (gene, number of mutant/WT samples, statistic, and p-value) sorted by p-value is generated, downloadable via "Download this table".
+    - Genes without mutated samples are listed above the table.
+    - If none of the input genes have mutated samples, no table is generated.
+    - If the cohort has no mutation data, a message is shown.
+4. Clicking any row in the result table generates a box plot (default), violin plot, swarm plot, or violin + swarm plot.
+5. Turn on "Split the mutant group by the type of mutation" to show only the mutant samples, split by amino acid change (the `Amino_Acid_Change` column in TCGA data), as a swarm plot. Samples with several amino acid changes in the gene are grouped as "Multiple". Only the top X most frequent amino acid changes (10 by default, adjustable) are shown, and the rest are grouped as "Others". If the mutation data does not contain the type of mutation for the selected gene, an error message is shown and the switch is turned off.
+
+??? success  "Adjustable graph parameters"
+    - Figure size (width and height)
+    - Dot size (swarm plot)
+    - X and Y axis label/title font size, and graph title font size
+    - Colours for the mutant and wild type groups
+    - Colour palette for the mutation types
+    - Option to use a white background
+    - Option to rotate the X axis labels
 
 
 ---
