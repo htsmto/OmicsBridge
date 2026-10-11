@@ -593,9 +593,28 @@ The users can upload their own cohort and analyse it here. Three files (Gene exp
 
 A tab-delimited table of the gene expression of each sample (genes × samples(patients)) from bulk RNAseq (or microarray). 
 
-- Ensure the data is already normalised before uploading, as the interface does not perform normalisation automatically.
+- **We recommend uploading normalised, log2-transformed values, e.g. log2(TPM+1) or log2(FPKM+1).** OmicsBridge does not normalise the data for you; the values are used exactly as uploaded.
+- Raw counts can also be uploaded and every analysis will still run, but the results can be misleading (see "About normalisation" below).
 - Rows (index): gene names.
 - Columns (headers): sample names that match those used in your clinical data and metadata.
+
+??? info "About normalisation"
+    Most analyses in this section compare expression values **between samples** (survival analysis, gene correlation, expression comparisons, GSVA, MCPcounter, Compare cohorts). Some rank genes **within each sample** (ssGSEA and xCell). Values normalised for both sequencing depth and gene length, such as TPM or FPKM, are valid for both kinds of comparison. The log2 transformation reduces the influence of a few very highly expressed genes.
+
+    If raw counts are uploaded:
+
+    - Samples with more sequencing reads appear to express every gene more highly. This biases the high/low split in survival analysis, gene correlations, expression comparisons, GSVA scores and MCPcounter scores.
+    - Longer genes receive more reads, which distorts the within-sample ranking used by ssGSEA and xCell.
+
+    | Data | Recommendation |
+    | --- | --- |
+    | log2(TPM+1) or log2(FPKM+1) | Recommended |
+    | Normalised microarray data on a log2 scale (e.g. RMA) | Suitable |
+    | TPM or FPKM without log2 transformation | Works, but correlations, scores and plots are dominated by highly expressed genes. Please log2-transform. |
+    | Count-based normalisation, e.g. log2(CPM+1) or DESeq2 VST | Suitable for most analyses. Not normalised for gene length, so less suitable for ssGSEA and xCell. |
+    | Raw counts | Not recommended |
+
+    The pre-installed TCGA cohorts use log2(RSEM normalised count+1), as provided by UCSC Xena (see 10.1). "Compare cohorts" compares the values of different cohorts directly, so only cohorts processed in the same way (same unit) can be compared meaningfully.
 
 ??? tip "Example"
     ![Example](img/3_ex_example.png)
@@ -632,7 +651,7 @@ If you have information about which genes are mutated in which patients, you can
 - Similar to the patient survival information and metadata, the first column must contain the sample IDs, with the header `sample` (all lowercase).
 - The second column contains gene names, with the header `id`.
 
-These two columns are sufficient. Any additional columns will be ignored.
+These two columns are sufficient. Optionally, a column named `Amino_Acid_Change` (e.g. `p.G12C`) can be added; it is used to split the mutant samples by the type of mutation in "Deconvolution > Association with mutations" (7.3). Any other columns will be ignored.
 
 ??? tip "Example"
     ![Example](img/3_mutation_example.png)
