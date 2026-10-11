@@ -28,7 +28,9 @@ clinical_upload_ui <- function(ns){
                         fluidRow(
                             column(12, h4(strong("Quick upload guide"))),
                             column(12, helpText(strong("- Make sure that the column name for samples (or patients IDs) is set 'sample' and for genes is set 'id'."))),
-                            column(12, helpText("- The fist column of the gene expression file must be the samples.")),
+                            column(12, helpText("- The first column of the gene expression file must be the gene names ('id').")),
+                            column(12, helpText("- Gene expression: normalised, log2-transformed values (e.g. log2(TPM+1) or log2(FPKM+1)) are recommended.")),
+                            column(12, helpText("- Mutation data: the 'sample' and 'id' columns are required. An optional 'Amino_Acid_Change' column (e.g. p.G12C) is used in Deconvolution > Association with mutations.")),
                             column(12, helpText("- The Cohort name is mandatory and must be unique.")),
                             column(12, helpText("- Avoid special characters; use only alphabets, numbers, underscores and dots."))
                         ), circle = TRUE, status = "danger", icon = icon("question"), width = "900px",  tooltip = tooltipOptions(title = "Help"), right = TRUE

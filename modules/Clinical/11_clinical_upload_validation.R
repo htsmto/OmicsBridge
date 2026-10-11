@@ -206,20 +206,31 @@ upload_validation_server <- function(input, output, session) {
                         }
                     #
 
+                    # move the 'id' column to the first column. The saved file is read with row.names=1, so the gene names must come first.
+                        df_tmp <- df_tmp[, c('id', setdiff(colnames(df_tmp), 'id')), drop=FALSE]
+                    #
+
                     # if duplicated genes were found, take the average of the duplicated genes and show a warning message
                         duplicate_flag <- FALSE
                         if(any(duplicated(df_tmp$id))){
-                            show_alert(title='Warning', text="Duplicated gene names were found in the gene expression file. The average expression values will be taken for the duplicated genes.", type='warning')
                             new_cohort_status("Warning: Duplicated gene names were found in the gene expression file. The average expression values will be taken for the duplicated genes.")
                             df_tmp <- df_tmp %>% group_by(id) %>% summarise_all(mean)
                             duplicate_flag <- TRUE
                         }
                     #
 
+                    # recommend normalised data. The duplicated-gene warning is shown in the same pop-up (a second pop-up would replace the first one).
+                        alert_text <- tags$div(style='text-align: left;',
+                            tags$p("We recommend uploading normalised, log2-transformed expression values (e.g. log2(TPM+1) or log2(FPKM+1)). Raw counts can also be used, but the results may be misleading."),
+                            tags$p("For details, please see the ", tags$a(href='https://htsmto.github.io/OmicsBridge/Clinical_data/#1021-gene-expression', target='_blank', 'Wiki (Clinical Data Analysis > 10.2.1 Gene expression)', .noWS='after'), "."),
+                            if(duplicate_flag) tags$p(strong("Duplicated gene names were found in the gene expression file. The average expression values will be taken for the duplicated genes."))
+                        )
+                        show_alert(title='Warning', text=alert_text, type='warning', html=TRUE, btn_labels='Confirm')
+                    #
+
+                    message <- "You uploaded a gene expression file successfully. Please fill in the other information and click the 'Add a new cohort' button. \nNote: Normalised, log2-transformed values (e.g. log2(TPM+1)) are recommended. See the Wiki for details."
                     if(duplicate_flag){
-                        message <- "You uploaded a gene expression file successfully. Please fill in the other information and click the 'Add a new cohort' button. \nWarning: Duplicated gene names were found in the gene expression file. The average expression values will be taken for the duplicated genes."
-                    }else{
-                        message <- "You uploaded a gene expression file successfully. Please fill in the other information and click the 'Add a new cohort' button."
+                        message <- paste0(message, "\nWarning: Duplicated gene names were found in the gene expression file. The average expression values will be taken for the duplicated genes.")
                     }
                     new_cohort_status(message)
                     gx_table(df_tmp)
@@ -335,7 +346,16 @@ upload_validation_server <- function(input, output, session) {
                     #
                     mut_table(df_tmp)
                     mut_file_path(mut_data$datapath)
-                    new_cohort_status('You uploaded a mutation data file successfully. Please fill in the other information and click the "Add a new cohort" button.')
+                    message <- 'You uploaded a mutation data file successfully. Please fill in the other information and click the "Add a new cohort" button.'
+
+                    # optional column: the type of mutation (used in Deconvolution > Association with mutations)
+                        if('Amino_Acid_Change' %in% colnames(df_tmp)){
+                            message <- paste0(message, "\nThe 'Amino_Acid_Change' column was found. It will be used to split the mutant samples by the type of mutation in 'Deconvolution > Association with mutations'.")
+                        }else{
+                            message <- paste0(message, "\nNote: No 'Amino_Acid_Change' column was found. All mutation analyses will work, but the mutant samples cannot be split by the type of mutation in 'Deconvolution > Association with mutations'.")
+                        }
+                    #
+                    new_cohort_status(message)
                 })
             #
 
