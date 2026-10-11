@@ -570,7 +570,7 @@
 
 
 <h1 id="function-reference-supplementary-table">Function Reference (Supplementary Table)</h1>
-<p>This page lists every function/output currently available in OmicsBridge (v1.3.0), grouped by section and sub-section, with its output type, purpose, underlying method, and any usage notes. It was prepared as a supplementary table in response to reviewer feedback. Rows are colour-coded by <strong>Section</strong>.</p>
+<p>This page lists every function/output currently available in OmicsBridge (v1.3.1), grouped by section and sub-section, with its output type, purpose, underlying method, and any usage notes. It was prepared as a supplementary table in response to reviewer feedback. Rows are colour-coded by <strong>Section</strong>.</p>
 <p><a class="md-button" href="../downloads/OmicsBridge_Function_Reference.xlsx">Download the original table (.xlsx) &rarr;</a></p>
 <div class="func-ref-wrap" markdown="0">
 <table class="func-ref-table">
@@ -980,7 +980,7 @@
 <td>Table of estimated immune/stromal cell-type abundance scores per sample</td>
 <td>Estimate immune cell composition from bulk RNA-seq for a cohort</td>
 <td>MCPcounter or xCell packages (user-selectable).</td>
-<td>Results feed the Heatmap/Barplot and Correlation with genes features below.</td>
+<td>Results feed the Heatmap/Barplot, Correlation with genes, and Association with mutations features below.</td>
 </tr>
 <tr class="sec-5">
 <td class="col-num">36</td>
@@ -1018,6 +1018,17 @@
 <tr class="sec-5">
 <td class="col-num">39</td>
 <td>Clinical Data Analysis</td>
+<td>Deconvolution &gt; Association with mutations</td>
+<td>Association with mutations</td>
+<td>Box/Violin/Swarm plot</td>
+<td>Statistical test table + plot comparing one cell type&#x27;s abundance between mutant and wild-type patients for each gene</td>
+<td>See whether mutations in a gene are associated with the abundance of a specific immune cell type</td>
+<td>No special library. Wilcoxon rank-sum test (base R); ggplot2/ggbeeswarm for plotting.</td>
+<td>Plot type selectable: Box, Violin, Swarm, or Violin+Swarm. Mutant samples can be split by amino acid change (swarm plot). Table downloadable.</td>
+</tr>
+<tr class="sec-5">
+<td class="col-num">40</td>
+<td>Clinical Data Analysis</td>
 <td>Compare cohorts &gt; Mutation Frequency</td>
 <td>Cross-cohort Mutation frequency analysis</td>
 <td>Bar plot</td>
@@ -1027,7 +1038,7 @@
 <td>No cohort selection needed beforehand — this analysis picks its own cohorts.</td>
 </tr>
 <tr class="sec-5">
-<td class="col-num">40</td>
+<td class="col-num">41</td>
 <td>Clinical Data Analysis</td>
 <td>Compare cohorts &gt; Gene expression</td>
 <td>Cross-cohort Gene expression analysis</td>
@@ -1038,7 +1049,7 @@
 <td>Can take several minutes for many cohorts (e.g. all TCGA).</td>
 </tr>
 <tr class="sec-5">
-<td class="col-num">41</td>
+<td class="col-num">42</td>
 <td>Clinical Data Analysis</td>
 <td>COSMIC</td>
 <td>Cancer Gene Census (COSMIC)</td>
@@ -1049,7 +1060,7 @@
 <td>If no genes match, the full reference database is shown instead.</td>
 </tr>
 <tr class="sec-5">
-<td class="col-num">42</td>
+<td class="col-num">43</td>
 <td>Clinical Data Analysis</td>
 <td>Upload data</td>
 <td>Manage the cohort database</td>
@@ -1060,7 +1071,7 @@
 <td>Sample-ID column must be named &quot;sample&quot;, gene column &quot;id&quot;. Deleting a cohort is permanent.</td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">43</td>
+<td class="col-num">44</td>
 <td>scRNAseq Analysis</td>
 <td>Overview (UMAP)</td>
 <td>Overview UMAP plot</td>
@@ -1071,7 +1082,7 @@
 <td>Colour customisation for the highlighted group is not currently available in the interface (disabled in the code).</td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">44</td>
+<td class="col-num">45</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Feature Plot (UMAP)</td>
 <td>Gene Expression Feature Plot </td>
@@ -1082,7 +1093,7 @@
 <td></td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">45</td>
+<td class="col-num">46</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Violin Plot</td>
 <td>Gene Expression Violin Plot</td>
@@ -1093,7 +1104,7 @@
 <td>&quot;Hide jitter plots&quot; is on by default.</td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">46</td>
+<td class="col-num">47</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Dot Plot</td>
 <td>Gene Expression Dot Plot</td>
@@ -1104,7 +1115,7 @@
 <td></td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">47</td>
+<td class="col-num">48</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Pie chart</td>
 <td>Gene Expression Pie chart</td>
@@ -1115,7 +1126,7 @@
 <td>A cell counts as expressing a gene if its UMI count is 1 or greater.</td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">48</td>
+<td class="col-num">49</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Gene Set Signature Feature Plot</td>
 <td>Gene Set Signature Feature Plot</td>
@@ -1126,7 +1137,7 @@
 <td>Calculation takes 1-3 minutes depending on gene set and dataset size.</td>
 </tr>
 <tr class="sec-6">
-<td class="col-num">49</td>
+<td class="col-num">50</td>
 <td>scRNAseq Analysis</td>
 <td>Feature plots &gt; Gene Set Signature Feature Plot</td>
 <td>Gene Set Signature Violin Plot</td>
@@ -1137,7 +1148,7 @@
 <td>Shares the same AUC calculation as the Feature Plot output; only the grouping/visualisation differs.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">50</td>
+<td class="col-num">51</td>
 <td>Epigenome Visualisation</td>
 <td>Profile Plot</td>
 <td>Profile Plot</td>
@@ -1148,7 +1159,7 @@
 <td></td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">51</td>
+<td class="col-num">52</td>
 <td>Epigenome Visualisation</td>
 <td>Genome visualisation</td>
 <td>Genome visualisation plot</td>
@@ -1159,7 +1170,7 @@
 <td>BAM files over a wide range (~100-200kb+) can cause a memory error; colour/height/Y-axis-limit changes require re-plotting to take effect.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">52</td>
+<td class="col-num">53</td>
 <td>Epigenome Visualisation</td>
 <td>IGV</td>
 <td>IGV</td>
@@ -1170,7 +1181,7 @@
 <td>Only bed files are supported here (due to memory limits); use Genome visualisation above for bigwig/bam.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">53</td>
+<td class="col-num">54</td>
 <td>Epigenome Visualisation</td>
 <td>Find Enhancer/Promoter</td>
 <td>Find enhancers/promoters</td>
@@ -1181,7 +1192,7 @@
 <td>&quot;Check only the same chromosomes of the target genes&quot; is on by default (restricts the search to peaks on the same chromosome as the gene); gene coordinates are looked up from a fixed GRCh38 (hg38) annotation regardless of the data&#x27;s own genome build.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">54</td>
+<td class="col-num">55</td>
 <td>Epigenome Visualisation</td>
 <td>Find Enhancer/Promoter</td>
 <td>Find enhancers/promoters</td>
@@ -1192,7 +1203,7 @@
 <td></td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">55</td>
+<td class="col-num">56</td>
 <td>Epigenome Visualisation</td>
 <td>Find Enhancer/Promoter</td>
 <td>Find enhancers/promoters</td>
@@ -1203,7 +1214,7 @@
 <td>Bars marked with * have a p-value below the threshold set in the potential enhancer/promoter list panel.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">56</td>
+<td class="col-num">57</td>
 <td>Epigenome Visualisation</td>
 <td>Find Enhancer/Promoter</td>
 <td>Find enhancers/promoters</td>
@@ -1214,7 +1225,7 @@
 <td>Bars marked with * have a p-value below the threshold set in the potential enhancer/promoter list panel.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">57</td>
+<td class="col-num">58</td>
 <td>Epigenome Visualisation</td>
 <td>Find Enhancer/Promoter</td>
 <td>Find enhancers/promoters</td>
@@ -1225,7 +1236,7 @@
 <td></td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">58</td>
+<td class="col-num">59</td>
 <td>Epigenome Visualisation</td>
 <td>Motif scan</td>
 <td>Motif scan</td>
@@ -1236,7 +1247,7 @@
 <td>Downloadable via &quot;Download motif table&quot;; a collapsible &quot;Significant motifs&quot; box lists motif names below a chosen threshold.</td>
 </tr>
 <tr class="sec-7">
-<td class="col-num">59</td>
+<td class="col-num">60</td>
 <td>Epigenome Visualisation</td>
 <td>Motif scan</td>
 <td>Motif scan</td>
@@ -1247,7 +1258,7 @@
 <td>Y-axis can show bits or probability.</td>
 </tr>
 <tr class="sec-8">
-<td class="col-num">60</td>
+<td class="col-num">61</td>
 <td>Custom Gene Sets</td>
 <td>Custom Gene Sets</td>
 <td>Browse the Custom Gene Sets</td>
@@ -1258,7 +1269,7 @@
 <td>The geneset name (first column) cannot be edited; saving edits or deleting rows opens a confirmation dialog first.</td>
 </tr>
 <tr class="sec-8">
-<td class="col-num">61</td>
+<td class="col-num">62</td>
 <td>Custom Gene Sets</td>
 <td>Add a Gene Set</td>
 <td>Add a Gene Set</td>
@@ -1269,7 +1280,7 @@
 <td>Geneset name must be unique; line breaks inside any text box keep only the first line.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">62</td>
+<td class="col-num">63</td>
 <td>Tools</td>
 <td>Human &amp; Mouse</td>
 <td>Human &amp; Mouse Gene Converter</td>
@@ -1280,7 +1291,7 @@
 <td>A single gene may have multiple orthologous matches; downloadable via &quot;Download this table&quot;.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">63</td>
+<td class="col-num">64</td>
 <td>Tools</td>
 <td>Gene Symbol  Ensembl ID </td>
 <td>Ensembl ID &amp; Gene Symbol Converter</td>
@@ -1291,7 +1302,7 @@
 <td>Downloadable via &quot;Download this table&quot;.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">64</td>
+<td class="col-num">65</td>
 <td>Tools</td>
 <td>Find gene positions/annotations</td>
 <td>Find gene positions/annotations</td>
@@ -1302,7 +1313,7 @@
 <td>Downloadable via &quot;Download this table&quot;; human genome (hg38) only.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">65</td>
+<td class="col-num">66</td>
 <td>Tools</td>
 <td>Find gene positions/annotations &gt; Peak annotation</td>
 <td>Peak annotation</td>
@@ -1313,7 +1324,7 @@
 <td>Peaks that fail to annotate (bad format, chromosome not in genome, or too wide) are listed by name rather than dropped silently; downloadable via &quot;Download this table&quot;.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">66</td>
+<td class="col-num">67</td>
 <td>Tools</td>
 <td>Find gene positions/annotations &gt; Peak annotation</td>
 <td>Peak annotation</td>
@@ -1324,7 +1335,7 @@
 <td></td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">67</td>
+<td class="col-num">68</td>
 <td>Tools</td>
 <td>Find gene positions/annotations &gt; Peak annotation</td>
 <td>Peak annotation</td>
@@ -1335,7 +1346,7 @@
 <td></td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">68</td>
+<td class="col-num">69</td>
 <td>Tools</td>
 <td>Cross-tabulation analysis</td>
 <td>Cross-tabulation analysis</td>
@@ -1346,7 +1357,7 @@
 <td>Only 3 plot methods exist: percentile+stacked (default), count+stacked, or count+dodge — there is no percentile+dodge option.</td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">69</td>
+<td class="col-num">70</td>
 <td>Tools</td>
 <td>Venn Diagram</td>
 <td>Venn Diagram</td>
@@ -1357,7 +1368,7 @@
 <td></td>
 </tr>
 <tr class="sec-9">
-<td class="col-num">70</td>
+<td class="col-num">71</td>
 <td>Tools</td>
 <td>Network plot</td>
 <td>Network Plot</td>
