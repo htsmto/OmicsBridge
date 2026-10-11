@@ -86,7 +86,7 @@ deconvolution_mutation_plot_server <- function(input, output, session, Mutation_
                 df_plot$Group <- ifelse(df_plot$sample %in% mut_samples, 'Mutant', 'WT')
 
                 if(!by_type){
-                    df_plot$Group <- factor(df_plot$Group, levels=c('WT', 'Mutant'))
+                    df_plot$Group <- factor(df_plot$Group, levels=c('Mutant', 'WT')) # Mutant on the left
                     return(df_plot)
                 }
 
