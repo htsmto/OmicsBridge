@@ -100,6 +100,19 @@ Enter two or more genes to get a correlation heatmap across all of them, then dr
 
 This section helps you analyse gene mutations in the selected cohort.
 
+**Mutant and wild type (WT).** For each gene, a sample is classified as "Mutant" when the mutation data contains any record of that gene for the sample, and as "WT" otherwise. A sample without any record in the mutation data is therefore WT. The samples used differ between the tabs:
+
+| Tab | Samples used | Mutant | WT |
+| --- | --- | --- | --- |
+| Frequency Plot | Samples in the mutation data | Samples with any record of the gene | — |
+| Survival analysis | Samples in both the gene expression data and the survival data | Samples with any record of the gene | The other samples |
+| Gene expression plot | Samples in the gene expression data | Samples with any record of the gene | The other samples |
+
+- When the samples are filtered by a metadata category (step 2 below), only the samples in that category are used in all the tabs.
+- **Mutation frequency (%)** = the number of samples with any record of the gene ÷ the number of samples in the mutation data × 100 (after the sample filtering). The gene expression and survival data are not used here. As a sample without any mutation does not appear in the mutation data, the denominator is the number of samples with at least one reported mutation (for the pre-installed TCGA cohorts, practically all the samples analysed by whole-exome sequencing).
+- In the Survival analysis and Gene expression plot tabs, samples in the gene expression data that were not analysed for mutations are also treated as WT. When uploading your own cohort, please make sure that all the samples in the gene expression data were analysed for mutations.
+- For the pre-installed TCGA cohorts, the gene expression data contains one primary tumour sample per patient (see 10.1), so normal tissue samples are not included in the WT group.
+
 1. Input the genes to investigate by:
     - Entering gene names one per line in the text box ('Text input')
     - Choosing to analyse all genes in the dataset ('Use all genes')
@@ -330,6 +343,8 @@ In this section, you can compare gene expression or mutation frequency across di
     - You can select multiple cohorts, but note that generating figures may take longer, especially for gene expression analysis. (ex. When selecting all TCGA cohorts, it takes ~30 sec for the mutation frequency analysis and ~2 minutes for the gene expression analysis.)
 5. Click "Compare mutation frequencies" or "Compare gene expressions", depending on the tab you're in ("Mutation Frequency" or "Gene expression")
     - In "Mutation Frequency," a bar plot will display the number or percentage of patients with mutations in the selected gene across the chosen cohorts — choose which via the "Y axis" option.
+        - The percentage is calculated for each cohort in the same way as in 4. Mutation analysis: the number of samples with any record of the gene in the cohort's mutation data ÷ the number of samples in that mutation data × 100.
+        - Cohorts without mutation data, and cohorts without any record of the gene in their mutation data, are not shown in the plot.
     - In "Gene expression," a box plot is generated that compares gene expression levels across the selected cohorts
 
 ??? success  "Adjustable graph parameters (Mutation Frequency)"
@@ -690,12 +705,22 @@ If you do not have any metadata to include, please upload a .tsv file that conta
     ![Example](img/3_meta_example.png)
 
 #### <u>**10.2.4. Mutation data**</u>
-If you have information about which genes are mutated in which patients, you can upload this as a TSV file.
+If you have information about which genes are mutated in which patients, you can upload this as a TSV file, with one row per mutation (a sample with several mutations has several rows).
     
-- Similar to the patient survival information and metadata, the first column must contain the sample IDs, with the header `sample` (all lowercase).
-- The second column contains gene names, with the header `id`.
+- A column named `sample` (all lowercase) containing the sample IDs. The sample IDs must exactly match those in your gene expression data; otherwise, the mutations are not assigned to the samples.
+- A column named `id` containing the gene names.
 
-These two columns are sufficient. Optionally, a column named `Amino_Acid_Change` (e.g. `p.G12C`) can be added; it is used to split the mutant samples by the type of mutation in "Deconvolution > Association with mutations" (7.3). Any other columns will be ignored.
+These two columns are required and sufficient; the column order does not matter, but we recommend `sample` as the first column and `id` as the second, as in the other files. Optionally, a column named `Amino_Acid_Change` (e.g. `p.G12C`) can be added; it is used to split the mutant samples by the type of mutation in "Deconvolution > Association with mutations" (7.3). Any other columns will be ignored.
+
+A sample is classified as "Mutant" for a gene when this file contains any row of that gene for the sample, and as "WT" otherwise (see 4. Mutation analysis for the samples used in each analysis).
+
+??? info "When a column is missing"
+    | Missing column | What happens |
+    | --- | --- |
+    | `sample` or `id` | An error message is shown (e.g. "The mutation data file must contain a column named 'id' for gene names.") and the file is not accepted. The other uploaded files are kept; fix the file and upload it again. |
+    | `Amino_Acid_Change` | The file is accepted, with a note that the column was not found. All the mutation analyses work, except splitting the mutant samples by the type of mutation in 7.3: when you turn on "Split the mutant group by the type of mutation", a message is shown and the switch is turned off. |
+
+    If no mutation data is uploaded, the cohort can still be added (a warning is shown). The mutation analyses then show a message that no mutation data is loaded.
 
 ??? tip "Example"
     ![Example](img/3_mutation_example.png)
