@@ -368,7 +368,7 @@ OmicsBridge includes a database of cancer predisposition genes sourced from [Can
 The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.
 
 ### <u>**10.1. Pre-installed cohort**</u>
-[TCGA](https://www.nature.com/articles/ng.2764) data (34 cancer types, see the table below) is available as a separate, optional download — a package you download from Zenodo and extract into the OmicsBridge directory yourself, rather than data bundled with the software installation. It includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from [UCSC Xena](https://xenabrowser.net), with gene expression values transformed as log2(RSEM normalised count+1).
+[TCGA](https://www.nature.com/articles/ng.2764) data (34 cancer types, see the table below) is available as a separate, optional download — a package you download from Zenodo and extract into the OmicsBridge directory yourself, rather than data bundled with the software installation. It includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from [UCSC Xena](https://xenabrowser.net), with gene expression values transformed as log2(RSEM normalised count+1). The gene expression data was curated to contain one tumour sample per patient (normal tissue samples are not included) and only genes with a gene symbol (see "Data source and version details" below).
 
 ??? info  "Data source and version details"
     Gene expression, clinical/metadata, and survival data were downloaded from the **TCGA Hub**; mutation data was downloaded separately from the **GDC Hub** — two different data hubs on UCSC Xena.
@@ -383,6 +383,35 @@ The users can manage the cohort database and upload or delete datasets in the �
     The mutation files originally used a 16-character sample ID format (with a trailing sample-portion letter, e.g. `TCGA-2F-A9KO-01A`), while the other three files use a 15-character format (e.g. `TCGA-2F-A9KO-01`). This trailing character was removed from the mutation files’ sample IDs so that samples can be matched across all four data types; no other value was changed.
 
     This particular MuTect2 mutation dataset has since been marked deprecated on the GDC Xena Hub and replaced there by a newer "Ensemble Somatic Variant" pipeline output. The mutation data included here reflects the original MuTect2 release as downloaded in 2019, not the current GDC release.
+
+    The gene expression files (`HiSeqV2`) originally contained several sample types per cohort — primary tumour, solid tissue normal, recurrent tumour, metastatic and additional samples — and some patients had more than one sample. Since the survival data also has a row for each of these samples, the same patient would be counted more than once in the analyses (e.g. once as a tumour and once as a normal tissue sample). The gene expression files were therefore curated as follows (October 2026, 11,966 → 10,999 samples in total); no value was changed:
+
+    - **One tumour sample per patient.** Only primary tumour samples (sample type code `01`, or `03` "Primary Blood Derived Cancer" for TCGA_LAML) were kept. For TCGA_SKCM, metastatic samples (`06`) were also kept because most SKCM samples are metastatic. When a patient (the first 12 characters of the sample ID, e.g. `TCGA-2F-A9KO`) still had more than one sample, the primary tumour sample was kept.
+    - **Removed samples.** Solid tissue normal (`11`), recurrent tumour (`02`), additional new primary (`05`), additional metastatic (`07`) and metastatic samples (`06`) outside TCGA_SKCM. Patients without a primary tumour sample in the `HiSeqV2` dataset are therefore not included (e.g. 15 patients in TCGA_COAD with only a normal tissue sample).
+    - **Removed genes.** The 29 genes without a gene symbol (e.g. `?|26823`), leaving 20,501 genes.
+
+    As normal tissue samples are not included, tumour vs. normal tissue comparisons are not possible with these cohorts. The survival, metadata and mutation files were not changed; samples are matched to the gene expression data by sample ID.
+
+    ??? note  "Number of samples per cohort (before → after curation)"
+        | Cohort | Before | After | Cohort | Before | After |
+        | --- | --- | --- | --- | --- | --- |
+        | TCGA_ACC | 79 | 79 | TCGA_LIHC | 423 | 371 |
+        | TCGA_BLCA | 426 | 407 | TCGA_LUAD | 576 | 515 |
+        | TCGA_BRCA | 1218 | 1097 | TCGA_LUNG | 1129 | 1017 |
+        | TCGA_CESC | 308 | 303 | TCGA_LUSC | 553 | 502 |
+        | TCGA_CHOL | 45 | 36 | TCGA_MESO | 87 | 87 |
+        | TCGA_COAD | 329 | 286 | TCGA_PAAD | 183 | 178 |
+        | TCGA_COADREAD | 434 | 380 | TCGA_PCPG | 187 | 179 |
+        | TCGA_DLBC | 48 | 48 | TCGA_PRAD | 550 | 497 |
+        | TCGA_ESCA | 196 | 184 | TCGA_READ | 105 | 94 |
+        | TCGA_GBM | 172 | 154 | TCGA_SARC | 265 | 259 |
+        | TCGA_GBMLGG | 702 | 670 | TCGA_SKCM | 474 | 470 |
+        | TCGA_HNSC | 566 | 520 | TCGA_TGCT | 156 | 150 |
+        | TCGA_KICH | 91 | 66 | TCGA_THCA | 572 | 505 |
+        | TCGA_KIRC | 606 | 533 | TCGA_THYM | 122 | 120 |
+        | TCGA_KIRP | 323 | 290 | TCGA_UCEC | 201 | 176 |
+        | TCGA_LAML | 173 | 173 | TCGA_UCS | 57 | 57 |
+        | TCGA_LGG | 530 | 516 | TCGA_UVM | 80 | 80 |
 
     ??? note  "Download commands (for full reproducibility)"
         These are the exact commands used to assemble this dataset collection, provided so it can be independently verified, updated, or reproduced.
@@ -544,6 +573,21 @@ The users can manage the cohort database and upload or delete datasets in the �
 
         ```bash
         awk -F'\t' -v OFS='\t' 'NR==1{print; next} {$1=substr($1,1,length($1)-1); print}' mutations.tsv > mutations_tmp.tsv && mv mutations_tmp.tsv mutations.tsv
+        ```
+
+        **Gene expression curation** applied to `Gene_expression_RSEM.tsv` in all 34 cohorts (R, with the `data.table` package; values are read and written as text, so they are not changed):
+
+        ```r
+        library(data.table)
+        ex <- fread('Gene_expression_RSEM.tsv', colClasses = 'character', check.names = FALSE)
+        kept_types <- c('01', '03')                              # c('01', '03', '06') for TCGA_SKCM
+        samples <- colnames(ex)[-1]
+        candidates <- samples[substr(samples, 14, 15) %in% kept_types]
+        candidates <- candidates[order(match(substr(candidates, 14, 15), kept_types))]
+        chosen <- candidates[!duplicated(substr(candidates, 1, 12))]  # one sample per patient
+        kept <- samples[samples %in% chosen]                         # keep the original column order
+        ex <- ex[!startsWith(ex[[1]], '?|'), c(colnames(ex)[1], kept), with = FALSE]
+        fwrite(ex, 'Gene_expression_RSEM.tsv', sep = '\t', quote = FALSE)
         ```
 
 ??? info  "TCGA abbreviation"
