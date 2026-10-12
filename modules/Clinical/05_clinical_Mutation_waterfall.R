@@ -156,8 +156,15 @@ mutation_waterfall_server <- function(input, output, session,
                         df_OS <- survival_table()
                         gene_kaplan <- mut_freq_table()[input$Clinical_Mutation_frequency_table_rows_selected, 'genes']
                         df_mut <- mutation_table()
-                        df_mut_sample <- intersect(df_OS$sample, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
-                        df_wt_sample <- setdiff(df_OS$sample, df_mut[df_mut$id == gene_kaplan,]$sample)
+
+                        # samples present in both the expression data and the survival data. Samples without a reported mutation in the gene are WT (same as the Gene expression tab).
+                        samples_used <- intersect(colnames(ex_table()), df_OS$sample)
+                        if(length(samples_used) == 0){
+                            Clinical_Mutation_Kaplan_plot_status('No sample is shared between the expression data and the survival data. Please check the sample names.')
+                            return(ggplot())
+                        }
+                        df_mut_sample <- intersect(samples_used, unique(df_mut[df_mut$id == gene_kaplan,]$sample))
+                        df_wt_sample <- setdiff(samples_used, df_mut_sample)
 
                         # if sample filetring is applied, further filter the mutant and wt sample according to the filtered sample ids
                         if(!All_sample_flag()){
