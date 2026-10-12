@@ -1416,7 +1416,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 </ul>
 </details>
 <h3 id="73-association-between-mutations-and-cell-type-abundance"><u><strong>7.3. Association between mutations and cell type abundance</strong></u></h3>
-<p>This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. Only the samples present in both the deconvolution result and the mutation data are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample.</p>
+<p>This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. All samples in the deconvolution result are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample; otherwise, it is classified as "WT" (as in Mutation analysis).</p>
 <ol>
 <li>Enter the gene names line by line (or choose a gene set)</li>
 <li>Select a cell type to investigate</li>
@@ -1500,7 +1500,7 @@ This comparison examines the expression levels between the wild-type and mutant 
 <h2 id="10-manage-the-cohort-database"><u><strong>10. Manage the cohort database</strong></u></h2>
 <p>The users can manage the cohort database and upload or delete datasets in the “Cohort database” tab.</p>
 <h3 id="101-pre-installed-cohort"><u><strong>10.1. Pre-installed cohort</strong></u></h3>
-<p><a href="https://www.nature.com/articles/ng.2764">TCGA</a> data (34 cancer types, see the table below) is available as a separate, optional download — a package you download from Zenodo and extract into the OmicsBridge directory yourself, rather than data bundled with the software installation. It includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from <a href="https://xenabrowser.net">UCSC Xena</a>, with gene expression values transformed as log2(RSEM normalised count+1).</p>
+<p><a href="https://www.nature.com/articles/ng.2764">TCGA</a> data (34 cancer types, see the table below) is available as a separate, optional download — a package you download from Zenodo and extract into the OmicsBridge directory yourself, rather than data bundled with the software installation. It includes mRNA sequencing results, clinical information, metadata and mutation data downloaded from <a href="https://xenabrowser.net">UCSC Xena</a>, with gene expression values transformed as log2(RSEM normalised count+1). The gene expression data was curated to contain one tumour sample per patient (normal tissue samples are not included) and only genes with a gene symbol (see "Data source and version details" below).</p>
 <details class="info">
 <summary>Data source and version details</summary>
 <p>Gene expression, clinical/metadata, and survival data were downloaded from the <strong>TCGA Hub</strong>; mutation data was downloaded separately from the <strong>GDC Hub</strong> — two different data hubs on UCSC Xena.</p>
@@ -1542,6 +1542,166 @@ This comparison examines the expression levels between the wild-type and mutant 
 </table>
 <p>The mutation files originally used a 16-character sample ID format (with a trailing sample-portion letter, e.g. <code>TCGA-2F-A9KO-01A</code>), while the other three files use a 15-character format (e.g. <code>TCGA-2F-A9KO-01</code>). This trailing character was removed from the mutation files’ sample IDs so that samples can be matched across all four data types; no other value was changed.</p>
 <p>This particular MuTect2 mutation dataset has since been marked deprecated on the GDC Xena Hub and replaced there by a newer "Ensemble Somatic Variant" pipeline output. The mutation data included here reflects the original MuTect2 release as downloaded in 2019, not the current GDC release.</p>
+<p>The gene expression files (<code>HiSeqV2</code>) originally contained several sample types per cohort — primary tumour, solid tissue normal, recurrent tumour, metastatic and additional samples — and some patients had more than one sample. Since the survival data also has a row for each of these samples, the same patient would be counted more than once in the analyses (e.g. once as a tumour and once as a normal tissue sample). The gene expression files were therefore curated as follows (October 2026, 11,966 → 10,999 samples in total); no value was changed:</p>
+<ul>
+<li><strong>One tumour sample per patient.</strong> Only primary tumour samples (sample type code <code>01</code>, or <code>03</code> "Primary Blood Derived Cancer" for TCGA_LAML) were kept. For TCGA_SKCM, metastatic samples (<code>06</code>) were also kept because most SKCM samples are metastatic. When a patient (the first 12 characters of the sample ID, e.g. <code>TCGA-2F-A9KO</code>) still had more than one sample, the primary tumour sample was kept.</li>
+<li><strong>Removed samples.</strong> Solid tissue normal (<code>11</code>), recurrent tumour (<code>02</code>), additional new primary (<code>05</code>), additional metastatic (<code>07</code>) and metastatic samples (<code>06</code>) outside TCGA_SKCM. Patients without a primary tumour sample in the <code>HiSeqV2</code> dataset are therefore not included (e.g. 15 patients in TCGA_COAD with only a normal tissue sample).</li>
+<li><strong>Removed genes.</strong> The 29 genes without a gene symbol (e.g. <code>?|26823</code>), leaving 20,501 genes.</li>
+</ul>
+<p>As normal tissue samples are not included, tumour vs. normal tissue comparisons are not possible with these cohorts. The survival, metadata and mutation files were not changed; samples are matched to the gene expression data by sample ID.</p>
+<details class="note">
+<summary>Number of samples per cohort (before → after curation)</summary>
+<table>
+<thead>
+<tr>
+<th>Cohort</th>
+<th>Before</th>
+<th>After</th>
+<th>Cohort</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCGA_ACC</td>
+<td>79</td>
+<td>79</td>
+<td>TCGA_LIHC</td>
+<td>423</td>
+<td>371</td>
+</tr>
+<tr>
+<td>TCGA_BLCA</td>
+<td>426</td>
+<td>407</td>
+<td>TCGA_LUAD</td>
+<td>576</td>
+<td>515</td>
+</tr>
+<tr>
+<td>TCGA_BRCA</td>
+<td>1218</td>
+<td>1097</td>
+<td>TCGA_LUNG</td>
+<td>1129</td>
+<td>1017</td>
+</tr>
+<tr>
+<td>TCGA_CESC</td>
+<td>308</td>
+<td>303</td>
+<td>TCGA_LUSC</td>
+<td>553</td>
+<td>502</td>
+</tr>
+<tr>
+<td>TCGA_CHOL</td>
+<td>45</td>
+<td>36</td>
+<td>TCGA_MESO</td>
+<td>87</td>
+<td>87</td>
+</tr>
+<tr>
+<td>TCGA_COAD</td>
+<td>329</td>
+<td>286</td>
+<td>TCGA_PAAD</td>
+<td>183</td>
+<td>178</td>
+</tr>
+<tr>
+<td>TCGA_COADREAD</td>
+<td>434</td>
+<td>380</td>
+<td>TCGA_PCPG</td>
+<td>187</td>
+<td>179</td>
+</tr>
+<tr>
+<td>TCGA_DLBC</td>
+<td>48</td>
+<td>48</td>
+<td>TCGA_PRAD</td>
+<td>550</td>
+<td>497</td>
+</tr>
+<tr>
+<td>TCGA_ESCA</td>
+<td>196</td>
+<td>184</td>
+<td>TCGA_READ</td>
+<td>105</td>
+<td>94</td>
+</tr>
+<tr>
+<td>TCGA_GBM</td>
+<td>172</td>
+<td>154</td>
+<td>TCGA_SARC</td>
+<td>265</td>
+<td>259</td>
+</tr>
+<tr>
+<td>TCGA_GBMLGG</td>
+<td>702</td>
+<td>670</td>
+<td>TCGA_SKCM</td>
+<td>474</td>
+<td>470</td>
+</tr>
+<tr>
+<td>TCGA_HNSC</td>
+<td>566</td>
+<td>520</td>
+<td>TCGA_TGCT</td>
+<td>156</td>
+<td>150</td>
+</tr>
+<tr>
+<td>TCGA_KICH</td>
+<td>91</td>
+<td>66</td>
+<td>TCGA_THCA</td>
+<td>572</td>
+<td>505</td>
+</tr>
+<tr>
+<td>TCGA_KIRC</td>
+<td>606</td>
+<td>533</td>
+<td>TCGA_THYM</td>
+<td>122</td>
+<td>120</td>
+</tr>
+<tr>
+<td>TCGA_KIRP</td>
+<td>323</td>
+<td>290</td>
+<td>TCGA_UCEC</td>
+<td>201</td>
+<td>176</td>
+</tr>
+<tr>
+<td>TCGA_LAML</td>
+<td>173</td>
+<td>173</td>
+<td>TCGA_UCS</td>
+<td>57</td>
+<td>57</td>
+</tr>
+<tr>
+<td>TCGA_LGG</td>
+<td>530</td>
+<td>516</td>
+<td>TCGA_UVM</td>
+<td>80</td>
+<td>80</td>
+</tr>
+</tbody>
+</table>
+</details>
 <details class="note">
 <summary>Download commands (for full reproducibility)</summary>
 <p>These are the exact commands used to assemble this dataset collection, provided so it can be independently verified, updated, or reproduced.</p>
@@ -1688,6 +1848,18 @@ wget<span class="w"> </span>https://gdc-hub.s3.us-east-1.amazonaws.com/download/
 </code></pre></div>
 <p><strong>Sample ID reformatting</strong> applied to <code>mutations.tsv</code> in 29 of the 31 cohorts (<code>TCGA_ACC</code> and <code>TCGA_LUAD</code> already used the matching 15-character format and were left unchanged) — the last character of every value in the <code>sample</code> column was removed:</p>
 <div class="highlight"><pre><span></span><code>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span>-v<span class="w"> </span><span class="nv">OFS</span><span class="o">=</span><span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;NR==1{print; next} {$1=substr($1,1,length($1)-1); print}&#39;</span><span class="w"> </span>mutations.tsv<span class="w"> </span>&gt;<span class="w"> </span>mutations_tmp.tsv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mv<span class="w"> </span>mutations_tmp.tsv<span class="w"> </span>mutations.tsv
+</code></pre></div>
+<p><strong>Gene expression curation</strong> applied to <code>Gene_expression_RSEM.tsv</code> in all 34 cohorts (R, with the <code>data.table</code> package; values are read and written as text, so they are not changed):</p>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">data.table</span><span class="p">)</span>
+<span class="n">ex</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">fread</span><span class="p">(</span><span class="s">&#39;Gene_expression_RSEM.tsv&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">colClasses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;character&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">check.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span>
+<span class="n">kept_types</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;01&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;03&#39;</span><span class="p">)</span><span class="w">                              </span><span class="c1"># c(&#39;01&#39;, &#39;03&#39;, &#39;06&#39;) for TCGA_SKCM</span>
+<span class="n">samples</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">colnames</span><span class="p">(</span><span class="n">ex</span><span class="p">)[</span><span class="m">-1</span><span class="p">]</span>
+<span class="n">candidates</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">samples</span><span class="p">[</span><span class="nf">substr</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="w"> </span><span class="m">14</span><span class="p">,</span><span class="w"> </span><span class="m">15</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">kept_types</span><span class="p">]</span>
+<span class="n">candidates</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">candidates</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="nf">match</span><span class="p">(</span><span class="nf">substr</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="w"> </span><span class="m">14</span><span class="p">,</span><span class="w"> </span><span class="m">15</span><span class="p">),</span><span class="w"> </span><span class="n">kept_types</span><span class="p">))]</span>
+<span class="n">chosen</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">candidates</span><span class="p">[</span><span class="o">!</span><span class="nf">duplicated</span><span class="p">(</span><span class="nf">substr</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">12</span><span class="p">))]</span><span class="w">  </span><span class="c1"># one sample per patient</span>
+<span class="n">kept</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">samples</span><span class="p">[</span><span class="n">samples</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">chosen</span><span class="p">]</span><span class="w">                         </span><span class="c1"># keep the original column order</span>
+<span class="n">ex</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ex</span><span class="p">[</span><span class="o">!</span><span class="nf">startsWith</span><span class="p">(</span><span class="n">ex</span><span class="p">[[</span><span class="m">1</span><span class="p">]],</span><span class="w"> </span><span class="s">&#39;?|&#39;</span><span class="p">),</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="nf">colnames</span><span class="p">(</span><span class="n">ex</span><span class="p">)[</span><span class="m">1</span><span class="p">],</span><span class="w"> </span><span class="n">kept</span><span class="p">),</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">]</span>
+<span class="nf">fwrite</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Gene_expression_RSEM.tsv&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;\t&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span>
 </code></pre></div>
 </details>
 </details>
