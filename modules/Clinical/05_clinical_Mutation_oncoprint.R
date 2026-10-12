@@ -198,10 +198,12 @@ mutation_oncoprint_server <- function(input, output, session,
                     #
 
                     # plot
-                        df_mut_ex <- data.frame('Expression'=as.numeric(mut_ex), 'Group'='Mutation')
-                        df_wt_ex <- data.frame('Expression'=as.numeric(wt_ex), 'Group'='Wild.type')
+                        df_mut_ex <- data.frame('Expression'=as.numeric(mut_ex), 'Group'='Mutant')
+                        df_wt_ex <- data.frame('Expression'=as.numeric(wt_ex), 'Group'='WT')
                         df_out <- rbind(df_mut_ex, df_wt_ex)
-                        df_out$Group <- factor(df_out$Group, levels=c('Mutation','Wild.type'))
+                        df_out$Group <- factor(df_out$Group, levels=c('Mutant','WT')) # Mutant on the left
+                        n_each_group <- c('Mutant'=length(df_mut_sample), 'WT'=length(df_wt_sample))
+                        colour_values <- c('Mutant' = input$Clinical_Mutation_Gene_expression_col_mut, 'WT' = input$Clinical_Mutation_Gene_expression_col_wt)
 
                         p <- ggplot(df_out, aes(x=Group, y=Expression, fill=Group))
                         if(input$Clinical_Mutation_Gene_expression_plot_type == 'A'){ # boxplot
@@ -215,24 +217,20 @@ mutation_oncoprint_server <- function(input, output, session,
                             p <- p + geom_violin(trim = FALSE, size=0.2)
                             p <- p + geom_jitter(width=0.1, height=0, size=input$Clinical_Mutation_Gene_expression_dot.size)
                         }
-                            p <- p + scale_fill_manual(name= NULL,
-                            labels = c(paste0(gene_selected_from_frquency_table, '-Mutation (', length(df_mut_sample), ')'), paste0(gene_selected_from_frquency_table, '-Wild.type (', length(df_wt_sample), ')')),
-                            values = c('Mutation' = input$Clinical_Mutation_Gene_expression_col_mut, 'Wild.type' = input$Clinical_Mutation_Gene_expression_col_wt )
-                        )
                         if(input$Clinical_Mutation_Gene_expression_plot_type == 'C'){
-                        p <- p + scale_color_manual(name= NULL,
-                            labels = c(paste0(gene_selected_from_frquency_table, '-Mutation (', length(df_mut_sample), ')'), paste0(gene_selected_from_frquency_table, '-Wild.type (', length(df_wt_sample), ')')),
-                            values = c('Mutation' = input$Clinical_Mutation_Gene_expression_col_mut, 'Wild.type' = input$Clinical_Mutation_Gene_expression_col_wt )
-                        )
+                            p <- p + scale_color_manual(values = colour_values)
+                        }else{
+                            p <- p + scale_fill_manual(values = colour_values)
                         }
-                        p <- p + theme(legend.position = "top", legend.box.margin = margin(t = -10, b = 0))
+                        # no legend: the group names and the number of samples are shown on the X axis
+                        p <- p + scale_x_discrete(labels = function(x) paste0(x, '\n(n=', n_each_group[x], ')'))
+                        p <- p + labs(x = paste0('Mutation status of ', gene_selected_from_frquency_table), y = paste0(gene_ex, ' expression'))
+                        p <- p + theme(legend.position = 'none')
                         p <- p + theme(axis.text = element_text(size = input$Clinical_Mutation_Gene_expression_XY_label.font.size))
                         p <- p + theme(axis.title = element_text(size = input$Clinical_Mutation_Gene_expression_XY_title.font.size))
                         p <- p + ggtitle(gene_ex) + theme(plot.title = element_text(size = input$Clinical_Mutation_Gene_expression_title.font.size))
                         p <- p + theme(panel.grid.major = element_line(linewidth = 0.1), panel.grid.minor = element_line(linewidth = 0.05))
                         p <- p + theme(axis.ticks = element_line(linewidth=0.1)) + theme(axis.ticks.length = unit(0.5, "pt"))
-                        p <- p + theme(legend.key.size = unit(1.5, "mm"))
-                        p <- p + theme(legend.text = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size), legend.title = element_text(size=input$Clinical_Mutation_Gene_expression_legend.font.size))
                         if(input$Clinical_Mutation_Gene_expression_white_background){
                             p <- p + theme(panel.grid = element_blank(), panel.border=element_blank(), axis.line = element_line(color='black', linewidth=0.1))
                             p <- p + theme(panel.background = element_rect(fill="white", linewidth=0))

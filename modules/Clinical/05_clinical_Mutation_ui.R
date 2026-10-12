@@ -203,7 +203,6 @@ clinical_Mutation_ui <- function(ns){
                                             column(6, sliderInput(ns('Clinical_Mutation_Gene_expression_dot.size'), 'Dot size (swarm plot)', min=0.01, max=3, value=0.1, step=0.01)),
                                             column(6, sliderInput(ns('Clinical_Mutation_Gene_expression_XY_label.font.size'), 'X/Y labels size', min=0.1, max=10, value=4, step=0.1)),
                                             column(6, sliderInput(ns('Clinical_Mutation_Gene_expression_XY_title.font.size'), 'X/Y title size', min=0.1, max=10, value=4, step=0.1)),
-                                            column(6, sliderInput(ns('Clinical_Mutation_Gene_expression_legend.font.size'), 'Legend font size', min=0.1, max=10, value=4, step=0.1)),
                                             column(6, sliderInput(ns('Clinical_Mutation_Gene_expression_title.font.size'), 'Graph title font size', min=0.1, max=10, value=4, step=0.1))
                                         ),
                                         fluidRow(
