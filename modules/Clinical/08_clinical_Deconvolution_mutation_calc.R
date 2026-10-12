@@ -5,8 +5,9 @@
 #          Mutant / WT groups for each input gene, and compares the estimated
 #          abundance of the selected cell type between the two groups
 #          (Wilcoxon rank-sum test).
-#          Samples used = samples present in both the deconvolution result and
-#          the mutation data.
+#          Samples used = all samples in the deconvolution result. A sample
+#          without any reported mutation in a gene is treated as WT (same as
+#          the Mutation Analysis module).
 # Edit this file when: changing the Mutant/WT definition, the statistical test,
 #                      or the gene / cell-type input logic for this tab.
 # =============================================================================
@@ -153,9 +154,11 @@ deconvolution_mutation_calc_server <- function(input, output, session, deconv_ta
                     genes <- Mutation_input_gene()
                 #
 
-                # samples present in both the deconvolution result and the mutation data
-                    samples_used <- intersect(colnames(deconv_table), unique(df_mut$sample))
-                    if(length(samples_used) == 0){
+                # all the samples in the deconvolution result. Samples without a reported mutation in a gene are WT.
+                    samples_used <- colnames(deconv_table)
+
+                    # when no sample name in the mutation data matches the deconvolution result, the sample names are probably in a different format
+                    if(length(intersect(samples_used, unique(df_mut$sample))) == 0){
                         show_alert(title='Error.', text='No sample is shared between the deconvolution result and the mutation data. Please check the sample names.', type='error')
                         Deconvolution_Mutation_status0("No sample is shared between the deconvolution result and the mutation data. \nPlease check if the sample names in the mutation data match those in the gene expression data.")
                         isCalculating_Deconvolution_mutation(FALSE)
@@ -199,7 +202,7 @@ deconvolution_mutation_calc_server <- function(input, output, session, deconv_ta
 
                 # when none of the genes have mutated (or WT) samples, show the message and do not return the table
                     if(nrow(df_test) == 0){
-                        message <- paste0("None of the input genes could be compared, because there is no mutated sample for these genes among the ", length(samples_used), " sample(s) shared between the deconvolution result and the mutation data. \nThis could be because the gene names you inputted are wrong or no mutation was reported in the samples for these genes.")
+                        message <- paste0("None of the input genes could be compared, because there is no mutated sample for these genes among the ", length(samples_used), " sample(s) in the deconvolution result. \nThis could be because the gene names you inputted are wrong or no mutation was reported in the samples for these genes.")
                         if(length(no_wt_genes) > 0){
                             message <- paste0(message, "\n\nThere is no wild type sample for the following gene(s): ", paste(no_wt_genes, collapse=', '), ".")
                         }
@@ -229,7 +232,7 @@ deconvolution_mutation_calc_server <- function(input, output, session, deconv_ta
                 # status
                     message <- paste0(
                         "The abundance of ", cell_type, " was compared between mutant and wild type (WT) samples for ", nrow(df_test), " gene(s). \n",
-                        "The ", length(samples_used), " sample(s) present in both the deconvolution result and the mutation data were used. \n",
+                        "All the ", length(samples_used), " sample(s) in the deconvolution result were used. Samples without a reported mutation in a gene are treated as WT. \n",
                         "The test used is the Wilcoxon rank-sum test."
                     )
                     if(length(no_mut_genes) + length(no_wt_genes) > 0){

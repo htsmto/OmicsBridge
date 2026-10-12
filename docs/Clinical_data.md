@@ -296,7 +296,7 @@ This feature allows you to analyse the relationship between specific gene expres
 
 ### <u>**7.3. Association between mutations and cell type abundance**</u>
 
-This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. Only the samples present in both the deconvolution result and the mutation data are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample.
+This feature allows you to compare the abundance of a specific cell type between samples with and without mutations (wild type, WT) in each gene. All samples in the deconvolution result are used. A sample is classified as "Mutant" for a gene when the mutation data contains any record of that gene for the sample; otherwise, it is classified as "WT" (as in Mutation analysis).
 
 1. Enter the gene names line by line (or choose a gene set)
 2. Select a cell type to investigate

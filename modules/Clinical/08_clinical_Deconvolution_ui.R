@@ -210,7 +210,7 @@ clinical_Deconvolution_ui <- function(ns){
                         column(4,
                             box(width=12, title='Inputs and Settings', status='info', collapsible=TRUE,
                                 fluidRow(
-                                    column(12, helpText("Here, you can compare the abundance of a specific cell type between the samples with and without mutations (WT) in each gene. The samples present in both the deconvolution result and the mutation data are used.")),
+                                    column(12, helpText("Here, you can compare the abundance of a specific cell type between the samples with and without mutations (WT) in each gene. Samples without a reported mutation in the gene are treated as WT.")),
                                     column(12, htmlOutput(ns('Deconvolution_Mutation_genes'))),
                                     column(12, materialSwitch(ns('Deconvolution_Mutation_from_custom_geneset'), 'Use genes from a custom gene set', value=FALSE, status='info') ),
                                     column(12, htmlOutput(ns('Deconvolution_Mutation_from_custom_geneset_select'))),
