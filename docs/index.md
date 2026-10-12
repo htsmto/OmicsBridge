@@ -26,7 +26,7 @@ git clone https://github.com/htsmto/OmicsBridge.git
 cd OmicsBridge
 ```
 
-Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zenodo](https://doi.org/10.5281/zenodo.22257376), uncompress and place the folders in the `OmicsBridge` directory:
+Next, download the necessary data (`00_Clinical_dataset.tar.gz` and `00_Expression_data_all.tar.gz`) from [Zenodo](https://doi.org/10.5281/zenodo.23318320), uncompress and place the folders in the `OmicsBridge` directory:
 
 ```bash
 tar -xzvf 00_Clinical_dataset.tar.gz
