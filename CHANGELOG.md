@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.3.2 (November 2026)
 - Added: KEGG analysis (Count & Comparison Data Overview > ORA) can run offline using KEGG data downloaded by the user into `data/` (see the new Wiki page "KEGG Data for Offline Use"). Without it, the analysis still runs online, and a message tells the user that it is not available offline.
 - Added: IGV (Epigenome Visualisation) shows hg38 and hg19 offline, using the cytobands and gene models in `data/` (no DNA sequence in this mode). Gene names are searched locally. mm10 and mm39 are still loaded from igv.org.
 - Fixed: the KEGG analysis no longer stops the session when the KEGG server cannot be reached; an error message is shown instead.

@@ -13,8 +13,8 @@ If you want to deploy OmicsBridge in your local environment, please follow the i
 
 ## <u>**Version**</u>
 
-Current version: v1.3.1 <br>
-Release date: October 2026 <br>
+Current version: v1.3.2 <br>
+Release date: November 2026 <br>
 See [Changelog](Changelog.md) for the release history.
 
 ## <u>**Installation**</u>

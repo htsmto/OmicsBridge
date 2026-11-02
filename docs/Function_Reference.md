@@ -5,7 +5,7 @@ hide:
 
 # Function Reference (Supplementary Table)
 
-This page lists every function/output currently available in OmicsBridge (v1.3.1), grouped by section and sub-section, with its output type, purpose, underlying method, and any usage notes. It was prepared as a supplementary table in response to reviewer feedback. Rows are colour-coded by **Section**.
+This page lists every function/output currently available in OmicsBridge (v1.3.2), grouped by section and sub-section, with its output type, purpose, underlying method, and any usage notes. It was prepared as a supplementary table in response to reviewer feedback. Rows are colour-coded by **Section**.
 
 [Download the original table (.xlsx) &rarr;](downloads/OmicsBridge_Function_Reference.xlsx){ .md-button }
 
