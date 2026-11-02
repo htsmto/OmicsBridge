@@ -34,6 +34,8 @@ tar -xzvf 00_Expression_data_all.tar.gz
 ```
 > Note: You cound skip downloading `00_Expression_data_all.tar.gz`, as it only contains demo data.
 
+> **Optional (offline KEGG analysis):** KEGG pathway data are not bundled because of KEGG's licence. Without them, the KEGG analysis downloads the data online each time and cannot be used offline. To use it offline, download the data once into `data/` by following [KEGG Data for Offline Use](https://htsmto.github.io/OmicsBridge/KEGG_data/).
+
 the final file structure should be:
 ```
 .

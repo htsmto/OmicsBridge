@@ -66,6 +66,11 @@ In this section, due to memory limitations, only bed files can be viewed. For vi
 
 1. **Choose a genome**<br>
 Currently, human (hg19 and hg38) and mouse genome (mm10 and mm39) are available.
+
+    !!! note "Offline use"
+        hg38 and hg19 are built from the reference files in the `data` folder (cytobands and, for hg38, RefSeq gene models), so they work without an internet connection. In this mode the DNA sequence is not shown, and hg19 has no gene track. Gene names can be searched in the locus box (hg38).
+        mm10 and mm39 are loaded from igv.org and need an internet connection.
+
 2. **Select a dataset**<br>
 Choose a dataset to view in IGV from the drop-down menu. Use the "Data from" and "Experiment" dropdowns (behind the filter icon) to narrow the list, and click "Reload your datasets list" to refresh it with any datasets uploaded or edited since the page was loaded. Once selected, dataset details will appear below.
 3. **Click the 'View in IGV' button**<br>
@@ -129,7 +134,7 @@ Click the "Find enhancers/promoters" button to begin the calculation. The result
     Note that only the Correlation result table has its own "Download this table" button; the RNAseq and ATACseq data tables are for reference and plotting only.
 
 7. **Show the potential enhancer/promoter list**<br>
-Below the Results box, select a gene (or "All") from the drop-down menu and set a P-value threshold. The box below lists the peak IDs correlated with the selected gene(s) below that threshold, ranked by correlation strength — these are the potential enhancers/promoters.
+Below the Results box, select a gene (or "All") from the drop-down menu and set a P-value threshold. The box below lists the peak IDs correlated with the selected gene(s) below that threshold, ranked by correlation strength — these are the potential enhancers/promoters. Each peak is listed only once: with "All", a peak correlated with several genes is shown at the position of its highest correlation.
 
 !!! note "Gene coordinates"
     Gene positions used to find nearby peaks are looked up from a fixed GRCh38 (hg38) gene annotation, regardless of the genome build your own RNAseq/ATACseq data was aligned to.

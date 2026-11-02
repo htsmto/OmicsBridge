@@ -211,6 +211,9 @@ Three downstream analysis methods are available, each in its own tab below.
     2. Select the species and database. <br>
     Currently, GO-BP, GO-MF, GO-CC, and KEGG analyses are available for both humans and mice.
 
+        !!! note "KEGG offline"
+            KEGG analysis needs an internet connection unless the KEGG data has been downloaded into the `data` folder. See [KEGG Data for Offline Use](KEGG_data.md).
+
     3. Click "Start GO/KEGG Analysis" to begin. <br>
         This takes about 1-3 minutes, depending on the size of the input and the chosen ontology.
 

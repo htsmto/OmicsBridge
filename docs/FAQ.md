@@ -14,7 +14,12 @@
     Data should be uploaded as already-processed files in .csv, .tsv, .txt, or .rds format, matching the expected structure for the relevant Data Class (e.g. expression matrix, clinical metadata). For epigenome data uploaded as BAM files, the corresponding .bai index file must be uploaded alongside it. Note that large files (e.g. BAM) may take longer to upload or fail depending on your computer's specifications and the platform's file size limit.
 
 ??? note "Do I need an internet connection to use OmicsBridge?"
-    No. OmicsBridge is designed mainly for local usage. Once installed, it works fully offline. This means you don't need to worry about data privacy, since your data never leaves your machine.
+    No. OmicsBridge is designed mainly for local usage. Once installed, it works offline. This means you don't need to worry about data privacy, since your data never leaves your machine.
+
+    There are two exceptions:
+
+    - **KEGG analysis** needs an internet connection unless you have downloaded the KEGG data into the `data` folder. See [KEGG Data for Offline Use](KEGG_data.md).
+    - **IGV** (Epigenome Visualisation) works offline for hg38 and hg19, using the reference files in the `data` folder; DNA sequence is not shown in this mode. The mouse genomes (mm10, mm39) are loaded from the internet.
 
 ??? note "What operating systems are supported?"
     OmicsBridge's local version runs via Docker, so it works on Windows, macOS, and Linux — anywhere Docker Desktop (or Docker Engine) can be installed. No OS-specific setup is required beyond having Docker running.
