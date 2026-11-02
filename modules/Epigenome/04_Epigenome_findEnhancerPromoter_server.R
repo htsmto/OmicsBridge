@@ -755,7 +755,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
     if (is.null(Enhancer_Find_table_result())) {
       selectInput(session$ns('Enhancer_Find_gene_selection'), 'Select a gene', c('All'))
     } else {
-      genes <- c('All', Enhancer_Find_table_result()$Gene)
+      genes <- c('All', unique(Enhancer_Find_table_result()$Gene))
       selectInput(session$ns('Enhancer_Find_gene_selection'), 'Select a gene', genes)
     }
   })
@@ -772,7 +772,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
         return("No peaks found with the selected threshold.")
       }
       tmp <- tmp[order(tmp$Correlation, decreasing = TRUE), ]
-      return(paste(tmp$Peak, collapse = "\n"))
+      return(paste(unique(tmp$Peak), collapse = "\n"))
     } else {
       selected_gene <- input$Enhancer_Find_gene_selection
       if (selected_gene %in% Enhancer_Find_table_result()$Gene) {
@@ -781,7 +781,7 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
         if (length(selected_peaks) == 0) {
           return("No peaks found with the selected threshold.")
         }
-        return(paste(selected_peaks, collapse = "\n"))
+        return(paste(unique(selected_peaks), collapse = "\n"))
       } else {
         return("Please select a gene.")
       }
