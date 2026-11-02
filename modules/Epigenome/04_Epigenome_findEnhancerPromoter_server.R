@@ -776,12 +776,12 @@ epigenome_findEnhancerPromoter_server <- function(input, output, session, Datase
     } else {
       selected_gene <- input$Enhancer_Find_gene_selection
       if (selected_gene %in% Enhancer_Find_table_result()$Gene) {
-        selected_peaks <- Enhancer_Find_table_result()[Enhancer_Find_table_result()$Gene == selected_gene, ]$Peak
-        selected_peaks <- selected_peaks[Enhancer_Find_table_result()[Enhancer_Find_table_result()$Gene == selected_gene, ]$P.value < p_thr]
-        if (length(selected_peaks) == 0) {
+        tmp <- Enhancer_Find_table_result()[Enhancer_Find_table_result()$Gene == selected_gene & Enhancer_Find_table_result()$P.value < p_thr, ]
+        if (dim(tmp)[1] == 0) {
           return("No peaks found with the selected threshold.")
         }
-        return(paste(unique(selected_peaks), collapse = "\n"))
+        tmp <- tmp[order(tmp$Correlation, decreasing = TRUE), ]
+        return(paste(unique(tmp$Peak), collapse = "\n"))
       } else {
         return("Please select a gene.")
       }
