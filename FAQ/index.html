@@ -240,6 +240,28 @@
   
   
     <li class="md-nav__item">
+      <a href="../KEGG_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KEGG Data for Offline Use
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Database/" class="md-nav__link">
         
   
@@ -582,7 +604,12 @@
 </details>
 <details class="note">
 <summary>Do I need an internet connection to use OmicsBridge?</summary>
-<p>No. OmicsBridge is designed mainly for local usage. Once installed, it works fully offline. This means you don't need to worry about data privacy, since your data never leaves your machine.</p>
+<p>No. OmicsBridge is designed mainly for local usage. Once installed, it works offline. This means you don't need to worry about data privacy, since your data never leaves your machine.</p>
+<p>There are two exceptions:</p>
+<ul>
+<li><strong>KEGG analysis</strong> needs an internet connection unless you have downloaded the KEGG data into the <code>data</code> folder. See <a href="../KEGG_data/">KEGG Data for Offline Use</a>.</li>
+<li><strong>IGV</strong> (Epigenome Visualisation) works offline for hg38 and hg19, using the reference files in the <code>data</code> folder; DNA sequence is not shown in this mode. The mouse genomes (mm10, mm39) are loaded from the internet.</li>
+</ul>
 </details>
 <details class="note">
 <summary>What operating systems are supported?</summary>

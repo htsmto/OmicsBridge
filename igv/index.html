@@ -240,6 +240,28 @@
   
   
     <li class="md-nav__item">
+      <a href="../KEGG_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KEGG Data for Offline Use
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Database/" class="md-nav__link">
         
   
@@ -768,10 +790,19 @@ Select either hg38 or hg19 genome, then specify the position to visualise using 
 <p>The IGV (Integrated Genome Viewer) section embeds a genome browser within the interface, allowing users to view data from bed files directly in the browser. <a href="https://igv.org/">IGV</a> is a widely used tool for visualising genomic data. It supports a variety of file formats, including BAM, BED, and BigWig, and provides an interactive platform for exploring genomic alignments, annotations, and datasets. <br>
 In this section, due to memory limitations, only bed files can be viewed. For visualisation of bigwig or bam files, please refer to the 'Genome visualisation' section.</p>
 <ol>
-<li><strong>Choose a genome</strong><br>
-Currently, human (hg19 and hg38) and mouse genome (mm10 and mm39) are available.</li>
-<li><strong>Select a dataset</strong><br>
-Choose a dataset to view in IGV from the drop-down menu. Use the "Data from" and "Experiment" dropdowns (behind the filter icon) to narrow the list, and click "Reload your datasets list" to refresh it with any datasets uploaded or edited since the page was loaded. Once selected, dataset details will appear below.</li>
+<li>
+<p><strong>Choose a genome</strong><br>
+Currently, human (hg19 and hg38) and mouse genome (mm10 and mm39) are available.</p>
+<div class="admonition note">
+<p class="admonition-title">Offline use</p>
+<p>hg38 and hg19 are built from the reference files in the <code>data</code> folder (cytobands and, for hg38, RefSeq gene models), so they work without an internet connection. In this mode the DNA sequence is not shown, and hg19 has no gene track. Gene names can be searched in the locus box (hg38).
+mm10 and mm39 are loaded from igv.org and need an internet connection.</p>
+</div>
+</li>
+<li>
+<p><strong>Select a dataset</strong><br>
+Choose a dataset to view in IGV from the drop-down menu. Use the "Data from" and "Experiment" dropdowns (behind the filter icon) to narrow the list, and click "Reload your datasets list" to refresh it with any datasets uploaded or edited since the page was loaded. Once selected, dataset details will appear below.</p>
+</li>
 <li><strong>Click the 'View in IGV' button</strong><br>
 The selected dataset will be displayed in the IGV section on the right. Like the original IGV, you can specify chromosome positions, change color settings, and more. For detailed instructions, please refer to the original IGV documentation.</li>
 </ol>
@@ -848,7 +879,7 @@ Click the "Find enhancers/promoters" button to begin the calculation. The result
 </li>
 <li>
 <p><strong>Show the potential enhancer/promoter list</strong><br>
-Below the Results box, select a gene (or "All") from the drop-down menu and set a P-value threshold. The box below lists the peak IDs correlated with the selected gene(s) below that threshold, ranked by correlation strength — these are the potential enhancers/promoters.</p>
+Below the Results box, select a gene (or "All") from the drop-down menu and set a P-value threshold. The box below lists the peak IDs correlated with the selected gene(s) below that threshold, ranked by correlation strength — these are the potential enhancers/promoters. Each peak is listed only once: with "All", a peak correlated with several genes is shown at the position of its highest correlation.</p>
 </li>
 </ol>
 <div class="admonition note">
