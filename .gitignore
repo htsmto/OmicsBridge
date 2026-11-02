@@ -7,5 +7,9 @@ videos/
 site/
 .DS_Store
 data/gencode.v41.primary_assembly.annotation.sqlite
+# KEGG data must not be redistributed (KEGG licence); each user downloads it (docs/KEGG_data.md)
+data/KEGG_*.rds
+# IGV offline genome files, generated at runtime from data/cytoBand_*.txt and data/customgeneModels.rds
+data/igv/
 .omicsbridge_packages_installed
 docs/img/install_guide/

@@ -7,6 +7,33 @@
 #                       background gene set, p-value cutoff, or input modes.
 # =============================================================================
 
+# KEGG data downloaded by the user (see docs/KEGG_data.md). Not bundled because of the KEGG licence.
+kegg_local_file <- function(organism){
+    file.path('data', paste0('KEGG_', organism, '.rds'))
+}
+
+# KEGG ORA: uses the local KEGG data if present, otherwise enrichKEGG() (online).
+# Returns list(result = enrichResult or NULL, source = text for the status message).
+run_kegg_ora <- function(gene, organism){
+    if(file.exists(kegg_local_file(organism))){
+        kegg <- readRDS(kegg_local_file(organism))
+        res <- enricher(gene = gene, TERM2GENE = kegg$KEGGPATHID2EXTID, TERM2NAME = kegg$KEGGPATHID2NAME, pvalueCutoff = 1, qvalueCutoff = 1)
+        if(!is.null(res)){
+            # make the result the same as enrichKEGG()
+            res@ontology <- 'KEGG'
+            res@keytype <- 'kegg'
+            res@organism <- organism
+            if(!is.null(kegg$category)){
+                idx <- match(sub('^\\D+', '', res@result$ID), kegg$category$id)
+                res@result <- cbind(kegg$category[idx, c('category', 'subcategory')], res@result)
+            }
+        }
+        return(list(result = res, source = paste0('local (downloaded ', kegg$downloaded, ')')))
+    }
+    res <- enrichKEGG(gene = gene, organism = organism, pvalueCutoff = 1, qvalueCutoff = 1)
+    return(list(result = res, source = "online (not available offline; see 'KEGG Data for Offline Use' in the Wiki)"))
+}
+
 go_calc_server <- function(input, output, session, filtered_ex, selected_ex) {
     ## Input and Settings ----
         # Input
@@ -184,52 +211,53 @@ go_calc_server <- function(input, output, session, filtered_ex, selected_ex) {
                                 return(NULL)
                             }
                         }else if(input$GO_database == 'KEGG'){
-                            if(input$GO_species == 'Human'){
-                                kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'hsa', pvalueCutoff = 1, qvalueCutoff = 1)
-                                if(is.null(kk_ORA)){
-                                    show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
-                                    GO_go_status('No significant GO/KEGG term was detected. Please change (or increase) the input.')
-                                    Species(NULL)
-                                    GO_Database(NULL)
-                                    Ontology(NULL)
-                                    goResult(NULL)
-                                    isCalculating(FALSE)
-                                    return(NULL)
+                            kegg_organism <- ifelse(input$GO_species == 'Human', 'hsa', 'mmu')
+                            kegg_OrgDb <- ifelse(input$GO_species == 'Human', 'org.Hs.eg.db', 'org.Mm.eg.db')
+
+                            # without local KEGG data (docs/KEGG_data.md), the KEGG data is downloaded online
+                            kegg_local <- file.exists(kegg_local_file(kegg_organism))
+                            if(!kegg_local){
+                                show_alert(title='KEGG data not found locally.', text=paste0("KEGG data (", kegg_local_file(kegg_organism), ") was not found.\nThe KEGG analysis will download the KEGG data online, so it is not available offline.\nTo use it offline, see 'KEGG Data for Offline Use' in the Wiki."), type='warning')
+                            }
+
+                            kk_ORA <- tryCatch(
+                                run_kegg_ora(geneList_ENTREZID, kegg_organism),
+                                error=function(e){ e }
+                            )
+                            if(inherits(kk_ORA, 'error')){
+                                if(kegg_local){
+                                    error_text <- paste0("Failed to run the KEGG analysis with ", kegg_local_file(kegg_organism), ".\nPlease download the KEGG data again (see 'KEGG Data for Offline Use' in the Wiki).\n", conditionMessage(kk_ORA))
                                 }else{
-                                    GO_go_status(NULL)
-                                    kk_ORA <- setReadable(kk_ORA, 'org.Hs.eg.db', 'ENTREZID')
-                                    goResult(kk_ORA)
-                                    isCalculating(FALSE)
-                                    Species(input$GO_species)
-                                    GO_Database(input$GO_database)
-                                    Ontology(NULL)
-                                    message <- paste0("Species: ", input$GO_species, "\nDatabase: ", input$GO_database, "\nNumber of genes used for the analysis: ", length(geneList_ENTREZID))
-                                    GO_go_status(message)
-                                    return(NULL)
+                                    error_text <- paste0("Could not download the KEGG data. You may be offline.\nTo use the KEGG analysis offline, see 'KEGG Data for Offline Use' in the Wiki.\n", conditionMessage(kk_ORA))
                                 }
-                            }else if(input$GO_species == 'Mouse'){
-                                kk_ORA <- enrichKEGG(gene = geneList_ENTREZID, organism = 'mmu', pvalueCutoff = 1, qvalueCutoff = 1)
-                                if(is.null(kk_ORA)){
-                                    show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
-                                    GO_go_status('No significant GO/KEGG term was detected. Please change (or increase) the input.')
-                                    Species(NULL)
-                                    GO_Database(NULL)
-                                    Ontology(NULL)
-                                    goResult(NULL)
-                                    isCalculating(FALSE)
-                                    return(NULL)
-                                }else{
-                                    GO_go_status(NULL)
-                                    kk_ORA <- setReadable(kk_ORA, 'org.Mm.eg.db', 'ENTREZID')
-                                    goResult(kk_ORA)
-                                    isCalculating(FALSE)
-                                    Species(input$GO_species)
-                                    GO_Database(input$GO_database)
-                                    Ontology(NULL)
-                                    message <- paste0("Species: ", input$GO_species, "\nDatabase: ", input$GO_database, "\nNumber of genes used for the analysis: ", length(geneList_ENTREZID))
-                                    GO_go_status(message)
-                                    return(NULL)
-                                }
+                                show_alert(title='Error.', text=error_text, type='error')
+                                GO_go_status(error_text)
+                                Species(NULL)
+                                GO_Database(NULL)
+                                Ontology(NULL)
+                                goResult(NULL)
+                                isCalculating(FALSE)
+                                return(NULL)
+                            }
+                            if(is.null(kk_ORA$result)){
+                                show_alert(title='Error.',text='Please change (or increase) the input.', type='error')
+                                GO_go_status('No significant GO/KEGG term was detected. Please change (or increase) the input.')
+                                Species(NULL)
+                                GO_Database(NULL)
+                                Ontology(NULL)
+                                goResult(NULL)
+                                isCalculating(FALSE)
+                                return(NULL)
+                            }else{
+                                GO_go_status(NULL)
+                                goResult(setReadable(kk_ORA$result, kegg_OrgDb, 'ENTREZID'))
+                                isCalculating(FALSE)
+                                Species(input$GO_species)
+                                GO_Database(input$GO_database)
+                                Ontology(NULL)
+                                message <- paste0("Species: ", input$GO_species, "\nDatabase: ", input$GO_database, "\nNumber of genes used for the analysis: ", length(geneList_ENTREZID), "\nKEGG data: ", kk_ORA$source)
+                                GO_go_status(message)
+                                return(NULL)
                             }
                         }else{
                             show_alert(title='Error.',text='Please select the database correctly..', type='error')
