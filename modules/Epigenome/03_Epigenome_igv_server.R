@@ -100,7 +100,8 @@ Epigenome_igv_server <- function(input, output, session, Dataset){
       
         # igv initiation
             output$igv <- renderIgvShiny({
-                options <- parseAndValidateGenomeSpec(genomeName=input$igv_gneome_selection)
+                # hg38/hg19 from local files in data/ (works offline), others from igv.org
+                options <- igv_genome_options(input$igv_gneome_selection)
                 igvShiny(options)  # Initialize IGV
             })
         #

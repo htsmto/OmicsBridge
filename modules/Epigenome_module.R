@@ -30,6 +30,7 @@ EpigenomeModuleServer <- function(id) {
   # --- [3-1] Source server files (deferred) ----------------------------------
   source("modules/Epigenome/01_Epigenome_profile_server.R",                   local = TRUE)
   source("modules/Epigenome/02_Epigenome_genomevisualisation_server.R",      local = TRUE)
+  source("modules/Epigenome/03_Epigenome_igv_offline_genome.R",              local = TRUE)
   source("modules/Epigenome/03_Epigenome_igv_server.R",                      local = TRUE)
   source("modules/Epigenome/04_Epigenome_findEnhancerPromoter_server.R",     local = TRUE)
   source("modules/Epigenome/05_Epigenome_motifScan_server.R",                local = TRUE)
